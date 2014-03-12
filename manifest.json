@@ -1,0 +1,33 @@
+{
+  "manifest_version": 2,
+  "name": "Link Hints",
+  "version": "1.0.0",
+  "description": "",
+  "author": "Jake Eaton",
+  "permissions": [
+    "<all_urls>",
+    "tabs"
+  ],
+  "background": {
+    "scripts": [
+      "background_scripts/main.js"
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+             "content_scripts/hints.js",
+             "content_scripts/keys.js",
+             "content_scripts/utils.js",
+             "content_scripts/command_bar.js",
+             "content_scripts/scroll.js"
+            ],
+      "css": [
+              "content_scripts/main.css"
+             ],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ]
+}

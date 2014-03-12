@@ -1,0 +1,41 @@
+#link_main {
+  font-family: "Sans";
+  font-size: 10pt;
+  position: absolute;
+  pointer-events: none;
+  width: 100%; left: 0;
+  height: 100%; top: 0;
+  z-index: 2147483647;
+}
+.link_hint {
+  background-color: #ffff00;
+  color: #000;
+  padding: 2px !important;
+  border-radius: 2px !important;
+  border: 1px solid #333;
+  box-shadow: 2px 2px 3px rgba(0,0,0,0.4) !important;
+  z-index: 9999 !important;
+  position: absolute !important;
+}
+#command_bar {
+  position: fixed;
+  /*z-index: 9999999999;*/
+  background-color: #1b1d1e;
+  color: #bbb;
+  font-family: monospace;
+  display: none;
+  bottom: 0;
+  padding-top: 3px;
+  left: 0;
+  width: 100%;
+  height: 20px;
+}
+#command_input {
+  width: 98%;
+  z-index: 1;
+  position: absolute;
+  background-color: red;
+  right: 0;
+  height: 100%;
+  bottom: 0;
+}
