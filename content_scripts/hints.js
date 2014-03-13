@@ -1,4 +1,4 @@
-var keyDown, handleHint, handleHintFeedback, hideHints;
+var handleHint, handleHintFeedback, hideHints;
 var hints_active, hint_strings, tab_open, links, link_arr, hint_links, hint_chars, letter_perms;
 var log = console.log.bind(console);
 
@@ -17,6 +17,7 @@ Hints.hideHints = function() {
       link_arr[i].parentNode.removeChild(link_arr[i]);
     }
   }
+  document.getElementById("link_main").parentNode.removeChild(document.getElementById("link_main"));
   current_string = "";
   hints_active = false;
   link_arr = [];
@@ -58,23 +59,20 @@ Hints.handleHintFeedback = function(choice) {
 };
 
 
-Hints.handleHint = function(e) {
-  if (!e.shiftKey && !e.metaKey && !e.ctrlKey) {
-    var chr = String.fromCharCode(e.which);
-    if (!this.numeric) {
-      if (new RegExp(hint_chars.split("").join("|")).test(chr.toLowerCase())) {
-        current_string += chr.toLowerCase();
-        Hints.handleHintFeedback(current_string);
-      } else {
-        Hints.hideHints();
-      }
+Hints.handleHint = function(key) {
+  if (!this.numeric) {
+    if (new RegExp(hint_chars.split("").join("|")).test(key.toLowerCase())) {
+      current_string += key.toLowerCase();
+      Hints.handleHintFeedback(current_string);
     } else {
-      if (/0|1|2|3|4|5|6|7|8|9/.test(chr)) {
-        current_string += chr;
-        Hints.handleHintFeedback(parseInt(current_string));
-      } else {
-        Hints.hideHints();
-      }
+      Hints.hideHints();
+    }
+  } else {
+    if (/0|1|2|3|4|5|6|7|8|9/.test(key)) {
+      current_string += key;
+      Hints.handleHintFeedback(parseInt(current_string));
+    } else {
+      Hints.hideHints();
     }
   }
 };

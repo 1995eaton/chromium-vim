@@ -6,26 +6,69 @@ var inputIndex = 0;;
 var validCommandString = false;
 keyDown = function(e) {
   if (e.which === 16) return;
-  if (e.which === 27) {
-    insertMode = false;
-    inputFocused = false;
-    if (commandMode) {
-      commandMode = false;
-      Command.hide();
+  log(e.which);
+  if (commandMode) {
+    var input = document.getElementById("command_input");
+    if (/command/.test(document.activeElement.id)) {
+      switch (e.which) {
+        case 8:
+          input.blur();
+          window.focus();
+          window.blur();
+          input.focus();
+          if (input.value === "") {
+            commandMode = false;
+            Command.hide();
+          }
+          break;
+        case 27:
+          commandMode = false;
+          Command.hide();
+          break;
+        case 13:
+          document.getElementById("command_input").blur();
+              Command.search(false);
+          Command.enterHit = true;
+          //document.body.focus();
+          break;
+        default:
+          input.blur();
+          window.focus();
+          window.blur();
+          var i = input.value;
+          if (document.getSelection().rangeCount) {
+            document.getSelection().collapseToEnd();
+          }
+          document.getElementById("command_input").value = i;
+          input.focus();
+          setTimeout(function() {
+            if (Command.type === "search") {
+              Command.search(false);
+            }
+          }, 2);
+          break;
+      }
+    } else if (e.which === 191 || e.which === 186) {
+      setTimeout(function() {
+        input.focus();
+      }, 0);
     }
-    document.activeElement.blur();
-  } else if (inputFocused && e.which === 9) {
-    e.preventDefault();
-    if (inputIndex + 1 === inputElements.length) {
-      inputIndex = 0;
-    } else {
-      inputIndex++;
+  } else {
+    if (e.which === 27) {
+      insertMode = false;
+      inputFocused = false;
+      document.activeElement.blur();
+    } else if (inputFocused && e.which === 9) {
+      e.preventDefault();
+      if (inputIndex + 1 === inputElements.length) {
+        inputIndex = 0;
+      } else {
+        inputIndex++;
+      }
+      inputElements[inputIndex].focus();
+    } else if (inputFocused && e.which !== 9) {
+      inputFocused = false;
     }
-    log(inputIndex);
-    log(inputElements);
-    inputElements[inputIndex].focus();
-  } else if (inputFocused && e.which !== 9) {
-    inputFocused = false;
   }
   if (!insertMode && !document.activeElement.isInput()) {
     if (keyQueue) {
@@ -89,10 +132,10 @@ keyDown = function(e) {
     if (!keyQueue) {
       if (e.which === 70 && !e.ctrlKey && !e.metaKey && !hints_active) {
         Hints.create(e.shiftKey, false);
-      } else if (e.which === 27 && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+      } else if (e.which === 27 && !e.ctrlKey && !e.shiftKey && !e.altKey && hints_active) {
         Hints.hideHints();
-      } else if (hints_active) {
-        Hints.handleHint(e);
+      } else if (hints_active && !e.shiftKey && !e.metaKey && !e.ctrlKey) {
+        Hints.handleHint(String.fromCharCode(e.which));
       } else if (!e.ctrlKey && !e.metaKey) {
         if (validCommandString) return validCommandString = false;
         if (e.shiftKey) {
@@ -111,6 +154,16 @@ keyDown = function(e) {
               break;
             case 76: case 68:
               history.go(1);
+              break;
+            case 78:
+              if (commandMode) {
+                Command.search(true, true);
+              }
+              break;
+            case 186:
+              commandMode = true;
+              Command.enterHit = false;
+              Command.show(false);
               break;
             default:
               break;
@@ -147,9 +200,17 @@ keyDown = function(e) {
             case 71:
               keyQueue = true;
               break;
+            case 78:
+              if (commandMode) {
+                Command.search(false, true);
+              }
+              break;
             case 191:
               commandMode = true;
-              Command.show();
+              Command.enterHit = false;
+              Command.show(true);
+              break;
+            default:
               break;
           }
         }
@@ -158,15 +219,11 @@ keyDown = function(e) {
   }
 };
 
-window.onload = function() {
-  if (/google\.com/.test(document.URL)) {
-    setTimeout(function() {
-      document.activeElement.blur();
-      document.body.firstChild.focus();
-    }, 0);
-  }
-};
-
+var oldEventListeners = {};
+document.addEventListener("keydown", keyDown, true);
+var evt = document.createElement("script");
+evt.innerHTML = '(function disallowEvents() {\n  var isInput = function(elem) {\n    return elem.nodeName === "TEXTAREA" ||\n           elem.nodeName === "INPUT";\n  };\n  var disabledHandlers = [];\n  var isInput;\n  document.addEventListener("keydown", function(e) {\n    if (e.which === 73 && !isInput(e.target) && !isInput(document.activeElement)) {\n      for (var i = 0; i < disabledHandlers.length; i++) {\n        document.addEventListener(disabledHandlers[i][0], disabledHandlers[i][1], disabledHandlers[i][2], true);\n      }\n      isInput = true;\n    } else if (e.which === 27 && isInput) {\n      for (var i = 0; i < disabledHandlers.length; i++) {\n        document.removeEventListener(disabledHandlers[i][0], disabledHandlers[i][1], disabledHandlers[i][2], true)\n      }\n      isInput = false;\n    }}, false, true);\n  var newHandler = EventTarget.prototype.addEventListener; EventTarget.prototype.addEventListener = function(eventType, func, capture, passthrough) {\n    this.newHandler = newHandler;\n    if (!passthrough && /keydown/.test(eventType)) {\n      disabledHandlers.push([eventType, func, capture]);\n      return\n    }\n    this.newHandler(eventType, func, capture)\n  }\n})();';
+document.lastChild.appendChild(evt);
 document.addEventListener("DOMContentLoaded", function() {
-  document.addEventListener("keydown", keyDown, false);
+  Command.setup();
 });
