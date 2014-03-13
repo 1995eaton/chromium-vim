@@ -6,30 +6,46 @@ var inputIndex = 0;;
 var validCommandString = false;
 keyDown = function(e) {
   if (e.which === 16) return;
-  log(e.which);
   if (commandMode) {
     var input = document.getElementById("command_input");
-    if (/command/.test(document.activeElement.id)) {
+    if (e.which === 27) {
+      commandMode = false;
+      Command.hide();
+    } else if (/command/.test(document.activeElement.id || document.activeElement.className)) {
       switch (e.which) {
-        case 8:
-          input.blur();
-          window.focus();
-          window.blur();
-          input.focus();
-          if (input.value === "") {
+        case 8: //Backspace
+          if (Command.type === "search") {
+            input.blur();
+            window.focus();
+            window.blur();
+            input.focus();
+          } else if (input.value !== "") {
+            setTimeout(function() {
+              Command.parse()
+            }, 0);
+          } else {
             commandMode = false;
             Command.hide();
           }
           break;
-        case 27:
-          commandMode = false;
-          Command.hide();
+        case 9: //Tab
+          e.preventDefault();
+          if (Command.type === "action") {
+            if (Command.actionType === "query") {
+              Search.nextResult(e.shiftKey);
+            } else {
+              Command.complete(input.value, e.shiftKey, true);
+            }
+          }
           break;
-        case 13:
+        case 13: //Enter
           document.getElementById("command_input").blur();
           if (Command.type === "search") {
             Command.search(false);
             Command.enterHit = true;
+          } else if (Command.actionType === "query") {
+            Search.go();
+            Command.hide();
           } else {
             Command.hide();
           }
@@ -80,6 +96,7 @@ keyDown = function(e) {
     }
   }
   if (!insertMode && !document.activeElement.isInput()) {
+    e.stopPropagation();
     if (keyQueue) {
       keyQueue = false;
       validCommandString = true;
@@ -149,27 +166,27 @@ keyDown = function(e) {
         if (validCommandString) return validCommandString = false;
         if (e.shiftKey) {
           switch (e.which) {
-            case 71:
+            case 71: // G
               Scroll.scroll("bottom");
               break;
-            case 75: case 82:
+            case 75: case 82: // K, R
               chrome.runtime.sendMessage({action: "nextTab"});
               break;
-            case 74: case 69:
+            case 74: case 69: // J, E
               chrome.runtime.sendMessage({action: "previousTab"});
               break;
-            case 72: case 83:
+            case 72: case 83: // L
               history.go(-1);
               break;
-            case 76: case 68:
+            case 76: case 68: // H
               history.go(1);
               break;
-            case 78:
-              if (commandMode) {
+            case 78: // N
+              if (Command.type === "search") {
                 Command.search(true, true);
               }
               break;
-            case 186:
+            case 186: // :
               commandMode = true;
               Command.enterHit = false;
               Command.show(false);
@@ -179,45 +196,45 @@ keyDown = function(e) {
           }
         } else {
           switch (e.which) {
-            case 74: case 83:
+            case 74: case 83: // j, s
               Scroll.scroll("down");
               break;
-            case 75: case 87:
+            case 75: case 87: // k, w
               Scroll.scroll("up");
               break;
-            case 68:
+            case 68: // d
               Scroll.scroll("pageDown");
               break;
-            case 85: case 69:
+            case 85: case 69: // u, e
               Scroll.scroll("pageUp");
               break;
-            case 72:
+            case 72: // h
               Scroll.scroll("left");
               break;
-            case 73:
+            case 73: // i
               insertMode = true;
               break;
-            case 76:
+            case 76: // l
               Scroll.scroll("right");
               break;
-            case 82:
+            case 82: // r
               chrome.runtime.sendMessage({action: "reloadTab"});
               break;
-            case 88:
+            case 88: // x
               chrome.runtime.sendMessage({action: "closeTab"});
               break;
-            case 84:
+            case 84: // t
               chrome.runtime.sendMessage({action: "newTab"});
               break;
-            case 71:
+            case 71: // g
               keyQueue = true;
               break;
-            case 78:
-              if (commandMode) {
+            case 78: // n
+              if (Command.type === "search") {
                 Command.search(false, true);
               }
               break;
-            case 191:
+            case 191: // /
               commandMode = true;
               Command.enterHit = false;
               Command.show(true);
@@ -230,11 +247,8 @@ keyDown = function(e) {
     }
   }
 };
-document.addEventListener("keydown", keyDown, true);
-var evt = document.createElement("script");
-evt.innerHTML = '(function disallowEvents() {\n  if (new RegExp("http(s)?:\/\/www\.google\.com", "i").test(document.URL)) return;\n  var isInputElement = function(elem) {\n    return elem.nodeName === "TEXTAREA" || elem.nodeName === "INPUT";\n  };\n  var disabledHandlers = [];\n  var isInput;\n  document.addEventListener("keydown", function(e) {\n    if (e.which === 73 && !isInputElement(e.target) && !isInputElement(document.activeElement)) {\n      for (var i = 0; i < disabledHandlers.length; i++) {\n        document.addEventListener(disabledHandlers[i][0], disabledHandlers[i][1], disabledHandlers[i][2], true);\n      }\n      isInput = true;\n    } else if (e.which === 27 && isInput) {\n      for (var i = 0; i < disabledHandlers.length; i++) {\n        document.removeEventListener(disabledHandlers[i][0], disabledHandlers[i][1], disabledHandlers[i][2], true);\n      }\n      isInput = false;\n    }}, false, true);\n  var newHandler = EventTarget.prototype.addEventListener; EventTarget.prototype.addEventListener = function(eventType, func, capture, passthrough) {\n    this.newHandler = newHandler;\n    if (!passthrough && /keydown/.test(eventType)) {\n      disabledHandlers.push([eventType, func, capture]);\n      return;\n    }\n    this.newHandler(eventType, func, capture);\n  }\n})();';
 
-document.lastChild.appendChild(evt);
+document.addEventListener("keydown", keyDown, true);
 document.addEventListener("DOMContentLoaded", function() {
   Command.setup();
 });

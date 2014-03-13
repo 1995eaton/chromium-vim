@@ -163,7 +163,7 @@
   bottom: 0 !important;
 }
 
-#search_results {
+#command_search_results {
   position: fixed !important;
   min-height: 0 !important;
   background-repeat: none !important;
@@ -174,12 +174,11 @@
   z-index: 9999999999 !important;
   background-color: #393E40 !important;
   color: #bbb !important;
-  font-family: monospace !important;
   display: none;
   box-shadow: none !important;
-  outline: 0 !important;
   border: 0 !important;
   margin: 0 !important;
+  font-family: monospace !important;
   font-size: 10pt !important;
   padding: 0 !important;
   line-height: 1 !important;
@@ -199,4 +198,49 @@
   padding: 3px; !important;
   left: 0; right: 0;
   margin: 0 auto;
+}
+
+#command_search_results ul, #command_search_results .command-data-node {
+  box-shadow: none !important;
+  border: 0 !important;
+  margin: 0 !important;
+  font-size: 10pt !important;
+  padding: 0 !important;
+  font-family: monospace !important;
+  line-height: 1 !important;
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
+  text-transform: none !important;
+  text-indent: 0px !important;
+  text-shadow: none !important;
+  text-align: start !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  -webkit-appearance: none !important;
+  border: 0 !important;
+  bottom: 20px !important;
+  border: none !important;
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+#command_search_results .command-data-node div {
+  box-shadow: none !important;
+  border: 0 !important;
+  font-size: 10pt !important;
+  line-height: 1 !important;
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
+  text-transform: none !important;
+  text-indent: 0px !important;
+  font-family: monospace !important;
+  font-size: 10pt !important;
+  text-shadow: none !important;
+  text-align: start !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  -webkit-appearance: none !important;
+  border: 0 !important;
+  padding: 2px !important;
 }
