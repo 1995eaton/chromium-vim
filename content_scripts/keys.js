@@ -191,6 +191,9 @@ keyDown = function(e) {
             case 76:
               Scroll.scroll("right");
               break;
+            case 82:
+              chrome.runtime.sendMessage({action: "reloadTab"});
+              break;
             case 88:
               chrome.runtime.sendMessage({action: "closeTab"});
               break;

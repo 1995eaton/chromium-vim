@@ -22,6 +22,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
     case "closeTab":
       chrome.tabs.remove(sender.tab.id);
       break;
+    case "reloadTab":
+      chrome.tabs.reload({});
+      break;
     case "newTab":
       chrome.tabs.create({url: "https://google.com", index: sender.tab.index + 1});
       break;
