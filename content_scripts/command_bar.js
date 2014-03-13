@@ -1,5 +1,5 @@
 var Command = {};
-var bar, barInput, barMode;
+var bar, barInput, barMode, barData;
 
 Command.setup = function() {
   bar = document.createElement("div");
@@ -31,6 +31,28 @@ Command.search = function(reverse, looseFocus) {
   }
 };
 
+Command.appendResults = function(data) {
+  console.log(data);
+  if (!barData) {
+    barData = document.createElement("div");
+    barData.id = "search_results";
+    document.lastChild.appendChild(barData);
+  }
+  log(data.join("<br>"));
+  barData.innerHTML = data.join("<br>");
+  barData.style.display = "block";
+};
+
+Command.parse = function() {
+  if (/^s |search /.test(barInput.value)) {
+    var search = barInput.value.replace(/^s(earch)?(\s+)/, "");
+    if (!search) return;
+    Search.fetchQuery(search, function(response) {
+      Command.appendResults(response);
+    });
+  }
+}
+
 Command.show = function(search) {
   Command.lastElement = document.activeElement;
   if (search) {
@@ -49,5 +71,6 @@ Command.show = function(search) {
 Command.hide = function() {
   bar.style.display = "none";
   barInput.value = "";
+  if (barData) barData.style.display = "none";
   Command.lastElement.focus();
 };

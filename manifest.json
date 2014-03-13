@@ -21,7 +21,8 @@
              "content_scripts/keys.js",
              "content_scripts/utils.js",
              "content_scripts/command_bar.js",
-             "content_scripts/scroll.js"
+             "content_scripts/scroll.js",
+             "content_scripts/search.js"
             ],
       "css": [
               "content_scripts/main.css"

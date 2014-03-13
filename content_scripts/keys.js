@@ -27,25 +27,34 @@ keyDown = function(e) {
           break;
         case 13:
           document.getElementById("command_input").blur();
-              Command.search(false);
-          Command.enterHit = true;
-          //document.body.focus();
+          if (Command.type === "search") {
+            Command.search(false);
+            Command.enterHit = true;
+          } else {
+            Command.hide();
+          }
           break;
         default:
-          input.blur();
-          window.focus();
-          window.blur();
-          var i = input.value;
-          if (document.getSelection().rangeCount) {
-            document.getSelection().collapseToEnd();
-          }
-          document.getElementById("command_input").value = i;
-          input.focus();
-          setTimeout(function() {
-            if (Command.type === "search") {
-              Command.search(false);
+          if (Command.type === "action") {
+            setTimeout(function() {
+              Command.parse();
+            }, 0);
+          } else {
+            input.blur();
+            window.focus();
+            window.blur();
+            var i = input.value;
+            if (document.getSelection().rangeCount) {
+              document.getSelection().collapseToEnd();
             }
-          }, 2);
+            document.getElementById("command_input").value = i;
+            input.focus();
+            setTimeout(function() {
+              if (Command.type === "search") {
+                Command.search(false);
+              }
+            }, 2);
+          }
           break;
       }
     } else if (e.which === 191 || e.which === 186) {
