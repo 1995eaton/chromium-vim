@@ -1,19 +1,19 @@
 (function disallowEvents() {
-  var isInput = function(elem) {
-    return elem.nodeName === "TEXTAREA" ||
-           elem.nodeName === "INPUT";
+  if (/http:\/\/www\.google\.com/.test(document.URL)) return;
+  var isInputElement = function(elem) {
+    return elem.nodeName === "TEXTAREA" || elem.nodeName === "INPUT";
   };
   var disabledHandlers = [];
   var isInput;
   document.addEventListener("keydown", function(e) {
-    if (e.which === 73 && !isInput(e.target) && !isInput(document.activeElement)) {
+    if (e.which === 73 && !isInputElement(e.target) && !isInputElement(document.activeElement)) {
       for (var i = 0; i < disabledHandlers.length; i++) {
         document.addEventListener(disabledHandlers[i][0], disabledHandlers[i][1], disabledHandlers[i][2], true);
       }
       isInput = true;
     } else if (e.which === 27 && isInput) {
       for (var i = 0; i < disabledHandlers.length; i++) {
-        document.removeEventListener(disabledHandlers[i][0], disabledHandlers[i][1], disabledHandlers[i][2], true)
+        document.removeEventListener(disabledHandlers[i][0], disabledHandlers[i][1], disabledHandlers[i][2], true);
       }
       isInput = false;
     }}, false, true);
@@ -21,8 +21,8 @@
     this.newHandler = newHandler;
     if (!passthrough && /keydown/.test(eventType)) {
       disabledHandlers.push([eventType, func, capture]);
-      return
+      return;
     }
-    this.newHandler(eventType, func, capture)
+    this.newHandler(eventType, func, capture);
   }
 })();
