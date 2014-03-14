@@ -51,7 +51,10 @@ keyDown = function(e) {
           Command.history.cycle("action", false);
           break;
         case 13: // Enter
-          log(Command.history);
+          if (Command.history.action) {
+            Command.history.action.push(barInput.value);
+            chrome.runtime.sendMessage({action: "appendHistory", value: barInput.value, type: "action"});
+          }
           document.getElementById("command_input").blur();
           if (Command.type === "search") {
             Command.search(false);

@@ -22,8 +22,6 @@ Search.go = function(tabbed) {
   } else if (!/^http(s)?/.test(search)) {
     search = "http://" + search;
   }
-  chrome.runtime.sendMessage({action: "appendHistory", value: search, type: "url"});
-  chrome.runtime.sendMessage({action: "appendHistory", value: barInput.value, type: "action"});
   if (/^(to|tabopen) /.test(barInput.value)) {
     chrome.runtime.sendMessage({action: "openLinkTab", url: search});
   } else {
