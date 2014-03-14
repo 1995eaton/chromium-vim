@@ -30,15 +30,15 @@ Search.go = function(tabbed) {
   }
 };
 
-Search.appendFromHistory = function(data, callback) {
+Search.appendFromHistory = function(data) {
   chrome.runtime.sendMessage({action: "searchHistory", search: data}, function(response) {
     if (response) {
+      Search.searchHistory = [];
       for (var key in response) {
         if (response[key].url) {
           Search.searchHistory.push([response[key].title, response[key].url]);
         }
       }
-      callback();
     }
   });
 }

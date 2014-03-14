@@ -146,23 +146,14 @@ Command.complete = function(input, reverse, doSearch) {
   }
 };
 
-Command.historyCompletion = function(search) {
-  Search.searchHistory = [];
-  var descriptions = [];
-  Search.appendFromHistory(search, function() {
-    for (var i = 0, length = Search.searchHistory.length; i < length; i++) {
-      log(Search.searchHistory[i]);
-    }
-  });
-}
-
 Command.parse = function() {
   if (/^(t(ab)?)?o(pen)?(\s+)/.test(barInput.value)) {
     Search.index = null;
     var search = barInput.value.replace(/^(t(ab)?)?o(pen)?(\s+)/, "");
     if (!search) return Command.hideData();
     if (!/^(\s+)?$/.test(search)) {
-      Command.historyCompletion(search);
+      //Search.searchHistory = [];
+      Search.appendFromHistory(search);
     }
     Search.fetchQuery(search, function(response) {
       Command.typed = barInput.value;
