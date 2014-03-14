@@ -16,7 +16,7 @@ var history = {
     if (!localStorage[type] || localStorage[type] === "") {
       localStorage[type] = value;
     } else {
-      if (!/^(\s+)$/.test(value)) {
+      if (!/^(\s+)?$/.test(value)) {
         localStorage[type] += "," + value;
       }
     }

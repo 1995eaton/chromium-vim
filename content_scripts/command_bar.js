@@ -16,13 +16,13 @@ Command.setup = function() {
   bar.spellcheck = false;
   document.lastChild.appendChild(bar);
 };
-var lastElement;
 var lastMatch;
 var historyStates = ["action", "url", "search"];
 
 Command.history = {
   index: {},
   cycle: function(type, reverse, search) {
+    Command.actionType = "";
     if (!this[type]) return;
     if (!this.index[type] && this.index[type] !== 0) {
       Command.typed = barInput.value;
@@ -41,6 +41,9 @@ Command.history = {
     this.index[type] += (reverse) ? -1 : 1;
     if (search && !new RegExp("^" + Command.typed).test(this[type][this.index[type]])) {
       return this.cycle(type, reverse, true);
+    }
+    if (/^(tabopen|open) /.test(this[type][this.index[type]])) {
+      Command.actionType = "query";
     }
     barInput.value = this[type][this.index[type]];
   }
@@ -150,7 +153,6 @@ Command.parse = function() {
 }
 
 Command.show = function(search, value) {
-  Command.lastElement = document.activeElement;
   if (search) {
     Command.type = "search";
     barMode.innerHTML = "/";
@@ -177,5 +179,4 @@ Command.hide = function() {
   Command.typed = "";
   dataElements = [];
   if (barData) barData.style.display = "none";
-  Command.lastElement.focus();
 };
