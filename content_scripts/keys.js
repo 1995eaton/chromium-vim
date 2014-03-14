@@ -112,7 +112,9 @@ keyDown = function(e) {
     }
   }
   if (!insertMode && !document.activeElement.isInput()) {
-    e.stopPropagation();
+    if (e.which > 40 && e.which !== 91 && e.which !== 123) {
+      e.stopPropagation();
+    }
     if (keyQueue) {
       keyQueue = false;
       validCommandString = true;
