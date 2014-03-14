@@ -42,7 +42,9 @@ Search.nextResult = function(reverse) {
   } else {
     dataElements[this.index].parentNode.style.backgroundColor = "";
     dataElements[this.index].parentNode.style.color = "";
-    dataElements[this.index].children[0].style.color = "#bbb";
+    if (dataElements[this.index].children[0]) {
+      dataElements[this.index].children[0].style.color = "#bbb";
+    }
     if (!reverse) {
       if (this.index + 1 < dataElements.length) {
         this.index++;
@@ -63,7 +65,9 @@ Search.nextResult = function(reverse) {
   }
   dataElements[this.index].parentNode.style.backgroundColor = "#fefefe";
   dataElements[this.index].parentNode.style.color = "#1b1d1e";
-  dataElements[this.index].children[0].style.color = "#1b1d1e";
+  if (dataElements[this.index].children[0]) {
+    dataElements[this.index].children[0].style.color = "#1b1d1e";
+  }
   if (Command.actionType === "complete") {
     barInput.value = completionMatches[this.index][0];
   } else {
