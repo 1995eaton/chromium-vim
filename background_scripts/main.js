@@ -16,10 +16,15 @@ var history = {
     if (!localStorage[type] || localStorage[type] === "") {
       localStorage[type] = value;
     } else {
-      localStorage[type] += "," + value;
+      if (!/^(\s+)$/.test(value)) {
+        localStorage[type] += "," + value;
+      }
     }
   },
   retrieve: function(type) {
+    if (!localStorage[type]) {
+      localStorage[type] = "";
+    }
     return [type, localStorage[type].split(",")];
   }
 };
