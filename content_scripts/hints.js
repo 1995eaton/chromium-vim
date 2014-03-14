@@ -50,8 +50,8 @@ Hints.handleHintFeedback = function(choice) {
     }
   }
   if (links_found === 1) {
-      Hints.hideHints();
       chrome.runtime.sendMessage({action: (this.tabbed) ? "openLinkTab" : "openLink", url: (!this.numeric) ? hint_links[cur_index] : hint_links[choice]});
+      Hints.hideHints();
   } else if (links_found === 0) {
     Hints.hideHints();
   }
