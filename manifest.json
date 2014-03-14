@@ -6,7 +6,8 @@
   "author": "Jake Eaton",
   "permissions": [
     "<all_urls>",
-    "tabs"
+    "tabs",
+    "history"
   ],
   "background": {
     "scripts": [

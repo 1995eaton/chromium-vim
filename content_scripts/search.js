@@ -1,4 +1,5 @@
 var Search = {};
+Search.urlMatch = /(http(s)?:\/\/)?(\S+)\.(com|biz|edu|gov|me)(([\/]+)?([\/\S]+)?)?/i;
 
 Search.index = null;
 
@@ -16,10 +17,17 @@ Search.fetchQuery = function(query, callback) {
 
 Search.go = function(tabbed) {
   var search = barInput.value.replace(/^(t|tab)?o(pen)?(\s+)/, "");
-  if (/^(t|tabbed)/.test(barInput.value)) {
-    chrome.runtime.sendMessage({action: "openLinkTab", url: "http://google.com/search?q=" + search});
+  if (!Search.urlMatch.test(search)) {
+    search = "https://google.com/search?q=" + search;
+  } else if (!/^http(s)?/.test(search)) {
+    search = "http://" + search;
+  }
+  chrome.runtime.sendMessage({action: "appendHistory", value: search, type: "url"});
+  chrome.runtime.sendMessage({action: "appendHistory", value: barInput.value, type: "action"});
+  if (/^(to|tabopen) /.test(barInput.value)) {
+    chrome.runtime.sendMessage({action: "openLinkTab", url: search});
   } else {
-    chrome.runtime.sendMessage({action: "openLink", url: "http://google.com/search?q=" + search});
+    chrome.runtime.sendMessage({action: "openLink", url: search});
   }
 };
 
@@ -34,6 +42,7 @@ Search.nextResult = function(reverse) {
   } else {
     dataElements[this.index].parentNode.style.backgroundColor = "";
     dataElements[this.index].parentNode.style.color = "";
+    dataElements[this.index].children[0].style.color = "#bbb";
     if (!reverse) {
       if (this.index + 1 < dataElements.length) {
         this.index++;
@@ -54,6 +63,7 @@ Search.nextResult = function(reverse) {
   }
   dataElements[this.index].parentNode.style.backgroundColor = "#fefefe";
   dataElements[this.index].parentNode.style.color = "#1b1d1e";
+  dataElements[this.index].children[0].style.color = "#1b1d1e";
   if (Command.actionType === "complete") {
     barInput.value = completionMatches[this.index][0];
   } else {

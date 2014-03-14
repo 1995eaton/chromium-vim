@@ -173,7 +173,7 @@
   vertical-align: none !important;
   z-index: 9999999999 !important;
   background-color: #393E40 !important;
-  color: #bbb !important;
+  color: #fff !important;
   display: none;
   box-shadow: none !important;
   border: 0 !important;
@@ -225,6 +225,7 @@
   margin: 0 !important;
 }
 
+
 #command_search_results .command-data-node div {
   box-shadow: none !important;
   border: 0 !important;
@@ -243,4 +244,14 @@
   -webkit-appearance: none !important;
   border: 0 !important;
   padding: 2px !important;
+}
+
+.completion-descriptions {
+  font-style: italic !important;
+  position: absolute;
+  left: 30%;
+  min-width: 300px;
+  color: #bbb;
+  text-align: right !important;
+  /*padding-left: 25px !important;*/
 }

@@ -1,8 +1,6 @@
-//j -> 74, k -> 75, d -> 68, u -> 85, s -> 83, w -> 87, t -> 84, x -> 88, g -> 71
-
 var keyQueue, inputFocused, insertMode, commandMode;
 var inputElements = [];
-var inputIndex = 0;;
+var inputIndex = 0;
 var validCommandString = false;
 keyDown = function(e) {
   if (e.which === 16) return;
@@ -13,13 +11,14 @@ keyDown = function(e) {
       Command.hide();
     } else if (/command/.test(document.activeElement.id || document.activeElement.className)) {
       switch (e.which) {
-        case 8: //Backspace
+        case 8: // Backspace
           if (Command.type === "search") {
             input.blur();
             window.focus();
             window.blur();
             input.focus();
           } else if (input.value !== "") {
+            Search.index = null;
             setTimeout(function() {
               Command.parse()
             }, 0);
@@ -28,17 +27,31 @@ keyDown = function(e) {
             Command.hide();
           }
           break;
-        case 9: //Tab
+        case 9: // Tab
           e.preventDefault();
           if (Command.type === "action") {
             if (Command.actionType === "query") {
               Search.nextResult(e.shiftKey);
             } else {
-              Command.complete(input.value, e.shiftKey, true);
+              if (!Command.typed) {
+                input.value = "";
+                Command.complete(input.value, e.shiftKey, true);
+              } else {
+                Command.complete(Command.typed, e.shiftKey, true);
+              }
             }
           }
           break;
-        case 13: //Enter
+        case 38: // Up
+          e.preventDefault();
+          Command.history.cycle("action", true);
+          break;
+        case 40: // Down
+          e.preventDefault();
+          Command.history.cycle("action", false);
+          break;
+        case 13: // Enter
+          log(Command.history);
           document.getElementById("command_input").blur();
           if (Command.type === "search") {
             Command.search(false);
@@ -73,13 +86,13 @@ keyDown = function(e) {
           }
           break;
       }
-    } else if (e.which === 191 || e.which === 186) {
+    } else if (e.which === 191 || e.which === 186) { // / + :
       setTimeout(function() {
         input.focus();
       }, 0);
     }
   } else {
-    if (e.which === 27) {
+    if (e.which === 27) { // Esc
       insertMode = false;
       inputFocused = false;
       document.activeElement.blur();
@@ -181,6 +194,10 @@ keyDown = function(e) {
             case 76: case 68: // H
               history.go(1);
               break;
+            case 79: // O
+              commandMode = true;
+              Command.show(false, "tabopen ");
+              break;
             case 78: // N
               if (Command.type === "search") {
                 Command.search(true, true);
@@ -217,6 +234,10 @@ keyDown = function(e) {
             case 76: // l
               Scroll.scroll("right");
               break;
+            case 79: // o
+              commandMode = true;
+              Command.show(false, "open ");
+              break;
             case 82: // r
               chrome.runtime.sendMessage({action: "reloadTab"});
               break;
@@ -224,7 +245,8 @@ keyDown = function(e) {
               chrome.runtime.sendMessage({action: "closeTab"});
               break;
             case 84: // t
-              chrome.runtime.sendMessage({action: "newTab"});
+              commandMode = true;
+              Command.show(false, "tabopen ");
               break;
             case 71: // g
               keyQueue = true;

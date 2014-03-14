@@ -18,6 +18,38 @@ Command.setup = function() {
 };
 var lastElement;
 var lastMatch;
+var historyStates = ["action", "url", "search"];
+
+Command.history = {
+  index: {},
+  cycle: function(type, reverse, search) {
+    if (!this[type]) return;
+    if (!this.index[type] && this.index[type] !== 0) {
+      Command.typed = barInput.value;
+      this.index[type] = this[type].length;
+    }
+    if (reverse && this.index[type] === 0) return;
+    if (!reverse && this.index[type] + 1 === this[type].length) {
+      this.index[type] = this[type].length
+      barInput.value = Command.typed;
+      return;
+    }
+    if (!reverse && !this[type][this.index[type]]) return;
+    if (!search && Command.typed !== "") {
+      return this.cycle(type, reverse, true);
+    }
+    this.index[type] += (reverse) ? -1 : 1;
+    if (search && !new RegExp("^" + Command.typed).test(this[type][this.index[type]])) {
+      return this.cycle(type, reverse, true);
+    }
+    barInput.value = this[type][this.index[type]];
+  }
+};
+for (var i = 0; i < historyStates.length; i++) {
+  chrome.runtime.sendMessage({action: "retrieveHistory", type: historyStates[i]}, function(result) {
+    Command.history[result[0]] = result[1];
+  });
+}
 
 Command.search = function(reverse, looseFocus) {
   var selection;
@@ -67,14 +99,16 @@ Command.hideData = function() {
 
 
 Command.descriptions = [
-  ["tabopen", "t(ab)o(pen)\tOpen a link in a new tab"]
+  ["tabopen", "t(ab)o(pen)", "Open a link in a new tab"],
+  ["open", "o(pen)", "Open a link in the current tab"],
+  ["help", "help", "displays the help page in a new tab"]
 ];
 
 Command.match = function(input) {
   completionMatches = [];
-  input = new RegExp(input);
+  input = new RegExp("^" + input);
   for (var i = 0; i < Command.descriptions.length; i++) {
-    if (input.test(Command.descriptions[i][0])) {
+    if (!input || input.test(Command.descriptions[i][0])) {
       completionMatches.push(Command.descriptions[i]);
     }
   }
@@ -91,7 +125,7 @@ Command.complete = function(input, reverse, doSearch) {
     var descriptions = [];
     if (completionMatches.length) {
       for (var i = 0; i < completionMatches.length; i++) {
-        descriptions.push(completionMatches[i][1]);
+        descriptions.push(completionMatches[i][1] + '<span class="completion-descriptions">' + completionMatches[i][2] + '</span>');
       }
       Command.appendResults(descriptions);
     } else {
@@ -114,7 +148,7 @@ Command.parse = function() {
   }
 }
 
-Command.show = function(search) {
+Command.show = function(search, value) {
   Command.lastElement = document.activeElement;
   if (search) {
     Command.type = "search";
@@ -123,18 +157,20 @@ Command.show = function(search) {
     Command.type = "action";
     barMode.innerHTML = ":";
   }
+  if (value) barInput.value = value;
   bar.style.display = "block";
   setTimeout(function() {
     barInput.focus();
   }, 0);
 };
-
 Command.hide = function() {
   bar.style.display = "none";
   barInput.value = "";
   Search.index = null;
   Command.actionType = "";
   Command.type = "";
+  Command.history.index = {};
+  Command.typed = "";
   dataElements = [];
   if (barData) barData.style.display = "none";
   Command.lastElement.focus();

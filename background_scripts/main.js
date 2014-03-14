@@ -11,6 +11,19 @@ function getTab(sender, reverse) {
   });
 }
 
+var history = {
+  append: function(value, type) {
+    if (!localStorage[type] || localStorage[type] === "") {
+      localStorage[type] = value;
+    } else {
+      localStorage[type] += "," + value;
+    }
+  },
+  retrieve: function(type) {
+    return [type, localStorage[type].split(",")];
+  }
+};
+
 chrome.runtime.onMessage.addListener(function(request, sender, callback) {
   switch (request.action) {
     case "openLink":
@@ -34,8 +47,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
     case "previousTab":
       getTab(sender, true);
       break;
+    case "appendHistory":
+      history.append(request.value, request.type);
+      break;
+    case "retrieveHistory":
+      callback(history.retrieve(request.type));
+      break;
     default:
       break;
   }
-  if (callback) return callback();
 });
