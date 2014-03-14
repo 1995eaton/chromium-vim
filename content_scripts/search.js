@@ -4,7 +4,6 @@ Search.urlMatch = /(http(s)?:\/\/)?(\S+)\.(com|biz|edu|gov|me)(([\/]+)?([\/\S]+)
 Search.index = null;
 
 Search.fetchQuery = function(query, callback) {
-  Search.index = null;
   var api = "https://suggestqueries.google.com/complete/search?client=firefox&q=";
   var xhr = new XMLHttpRequest();
   xhr.open("GET", api + query);

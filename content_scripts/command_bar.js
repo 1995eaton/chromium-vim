@@ -136,6 +136,7 @@ Command.complete = function(input, reverse, doSearch) {
 
 Command.parse = function() {
   if (/^(t(ab)?)?o(pen)?(\s+)/.test(barInput.value)) {
+    Search.index = null;
     var search = barInput.value.replace(/^(t(ab)?)?o(pen)?(\s+)/, "");
     if (!search) return Command.hideData();
     Search.fetchQuery(search, function(response) {
