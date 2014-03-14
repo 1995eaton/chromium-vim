@@ -2,6 +2,7 @@ var Search = {};
 Search.urlMatch = /(http(s)?:\/\/)?(\S+)\.(com|biz|edu|gov|me)(([\/]+)?([\/\S]+)?)?/i;
 
 Search.index = null;
+Search.searchHistory = [];
 
 Search.fetchQuery = function(query, callback) {
   var api = "https://suggestqueries.google.com/complete/search?client=firefox&q=";
@@ -28,6 +29,19 @@ Search.go = function(tabbed) {
     chrome.runtime.sendMessage({action: "openLink", url: search});
   }
 };
+
+Search.appendFromHistory = function(data, callback) {
+  chrome.runtime.sendMessage({action: "searchHistory", search: data}, function(response) {
+    if (response) {
+      for (var key in response) {
+        if (response[key].url) {
+          Search.searchHistory.push([response[key].title, response[key].url]);
+        }
+      }
+      callback();
+    }
+  });
+}
 
 Search.nextResult = function(reverse) {
   if (!dataElements.length) return;
@@ -66,7 +80,9 @@ Search.nextResult = function(reverse) {
   if (dataElements[this.index].children[0]) {
     dataElements[this.index].children[0].style.color = "#1b1d1e";
   }
-  if (Command.actionType === "complete") {
+  if (dataElements[this.index].parentNode.className === "command-history-data-node") {
+    barInput.value = barInput.value.match(/^(t(ab)?)?o(pen)? /)[0] + Search.searchHistory[this.index][1];
+  } else if (Command.actionType === "complete") {
     barInput.value = completionMatches[this.index][0];
   } else {
     barInput.value = barInput.value.match(/^(t(ab)?)?o(pen)? /)[0] + dataElements[this.index].innerText;

@@ -1,5 +1,5 @@
 var Command = {};
-var bar, barInput, barMode, barData, dataNode, dataNodeContainer;
+var bar, barInput, barMode, barData, barHistory, dataNode, dataNodeContainer;
 var dataElements = [];
 var completionMatches = [];
 
@@ -48,8 +48,9 @@ Command.history = {
     barInput.value = this[type][this.index[type]];
   }
 };
+
 for (var i = 0; i < historyStates.length; i++) {
-  chrome.runtime.sendMessage({action: "retrieveHistory", type: historyStates[i]}, function(result) {
+    chrome.runtime.sendMessage({action: "retrieveHistory", type: historyStates[i]}, function(result) {
     Command.history[result[0]] = result[1];
   });
 }
@@ -79,6 +80,16 @@ Command.appendResults = function(data) {
     document.lastChild.appendChild(barData);
   }
   dataNodeContainer.innerHTML = "";
+  for (var i = 0; i < Search.searchHistory.length; i++) {
+    var temp = document.createElement("li");
+    temp.className = "command-history-data-node";
+    temp.tabIndex = "1";
+    var tempText = document.createElement("div");
+    tempText.innerHTML = "History: " + Search.searchHistory[i][0] + '<span class="completion-descriptions">' + Search.searchHistory[i][1] + '</span>';
+    temp.appendChild(tempText);
+    dataElements.push(tempText);
+    dataNodeContainer.appendChild(temp);
+  }
   for (var i = 0; i < data.length; i++) {
     var temp = document.createElement("li");
     temp.className = "command-data-node";
@@ -93,8 +104,6 @@ Command.appendResults = function(data) {
 };
 
 Command.hideData = function() {
-  //Command.actionType = "";
-  //Command.type = "";
   if (barData) {
     barData.firstChild.innerHTML = "";
     Search.index = null;
@@ -137,11 +146,24 @@ Command.complete = function(input, reverse, doSearch) {
   }
 };
 
+Command.historyCompletion = function(search) {
+  Search.searchHistory = [];
+  var descriptions = [];
+  Search.appendFromHistory(search, function() {
+    for (var i = 0, length = Search.searchHistory.length; i < length; i++) {
+      log(Search.searchHistory[i]);
+    }
+  });
+}
+
 Command.parse = function() {
   if (/^(t(ab)?)?o(pen)?(\s+)/.test(barInput.value)) {
     Search.index = null;
     var search = barInput.value.replace(/^(t(ab)?)?o(pen)?(\s+)/, "");
     if (!search) return Command.hideData();
+    if (!/^(\s+)?$/.test(search)) {
+      Command.historyCompletion(search);
+    }
     Search.fetchQuery(search, function(response) {
       Command.typed = barInput.value;
       Command.actionType = "query";
@@ -173,6 +195,7 @@ Command.hide = function() {
   bar.style.display = "none";
   barInput.value = "";
   Search.index = null;
+  Search.searchHistory = [];
   Command.actionType = "";
   Command.type = "";
   Command.history.index = {};

@@ -1,4 +1,4 @@
-var keyQueue, inputFocused, insertMode, commandMode;
+var keyQueue, inputFocused, insertMode, commandMode, port;
 var inputElements = [];
 var inputIndex = 0;
 var validCommandString = false;

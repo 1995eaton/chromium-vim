@@ -200,7 +200,7 @@
   margin: 0 auto;
 }
 
-#command_search_results ul, #command_search_results .command-data-node {
+#command_search_results ul, #command_search_results .command-data-node, #command_search_results .command-history-data-node {
   box-shadow: none !important;
   border: 0 !important;
   margin: 0 !important;
@@ -226,7 +226,7 @@
 }
 
 
-#command_search_results .command-data-node div {
+#command_search_results .command-data-node div, #command_search_results .command-history-data-node div {
   box-shadow: none !important;
   border: 0 !important;
   font-size: 10pt !important;
@@ -238,7 +238,6 @@
   font-family: monospace !important;
   font-size: 10pt !important;
   text-shadow: none !important;
-  text-align: start !important;
   box-shadow: none !important;
   outline: 0 !important;
   -webkit-appearance: none !important;
@@ -248,10 +247,10 @@
 
 .completion-descriptions {
   font-style: italic !important;
-  position: absolute;
-  left: 30%;
-  min-width: 300px;
+  white-space: nowrap !important;
+  float: right !important;
+  text-overflow: ellipsis !important;
+  max-width: 35%;
   color: #bbb;
   text-align: right !important;
-  /*padding-left: 25px !important;*/
 }

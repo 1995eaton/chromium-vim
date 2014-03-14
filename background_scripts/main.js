@@ -10,8 +10,8 @@ function getTab(sender, reverse) {
     }
   });
 }
-
 var history = {
+  searchResults: null,
   append: function(value, type) {
     if (!localStorage[type] || localStorage[type] === "") {
       localStorage[type] = value;
@@ -26,6 +26,12 @@ var history = {
       localStorage[type] = "";
     }
     return [type, localStorage[type].split(",")];
+  },
+
+  retrieveSearchHistory: function(search) {
+    chrome.history.search({text: search, maxResults: 4}, function(results) {
+      history.searchResults = results;
+    });
   }
 };
 
@@ -57,6 +63,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
       break;
     case "retrieveHistory":
       callback(history.retrieve(request.type));
+      break;
+    case "searchHistory":
+      history.retrieveSearchHistory(request.search);
+      console.log(history.searchResults);
+      callback(history.searchResults);
       break;
     default:
       break;
