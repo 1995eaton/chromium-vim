@@ -51,7 +51,7 @@ keyDown = function(e) {
           Command.history.cycle("action", false);
           break;
         case 13: // Enter
-          if (Command.type === "actions" && Command.history.action) {
+          if (Command.type === "action" && Command.history.action) {
             Command.history.action.push(barInput.value);
             chrome.runtime.sendMessage({action: "appendHistory", value: barInput.value, type: "action"});
           }
@@ -139,7 +139,7 @@ keyDown = function(e) {
             if (!inputElements.length) {
               var inputElementsTemp = document.querySelectorAll("input,textarea");
               for (var i = 0; i < inputElementsTemp.length; i++) {
-                if (inputElementsTemp[i].nodeName === "TEXTAREA" || (inputElementsTemp[i].nodeName === "INPUT" && inputElementsTemp[i].type === "text")) {
+                if (!inputElementsTemp[i].disabled && inputElementsTemp[i].style.display !== "none" && inputElementsTemp[i].style.opacity !== "0" && (inputElementsTemp[i].nodeName === "TEXTAREA" || (inputElementsTemp[i].nodeName === "INPUT" && (inputElementsTemp[i].type === "text" || inputElementsTemp[i].type === "search")))) {
                   inputElements.push(inputElementsTemp[i]);
                   log(inputElements);
                 }
