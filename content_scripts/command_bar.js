@@ -90,7 +90,8 @@ Command.appendResults = function(data) {
 };
 
 Command.hideData = function() {
-  Command.actionType = "";
+  //Command.actionType = "";
+  //Command.type = "";
   if (barData) {
     barData.firstChild.innerHTML = "";
     Search.index = null;
@@ -115,11 +116,10 @@ Command.match = function(input) {
 };
 
 Command.complete = function(input, reverse, doSearch) {
-  input = input.replace(/ \+$/, "");
-  Command.match(input);
   if (doSearch && dataElements.length && completionMatches.length) {
     Search.nextResult(reverse);
   } else {
+    Command.match(input);
     Command.actionType = "complete";
     Command.typed = input;
     var descriptions = [];
@@ -157,7 +157,10 @@ Command.show = function(search, value) {
     Command.type = "action";
     barMode.innerHTML = ":";
   }
-  if (value) barInput.value = value;
+  if (value) {
+    barInput.value = value;
+    Command.typed = value;
+  }
   bar.style.display = "block";
   setTimeout(function() {
     barInput.focus();
