@@ -130,9 +130,9 @@ Hints.create = function(tabbed, numeric) {
     }
     return clickable;
   }
-  if (!links.length) {
+  //if (!links.length) {
     links = getClickableLinks();
-  }
+  //}
   var link_number = 0;
   var main = document.createElement("div");
   hints_active = true;
