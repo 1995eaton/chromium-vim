@@ -113,8 +113,11 @@ Command.hideData = function() {
 
 Command.descriptions = [
   ["tabopen", "t(ab)o(pen)", "Open a link in a new tab"],
+  ["closetab", "cl(osetab)", "Close the current tab"],
   ["open", "o(pen)", "Open a link in the current tab"],
-  ["help", "help", "displays the help page in a new tab"]
+  ["help", "help", "Displays the help page in a new tab"], // TODO
+  ["extensions", "ex(tensions)", "Opens the chrome://extensions page"],
+  ["flags", "fl(ags)", "Opens the chrome://flags page"]
 ];
 
 Command.match = function(input) {
@@ -146,22 +149,34 @@ Command.complete = function(input, reverse, doSearch) {
   }
 };
 
-Command.parse = function() {
-  if (/^(t(ab)?)?o(pen)?(\s+)/.test(barInput.value)) {
-    Search.index = null;
-    var search = barInput.value.replace(/^(t(ab)?)?o(pen)?(\s+)/, "");
-    if (!search) return Command.hideData();
-    if (!/^(\s+)?$/.test(search)) {
-      //Search.searchHistory = [];
-      Search.appendFromHistory(search);
+Command.parse = function(value) {
+  if (Command.enterHit) {
+    if (/^ex(tensions)?(\s+)?$/.test(value)) {
+      chrome.runtime.sendMessage({action: "openLinkTab", url: "chrome://extensions"});
+    } else if (/^fl(ags)?(\s+)?$/.test(value)) {
+      chrome.runtime.sendMessage({action: "openLinkTab", url: "chrome://flags"});
+    } else if (/^(tabnew|t(ab)?o(pen)?)(\s+)?$/.test(value)) {
+      chrome.runtime.sendMessage({action: "openLinkTab", url: "chrome://newtab"});
+    } else if (/^cl(osetab)?(\s+)?$/.test(value)) {
+      chrome.runtime.sendMessage({action: "closeTab"});
     }
-    Search.fetchQuery(search, function(response) {
-      Command.typed = barInput.value;
-      Command.actionType = "query";
-      Command.appendResults(response);
-    });
-  } else {
-    Command.complete(barInput.value, false, false);
+  }
+  if (!Command.enterHit) {
+    if (/^(t(ab)?)?o(pen)?(\s+)/.test(barInput.value)) {
+      Search.index = null;
+      var search = barInput.value.replace(/^(t(ab)?)?o(pen)?(\s+)/, "");
+      if (!search) return Command.hideData();
+      if (!/^(\s+)?$/.test(search)) {
+        Search.appendFromHistory(search);
+      }
+      Search.fetchQuery(search, function(response) {
+        Command.typed = barInput.value;
+        Command.actionType = "query";
+        Command.appendResults(response);
+      });
+    } else {
+      Command.complete(barInput.value, false, false);
+    }
   }
 }
 
@@ -187,6 +202,7 @@ Command.hide = function() {
   barInput.value = "";
   Search.index = null;
   Search.searchHistory = [];
+  Command.enterHit = false;
   Command.actionType = "";
   Command.type = "";
   Command.history.index = {};

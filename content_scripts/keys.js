@@ -51,6 +51,7 @@ keyDown = function(e) {
           Command.history.cycle("action", false);
           break;
         case 13: // Enter
+          Command.enterHit = true;
           if (Command.type === "action" && Command.history["action"]) {
             Command.history.action.push(barInput.value);
             chrome.runtime.sendMessage({action: "appendHistory", value: barInput.value, type: "action"});
@@ -58,11 +59,11 @@ keyDown = function(e) {
           document.getElementById("command_input").blur();
           if (Command.type === "search") {
             Command.search(false);
-            Command.enterHit = true;
           } else if (Command.actionType === "query") {
             Search.go();
             Command.hide();
           } else {
+            Command.parse(input.value);
             Command.hide();
           }
           break;
@@ -252,6 +253,9 @@ keyDown = function(e) {
               commandMode = true;
               Command.show(false, "tabopen ");
               break;
+            case 80:
+              chrome.runtime.sendMessage({action: "focusOmnibar"});
+              break;
             case 71: // g
               keyQueue = true;
               break;
@@ -272,6 +276,7 @@ keyDown = function(e) {
       }
     }
   }
+  log(e.which);
 };
 
 document.addEventListener("keydown", keyDown, true);
