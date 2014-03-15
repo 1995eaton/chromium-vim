@@ -5,7 +5,7 @@ if [[ $1 == "-c" ]]; then
 else
   if [[ ! -e release ]]; then
     mkdir release
-    cp -r `find . -maxdepth 1 | egrep -v "^\.$|\.git"` release
+    cp -r `find . -maxdepth 1 | egrep -v "^\.$|\.git|release"` release
     zip -r release.zip release
   fi
 fi
