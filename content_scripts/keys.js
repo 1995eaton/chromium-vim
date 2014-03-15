@@ -1,4 +1,4 @@
-var keyQueue, inputFocused, insertMode, commandMode, port;
+var keyQueue, inputFocused, insertMode, commandMode, port, skipDefault;
 var inputElements = [];
 var inputIndex = 0;
 keyDown = function(e) {
@@ -116,6 +116,8 @@ keyDown = function(e) {
       e.stopPropagation();
     }
     if (keyQueue) {
+      keyQueue = false;
+      skipDefault = true;
       if (e.shiftKey) {
         switch (e.which) {
           case 84:
@@ -162,12 +164,12 @@ keyDown = function(e) {
               }, 0);
             }
           default:
-            keyQueue = false;
+            skipDefault = false;
             break;
         }
       }
     }
-    if (!keyQueue) {
+    if (!keyQueue && !skipDefault) {
       if (e.which === 70 && !e.ctrlKey && !e.metaKey && !hints_active) {
         Hints.create(e.shiftKey, false);
       } else if (e.which === 27 && !e.ctrlKey && !e.shiftKey && !e.altKey && hints_active) {
@@ -271,6 +273,7 @@ keyDown = function(e) {
       }
     }
   }
+  skipDefault = false;
   log(e.which);
 };
 
