@@ -130,9 +130,10 @@ Hints.create = function(tabbed, numeric) {
     }
     return clickable;
   }
-  //if (!links.length) {
-    links = getClickableLinks();
-  //}
+  links = getClickableLinks();
+  if (links.length === 1) { // do not select my command bar
+    return;
+  }
   var link_number = 0;
   var main = document.createElement("div");
   var isRedditUrl = /reddit\.com/.test(document.URL);
