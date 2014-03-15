@@ -6,10 +6,13 @@ Search.searchHistory = [];
 
 Search.fetchQuery = function(query, callback) {
   var api = "https://suggestqueries.google.com/complete/search?client=firefox&q=";
+  //var api = "http://toolbarqueries.google.com/complete/search?output=toolbar&hl=en&q="
+  //var api = "https://clients1.google.com/complete/search?client=hp&hl=en&gs_rn=37&gs_ri=hp&tok=ZrCrC4RUUHoLw7nw3h5B7Q&cp=1&gs_id=7&gs_gbg=99XWStbq0&q=";
   var xhr = new XMLHttpRequest();
   xhr.open("GET", api + query);
   xhr.onreadystatechange = function() {
     if (xhr.readyState === 4 && xhr.status === 200) {
+      log(xhr.responseText);
       callback(JSON.parse(xhr.responseText)[1]);
     }
   };

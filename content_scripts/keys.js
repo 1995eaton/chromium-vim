@@ -139,7 +139,7 @@ keyDown = function(e) {
             if (!inputElements.length) {
               var inputElementsTemp = document.querySelectorAll("input,textarea");
               for (var i = 0; i < inputElementsTemp.length; i++) {
-                if (!inputElementsTemp[i].disabled && inputElementsTemp[i].style.display !== "none" && inputElementsTemp[i].style.opacity !== "0" && (inputElementsTemp[i].nodeName === "TEXTAREA" || (inputElementsTemp[i].nodeName === "INPUT" && (inputElementsTemp[i].type === "text" || inputElementsTemp[i].type === "search")))) {
+                if (!inputElementsTemp[i].disabled && inputElementsTemp[i].id !== "command_input" && inputElementsTemp[i].style.display !== "none" && inputElementsTemp[i].style.opacity !== "0" && (inputElementsTemp[i].nodeName === "TEXTAREA" || (inputElementsTemp[i].nodeName === "INPUT" && (inputElementsTemp[i].type === "text" || inputElementsTemp[i].type === "search")))) {
                   inputElements.push(inputElementsTemp[i]);
                   log(inputElements);
                 }
@@ -171,9 +171,7 @@ keyDown = function(e) {
             break;
         }
       }
-    }
-    log(e.which);
-    if (!keyQueue) {
+    } else {
       if (e.which === 70 && !e.ctrlKey && !e.metaKey && !hints_active) {
         Hints.create(e.shiftKey, false);
       } else if (e.which === 27 && !e.ctrlKey && !e.shiftKey && !e.altKey && hints_active) {

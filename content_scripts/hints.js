@@ -50,8 +50,39 @@ Hints.handleHintFeedback = function(choice) {
     }
   }
   if (links_found === 1) {
-      chrome.runtime.sendMessage({action: (this.tabbed) ? "openLinkTab" : "openLink", url: (!this.numeric) ? hint_links[cur_index] : hint_links[choice]});
+    if (hint_links[cur_index].nodeName === "BUTTON") {
+      hint_links[cur_index].click();
+    } else if (hint_links[cur_index].nodeName === "SELECT") {
+      var e = new MouseEvent("mousedown");
+      hint_links[cur_index].dispatchEvent(e);
+    } else if (hint_links.nodeName === "TEXTAREA") {
+      setTimeout(function() {
+        hint_links[cur_index].focus();
+      }, 0);
+    } else if (hint_links[cur_index].nodeName === "INPUT") {
+      switch (hint_links[cur_index].type) {
+        case "text": case "password":
+          setTimeout(function() {
+            hint_links[cur_index].focus();
+          }, 0);
+          break;
+        case "radio":
+          hint_links[cur_index].click();
+          break;
+        case "checkbox":
+          hint_links[cur_index].checked = !hint_links[cur_index].checked;
+          break;
+        default:
+          break;
+      }
+    } else if (!this.tabbed || hint_links[cur_index].getAttribute("onclick")) {
+      hint_links[cur_index].click();
+    } else {
+      chrome.runtime.sendMessage({action: "openLinkTab", url: (!this.numeric) ? hint_links[cur_index].href : hint_links[choice].href});
+    }
+    setTimeout(function() {
       Hints.hideHints();
+    }, 0);
   } else if (links_found === 0) {
     Hints.hideHints();
   }
@@ -86,8 +117,20 @@ Hints.create = function(tabbed, numeric) {
     left: document.body.scrollLeft,
     right: document.body.scrollLeft + window.innerWidth
   };
-  if (links.length === 0) {
-    links = document.links;
+  var getClickableLinks = function() {
+    var elements = document.getElementsByTagName("*");
+    var currentCoordinate;
+    var clickable = [];
+    for (var i = 0, length = elements.length; i < length; i++) {
+      var computedStyle = getComputedStyle(elements[i], null);
+      if ((elements[i].getAttribute("onclick") || /^(SELECT|BUTTON|TEXTAREA|A|INPUT)$/.test(elements[i].nodeName)) && computedStyle.visibility !== "hidden" && computedStyle.display !== "none" && parseFloat(computedStyle.opacity) > 0) {
+        clickable.push(elements[i]);
+      }
+    }
+    return clickable;
+  }
+  if (!links.length) {
+    links = getClickableLinks();
   }
   var link_number = 0;
   var main = document.createElement("div");
@@ -95,11 +138,21 @@ Hints.create = function(tabbed, numeric) {
   main.id = "link_main";
   main.top = document.body.scrollTop + "px";
   main.left = document.body.scrollLeft + "px";
+  var linkCoordinates = [];
   for (var i = 0; i < links.length; i++) {
     var link_location = links[i].getBoundingClientRect();
-    if (link_location.top > 0 && link_location.top < window.innerHeight && link_location.left > 0 && link_location.left < window.innerWidth) {
+    var duplicate = false;
+    for (var i2 = 0, length = linkCoordinates.length; i2 < length; i2++) {
+      if ([link_location.top, link_location.left].compare(linkCoordinates[i2])) {
+        duplicate = true;
+        break;
+      }
+    }
+    if (duplicate) continue;
+    linkCoordinates.push([link_location.top, link_location.left]);
+    if (link_location.top >= 0 && link_location.top + link_location.height < window.innerHeight && link_location.left + link_location.width >= 0 && link_location.left < window.innerWidth) {
       hint_strings.push(link_number.toString());
-      hint_links.push(links[i].href);
+      hint_links.push(links[i]);
       var temp = document.createElement("div");
       temp.className = "link_hint";
       temp.style.top = link_location.top + screen.top + "px";
@@ -128,6 +181,21 @@ Hints.create = function(tabbed, numeric) {
     }
     for (var i = 1; i <= link_arr.length; i++) {
       letter_perms.push(genHint(i));
+    }
+    function optimizeHint(hint, orig_index) { // TODO: Find a better way to get optimized hints
+      var rxp = new RegExp("^" + hint.substring(0, hint.length - 1));
+      for (var i = 0, l = letter_perms.length; i < l; i++) {
+        if (i != orig_index && rxp.test(letter_perms[i])) {
+          return hint;
+        }
+      }
+      if (hint.length !== 1) {
+        return optimizeHint(hint.substring(0, hint.length - 1));
+      }
+      return hint;
+    }
+    for (var i = 0, l = letter_perms.length; i < l; i++) {
+      letter_perms[i] = optimizeHint(letter_perms[i], i);
     }
     for (var i = link_arr.length - 1; i >= 0; i--) {
       link_arr[i].innerText = letter_perms[i];
