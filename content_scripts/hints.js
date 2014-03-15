@@ -135,6 +135,7 @@ Hints.create = function(tabbed, numeric) {
   //}
   var link_number = 0;
   var main = document.createElement("div");
+  var isRedditUrl = /reddit\.com/.test(document.URL);
   hints_active = true;
   main.id = "link_main";
   main.top = document.body.scrollTop + "px";
@@ -158,6 +159,9 @@ Hints.create = function(tabbed, numeric) {
       temp.className = "link_hint";
       temp.style.top = link_location.top + screen.top + "px";
       temp.style.left = link_location.left + screen.left + "px";
+      if (isRedditUrl && links[i].className === "button") { // more comments expand
+        temp.style.zIndex = "2";
+      }
       if (numeric) {
         temp.innerText = link_number;
         main.appendChild(temp);

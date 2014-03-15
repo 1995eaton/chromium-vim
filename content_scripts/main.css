@@ -54,7 +54,6 @@
   border-radius: 2px;
   border: 1px solid #333;
   box-shadow: 2px 2px 3px rgba(0,0,0,0.4);
-  z-index: 9999;
   position: absolute;
 }
 #command_bar {
