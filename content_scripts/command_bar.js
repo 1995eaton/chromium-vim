@@ -2,10 +2,16 @@ var Command = {};
 var bar, barInput, barMode, barData, barHistory, dataNode, dataNodeContainer;
 var dataElements = [];
 var completionMatches = [];
+var barOnBottom = false;
 
 Command.setup = function() {
   bar = document.createElement("div");
   bar.id = "command_bar";
+  if (barOnBottom) {
+    bar.style.bottom = "0";
+  } else {
+    bar.style.top = "0";
+  }
   barInput = document.createElement("input");
   barInput.type = "text";
   barInput.id = "command_input";
@@ -77,6 +83,11 @@ Command.appendResults = function(data) {
     barData.id = "command_search_results";
     dataNodeContainer = document.createElement("ul");
     barData.appendChild(dataNodeContainer);
+    if (barOnBottom) {
+      barData.style.bottom = "20px";
+    } else {
+      barData.style.top = "20px";
+    }
     document.lastChild.appendChild(barData);
   }
   dataNodeContainer.innerHTML = "";

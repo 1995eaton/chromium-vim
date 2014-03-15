@@ -4,7 +4,6 @@ var inputIndex = 0;
 keyDown = function(e) {
   if (e.which === 16) return;
   if (commandMode) {
-    var input = document.getElementById("command_input");
     if (e.which === 27) {
       commandMode = false;
       Command.hide();
@@ -12,11 +11,11 @@ keyDown = function(e) {
       switch (e.which) {
         case 8: // Backspace
           if (Command.type === "search") {
-            input.blur();
+            barInput.blur();
             window.focus();
             window.blur();
-            input.focus();
-          } else if (input.value !== "") {
+            barInput.focus();
+          } else if (barInput.value !== "") {
             Search.index = null;
             setTimeout(function() {
               Command.parse()
@@ -33,8 +32,8 @@ keyDown = function(e) {
               Search.nextResult(e.shiftKey);
             } else {
               if (!Command.typed) {
-                input.value = "";
-                Command.complete(input.value, e.shiftKey, true);
+                barInput.value = "";
+                Command.complete(barInput.value, e.shiftKey, true);
               } else {
                 Command.complete(Command.typed, e.shiftKey, true);
               }
@@ -55,14 +54,14 @@ keyDown = function(e) {
             Command.history.action.push(barInput.value);
             chrome.runtime.sendMessage({action: "appendHistory", value: barInput.value, type: "action"});
           }
-          document.getElementById("command_input").blur();
+          barInput.blur();
           if (Command.type === "search") {
             Command.search(false);
           } else if (Command.actionType === "query") {
             Search.go();
             Command.hide();
           } else {
-            Command.parse(input.value);
+            Command.parse(barInput.value);
             Command.hide();
           }
           break;
@@ -72,15 +71,15 @@ keyDown = function(e) {
               Command.parse();
             }, 0);
           } else {
-            input.blur();
+            barInput.blur();
             window.focus();
             window.blur();
-            var i = input.value;
+            var i = barInput.value;
             if (document.getSelection().rangeCount) {
               document.getSelection().collapseToEnd();
             }
             document.getElementById("command_input").value = i;
-            input.focus();
+            barInput.focus();
             setTimeout(function() {
               if (Command.type === "search") {
                 Command.search(false);
@@ -91,7 +90,7 @@ keyDown = function(e) {
       }
     } else if (e.which === 191 || e.which === 186) { // / + :
       setTimeout(function() {
-        input.focus();
+        barInput.focus();
       }, 0);
     }
   } else {
