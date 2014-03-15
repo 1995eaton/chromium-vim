@@ -55,7 +55,7 @@ Hints.handleHintFeedback = function(choice) {
     } else if (hint_links[cur_index].nodeName === "SELECT") {
       var e = new MouseEvent("mousedown");
       hint_links[cur_index].dispatchEvent(e);
-    } else if (hint_links.nodeName === "TEXTAREA") {
+    } else if (hint_links[cur_index].nodeName === "TEXTAREA") {
       setTimeout(function() {
         hint_links[cur_index].focus();
       }, 0);
@@ -66,13 +66,14 @@ Hints.handleHintFeedback = function(choice) {
             hint_links[cur_index].focus();
           }, 0);
           break;
-        case "radio":
+        case "radio": case "submit":
           hint_links[cur_index].click();
           break;
         case "checkbox":
           hint_links[cur_index].checked = !hint_links[cur_index].checked;
           break;
         default:
+          hint_links[cur_index].click();
           break;
       }
     } else if (!this.tabbed || hint_links[cur_index].getAttribute("onclick")) {

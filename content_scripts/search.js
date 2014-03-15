@@ -1,5 +1,5 @@
 var Search = {};
-Search.urlMatch = /(http(s)?:\/\/)?(\S+)\.(com|biz|edu|gov|me)(([\/]+)?([\/\S]+)?)?/i;
+Search.urlMatch = /(http(s)?:\/\/)?(\S+)\.(com|org|mil|ru|ca|jp|ch|io|net|biz|edu|gov|me)(([\/]+)?([\/\S]+)?)?/i;
 
 Search.index = null;
 Search.searchHistory = [];
