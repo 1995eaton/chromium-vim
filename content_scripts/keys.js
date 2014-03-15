@@ -1,7 +1,6 @@
 var keyQueue, inputFocused, insertMode, commandMode, port;
 var inputElements = [];
 var inputIndex = 0;
-var validCommandString = false;
 keyDown = function(e) {
   if (e.which === 16) return;
   if (commandMode) {
@@ -117,42 +116,38 @@ keyDown = function(e) {
       e.stopPropagation();
     }
     if (keyQueue) {
-      keyQueue = false;
-      validCommandString = true;
       if (e.shiftKey) {
         switch (e.which) {
           case 84:
             chrome.runtime.sendMessage({action: "previousTab"});
             break;
           default:
-            validCommandString = false;
             break;
         }
       } else {
         switch(e.which) {
-          case 84:
+          case 84: // gt
             chrome.runtime.sendMessage({action: "nextTab"});
             break;
-          case 71:
+          case 83: // gs
+            chrome.runtime.sendMessage({action: "openLinkTab", url: "view-source:" + document.URL});
+            break;
+          case 71: // gg
             Scroll.scroll("top");
             break;
-          case 73:
+          case 73: // gi
             if (!inputElements.length) {
               var inputElementsTemp = document.querySelectorAll("input,textarea");
               for (var i = 0; i < inputElementsTemp.length; i++) {
                 if (!inputElementsTemp[i].disabled && inputElementsTemp[i].id !== "command_input" && inputElementsTemp[i].style.display !== "none" && inputElementsTemp[i].style.opacity !== "0" && (inputElementsTemp[i].nodeName === "TEXTAREA" || (inputElementsTemp[i].nodeName === "INPUT" && (inputElementsTemp[i].type === "text" || inputElementsTemp[i].type === "search")))) {
                   inputElements.push(inputElementsTemp[i]);
-                  log(inputElements);
                 }
                 if (i + 1 === inputElementsTemp.length) {
-                  log(inputElements);
                   for (var i2 = 0; i2 < inputElements.length; i2++) {
                     if (inputElements[i2].offsetTop >= document.body.scrollTop) {
                       inputFocused = true;
                       inputIndex = i2;
                       setTimeout(function() {
-                        log(inputElements);
-                        log(inputIndex);
                         inputElements[i2].focus();
                       }, 0);
                       break;
@@ -168,11 +163,11 @@ keyDown = function(e) {
             }
           default:
             keyQueue = false;
-            validCommandString = false;
             break;
         }
       }
-    } else {
+    }
+    if (!keyQueue) {
       if (e.which === 70 && !e.ctrlKey && !e.metaKey && !hints_active) {
         Hints.create(e.shiftKey, false);
       } else if (e.which === 27 && !e.ctrlKey && !e.shiftKey && !e.altKey && hints_active) {
@@ -180,7 +175,6 @@ keyDown = function(e) {
       } else if (hints_active && !e.shiftKey && !e.metaKey && !e.ctrlKey) {
         Hints.handleHint(String.fromCharCode(e.which));
       } else if (!e.ctrlKey && !e.metaKey) {
-        if (validCommandString) return validCommandString = false;
         if (e.shiftKey) {
           switch (e.which) {
             case 71: // G
@@ -258,6 +252,7 @@ keyDown = function(e) {
               break;
             case 71: // g
               keyQueue = true;
+              log(0);
               break;
             case 78: // n
               if (Command.type === "search") {
