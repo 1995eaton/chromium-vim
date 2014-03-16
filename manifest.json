@@ -1,17 +1,19 @@
 {
   "manifest_version": 2,
-  "name": "Link Hints",
+  "name": "cVim",
   "version": "1.0.0",
-  "description": "An extension adding Vim-like binding to Google Chrome",
+  "description": "An extension adding Vim-like bindings to Google Chrome",
   "author": "Jake Eaton",
   "permissions": [
     "<all_urls>",
     "tabs",
-    "history"
+    "history",
+    "bookmarks"
   ],
   "background": {
     "scripts": [
-      "background_scripts/main.js"
+      "background_scripts/main.js",
+      "background_scripts/settings.js"
     ]
   },
   "content_scripts": [
@@ -19,17 +21,17 @@
       "matches": ["<all_urls>"],
       "js": [
              "content_scripts/hints.js",
+             "content_scripts/bookmarks.js",
              "content_scripts/keys.js",
              "content_scripts/utils.js",
              "content_scripts/command_bar.js",
              "content_scripts/scroll.js",
              "content_scripts/search.js"
             ],
-      "css": [
-              "content_scripts/main.css"
-             ],
+      "css": ["content_scripts/main.css"],
       "run_at": "document_start",
       "all_frames": true
     }
-  ]
+  ],
+  "options_page": "pages/options.html"
 }

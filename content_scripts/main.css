@@ -162,92 +162,52 @@
 }
 
 #command_search_results {
-  position: fixed !important;
-  min-height: 0 !important;
-  background-repeat: none !important;
-  background-position: none !important;
-  border: none !important;
-  border-radius: 0 !important;
-  vertical-align: none !important;
-  z-index: 9999999999 !important;
-  background-color: #393E40 !important;
-  color: #fff !important;
-  display: none;
-  box-shadow: none !important;
-  border: 0 !important;
-  margin: 0 !important;
-  font-family: monospace !important;
-  font-size: 10pt !important;
-  padding: 0 !important;
-  line-height: 1 !important;
-  letter-spacing: normal !important;
-  word-spacing: normal !important;
-  text-transform: none !important;
-  text-indent: 0px !important;
-  text-shadow: none !important;
-  text-align: start !important;
-  box-shadow: none !important;
-  outline: 0 !important;
-  -webkit-appearance: none !important;
-  border: 0 !important;
-  /*top: 20px !important;*/
-  border: none !important;
-  box-sizing: border-box !important;
-  padding: 3px; !important;
-  left: 0; right: 0;
-  margin: 0 auto;
+  position: fixed;
+  width: 100%;
+  overflow: hidden;
+  left: 0;
+  padding-top: 5px;
+  z-index: 99999;
+  background-color: #383838;
 }
 
-#command_search_results ul, #command_search_results .command-data-node, #command_search_results .command-history-data-node {
-  box-shadow: none !important;
-  border: 0 !important;
-  margin: 0 !important;
-  font-size: 10pt !important;
-  padding: 0 !important;
-  font-family: monospace !important;
-  line-height: 1 !important;
-  letter-spacing: normal !important;
-  word-spacing: normal !important;
-  text-transform: none !important;
-  text-indent: 0px !important;
-  text-shadow: none !important;
-  text-align: start !important;
-  box-shadow: none !important;
-  outline: 0 !important;
-  -webkit-appearance: none !important;
-  border: 0 !important;
-  border: none !important;
-  list-style: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
+.completion-item {
+  width: 100%;
+  left: 0;
+  font-family: monospace;
+  box-sizing: border-box;
+  padding-left: 2px;
+  display: inline-block;
+  color: #fff;
+  font-size: 9pt;
 }
 
-
-#command_search_results .command-data-node div, #command_search_results .command-history-data-node div {
-  box-shadow: none !important;
-  border: 0 !important;
-  font-size: 10pt !important;
-  line-height: 1 !important;
-  letter-spacing: normal !important;
-  word-spacing: normal !important;
-  text-transform: none !important;
-  text-indent: 0px !important;
-  font-family: monospace !important;
-  font-size: 10pt !important;
-  text-shadow: none !important;
-  box-shadow: none !important;
-  outline: 0 !important;
-  -webkit-appearance: none !important;
-  border: 0 !important;
-  padding: 2px !important;
+.completion-item .full {
+  display: inline-block;
+  padding-top: 4px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-.completion-descriptions {
-  font-style: italic !important;
-  white-space: nowrap !important;
-  float: right !important;
-  text-overflow: ellipsis !important;
-  max-width: 35%;
-  color: #bbb;
-  text-align: right !important;
+.completion-item .left {
+  display: inline-block;
+  padding-top: 4px;
+  overflow: hidden;
+  color: #fff;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 47%;
+}
+
+.completion-item .right {
+  display: inline-block;
+  overflow: hidden;
+  font-style: italic;
+  /*padding: 1px;*/
+  padding-top: 4px;
+  color: #888;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 47%;
 }

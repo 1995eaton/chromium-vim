@@ -1,6 +1,7 @@
 var Scroll = {};
 var step = 120;
 var smooth = true;
+Scroll.smooth = true;
 
 easeOutExpo = function (t, b, c, d) {
 	return c * ( -Math.pow( 2, -10 * t/d ) + 1 ) + b;
@@ -31,7 +32,7 @@ Scroll.smoothScrollBy = function(x, y) {
 };
 
 Scroll.scroll = function(type) {
-  if (smooth) {
+  if (Scroll.smooth) {
     switch (type) {
       case "down":
         Scroll.smoothScrollBy(0, step);

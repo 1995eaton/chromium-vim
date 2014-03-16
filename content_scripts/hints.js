@@ -1,8 +1,7 @@
 var handleHint, handleHintFeedback, hideHints;
-var hints_active, hint_strings, tab_open, links, link_arr, hint_links, hint_chars, letter_perms;
+var hints_active, hint_strings, tab_open, links, link_arr, hint_links, letter_perms;
 var log = console.log.bind(console);
 
-hint_chars = "asdfgqwertzxcvb";
 links = [];
 hint_links = [];
 link_arr = [];
@@ -10,6 +9,8 @@ link_arr = [];
 var current_string = "";
 
 var Hints = {};
+
+Hints.hintCharacters = "asdfgzxcvbqwert";
 
 Hints.hideHints = function() {
   for (var i = 0; i < link_arr.length; i++) {
@@ -92,7 +93,7 @@ Hints.handleHintFeedback = function(choice) {
 
 Hints.handleHint = function(key) {
   if (!this.numeric) {
-    if (new RegExp(hint_chars.split("").join("|")).test(key.toLowerCase())) {
+    if (new RegExp(Hints.hintCharacters.split("").join("|")).test(key.toLowerCase())) {
       current_string += key.toLowerCase();
       Hints.handleHintFeedback(current_string);
     } else {
@@ -173,15 +174,15 @@ Hints.create = function(tabbed, numeric) {
   }
   if (!numeric) {
     letter_perms = [];
-    var lim = Math.ceil(Math.log(link_arr.length) / Math.log(hint_chars.length));
+    var lim = Math.ceil(Math.log(link_arr.length) / Math.log(Hints.hintCharacters.length));
     function genHint(n) {
       var l, r;
       l = [];
       for (var i = 0; i < lim; i++) {
-        r = n % hint_chars.length;
-        l.push(hint_chars[r]);
+        r = n % Hints.hintCharacters.length;
+        l.push(Hints.hintCharacters[r]);
         n -= r;
-        n = Math.floor(n/hint_chars.length);
+        n = Math.floor(n/Hints.hintCharacters.length);
       }
       return l.join("");
     }

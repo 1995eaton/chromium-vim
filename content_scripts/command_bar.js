@@ -1,8 +1,7 @@
 var Command = {};
-var bar, barInput, barMode, barData, barHistory, dataNode, dataNodeContainer;
+var bar, barInput, barMode, barData, barOnBottom, barHistory, dataNode, dataNodeContainer;
 var dataElements = [];
 var completionMatches = [];
-var barOnBottom = false;
 
 Command.setup = function() {
   bar = document.createElement("div");
@@ -76,47 +75,68 @@ Command.search = function(reverse, looseFocus) {
   }
 };
 
-Command.appendResults = function(data) {
+Command.appendResults = function(data, bookmarks, search, completion) {
   dataElements = [];
   if (!barData) {
     barData = document.createElement("div");
     barData.id = "command_search_results";
-    dataNodeContainer = document.createElement("ul");
-    barData.appendChild(dataNodeContainer);
     if (barOnBottom) {
       barData.style.bottom = "20px";
+      barData.style.paddingTop = "0";
     } else {
       barData.style.top = "20px";
     }
     document.lastChild.appendChild(barData);
   }
-  dataNodeContainer.innerHTML = "";
-  for (var i = 0; i < Search.searchHistory.length; i++) {
-    var temp = document.createElement("li");
-    temp.className = "command-history-data-node";
-    temp.tabIndex = "1";
-    var tempText = document.createElement("div");
-    tempText.innerHTML = "History: " + Search.searchHistory[i][0] + '<span class="completion-descriptions">' + Search.searchHistory[i][1] + '</span>';
-    temp.appendChild(tempText);
-    dataElements.push(tempText);
-    dataNodeContainer.appendChild(temp);
-  }
-  for (var i = 0; i < data.length; i++) {
-    var temp = document.createElement("li");
-    temp.className = "command-data-node";
-    temp.tabIndex = "1";
-    var tempText = document.createElement("div");
-    tempText.innerHTML = data[i];
-    temp.appendChild(tempText);
-    dataElements.push(tempText);
-    dataNodeContainer.appendChild(temp);
+  barData.innerHTML = "";
+  if (bookmarks) {
+    var c = 0;
+    Marks.currentBookmarks = [];
+    for (var i = 0, length = Marks.bookmarks.length; i < length; i++) {
+      if (!new RegExp(search, "i").test(Marks.bookmarks[i][0] + Marks.bookmarks[i][1])) {
+        continue;
+      }
+      c++;
+      if (c > 15) break;
+      Marks.currentBookmarks.push(Marks.bookmarks[i][1]);
+      var temp = document.createElement("div");
+      temp.className = "completion-item";
+      temp.innerHTML = '<span class="left">' + Marks.bookmarks[i][0] + '</span>' + '<span class="right">' + Marks.bookmarks[i][1] + '</span>';
+      dataElements.push(temp);
+      barData.appendChild(temp);
+    }
+  } else {
+    for (var i = 0; i < Search.searchHistory.length; i++) {
+      var temp = document.createElement("div");
+      temp.className = "completion-item";
+      temp.innerHTML = '<span class="left">' + '<span style="color:#00BED3">History</span>: ' + Search.searchHistory[i][0] + '</span>' + '<span class="right">' + Search.searchHistory[i][1] + '</span>';
+      dataElements.push(temp);
+      barData.appendChild(temp);
+    }
+    if (completion) {
+      for (var i = 0; i < data.length; i++) {
+        var temp = document.createElement("div");
+        temp.className = "completion-item";
+        temp.innerHTML = data[i];
+        dataElements.push(temp);
+        barData.appendChild(temp);
+      }
+    } else {
+      for (var i = 0; i < data.length; i++) {
+        var temp = document.createElement("div");
+        temp.className = "completion-item";
+        temp.innerHTML = '<span class="full">' + data[i] + '</span>';
+        dataElements.push(temp);
+        barData.appendChild(temp);
+      }
+    }
   }
   barData.style.display = "block";
 };
 
 Command.hideData = function() {
   if (barData) {
-    barData.firstChild.innerHTML = "";
+    barData.innerHTML = "";
     Search.index = null;
   }
 };
@@ -126,6 +146,7 @@ Command.descriptions = [
   ["tabopen", "t(ab)o(pen)", "Open a link in a new tab"],
   ["closetab", "cl(osetab)", "Close the current tab"],
   ["open", "o(pen)", "Open a link in the current tab"],
+  ["bookmarks ", "b(ook)marks", "Search through your bookmarks"],
   ["help", "help", "Displays the help page in a new tab"], // TODO
   ["extensions", "ex(tensions)", "Opens the chrome://extensions page"],
   ["flags", "fl(ags)", "Opens the chrome://flags page"]
@@ -151,9 +172,9 @@ Command.complete = function(input, reverse, doSearch) {
     var descriptions = [];
     if (completionMatches.length) {
       for (var i = 0; i < completionMatches.length; i++) {
-        descriptions.push(completionMatches[i][1] + '<span class="completion-descriptions">' + completionMatches[i][2] + '</span>');
+        descriptions.push('<span class="left">' + completionMatches[i][1] + '</span>' + '<span class="right">' + completionMatches[i][2] + '</span>');
       }
-      Command.appendResults(descriptions);
+      Command.appendResults(descriptions, false, false, true);
     } else {
       Command.hideData();
     }
@@ -170,6 +191,10 @@ Command.parse = function(value) {
       chrome.runtime.sendMessage({action: "openLinkTab", url: "chrome://newtab"});
     } else if (/^cl(osetab)?(\s+)?$/.test(value)) {
       chrome.runtime.sendMessage({action: "closeTab"});
+    } else if (/^b(ook)?marks(\s+)?/.test(value)) {
+      if (barInput.value.replace(/^b(ook)?marks(\s+)?/, "").length !== 0) {
+        chrome.runtime.sendMessage({action: "openLinkTab", url: barInput.value.replace(/^b(ook)?marks(\s+)?/, "")});
+      }
     }
   }
   if (!Command.enterHit) {
@@ -185,6 +210,10 @@ Command.parse = function(value) {
         Command.actionType = "query";
         Command.appendResults(response);
       });
+    } else if (/^b(ook)?marks(\s+)/.test(barInput.value)) {
+      var search = barInput.value.replace(/^b(ook)?marks(\s+)/, "");
+      Command.actionType = "bookmarks";
+      Command.appendResults(null, true, search);
     } else {
       Command.complete(barInput.value, false, false);
     }
@@ -208,6 +237,7 @@ Command.show = function(search, value) {
     barInput.focus();
   }, 0);
 };
+
 Command.hide = function() {
   bar.style.display = "none";
   barInput.value = "";
@@ -221,3 +251,19 @@ Command.hide = function() {
   dataElements = [];
   if (barData) barData.style.display = "none";
 };
+
+document.addEventListener("DOMContentLoaded", function() {
+  Search.getBookmarks();
+  chrome.runtime.sendMessage({getSettings: true}, function (s) {
+    settings = s;
+    var cssStyle = document.createElement("style");
+    cssStyle.innerText = settings.commandBarCSS;
+    //document.getElementsByTagName("head")[0].appendChild(cssStyle);
+    barOnBottom = (settings.commandBarOnBottom === "true") ? true : false;
+    Scroll.smooth= (settings.smoothScroll === "true") ? true : false;
+    if (settings.linkHintCharacters.split("").unique().length > 1) {
+      Hints.hintCharacters = settings.linkHintCharacters.split("").unique().join("");
+    }
+    Command.setup();
+  });
+});

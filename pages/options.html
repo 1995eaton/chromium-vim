@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>cVim Options</title>
+  <link rel="stylesheet" href="options.css">
+  <link rel="stylesheet" href="codemirror/codemirror.css">
+</head>
+<body>
+<div id="background_main"></div>
+<div id="container_main">
+  <div id="container_title">cVim Options</div>
+  <div id="settings">
+    <table>
+      <tr>
+        <td>
+          <span class="setting">Use smooth scrolling</span>
+          <span class="value">
+            <input id="smoothScroll" type="checkbox">
+          </span>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <span class="setting">Command bar on bottom</span>
+          <span class="value">
+            <input id="commandBarOnBottom" type="checkbox">
+          </span>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <span class="setting">Link hint characters</span>
+          <span class="value">
+            <input id="linkHintCharacters" type="text">
+          </span>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <span class="setting">CSS
+            <select id="edit_mode">
+              <option disabled>Mode</option>
+              <option>Normal</option>
+              <option>Vim</option>
+            </select>
+          </span>
+          <textarea id="commandBarCSS" name="css"></textarea>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <div id="save_container">
+    <button id="save_button">Save</button>
+    <button id="reset_button">Reset</button>
+  </div>
+</div>
+</body>
+<script src="options.js"></script>
+<script src="codemirror/codemirror.js"></script>
+<script src="codemirror/css.js"></script>
+<script src="codemirror/vim.js"></script>
+</html>

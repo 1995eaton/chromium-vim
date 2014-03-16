@@ -1,0 +1,157 @@
+@font-face {
+  font-family: 'Gafata';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Gafata'), local('Gafata-Regular'), url(./fonts/Gafata.woff) format('woff');
+}
+
+body {
+  font-family: Gafata;
+  font-size: 14pt;
+}
+
+#background_main {
+  position: fixed;
+  min-width: 750px;
+  max-width: 900px;
+  width: 75%;
+  height: 100%; top: 0;
+  left: 0; right: 0;
+  box-shadow: 0 0 15px rgba(0,0,0,0.5);
+  margin: 0 auto;
+}
+
+#container_main {
+  position: absolute;
+  min-width: 750px;
+  max-width: 900px;
+  width: 75%;
+  height: 100%; top: 0;
+  left: 0; right: 0;
+  margin: 0 auto;
+}
+
+#container_title {
+  height: 100px; top: 0;
+  width: 100%; left: 0;
+  text-align: center;
+  padding-top: 35px;
+  font-size: 24pt;
+  text-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+}
+
+td {
+  padding: 5px;
+  padding-right: 10px;
+  height: 30px;
+  max-width: 800px;
+  line-height: 30px;
+}
+
+tr:nth-child(odd) {
+  background-color:#eee;
+}
+
+tr:nth-child(even) {
+  background-color:#fff;
+}
+
+table {
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+#settings {
+  position: absolute;
+  top: 100px;
+  height: calc(100% - 110px);
+  padding-top: 10px;
+  left: -2px;
+  width: calc(100% + 4px);
+}
+
+#edit_mode {
+  font-size: 8pt;
+  position: absolute;
+  top: 4px;
+  left: 30px;
+  width: 19px;
+  background-color: rgba(0,0,0,0);
+  border: none;
+  outline-style: none;
+}
+
+#cssSetting {
+  position: absolute;
+}
+.value {
+  float: right;
+}
+
+.CodeMirror {
+  position: absolute;
+  max-height: 300px;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  float: right;
+  border: 1px solid #ccc;
+  width: 90%;
+  transition: width 0.1s ease-out;
+  font-size: 10pt;
+}
+.CodeMirror-focused {
+  width: 100%;
+}
+
+.setting {
+  position: absolute;
+}
+
+.CodeMirror-scroll {
+  overflow-y: hidden;
+  overflow-x: auto;
+}
+
+input {
+  width: 50px;
+}
+
+textarea, input {
+  opacity: 0.8;
+  color: #444;
+  transition: opacity 2s;
+  outline-style: none;
+}
+
+textarea:hover, input:hover {
+  opacity: 1;
+}
+
+textarea:focus, input:focus {
+  color: #000;
+}
+
+#linkHintCharacters {
+  width: 100%;
+}
+
+#save_container {
+  position: fixed;
+  width: 100%;
+  left: 0; right: 0;
+  min-width: 750px;
+  max-width: 900px;
+  width: 75%;
+  background-color: #eee;
+  transition: opacity 0.2s ease-in-out;
+  text-align: center;
+  z-index: 999;
+  margin: 0 auto;
+  bottom: 0;
+}
+
+#save_button, #reset_button {
+  width: 55px;
+  margin: 5px;
+}

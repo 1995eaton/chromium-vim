@@ -1,4 +1,36 @@
 var Search = {};
+var port = chrome.extension.connect({name: "main"});
+
+var getAllMarks = function(marks, callback) {
+  marks.forEach(function(bookmark) {
+    if (bookmark.url) {
+      Marks.bookmarks.push([bookmark.title, bookmark.url]);
+    }
+    if (bookmark.children) {
+      getAllMarks(bookmark.children);
+    }
+  });
+  if (callback) {
+    callback();
+  }
+};
+
+port.onMessage.addListener(function(response) {
+  if (response.history) {
+    Search.searchHistory = [];
+    for (var key in response.history) {
+      if (response.history[key].url) {
+        Search.searchHistory.push([response.history[key].title, response.history[key].url]);
+      }
+    }
+  } else if (response.bookmarks) {
+    Marks.bookmarks = [];
+    getAllMarks(response.bookmarks, function() {
+      //Command.appendResults(null, true);
+    });
+  }
+});
+
 Search.urlMatch = /(http(s)?:\/\/)?(\S+)\.(com|org|mil|ru|ca|jp|ch|io|net|biz|edu|gov|me)(([\/]+)?([\/\S]+)?)?/i;
 
 Search.index = null;
@@ -12,7 +44,6 @@ Search.fetchQuery = function(query, callback) {
   xhr.open("GET", api + query);
   xhr.onreadystatechange = function() {
     if (xhr.readyState === 4 && xhr.status === 200) {
-      log(xhr.responseText);
       callback(JSON.parse(xhr.responseText)[1]);
     }
   };
@@ -34,16 +65,11 @@ Search.go = function(tabbed) {
 };
 
 Search.appendFromHistory = function(data) {
-  chrome.runtime.sendMessage({action: "searchHistory", search: data}, function(response) {
-    if (response) {
-      Search.searchHistory = [];
-      for (var key in response) {
-        if (response[key].url) {
-          Search.searchHistory.push([response[key].title, response[key].url]);
-        }
-      }
-    }
-  });
+  port.postMessage({action: "searchHistory", search: data});
+}
+
+Search.getBookmarks = function() {
+  port.postMessage({action: "getBookmarks"});
 }
 
 Search.nextResult = function(reverse) {
@@ -55,10 +81,11 @@ Search.nextResult = function(reverse) {
       this.index = dataElements.length - 1;
     }
   } else {
-    dataElements[this.index].parentNode.style.backgroundColor = "";
-    dataElements[this.index].parentNode.style.color = "";
-    if (dataElements[this.index].children[0]) {
-      dataElements[this.index].children[0].style.color = "#bbb";
+    dataElements[this.index].style.backgroundColor = "";
+    dataElements[this.index].style.color = "";
+    if (dataElements[this.index].children.length > 1) {
+      dataElements[this.index].children[0].style.color = "";
+      dataElements[this.index].children[1].style.color = "";
     }
     if (!reverse) {
       if (this.index + 1 < dataElements.length) {
@@ -78,15 +105,19 @@ Search.nextResult = function(reverse) {
       }
     }
   }
-  dataElements[this.index].parentNode.style.backgroundColor = "#fefefe";
-  dataElements[this.index].parentNode.style.color = "#1b1d1e";
-  if (dataElements[this.index].children[0]) {
+  dataElements[this.index].style.backgroundColor = "#fefefe";
+  if (dataElements[this.index].children.length > 1) {
     dataElements[this.index].children[0].style.color = "#1b1d1e";
+    dataElements[this.index].children[1].style.color = "#1b1d1e";
+  } else {
+  dataElements[this.index].style.color = "#1b1d1e";
   }
-  if (dataElements[this.index].parentNode.className === "command-history-data-node") {
-    barInput.value = barInput.value.match(/^(t(ab)?)?o(pen)? /)[0] + Search.searchHistory[this.index][1];
+  if (Command.actionType === "bookmarks") {
+    barInput.value = barInput.value.match(/^b(ook)?marks /)[0] + Marks.currentBookmarks[this.index];
   } else if (Command.actionType === "complete") {
     barInput.value = completionMatches[this.index][0];
+  } else if (Search.searchHistory[this.index]) {
+    barInput.value = barInput.value.match(/^(t(ab)?)?o(pen)? /)[0] + Search.searchHistory[this.index][1];
   } else {
     barInput.value = barInput.value.match(/^(t(ab)?)?o(pen)? /)[0] + dataElements[this.index].innerText;
   }

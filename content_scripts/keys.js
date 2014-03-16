@@ -1,6 +1,7 @@
-var keyQueue, inputFocused, insertMode, commandMode, port, skipDefault;
+var keyQueue, inputFocused, insertMode, commandMode, port, skipDefault, settings;
 var inputElements = [];
 var inputIndex = 0;
+
 keyDown = function(e) {
   if (e.which === 16) return;
   if (commandMode) {
@@ -28,9 +29,9 @@ keyDown = function(e) {
         case 9: // Tab
           e.preventDefault();
           if (Command.type === "action") {
-            if (Command.actionType === "query") {
+            if (Command.actionType === "query" || Command.actionType === "bookmarks") {
               Search.nextResult(e.shiftKey);
-            } else {
+            }else {
               if (!Command.typed) {
                 barInput.value = "";
                 Command.complete(barInput.value, e.shiftKey, true);
@@ -248,6 +249,11 @@ keyDown = function(e) {
               commandMode = true;
               Command.show(false, "tabopen ");
               break;
+            case 66: // b
+              commandMode = true;
+              Command.show(false, "bookmarks ");
+              Command.parse(barInput.value);
+              break;
             case 80:
               chrome.runtime.sendMessage({action: "focusOmnibar"});
               break;
@@ -277,6 +283,3 @@ keyDown = function(e) {
 };
 
 document.addEventListener("keydown", keyDown, true);
-document.addEventListener("DOMContentLoaded", function() {
-  Command.setup();
-});

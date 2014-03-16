@@ -1,11 +1,9 @@
 #!/bin/sh
 
-if [[ $1 == "-c" ]]; then
+if [[ -e release ]]; then
   rm -r release*
-else
-  if [[ ! -e release ]]; then
-    mkdir release
-    cp -r `find . -maxdepth 1 | egrep -v "^\.$|\.git|release"` release
-    zip -r release.zip release
-  fi
 fi
+
+mkdir release
+cp -r `find . -maxdepth 1 | egrep -v "^\.$|\.git|release"` release
+zip -r release.zip release

@@ -18,7 +18,7 @@ Array.prototype.compare = function (array) {
     }
   }
   return true;
-}
+};
 
 Array.prototype.compress = function() {
   for (var i = 0; i < this.length; i++) {
@@ -28,4 +28,10 @@ Array.prototype.compress = function() {
     }
   }
   return this;
+};
+
+Array.prototype.unique = function(){
+  return Object.keys(this.reduce(function(r,v){
+    return r[v]=1,r;
+  },{}));
 };

@@ -28,12 +28,33 @@ var history = {
     return [type, localStorage[type].split(",")];
   },
 
-  retrieveSearchHistory: function(search) {
+  retrieveSearchHistory: function(search, callback) {
     chrome.history.search({text: search, maxResults: 4}, function(results) {
-      history.searchResults = results;
+      callback(results);
     });
   }
 };
+
+function getMarks(callback) {
+  chrome.bookmarks.getTree(function(tree) {
+    callback(tree[0].children);
+  });
+}
+
+chrome.extension.onConnect.addListener(function(port) {
+  console.assert(port.name == "main");
+  port.onMessage.addListener(function(request, data) {
+    if (request.action == "getBookmarks") {
+      getMarks(function(marks) {
+        port.postMessage({bookmarks: marks});
+      });
+    } else if (request.action == "searchHistory") {
+      history.retrieveSearchHistory(request.search, function(results) {
+        port.postMessage({history: results});
+      });
+    }
+  });
+});
 
 chrome.runtime.onMessage.addListener(function(request, sender, callback) {
   switch (request.action) {
@@ -45,6 +66,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
       break;
     case "closeTab":
       chrome.tabs.remove(sender.tab.id);
+      break;
+    case "getBookmarks":
+      getMarks();
+      callback(marks);
       break;
     case "reloadTab":
       chrome.tabs.reload({});
