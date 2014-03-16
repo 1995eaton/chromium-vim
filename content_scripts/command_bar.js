@@ -59,10 +59,32 @@ for (var i = 0; i < historyStates.length; i++) {
     Command.history[result[0]] = result[1];
   });
 }
+var b;
+Command.removeHighlight = function() {
+  document.body.innerHTML = b;
+};
+
+Command.addHighlight = function(search) {
+ b = document.body.innerHTML; 
+  //while (true) {
+  for (var i = 0; i < 50; i++) {
+    var f = window.find(barInput.value, i, false, false, false);
+    if (!f) {
+      log(0);
+      break;
+    }
+    if (document.getSelection().getRangeAt(0)) {
+      var s = document.createElement("span");
+      s.style.backgroundColor = "yellow";
+      document.getSelection().getRangeAt(0).surroundContents(s);
+    }
+  }
+};
 
 Command.search = function(reverse, looseFocus) {
   var selection;
   if (Command.enterHit) {
+    //this.addHighlight(barInput.value);
     var i = barInput.value;
     barInput.value = "";
     window.find(i, false, reverse, true, false, true, false);

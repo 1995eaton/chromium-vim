@@ -62,7 +62,7 @@ Hints.handleHintFeedback = function(choice) {
       }, 0);
     } else if (hint_links[cur_index].nodeName === "INPUT") {
       switch (hint_links[cur_index].type) {
-        case "text": case "password":
+        case "text": case "password": case "email":
           setTimeout(function() {
             hint_links[cur_index].focus();
           }, 0);
@@ -121,11 +121,20 @@ Hints.create = function(tabbed, numeric) {
   };
   var getClickableLinks = function() {
     var elements = document.getElementsByTagName("*");
-    var currentCoordinate;
+    var currentCoordinate, special_urls;
     var clickable = [];
     for (var i = 0, length = elements.length; i < length; i++) {
       var computedStyle = getComputedStyle(elements[i], null);
-      if ((elements[i].getAttribute("onclick") || /^(SELECT|BUTTON|TEXTAREA|A|INPUT)$/.test(elements[i].nodeName)) && computedStyle.visibility !== "hidden" && computedStyle.display !== "none" && parseFloat(computedStyle.opacity) > 0) {
+      special_urls = {
+        inclusive: {
+          google: /google\.com/.test(document.URL) && (elements[i].getAttribute("jsaction") || elements[i].getAttribute("aria-haspopup")),
+          stackoverflow: /stackoverflow\.com/.test(document.URL) && (elements[i].className === "wmd-button" || /mdhelp/.test(elements[i].getAttribute("data-tab")) || elements[i].id === "wmd-help-button"),
+        },
+        exclusive: {
+          reddit: !(/reddit\.com/.test(document.URL) && elements[i].parentNode && elements[i].parentNode.className === "parent") && !/click_thing/.test(elements[i].getAttribute("onclick"))
+        }
+      };
+      if ((elements[i].getAttribute("onclick") || special_urls.inclusive.google || /^(SELECT|BUTTON|TEXTAREA|A|INPUT)$/.test(elements[i].nodeName) || special_urls.inclusive.stackoverflow) && special_urls.exclusive.reddit && computedStyle.visibility !== "hidden" && computedStyle.display !== "none" && parseFloat(computedStyle.opacity) > 0) {
         clickable.push(elements[i]);
       }
     }
@@ -137,7 +146,6 @@ Hints.create = function(tabbed, numeric) {
   }
   var link_number = 0;
   var main = document.createElement("div");
-  var isRedditUrl = /reddit\.com/.test(document.URL);
   hints_active = true;
   var frag = document.createDocumentFragment();
   main.id = "link_main";
@@ -153,9 +161,6 @@ Hints.create = function(tabbed, numeric) {
       temp.className = "link_hint";
       temp.style.top = link_location.top + screen.top + "px";
       temp.style.left = link_location.left + screen.left + "px";
-      if (isRedditUrl && links[i].className === "button") { // more comments expand
-        temp.style.zIndex = "2";
-      }
       if (numeric) {
         temp.innerText = link_number;
         frag.appendChild(temp);

@@ -9,7 +9,12 @@ keyDown = function(e) {
       e.stopPropagation();
     }
   }
-  if (e.which === 27) insertMode = false;
+  if (e.which === 27) {
+    insertMode = false;
+    if (document.activeElement.isInput()) {
+      document.activeElement.blur();
+    }
+  }
   var ch = Mappings.fromKeyDown(e);
   Mappings.convertToAction(ch); // Mappable commands go here
   if (commandMode) {
