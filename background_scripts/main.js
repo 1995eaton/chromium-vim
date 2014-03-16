@@ -86,9 +86,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
     case "appendHistory":
       history.append(request.value, request.type);
       break;
-    case "focusOmnibar":
-      chrome.tabs.update(sender.tab.id, {active: true, highlighted: true});
-      break;
     case "retrieveHistory":
       callback(history.retrieve(request.type));
       break;
