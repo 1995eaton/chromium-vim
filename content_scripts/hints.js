@@ -139,22 +139,14 @@ Hints.create = function(tabbed, numeric) {
   var main = document.createElement("div");
   var isRedditUrl = /reddit\.com/.test(document.URL);
   hints_active = true;
+  var frag = document.createDocumentFragment();
   main.id = "link_main";
   main.top = document.body.scrollTop + "px";
   main.left = document.body.scrollLeft + "px";
-  var linkCoordinates = [];
+  document.lastChild.appendChild(main);
   for (var i = 0; i < links.length; i++) {
     var link_location = links[i].getBoundingClientRect();
-    var duplicate = false;
-    for (var i2 = 0, length = linkCoordinates.length; i2 < length; i2++) {
-      if ([link_location.top, link_location.left].compare(linkCoordinates[i2])) {
-        duplicate = true;
-        break;
-      }
-    }
-    if (duplicate) continue;
-    linkCoordinates.push([link_location.top, link_location.left]);
-    if (link_location.top >= 0 && link_location.top + link_location.height < window.innerHeight && link_location.left + link_location.width >= 0 && link_location.left < window.innerWidth) {
+    if (link_location.top >= 0 && link_location.top + link_location.height < window.innerHeight && link_location.left + link_location.width > 0 && link_location.left < window.innerWidth) {
       hint_strings.push(link_number.toString());
       hint_links.push(links[i]);
       var temp = document.createElement("div");
@@ -166,7 +158,7 @@ Hints.create = function(tabbed, numeric) {
       }
       if (numeric) {
         temp.innerText = link_number;
-        main.appendChild(temp);
+        frag.appendChild(temp);
       }
       link_arr.push(temp);
       link_number++;
@@ -182,7 +174,7 @@ Hints.create = function(tabbed, numeric) {
         r = n % Hints.hintCharacters.length;
         l.push(Hints.hintCharacters[r]);
         n -= r;
-        n = Math.floor(n/Hints.hintCharacters.length);
+        n = Math.floor(n / Hints.hintCharacters.length);
       }
       return l.join("");
     }
@@ -206,8 +198,8 @@ Hints.create = function(tabbed, numeric) {
     }
     for (var i = link_arr.length - 1; i >= 0; i--) {
       link_arr[i].innerText = letter_perms[i];
-      main.appendChild(link_arr[i]);
+      frag.appendChild(link_arr[i]);
     }
   }
-  document.lastChild.appendChild(main);
+  main.appendChild(frag);
 };

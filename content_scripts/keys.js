@@ -9,6 +9,7 @@ keyDown = function(e) {
       e.stopPropagation();
     }
   }
+  if (e.which === 27) insertMode = false;
   var ch = Mappings.fromKeyDown(e);
   Mappings.convertToAction(ch); // Mappable commands go here
   if (commandMode) {
