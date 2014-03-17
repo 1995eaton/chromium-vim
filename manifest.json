@@ -8,7 +8,9 @@
     "<all_urls>",
     "tabs",
     "history",
-    "bookmarks"
+    "bookmarks",
+    "clipboardRead",
+    "clipboardWrite"
   ],
   "background": {
     "scripts": [
@@ -23,6 +25,7 @@
              "content_scripts/hints.js",
              "content_scripts/bookmarks.js",
              "content_scripts/keys.js",
+             "content_scripts/clipboard.js",
              "content_scripts/utils.js",
              "content_scripts/mappings.js",
              "content_scripts/command_bar.js",

@@ -10,6 +10,33 @@ function getTab(sender, reverse) {
     }
   });
 }
+
+var Clipboard = {
+  createTextArea: function() {
+    var t = document.createElement("textarea");
+    t.style.position = "absolute";
+    t.style.left = "-100%";
+    return t;
+  },
+  copy: function(text) {
+    var t = this.createTextArea();
+    t.value = text;
+    document.body.appendChild(t);
+    t.select();
+    document.execCommand("Copy");
+    document.body.removeChild(t);
+  },
+  paste: function(text) {
+    var t = this.createTextArea();
+    document.body.appendChild(t);
+    t.focus();
+    document.execCommand("Paste");
+    var text = t.value;
+    document.body.removeChild(t);
+    return text;
+  }
+};
+
 var history = {
   searchResults: null,
   append: function(value, type) {
@@ -93,6 +120,19 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
       history.retrieveSearchHistory(request.search);
       console.log(history.searchResults);
       callback(history.searchResults);
+      break;
+    case "copy":
+      Clipboard.copy(request.text);
+      break;
+    case "openPasteTab":
+      var paste = Clipboard.paste();
+      if (!paste) return;
+      chrome.tabs.create({url: paste, index: sender.tab.index + 1});
+      break;
+    case "openPaste":
+      var paste = Clipboard.paste();
+      if (!paste) return;
+      chrome.tabs.update({url: paste});
       break;
     default:
       break;

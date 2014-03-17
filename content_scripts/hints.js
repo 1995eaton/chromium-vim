@@ -51,7 +51,9 @@ Hints.handleHintFeedback = function(choice) {
     }
   }
   if (links_found === 1) {
-    if (hint_links[cur_index].nodeName === "BUTTON") {
+    if (this.yank) {
+      Clipboard.copy(hint_links[cur_index].href);
+    } else if (hint_links[cur_index].nodeName === "BUTTON" || hint_links[cur_index].nodeName === "AREA") {
       hint_links[cur_index].click();
     } else if (hint_links[cur_index].nodeName === "SELECT") {
       var e = new MouseEvent("mousedown");
@@ -62,7 +64,7 @@ Hints.handleHintFeedback = function(choice) {
       }, 0);
     } else if (hint_links[cur_index].nodeName === "INPUT") {
       switch (hint_links[cur_index].type) {
-        case "text": case "password": case "email":
+        case "text": case "password": case "email": case "search":
           setTimeout(function() {
             hint_links[cur_index].focus();
           }, 0);
@@ -109,8 +111,9 @@ Hints.handleHint = function(key) {
   }
 };
 
-Hints.create = function(tabbed, numeric) {
+Hints.create = function(tabbed, numeric, yank) {
   hint_strings = [];
+  this.yank = yank;
   this.tabbed = tabbed;
   this.numeric = numeric;
   var screen = {
@@ -127,15 +130,21 @@ Hints.create = function(tabbed, numeric) {
       var computedStyle = getComputedStyle(elements[i], null);
       special_urls = {
         inclusive: {
-          google: /google\.com/.test(document.URL) && (elements[i].getAttribute("jsaction") || elements[i].getAttribute("aria-haspopup")),
           stackoverflow: /stackoverflow\.com/.test(document.URL) && (elements[i].className === "wmd-button" || /mdhelp/.test(elements[i].getAttribute("data-tab")) || elements[i].id === "wmd-help-button"),
+          imgur: /imgur\.com/.test(document.URL) && (/favorite-image|report-image|file-wrapper/.test(elements[i].id) || /submit-caption-button|caption-toolbar combobox edit-button( opened)?|arrow.*(up|down)|navBrowse|navNext|navPrev|item.*link|triangle|item center/.test(elements[i].className))
         },
         exclusive: {
           reddit: !(/reddit\.com/.test(document.URL) && elements[i].parentNode && elements[i].parentNode.className === "parent") && !/click_thing/.test(elements[i].getAttribute("onclick"))
         }
       };
-      if ((elements[i].getAttribute("onclick") || special_urls.inclusive.google || /^(SELECT|BUTTON|TEXTAREA|A|INPUT)$/.test(elements[i].nodeName) || special_urls.inclusive.stackoverflow) && special_urls.exclusive.reddit && computedStyle.visibility !== "hidden" && computedStyle.display !== "none" && parseFloat(computedStyle.opacity) > 0) {
+      if (yank) {
+        if (elements[i].href) {
+          clickable.push(elements[i]);
+        }
+      } else {
+      if ((elements[i].getAttribute("onclick") || /^(AREA|SELECT|BUTTON|TEXTAREA|A|INPUT)$/.test(elements[i].nodeName) || elements[i].getAttribute("aria-haspopup") || elements[i].getAttribute("jsaction") || special_urls.inclusive.imgur || special_urls.inclusive.stackoverflow) && special_urls.exclusive.reddit && computedStyle.visibility !== "hidden") {
         clickable.push(elements[i]);
+      }
       }
     }
     return clickable;

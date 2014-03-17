@@ -78,15 +78,37 @@ Mappings.actions = {
   createHint: function() {
     if (!hints_active && !insertMode && !document.activeElement.isInput()) {
       setTimeout(function() {
-        return Hints.create(false, false);
+        return Hints.create(false, false, false);
       }, 0);
     }
   },
   createTabbedHint: function() {
     if (!hints_active && !insertMode && !document.activeElement.isInput()) {
       setTimeout(function() {
-        return Hints.create(true, false);
+        return Hints.create(true, false, false);
       }, 0);
+    }
+  },
+  yankUrl: function() {
+    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
+      setTimeout(function() {
+        return Hints.create(true, false, true);
+      }, 0);
+    }
+  },
+  yankDocumentUrl: function() {
+    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
+      return Clipboard.copy(document.URL);
+    }
+  },
+  openPaste: function() {
+    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
+      return Clipboard.paste(false);
+    }
+  },
+  openPasteTab: function() {
+    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
+      return Clipboard.paste(true);
     }
   },
   handleEscape: function() {
@@ -253,6 +275,10 @@ Mappings.defaults = {
   goToInput: ["gi"],
   nextTab: ["K", "R", "gt"],
   goToSource: ["gs"],
+  yankUrl: ["Y"],
+  yankDocumentUrl: ["yy"],
+  openPaste: ["p"],
+  openPasteTab: ["P"],
   previousTab: ["J", "E", "gT"],
   nextSearchResult: ["n"],
   previousSearchResult: ["N"],
