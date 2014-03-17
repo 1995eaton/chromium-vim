@@ -22,8 +22,7 @@ Find.highlight = function(node, text) {
     var p = node.data.toUpperCase().indexOf(text);
     if (p >= 0) {
       var span = document.createElement("span");
-      span.className = "highlight";
-      span.style.backgroundColor = "yellow";
+      span.className = "cVim-highlight";
       var m = node.splitText(p);
       var e = m.splitText(text.length);
       var mc = m.cloneNode(true);
@@ -42,13 +41,13 @@ Find.highlight = function(node, text) {
 
 Find.clear = function() {
   Find.clearing = true;
-  var h = document.getElementsByClassName("highlight");
+  var h = document.getElementsByClassName("cVim-highlight");
   for (var i = 0; i < h.length; i++) {
     var p = h[i].parentNode;
     p.replaceChild(h[i].firstChild, h[i]);
     p.normalize();
   }
-  if (document.getElementsByClassName("highlight").length) {
+  if (document.getElementsByClassName("cVim-highlight").length) {
     this.clear();
   } else {
     Find.clearing = false;
