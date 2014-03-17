@@ -246,6 +246,17 @@ Command.hide = function() {
   if (barData) barData.style.display = "none";
 };
 
+Command.loadFont = function() {
+  var e = document.createElement("div");
+  e.style.position = "absolute";
+  e.style.left = "-100%";
+  e.innerText = "Loading font";
+  document.body.appendChild(e);
+  setTimeout(function() {
+    document.body.removeChild(e);
+  }, 5);
+};
+
 document.addEventListener("DOMContentLoaded", function() {
   Search.getBookmarks();
   chrome.runtime.sendMessage({getSettings: true}, function (s) {
@@ -259,5 +270,6 @@ document.addEventListener("DOMContentLoaded", function() {
       Hints.hintCharacters = settings.linkHintCharacters.split("").unique().join("");
     }
     Command.setup();
+    Command.loadFont();
   });
 });

@@ -1,9 +1,10 @@
 #link_main, .link_hint, #command_bar, #command_bar_mode, #command_input, #command_search_results, .completion-item, .completion-item .full, .completion-item .left, .completion-item .right {
-  font-size: 9pt !important;
+  font-family: Neue;
+  font-size: 11pt !important;
+  -webkit-font-smoothing: antialiased;
 }
 
 #link_main {
-  font-family: "Sans";
   position: absolute;
   pointer-events: none;
   width: 100%; left: 0;
@@ -14,7 +15,6 @@
   background-color: rgba(255,255,0,1);
   color: #000 !important;
   padding: 2px !important;
-  font-family: "Sans" !important;
   border-radius: 3px !important;
   display: inline-block !important;
   vertical-align: middle !important;
@@ -28,7 +28,6 @@
   z-index: 2147483646 !important;
   background-color: #1b1d1e !important;
   color: #bbb !important;
-  font-family: monospace !important;
   display: none;
   box-sizing: content-box !important;
   box-shadow: 0 3px 3px rgba(0,0,0,0.4);
@@ -39,7 +38,6 @@
 }
 
 #command_bar_mode {
-  font-family: monospace !important;
   display: inline-block;
   vertical-align: middle;
   box-sizing: border-box !important;
@@ -57,7 +55,6 @@
   vertical-align: middle !important;
   right: 0 !important;
   bottom: 0 !important;
-  font-family: monospace !important;
   width: calc(100% - 10px) !important;
   position: absolute !important;
 }
@@ -65,7 +62,6 @@
 #command_search_results {
   position: fixed;
   width: 100% !important;
-  font-family: monospace !important;
   overflow: hidden;
   z-index: 2147483647 !important;
   left: 0;
@@ -75,8 +71,6 @@
 
 .completion-item, .completion-item .full, .completion-item .left, .completion-item .right {
   text-overflow: ellipsis;
-  font-family: monospace !important;
-  font-size: 9pt !important;
   padding: 1px;
   display: inline-block;
   box-sizing: border-box;
