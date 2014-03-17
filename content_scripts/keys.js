@@ -10,6 +10,10 @@ keyDown = function(e) {
     }
   }
   if (e.which === 27) {
+    if (hints_active) {
+      e.preventDefault();
+      Hints.hideHints();
+    }
     insertMode = false;
     if (document.activeElement.isInput()) {
       document.activeElement.blur();
@@ -24,7 +28,17 @@ keyDown = function(e) {
     } else if (/command/.test(document.activeElement.id || document.activeElement.className)) { // General command bar actions
       switch (e.which) {
         case 8: // Backspace
-          if (Command.type === "search") {
+          if (barInput.value === "") {
+            commandMode = false;
+            Command.hide();
+          } else if (Command.type === "search") {
+            Find.clear();
+            setTimeout(function() {
+              log(barInput.value);
+              if (barInput.value !== "") {
+                Find.highlight(document.body, barInput.value.toUpperCase());
+              }
+            }, 0);
             barInput.blur();
             window.focus();
             window.blur();
@@ -34,9 +48,6 @@ keyDown = function(e) {
             setTimeout(function() {
               Command.parse()
             }, 0);
-          } else {
-            commandMode = false;
-            Command.hide();
           }
           break;
         case 9: // Tab
@@ -59,7 +70,7 @@ keyDown = function(e) {
           }
           barInput.blur();
           if (Command.type === "search") {
-            Command.search(false);
+            Find.search(false);
           } else if (Command.actionType === "query") {
             Search.go();
             Command.hide();
@@ -85,7 +96,11 @@ keyDown = function(e) {
             barInput.focus();
             setTimeout(function() {
               if (Command.type === "search") {
-                Command.search(false);
+                Find.search(false, true);
+                Find.clear();
+                if (barInput.value !== "") {
+                  Find.highlight(document.body, barInput.value.toUpperCase());
+                }
               }
             }, 2);
           }

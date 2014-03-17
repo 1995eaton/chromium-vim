@@ -59,43 +59,6 @@ for (var i = 0; i < historyStates.length; i++) {
     Command.history[result[0]] = result[1];
   });
 }
-var b;
-Command.removeHighlight = function() {
-  document.body.innerHTML = b;
-};
-
-Command.addHighlight = function(search) {
- b = document.body.innerHTML; 
-  //while (true) {
-  for (var i = 0; i < 50; i++) {
-    var f = window.find(barInput.value, i, false, false, false);
-    if (!f) {
-      log(0);
-      break;
-    }
-    if (document.getSelection().getRangeAt(0)) {
-      var s = document.createElement("span");
-      s.style.backgroundColor = "yellow";
-      document.getSelection().getRangeAt(0).surroundContents(s);
-    }
-  }
-};
-
-Command.search = function(reverse, looseFocus) {
-  var selection;
-  if (Command.enterHit) {
-    //this.addHighlight(barInput.value);
-    var i = barInput.value;
-    barInput.value = "";
-    window.find(i, false, reverse, true, false, true, false);
-    barInput.value = i;
-  } else {
-    window.find(barInput.value, false, reverse, true, false, true, false);
-  }
-  if (/command/.test(document.getSelection().baseNode.id)) {
-    document.getElementById("command_bar").focus();
-  }
-};
 
 Command.appendResults = function(data, bookmarks, search, completion) {
   dataElements = [];
@@ -165,9 +128,10 @@ Command.hideData = function() {
 
 
 Command.descriptions = [
-  ["tabopen", "t(ab)o(pen)", "Open a link in a new tab"],
+  ["tabopen ", "t(ab)o(pen)", "Open a link in a new tab"],
   ["closetab", "cl(osetab)", "Close the current tab"],
-  ["open", "o(pen)", "Open a link in the current tab"],
+  ["open ", "o(pen)", "Open a link in the current tab"],
+  ["nohl", "nohl", "Clears the search highlight"],
   ["bookmarks ", "b(ook)marks", "Search through your bookmarks"],
   ["help", "help", "Displays the help page in a new tab"], // TODO
   ["extensions", "ex(tensions)", "Opens the chrome://extensions page"],
@@ -204,6 +168,7 @@ Command.complete = function(input, reverse, doSearch) {
 };
 
 Command.parse = function(value) {
+  Command.typed = barInput.value;
   if (Command.enterHit) {
     if (/^ex(tensions)?(\s+)?$/.test(value)) {
       chrome.runtime.sendMessage({action: "openLinkTab", url: "chrome://extensions"});
@@ -211,6 +176,8 @@ Command.parse = function(value) {
       chrome.runtime.sendMessage({action: "openLinkTab", url: "chrome://flags"});
     } else if (/^(tabnew|t(ab)?o(pen)?)(\s+)?$/.test(value)) {
       chrome.runtime.sendMessage({action: "openLinkTab", url: "chrome://newtab"});
+    } else if (/^nohl(\s+)?$/.test(value)) {
+      Find.clear();
     } else if (/^cl(osetab)?(\s+)?$/.test(value)) {
       chrome.runtime.sendMessage({action: "closeTab"});
     } else if (/^b(ook)?marks(\s+)?/.test(value)) {
@@ -220,6 +187,7 @@ Command.parse = function(value) {
     }
   }
   if (!Command.enterHit) {
+    Search.searchHistory = [];
     if (/^(t(ab)?)?o(pen)?(\s+)/.test(barInput.value)) {
       Search.index = null;
       var search = barInput.value.replace(/^(t(ab)?)?o(pen)?(\s+)/, "");
@@ -234,9 +202,11 @@ Command.parse = function(value) {
       });
     } else if (/^b(ook)?marks(\s+)/.test(barInput.value)) {
       var search = barInput.value.replace(/^b(ook)?marks(\s+)/, "");
+      Search.index = null;
       Command.actionType = "bookmarks";
       Command.appendResults(null, true, search);
     } else {
+      Command.actionType = "";
       Command.complete(barInput.value, false, false);
     }
   }
@@ -246,6 +216,7 @@ Command.show = function(search, value) {
   if (search) {
     Command.type = "search";
     barMode.innerHTML = "/";
+    bar.style.opacity = "0.75";
   } else {
     Command.type = "action";
     barMode.innerHTML = ":";
@@ -268,6 +239,7 @@ Command.hide = function() {
   Command.enterHit = false;
   Command.actionType = "";
   Command.type = "";
+  bar.style.opacity = "1";
   Command.history.index = {};
   Command.typed = "";
   dataElements = [];
@@ -280,7 +252,7 @@ document.addEventListener("DOMContentLoaded", function() {
     settings = s;
     var cssStyle = document.createElement("style");
     cssStyle.innerText = settings.commandBarCSS;
-    //document.getElementsByTagName("head")[0].appendChild(cssStyle);
+    document.getElementsByTagName("head")[0].appendChild(cssStyle);
     barOnBottom = (settings.commandBarOnBottom === "true") ? true : false;
     Scroll.smooth= (settings.smoothScroll === "true") ? true : false;
     if (settings.linkHintCharacters.split("").unique().length > 1) {

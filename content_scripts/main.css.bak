@@ -1,36 +1,134 @@
 #link_main {
   min-height: 0 !important;background-repeat: none !important;background-position: none !important;border: none !important;border-radius: 0 !important;box-sizing: content-box !important;vertical-align: none !important;border: 0 !important;-webkit-appearance: none !important;padding: 0 !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;text-align: start !important;outline: 0 !important;border: 0 !important;margin: 0 !important;outline-style: none !important;line-height: 1 !important;
+  font-family: "Sans";
+  font-size: 10pt;
+  position: absolute;
+  pointer-events: none;
+  width: 100%; left: 0;
+  height: 100%; top: 0;
+  z-index: 2147483647;
 }
 .link_hint {
   min-height: 0 !important;background-repeat: none !important;background-position: none !important;box-sizing: content-box !important;vertical-align: none !important;-webkit-appearance: none !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;outline: 0 !important;margin: 0 !important;outline-style: none !important;line-height: 1 !important;
+  background-color: rgba(255,255,0,1);
+  color: #000 !important;
+  padding: 2px !important;
+  font-family: "Sans" !important;
+  font-size: 10pt !important;
+  border-radius: 3px !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
+  border: 1px solid rgba(0,0,0,0.45);
+  text-align: center !important;
+  box-shadow: 2px 2px 3px rgba(0,0,0,0.4) !important;
+  position: absolute !important;
 }
 #command_bar {
   min-height: 0 !important;background-repeat: none !important;background-position: none !important;border-radius: 0 !important;box-sizing: content-box !important;vertical-align: none !important;outline: 0 !important;border: 0 !important;-webkit-appearance: none !important;padding: 0 !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;text-align: start !important;outline: 0 !important;margin: 0 !important;outline-style: none !important;line-height: 1 !important;
+  position: fixed !important;
+  z-index: 2147483646 !important;
+  background-color: #1b1d1e !important;
+  color: #bbb !important;
+  font-family: monospace !important;
+  font-size: 9pt !important;
+  display: none;
+  box-sizing: content-box !important;
+  box-shadow: 0 3px 3px rgba(0,0,0,0.4);
+  padding-top: 3px !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 20px !important;
 }
 
 #command_bar_mode {
   min-height: 0 !important;background-repeat: none !important;background-position: none !important;border-radius: 0 !important;box-sizing: content-box !important;vertical-align: none !important;box-shadow: none !important;outline: 0 !important;margin: 0 !important;-webkit-appearance: none !important;padding: 0 !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;text-align: start !important;outline: 0 !important;border: 0 !important;margin: 0 !important;outline-style: none !important;line-height: 1 !important;
+  font-family: monospace !important;font-size: 9pt !important;
+  font-family: monospace !important;
+  display: inline-block;
+  vertical-align: middle;
+  box-sizing: border-box !important;
+  padding-left: 2px !important;
+  height: 100% !important;
+  width: 10px !important;
+  padding-top: 2px !important;
+  color: #888 !important;
 }
 #command_input {
   min-height: 0 !important;background-repeat: none !important;background-position: none !important;border-radius: 0 !important;box-sizing: content-box !important;vertical-align: none !important;box-shadow: none !important;outline: 0 !important;border: 0 !important;margin: 0 !important;-webkit-appearance: none !important;padding: 0 !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;text-align: start !important;outline: 0 !important;margin: 0 !important;outline-style: none !important;line-height: 1 !important;
+  right: 0 !important;
+  background-color: #1b1d1e !important;
+  color: #bbb !important;
+  height: 100% !important;
+  display: inline-block;
+  vertical-align: middle;
+  bottom: 0 !important;
+  font-family: monospace !important;
+  width: calc(100% - 10px) !important;
+  position: absolute !important;
+  font-size: 9pt !important;
 }
 
 #command_search_results {
   min-height: 0 !important;background-repeat: none !important;background-position: none !important;border-radius: 0 !important;box-sizing: content-box !important;vertical-align: none !important;outline: 0 !important;border: 0 !important;margin: 0 !important;-webkit-appearance: none !important;padding: 0 !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;text-align: start !important;outline: 0 !important;margin: 0 !important;padding: 0 !important;outline-style: none !important;line-height: 1 !important;
+  position: fixed;
+  width: 100%;
+  font-family: monospace !important;
+  font-size: 9pt !important;
+  overflow: hidden;
+  z-index: 2147483647 !important;
+  left: 0;
+  box-shadow: 0 3px 3px rgba(0,0,0,0.4);
+  background-color: #383838;
 }
 
 .completion-item {
   min-height: 0 !important;background-repeat: none !important;background-position: none !important;border-radius: 0 !important;box-sizing: content-box !important;vertical-align: none !important;box-shadow: none !important;outline: 0 !important;border: 0 !important;margin: 0 !important;-webkit-appearance: none !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;text-align: start !important;outline: 0 !important;margin: 0 !important;outline-style: none !important;line-height: 1 !important;
+  width: 100%;
+  left: 0;
+  font-family: monospace;
+  font-family: monospace !important;
+  font-size: 9pt !important;
+  box-sizing: border-box;
+  padding: 2px;
+  display: inline-block;
+  vertical-align: middle;
+  color: #fff;
 }
 
 .completion-item .full {
   min-height: 0 !important;background-repeat: none !important;background-position: none !important;border-radius: 0 !important;box-sizing: content-box !important;vertical-align: none !important;box-shadow: none !important;outline: 0 !important;margin: 0 !important;-webkit-appearance: none !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;text-align: start !important;outline: 0 !important;border: 0 !important;outline-style: none !important;line-height: 1 !important;
+  display: inline-block;
+  overflow: hidden;
+  font-family: monospace !important;
+  font-size: 9pt !important;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  vertical-align: middle;
 }
 
 .completion-item .left {
   min-height: 0 !important;background-repeat: none !important;background-position: none !important;border: none !important;border-radius: 0 !important;box-sizing: content-box !important;vertical-align: none !important;box-shadow: none !important;border: 0 !important;margin: 0 !important;-webkit-appearance: none !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;text-align: start !important;outline: 0 !important;border: 0 !important;margin: 0 !important;outline-style: none !important;line-height: 1 !important;
+  display: inline-block;
+  overflow: hidden;
+  font-family: monospace !important;
+  font-size: 9pt !important;
+  color: #fff;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 47%;
+  vertical-align: middle;
 }
 
 .completion-item .right {
   min-height: 0 !important;background-repeat: none !important;background-position: none !important;border-radius: 0 !important;box-sizing: content-box !important;vertical-align: none !important;box-shadow: none !important;margin: 0 !important;-webkit-appearance: none !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;text-align: start !important;outline: 0 !important;border: 0 !important;outline-style: none !important;line-height: 1 !important;
+  display: inline-block;
+  font-family: monospace !important;
+  font-size: 9pt !important;
+  overflow: hidden;
+  font-style: italic;
+  color: #888;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 47%;
+  vertical-align: middle;
 }

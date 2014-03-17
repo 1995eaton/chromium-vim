@@ -92,13 +92,28 @@ Search.nextResult = function(reverse) {
         this.index++;
       } else {
         this.index = null;
-        barInput.value = Command.typed;
+        if (Command.actionType === "bookmarks") {
+          if (/^b(ook)?marks(\s+)?/.test(Command.typed)) {
+            barInput.value = barInput.value.match(/^b(ook)?marks(\s+)?/)[0];
+          } else {
+            barInput.value = "bookmarks ";
+          }
+        } else {
+          barInput.value = Command.typed;
+        }
         return;
       }
     } else {
       if (this.index === 0) {
         this.index = null;
         barInput.value = Command.typed;
+        if (Command.actionType === "bookmarks") {
+          if (/^b(ook)?marks /.test(Command.typed)) {
+            barInput.value = barInput.value.match(/^b(ook)?marks /)[0];
+          } else {
+            barInput.value = "bookmarks ";
+          }
+        }
         return;
       } else {
         this.index--;

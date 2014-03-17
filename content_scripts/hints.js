@@ -142,7 +142,7 @@ Hints.create = function(tabbed, numeric, yank) {
           clickable.push(elements[i]);
         }
       } else {
-      if ((elements[i].getAttribute("onclick") || /^(AREA|SELECT|BUTTON|TEXTAREA|A|INPUT)$/.test(elements[i].nodeName) || elements[i].getAttribute("aria-haspopup") || elements[i].getAttribute("jsaction") || special_urls.inclusive.imgur || special_urls.inclusive.stackoverflow) && special_urls.exclusive.reddit && computedStyle.visibility !== "hidden") {
+      if ((elements[i].getAttribute("onclick") || /^(AREA|SELECT|BUTTON|TEXTAREA|A|INPUT)$/.test(elements[i].nodeName) || elements[i].getAttribute("aria-haspopup") || elements[i].getAttribute("data-cmd") || elements[i].getAttribute("jsaction") || special_urls.inclusive.imgur || special_urls.inclusive.stackoverflow) && special_urls.exclusive.reddit && computedStyle.visibility !== "hidden") {
         clickable.push(elements[i]);
       }
       }

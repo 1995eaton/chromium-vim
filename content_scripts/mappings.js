@@ -11,8 +11,6 @@ Mappings.fromKeyDown = function(key) {
   }
   if (key.keyCode === 191 && !key.shiftKey) {
     return "/";
-  } else if (key.keyCode === 27) {
-    return "<ESC>";
   } else if (key.keyCode === 186 && key.shiftKey) {
     return ":";
   } else if (key.keyCode === 9) {
@@ -111,11 +109,6 @@ Mappings.actions = {
       return Clipboard.paste(true);
     }
   },
-  handleEscape: function() {
-    if (hints_active) {
-      return Hints.hideHints();
-    }
-  },
   insertMode: function() {
     if (!document.activeElement.isInput()) {
       return insertMode = true;
@@ -128,12 +121,12 @@ Mappings.actions = {
   },
   nextSearchResult: function() {
     if (Command.type === "search" && !hints_active && !insertMode && !document.activeElement.isInput()) {
-      return Command.search(false, true);
+      return Find.search(false, true);
     }
   },
   previousSearchResult: function() {
     if (Command.type === "search" && !hints_active && !insertMode && !document.activeElement.isInput()) {
-      return Command.search(true, true);
+      return Find.search(true, true);
     }
   },
   nextTab: function() {
@@ -270,7 +263,6 @@ Mappings.defaults = {
   createHint: ["f"],
   goBack: ["H", "S"],
   goForward: ["L", "D"],
-  handleEscape: ["<ESC>"],
   createTabbedHint: ["F"],
   goToInput: ["gi"],
   nextTab: ["K", "R", "gt"],
