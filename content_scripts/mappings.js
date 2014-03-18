@@ -110,12 +110,13 @@ Mappings.actions = {
     }
   },
   insertMode: function() {
-    if (!document.activeElement.isInput()) {
+    if (!hints_active && !document.activeElement.isInput()) {
       return insertMode = true;
     }
   },
   reloadTab: function() {
-    if (!document.activeElement.isInput()) {
+    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
+      return Clipboard.paste(true);
       return chrome.runtime.sendMessage({action: "reloadTab"});
     }
   },

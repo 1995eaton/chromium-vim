@@ -181,6 +181,7 @@ Hints.create = function(tabbed, numeric, yank) {
   if (!numeric) {
     letter_perms = [];
     var lim = Math.ceil(Math.log(link_arr.length) / Math.log(Hints.hintCharacters.length));
+    if (lim === 0) lim = 1;
     function genHint(n) {
       var l, r;
       l = [];
