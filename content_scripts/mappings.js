@@ -161,12 +161,22 @@ Mappings.actions = {
   },
   handleTab: function(e) {
     if (this.inputFocused) {
-      if (this.inputIndex + 1 === this.inputElements.length) {
-        this.inputIndex = 0;
+      if (!e.shiftKey) {
+        if (this.inputElementsIndex + 1 === this.inputElements.length) {
+          this.inputElementsIndex = 0;
+        } else {
+          this.inputElementsIndex++;
+        }
       } else {
-        this.inputIndex++;
+        if (this.inputElementsIndex - 1 < 0) {
+          this.inputElementsIndex = this.inputElements.length - 1;
+        } else {
+          this.inputElementsIndex--;
+        }
       }
-      this.inputElements[inputIndex].focus();
+      if (this.inputElements.length) {
+        this.inputElements[this.inputElementsIndex].focus();
+      }
     } else if (/command/.test(document.activeElement.id || document.activeElement.className)) {
       if (Command.type === "action") {
         if (Command.actionType === "query" || Command.actionType === "bookmarks") {
@@ -183,31 +193,26 @@ Mappings.actions = {
     }
   },
   goToInput: function() {
-    if (!this.inputElements || !this.inputElements.length) {
+    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
       this.inputElements = [];
-      var inputElementsTemp = document.querySelectorAll("input,textarea");
-      for (var i = 0; i < inputElementsTemp.length; i++) {
-        if (!inputElementsTemp[i].disabled && inputElementsTemp[i].id !== "command_input" && inputElementsTemp[i].style.display !== "none" && inputElementsTemp[i].style.opacity !== "0" && (inputElementsTemp[i].nodeName === "TEXTAREA" || (inputElementsTemp[i].nodeName === "INPUT" && (inputElementsTemp[i].type === "text" || inputElementsTemp[i].type === "search")))) {
-          this.inputElements.push(inputElementsTemp[i]);
-        }
-        if (i + 1 === inputElementsTemp.length) {
-          for (var i2 = 0; i2 < inputElements.length; i2++) {
-            if (this.inputElements[i2].offsetTop >= document.body.scrollTop) {
-              this.inputFocused = true;
-              this.inputIndex = i2;
-              setTimeout(function() {
-                this.inputElements[i2].focus();
-              }, 0);
-              break;
-            }
-          }
+      var allInput = document.querySelectorAll("input,textarea");
+      for (var i = 0, l = allInput.length; i < l; i++) {
+        if (allInput[i].isInput() && allInput[i].isVisible() && allInput[i].id !== "command_input") {
+          this.inputElements.push(allInput[i]);
         }
       }
-    } else {
-      setTimeout(function() {
-        this.inputFocused = true;
-        this.inputElements[this.inputIndex].focus();
-      }, 0);
+      this.inputElementsIndex = 0;
+      this.inputFocused = true;
+      for (var i = 0, l = allInput.length; i < l; i++) {
+        var b = allInput[i].getBoundingClientRect();
+        if (b.top >= 0 && b.top < window.innerHeight && b.left >= 0 && b.left < window.innerWidth) {
+          this.inputElementsIndex = i;
+          break;
+        }
+      }
+      if (this.inputElements.length) {
+        return this.inputElements[this.inputElementsIndex].focus();
+      }
     }
   },
   shortCuts: function(s) {
@@ -226,8 +231,10 @@ Mappings.actions = {
   },
   openSearchBar: function() {
     if (!hints_active && !insertMode && !document.activeElement.isInput()) {
+      if (Find.index === null)
+        Find.index = -1;
       commandMode = true;
-      Command.enterHit = true;
+      Command.enterHit = false;
       return Command.show(true);
     }
   },

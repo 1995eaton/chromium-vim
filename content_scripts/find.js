@@ -1,55 +1,61 @@
 var Find = {};
 
+Find.highlights = [];
+Find.index = null;
+Find.matches = [];
+
 Find.search = function(reverse, looseFocus) {
-  var selection;
-  if (Command.enterHit) {
-    var i = barInput.value;
-    barInput.value = "";
-    window.find(i, false, reverse, true, false, true, false);
-    barInput.value = i;
+  if (!this.matches.length)
+    return;
+  if (Find.index > Find.matches.length)
+    Find.index = -1;
+  if (this.index >= 0)
+    this.matches[this.index].style.backgroundColor = "";
+  if (reverse) {
+    this.index--;
+    if (this.index < 0)
+      this.index = this.matches.length - 1;
   } else {
-    window.find(barInput.value, false, reverse, true, false, true, false);
+    this.index++;
+    this.index %= this.matches.length;
   }
-  if (/command/.test(document.getSelection().baseNode.id)) {
-    document.getElementById("command_bar").focus();
-  }
+  if (!this.matches[this.index].isVisible())
+    return this.search(reverse);
+  this.matches[this.index].style.backgroundColor = "#ff9632";
+  var b = this.matches[this.index].getBoundingClientRect();
+  window.scrollBy(b.left, b.top - window.innerHeight / 2);
 };
 
+
 Find.highlight = function(node, text) {
-  if (Find.clearing) return;
-  var skip = 0;
-  if (node.nodeType === 3) {
-    var p = node.data.toUpperCase().indexOf(text);
-    if (p >= 0) {
-      var span = document.createElement("span");
-      span.className = "cVim-highlight";
-      var m = node.splitText(p);
-      var e = m.splitText(text.length);
-      var mc = m.cloneNode(true);
-      span.appendChild(mc);
-      m.parentNode.replaceChild(span, m);
-      skip = 1;
+  var walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, null, false);
+  var pass = false;
+  document.body.normalize();
+  while(node = walker.nextNode()) {
+    if (node.nodeValue.trim() === "" || node.nodeType !== 3 || node.parentNode.nodeName === "SCRIPT" || node.parentNode.nodeName === "STYLE")
+      continue;
+    var position = node.data.indexOf(text);
+    if (!pass && position >= 0) {
+      var mark = document.createElement("mark");
+      mark.className = "cVim-highlight";
+      var middle = node.splitText(position);
+      middle.splitText(text.length);
+      mark.appendChild(middle.cloneNode(true));
+      middle.parentNode.replaceChild(mark, middle);
+      this.matches.push(mark);
+      pass = true;
+    } else if (pass) {
+      pass = false;
     }
   }
-  else if (node.nodeType === 1 && node.childNodes && node.tagName !== "SCRIPT" && node.tagName !== "STYLE") {
-    for (var i = 0; i < node.childNodes.length; ++i) {
-      i += this.highlight(node.childNodes[i], text);
-    }
-  }
-  return skip;
 }
 
 Find.clear = function() {
   Find.clearing = true;
-  var h = document.getElementsByClassName("cVim-highlight");
-  for (var i = 0; i < h.length; i++) {
-    var p = h[i].parentNode;
-    p.replaceChild(h[i].firstChild, h[i]);
+  for (var i = 0; i < this.matches.length; i++) {
+    var p = this.matches[i].parentNode;
     p.normalize();
+    p.replaceChild(this.matches[i].firstChild, this.matches[i]);
   }
-  if (document.getElementsByClassName("cVim-highlight").length) {
-    this.clear();
-  } else {
-    Find.clearing = false;
-  }
+  this.matches.length = 0;
 }

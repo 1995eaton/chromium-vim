@@ -1,7 +1,18 @@
 Object.prototype.isInput = function() {
-  return this.nodeName === "TEXTAREA" ||
-    this.nodeName === "INPUT";
+  return (
+      (this.nodeName === "TEXTAREA" || this.nodeName === "INPUT") &&
+      !/button|checkbox|submit/.test(this.getAttribute("type"))
+  );
 };
+
+Object.prototype.isVisible = function() {
+  return (
+      this.offsetParent &&
+      !this.getAttribute("disabled") &&
+      this.getAttribute("type") !== "hidden" &&
+      this.getAttribute("display") !== "none"
+  );
+}
 
 Array.prototype.compare = function (array) {
   if (!array)
@@ -35,3 +46,8 @@ Array.prototype.unique = function(){
     return r[v]=1,r;
   },{}));
 };
+
+String.prototype.regexIndexOf = function(regex, startpos) {
+  var indexOf = this.substring(startpos || 0).search(regex);
+  return (indexOf >= 0) ? (indexOf + (startpos || 0)) : indexOf;
+}

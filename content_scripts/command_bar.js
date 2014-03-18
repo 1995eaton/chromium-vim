@@ -213,10 +213,10 @@ Command.parse = function(value) {
 }
 
 Command.show = function(search, value) {
+  Command.type = "";
   if (search) {
     Command.type = "search";
     barMode.innerHTML = "/";
-    bar.style.opacity = "0.75";
   } else {
     Command.type = "action";
     barMode.innerHTML = ":";
@@ -238,8 +238,6 @@ Command.hide = function() {
   Search.searchHistory = [];
   Command.enterHit = false;
   Command.actionType = "";
-  Command.type = "";
-  bar.style.opacity = "1";
   Command.history.index = {};
   Command.typed = "";
   dataElements = [];

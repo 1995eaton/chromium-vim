@@ -15,17 +15,31 @@ keyDown = function(e) {
       Hints.hideHints();
     }
     insertMode = false;
+    Mappings.actions.inputFocused = false;
     if (document.activeElement.isInput()) {
       document.activeElement.blur();
     }
   }
   var ch = Mappings.fromKeyDown(e);
-  Mappings.convertToAction(ch); // Mappable commands go here
-  if (commandMode) {
+  setTimeout(function() {
+    Mappings.convertToAction(ch); // Mappable commands go here
+  }, 0);
+  if (!Command.enterHit && Command.type === "search") {
+    document.activeElement.blur();
+    barInput.focus();
+  } else if (Command.enterHit && Command.type === "search") {
+    if (e.which === 78) {
+      e.preventDefault();
+      //Find.search(e.shiftKey, false);
+    }
+    //document.activeElement.blur();
+  }
+  if (Mappings.actions.inputFocused || commandMode) {
     if (e.which === 27) {
+      Mappings.actions.inputFocused = false;
       commandMode = false;
       Command.hide();
-    } else if (/command/.test(document.activeElement.id || document.activeElement.className)) { // General command bar actions
+    } else if (Mappings.actions.inputFocused || /command/.test(document.activeElement.id || document.activeElement.className)) { // General command bar actions
       switch (e.which) {
         case 8: // Backspace
           if (barInput.value === "") {
@@ -34,9 +48,8 @@ keyDown = function(e) {
           } else if (Command.type === "search") {
             Find.clear();
             setTimeout(function() {
-              log(barInput.value);
               if (barInput.value !== "") {
-                Find.highlight(document.body, barInput.value.toUpperCase());
+                Find.highlight(document.body, barInput.value);
               }
             }, 0);
             barInput.blur();
@@ -51,8 +64,12 @@ keyDown = function(e) {
           }
           break;
         case 9: // Tab
-          e.preventDefault();
-          Mappings.actions.handleTab(e);
+          if (!/input|textarea/i.test(document.activeElement.nodeName)) {
+            Mappings.actions.inputFocused = false;
+          } else {
+            e.preventDefault();
+            Mappings.actions.handleTab(e);
+          }
           break;
         case 38: // Up
           e.preventDefault();
@@ -67,17 +84,18 @@ keyDown = function(e) {
           if (Command.type === "action" && Command.history["action"]) {
             Command.history.action.push(barInput.value);
             chrome.runtime.sendMessage({action: "appendHistory", value: barInput.value, type: "action"});
+          } else if (Command.type === "search") {
+            e.preventDefault();
+            document.activeElement.blur();
           }
-          barInput.blur();
           if (Command.type === "search") {
             Find.search(false);
           } else if (Command.actionType === "query") {
             Search.go();
-            Command.hide();
           } else {
             Command.parse(barInput.value);
-            Command.hide();
           }
+          Command.hide();
           break;
         default:
           if (Command.type === "action") {
@@ -85,21 +103,11 @@ keyDown = function(e) {
               Command.parse();
             }, 0);
           } else {
-            barInput.blur();
-            window.focus();
-            window.blur();
-            var i = barInput.value;
-            if (document.getSelection().rangeCount) {
-              document.getSelection().collapseToEnd();
-            }
-            document.getElementById("command_input").value = i;
-            barInput.focus();
             setTimeout(function() {
               if (Command.type === "search") {
-                Find.search(false, true);
                 Find.clear();
                 if (barInput.value !== "") {
-                  Find.highlight(document.body, barInput.value.toUpperCase());
+                  Find.highlight(document.body, barInput.value);
                 }
               }
             }, 2);
