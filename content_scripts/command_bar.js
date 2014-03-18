@@ -67,7 +67,6 @@ Command.appendResults = function(data, bookmarks, search, completion) {
     barData.id = "command_search_results";
     if (barOnBottom) {
       barData.style.bottom = "20px";
-      barData.style.paddingTop = "0";
     } else {
       barData.style.top = "20px";
     }
@@ -257,6 +256,18 @@ Command.loadFont = function() {
 
 document.addEventListener("DOMContentLoaded", function() {
   Search.getBookmarks();
+  function loadFont() { // Prevents custom font from flickering before load
+    var e = document.createElement("div");
+    e.style.fontFamily = "Neue";
+    e.style.fontSize = "11pt";
+    e.innerHTML = "Loading font";
+    e.style.opacity = "0";
+    document.body.appendChild(e);
+    setTimeout(function() {
+      document.body.removeChild(e);
+    }, 50);
+  }
+  loadFont();
   chrome.runtime.sendMessage({getSettings: true}, function (s) {
     settings = s;
     var cssStyle = document.createElement("style");
