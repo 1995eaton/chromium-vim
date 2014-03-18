@@ -13,15 +13,15 @@ easeOutSine = function (t, b, c, d) {
 
 Scroll.smoothScrollBy = function(x, y) {
   var direction = (x == 0)? "vertical" : "horizontal";
-  var duration = 45;
-  var scale = 1;
+  var duration = 30;
+  var scale = 0.30;
   y *= scale;
   var i = 0;
   var begin = setInterval(function() {
     if (direction === "horizontal") {
-      window.scrollBy(easeOutExpo(i, i/duration*x, -i/duration*x, duration), 0);
+      window.scrollBy(easeOutSine(i, i/duration*x, -i/duration*x, duration), 0);
     } else {
-      window.scrollBy(0, easeOutExpo(i, i/duration*y, -i/duration*y, duration));
+      window.scrollBy(0, easeOutSine(i, i/duration*y, -i/duration*y, duration));
     }
     i += 1;
     if (i >= duration) {
@@ -30,7 +30,7 @@ Scroll.smoothScrollBy = function(x, y) {
 
   }, 1000 / 60);
 };
-
+var endScale = 1.35;
 Scroll.scroll = function(type) {
   if (Scroll.smooth) {
     switch (type) {
@@ -47,10 +47,10 @@ Scroll.scroll = function(type) {
         Scroll.smoothScrollBy(0, -1 * window.innerHeight / 2);
         break;
       case "top":
-        Scroll.smoothScrollBy(0, document.body.scrollTop * -1.1);
+        Scroll.smoothScrollBy(0, document.body.scrollTop * -endScale);
         break;
       case "bottom":
-        Scroll.smoothScrollBy(0, (document.body.scrollHeight - document.body.scrollTop) * 1.1);
+        Scroll.smoothScrollBy(0, (document.body.scrollHeight - document.body.scrollTop) * endScale);
         break;
       case "left":
         Scroll.smoothScrollBy(-step, 0);
