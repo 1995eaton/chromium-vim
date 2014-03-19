@@ -33,6 +33,18 @@ Mappings.actions = {
   closeTab: function(repeats) {
     return chrome.runtime.sendMessage({action: "closeTab", repeats: repeats});
   },
+  revImg: function() {
+    setTimeout(function() {
+      Hints.create(true, false, false, true);
+    }, 0);
+  },
+  revImgDocumentUrl: function() {
+    if (document.body.childNodes.length === 1 && document.body.firstChild.nodeName === "IMG") {
+      if (document.body.firstChild.src) {
+        return chrome.runtime.sendMessage({action: "openLinkTab", url: "https://www.google.com/searchbyimage?image_url=" + document.body.firstChild.src});
+      }
+    }
+  },
   scrollDown: function(repeats) {
     return Scroll.scroll("down", repeats);
   },
@@ -206,6 +218,8 @@ Mappings.defaults = {
   reloadTab: ["r"],
   createHint: ["f"],
   goBack: ["H", "S"],
+  revImg: ["R"],
+  revImgDocumentUrl: ["gr"],
   goForward: ["L", "D"],
   createTabbedHint: ["F"],
   goToInput: ["gi"],

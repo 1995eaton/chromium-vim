@@ -11,6 +11,7 @@ keyDown = function(e) {
   if (e.which === 27) {
     if (hints_active) {
       e.preventDefault();
+      e.stopPropagation();
       Hints.hideHints();
     }
     insertMode = false;
@@ -20,6 +21,7 @@ keyDown = function(e) {
     }
   } else if (e.which === 32 && hints_active) {
     e.preventDefault();
+    e.stopPropagation();
     Hints.hideHints();
   }
   if (Mappings.actions.inputFocused || commandMode) {

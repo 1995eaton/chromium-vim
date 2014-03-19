@@ -49,6 +49,9 @@ Hints.handleHintFeedback = function(choice) {
     setTimeout(function() {
       if (Hints.yank) {
         Clipboard.copy(hint_links[cur_index].href);
+      } else if (Hints.image) {
+        log(hint_links[cur_index].src);
+        chrome.runtime.sendMessage({action: "openLinkTab", url: "https://www.google.com/searchbyimage?image_url=" + hint_links[cur_index].src});
       } else if (hint_links[cur_index].nodeName === "BUTTON" || hint_links[cur_index].nodeName === "AREA") {
         hint_links[cur_index].click();
       } else if (hint_links[cur_index].nodeName === "SELECT") {
@@ -105,10 +108,11 @@ Hints.handleHint = function(key) {
   }
 };
 
-Hints.create = function(tabbed, numeric, yank) {
+Hints.create = function(tabbed, numeric, yank, image) {
   hint_strings = [];
   hint_links = [];
   this.yank = yank;
+  this.image = image;
   this.tabbed = tabbed;
   this.numeric = numeric;
   var screen = {
@@ -134,6 +138,10 @@ Hints.create = function(tabbed, numeric, yank) {
       };
       if (yank) {
         if (elements[i].href) {
+          clickable.push(elements[i]);
+        }
+      } else if (image) {
+        if (elements[i].src) {
           clickable.push(elements[i]);
         }
       } else {
