@@ -12,8 +12,8 @@ body {
 
 #background_main {
   position: fixed;
-  min-width: 750px;
-  max-width: 900px;
+  min-width: 825px;
+  max-width: 1000px;
   width: 75%;
   height: 100%; top: 0;
   left: 0; right: 0;
@@ -22,13 +22,6 @@ body {
 }
 
 #container_main {
-  position: absolute;
-  min-width: 750px;
-  max-width: 900px;
-  width: 75%;
-  height: 100%; top: 0;
-  left: 0; right: 0;
-  margin: 0 auto;
 }
 
 #container_title {
@@ -136,14 +129,18 @@ textarea:focus, input:focus {
   width: 100%;
 }
 
+#mappings {
+  float: right;
+  width: 80%;
+  height: 200px;
+  resize: none;
+}
+
 #save_container {
   position: fixed;
   width: 100%;
   left: 0; right: 0;
-  min-width: 750px;
-  max-width: 900px;
-  width: 75%;
-  background-color: #eee;
+  background-color: rgba(10,10,10,0.4);
   transition: opacity 0.2s ease-in-out;
   text-align: center;
   z-index: 999;
@@ -154,4 +151,15 @@ textarea:focus, input:focus {
 #save_button, #reset_button {
   width: 55px;
   margin: 5px;
+  outline-style: none;
+  transition: box-shadow 0.2s ease-out;
+  border: none;
+}
+
+#save_button:hover, #reset_button:hover {
+  box-shadow: 0 0 5px #000;
+}
+
+#save_button:active, #reset_button:active {
+  box-shadow: 0 0 20px #000;
 }

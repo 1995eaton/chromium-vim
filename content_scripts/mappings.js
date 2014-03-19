@@ -1,5 +1,7 @@
 var Mappings = {};
 
+Mappings.repeats = "";
+
 Mappings.toKeyCode = function(c) {
   var isCap = c.toUpperCase() === c;
   return [isCap, c.toUpperCase().charCodeAt()];
@@ -9,8 +11,8 @@ Mappings.fromKeyDown = function(key) {
   if (key.ctrlKey || key.metaKey) {
     return;
   }
-  if (key.keyCode === 191 && !key.shiftKey) {
-    return "/";
+  if (key.keyCode >= 180 && key.keyCode < 200 && !key.shiftKey) {
+    return String.fromCharCode(key.keyCode - 144);
   } else if (key.keyCode === 186 && key.shiftKey) {
     return ":";
   } else if (key.keyCode === 9) {
@@ -28,137 +30,87 @@ Mappings.fromKeyDown = function(key) {
 Mappings.queue = "";
 
 Mappings.actions = {
-  closeTab: function() {
-    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
-      return chrome.runtime.sendMessage({action: "closeTab"});
-    }
+  closeTab: function(repeats) {
+    return chrome.runtime.sendMessage({action: "closeTab", repeats: repeats});
   },
-  scrollDown: function() {
-    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
-      return Scroll.scroll("down");
-    }
+  scrollDown: function(repeats) {
+    return Scroll.scroll("down", repeats);
   },
-  scrollUp: function() {
-    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
-      return Scroll.scroll("up");
-    }
+  scrollUp: function(repeats) {
+    return Scroll.scroll("up", repeats);
   },
-  scrollPageDown: function() {
-    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
-      return Scroll.scroll("pageDown");
-    }
+  scrollPageDown: function(repeats) {
+    return Scroll.scroll("pageDown", repeats);
   },
-  scrollPageUp: function() {
-    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
-      return Scroll.scroll("pageUp");
-    }
+  scrollPageUp: function(repeats) {
+    return Scroll.scroll("pageUp", repeats);
   },
-  scrollLeft: function() {
-    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
-      return Scroll.scroll("left");
-    }
+  scrollLeft: function(repeats) {
+    return Scroll.scroll("left", repeats);
   },
-  scrollRight: function() {
-    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
-      return Scroll.scroll("right");
-    }
+  scrollRight: function(repeats) {
+    return Scroll.scroll("right", repeats);
   },
   scrollToTop: function() {
-    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
-      return Scroll.scroll("top");
-    }
+    return Scroll.scroll("top");
   },
   scrollToBottom: function() {
-    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
-      return Scroll.scroll("bottom");
-    }
+    return Scroll.scroll("bottom");
   },
   createHint: function() {
-    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
-      setTimeout(function() {
-        return Hints.create(false, false, false);
-      }, 0);
-    }
+    setTimeout(function() {
+      return Hints.create(false, false, false);
+    }, 0);
   },
   createTabbedHint: function() {
-    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
-      setTimeout(function() {
-        return Hints.create(true, false, false);
-      }, 0);
-    }
+    setTimeout(function() {
+      return Hints.create(true, false, false);
+    }, 0);
   },
   yankUrl: function() {
-    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
-      setTimeout(function() {
-        return Hints.create(true, false, true);
-      }, 0);
-    }
+    setTimeout(function() {
+      return Hints.create(true, false, true);
+    }, 0);
   },
   yankDocumentUrl: function() {
-    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
-      return Clipboard.copy(document.URL);
-    }
+    return Clipboard.copy(document.URL);
   },
   openPaste: function() {
-    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
-      return Clipboard.paste(false);
-    }
+    return Clipboard.paste(false);
   },
   openPasteTab: function() {
-    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
-      return Clipboard.paste(true);
-    }
+    return Clipboard.paste(true);
   },
   insertMode: function() {
-    if (!hints_active && !document.activeElement.isInput()) {
-      return insertMode = true;
-    }
+    return insertMode = true;
   },
   reloadTab: function() {
-    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
-      return Clipboard.paste(true);
-      return chrome.runtime.sendMessage({action: "reloadTab"});
+    return chrome.runtime.sendMessage({action: "reloadTab"});
+  },
+  nextSearchResult: function(repeats) {
+    if (Command.type === "search") {
+      return Find.search(false, repeats);
     }
   },
-  nextSearchResult: function() {
-    if (Command.type === "search" && !hints_active && !insertMode && !document.activeElement.isInput()) {
-      return Find.search(false, true);
+  previousSearchResult: function(repeats) {
+    if (Command.type === "search") {
+      return Find.search(true, repeats);
     }
   },
-  previousSearchResult: function() {
-    if (Command.type === "search" && !hints_active && !insertMode && !document.activeElement.isInput()) {
-      return Find.search(true, true);
-    }
+  nextTab: function(r) {
+    return chrome.runtime.sendMessage({action: "nextTab", repeats: r});
   },
-  nextTab: function() {
-    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
-      return chrome.runtime.sendMessage({action: "nextTab"});
-    }
+  previousTab: function(r) {
+    return chrome.runtime.sendMessage({action: "previousTab", repeats: r});
   },
-  previousTab: function() {
-    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
-      return chrome.runtime.sendMessage({action: "previousTab"});
-    }
+  goBack: function(repeats) {
+    return history.go(-1 * repeats);
   },
-  goBack: function() {
-    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
-      return history.go(-1);
-    }
-  },
-  goForward: function() {
-    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
-      return history.go(1);
-    }
+  goForward: function(repeats) {
+    return history.go(1 * repeats);
   },
   goToSource: function() {
-    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
-      return chrome.runtime.sendMessage({action: "openLinkTab", url: "view-source:" + document.URL});
-    }
-  },
-  cycleHistoryUp: function(e) {
-    if (e) e.preventDefault();
-    if (document.activeElement.id === "command_input") {
-    }
+    return chrome.runtime.sendMessage({action: "openLinkTab", url: "view-source:" + document.URL});
   },
   handleTab: function(e) {
     if (this.inputFocused) {
@@ -193,59 +145,43 @@ Mappings.actions = {
       }
     }
   },
-  goToInput: function() {
-    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
-      this.inputElements = [];
-      var allInput = document.querySelectorAll("input,textarea");
-      for (var i = 0, l = allInput.length; i < l; i++) {
-        if (allInput[i].isInput() && allInput[i].isVisible() && allInput[i].id !== "command_input") {
-          this.inputElements.push(allInput[i]);
-        }
-      }
-      this.inputElementsIndex = 0;
-      this.inputFocused = true;
-      for (var i = 0, l = allInput.length; i < l; i++) {
-        var b = allInput[i].getBoundingClientRect();
-        if (b.top >= 0 && b.top < window.innerHeight && b.left >= 0 && b.left < window.innerWidth) {
-          this.inputElementsIndex = i;
-          break;
-        }
-      }
-      if (this.inputElements.length) {
-        return this.inputElements[this.inputElementsIndex].focus();
+  goToInput: function(repeats) {
+    this.inputElements = [];
+    var allInput = document.querySelectorAll("input,textarea");
+    for (var i = 0, l = allInput.length; i < l; i++) {
+      if (allInput[i].isInput() && allInput[i].isVisible() && allInput[i].id !== "command_input") {
+        this.inputElements.push(allInput[i]);
       }
     }
+    this.inputElementsIndex = repeats % this.inputElements.length;
+    this.inputFocused = true;
+    if (this.inputElements.length) {
+      insertMode = true;
+      return this.inputElements[this.inputElementsIndex].focus();
+    }
   },
-  shortCuts: function(s) {
-    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
-      for (var i = 0, l = Mappings.shortCuts.length; i < l; i++) {
-        if (s === Mappings.shortCuts[i][0]) {
-          commandMode = true;
-          if (/^:bookmarks(\s+)/.test(Mappings.shortCuts[i][1])) {
-            Command.show(false, Mappings.shortCuts[i][1].replace(/^:/, ""));
-            return Command.parse(barInput.value);
-          }
-          return Command.show(false, Mappings.shortCuts[i][1].replace(/^:/, ""));
+  shortCuts: function(s, repeats) {
+    for (var i = 0, l = Mappings.shortCuts.length; i < l; i++) {
+      if (s === Mappings.shortCuts[i][0]) {
+        commandMode = true;
+        Command.show(false, Mappings.shortCuts[i][1].replace(/^:/, "").replace(/<cr>(\s+)?$/i, ""));
+        if (/<cr>(\s+)?$/i.test(Mappings.shortCuts[i][1])) {
+          return Command.parse(barInput.value, true, repeats);
         }
+        return Command.parse(barInput.value, false, repeats);
       }
     }
   },
   openSearchBar: function() {
-    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
-      if (Find.index === null)
-        Find.index = -1;
-      commandMode = true;
-      Command.enterHit = false;
-      return Command.show(true);
-    }
+    commandMode = true;
+    Command.enterHit = false;
+    return Command.show(true);
   },
   openCommandBar: function() {
-    if (!hints_active && !insertMode && !document.activeElement.isInput()) {
-      Command.hide();
-      commandMode = true;
-      Command.enterHit = false;
-      return Command.show(false);
-    }
+    Command.hide();
+    commandMode = true;
+    Command.enterHit = false;
+    return Command.show(false);
   }
 };
 
@@ -284,13 +220,7 @@ Mappings.defaults = {
   previousSearchResult: ["N"],
   openSearchBar: ["/"],
   openCommandBar: [":"],
-  shortCuts: (function() {
-    var s = [];
-    for (var i = 0, l = Mappings.shortCuts.length; i < l; i++) {
-      s.push(Mappings.shortCuts[i][0]);
-    }
-    return s;
-  })()
+  shortCuts: []
 }
 
 Mappings.isValidQueue = function(c) {
@@ -313,29 +243,101 @@ Mappings.isValidQueue = function(c) {
   }
 };
 
-Mappings.convertToAction = function(c) {
-  if (!c || !/[a-zA-Z0-9:\/]/.test(c)) {
-    return;
+Mappings.parseCustom = function(config) {
+  if (!/\n/.test(config)) {
+    config = [config];
+  } else {
+    config = config.split("\n");
   }
+  var keywords = [
+    /^(\s+)?map /i,
+    /^(\s+)?unmap /i
+      ];
+  var m = [];
+  var u = [];
+  for (var i = 0, l = config.length; i < l; i++) {
+    for (var j = 0; j < keywords.length; j++) {
+      if (keywords[j].test(config[i])) {
+        var maps = config[i].split(/(\s+)/).filter(function(m) {
+          if (!/(\s+)/.test(m)) {
+            return m;
+          }
+        });
+        if (maps.length === 3 || (maps.length >= 3 && /^:/.test(maps[2]))) {
+          if (maps[0].toLowerCase() === "map") {
+            if (maps.length > 3) {
+              var c = "";
+              for (var k = 3; k < maps.length; k++) {
+                c += " " + maps[k];
+              }
+              m.push([maps[1], maps[2] + c]);
+            } else {
+              m.push([maps[1], maps[2]]);
+            }
+          }
+        } else if (maps.length === 2 && maps[0].toLowerCase() === "unmap") {
+          u.push(maps[1]);
+        }
+      }
+    }
+  }
+  for (var i = 0; i < u.length; i++) {
+    for (var key in this.defaults) {
+      for (var j = 0; j < this.defaults[key].length; j++) {
+        if (this.defaults[key][j] === u[i]) {
+          this.defaults[key].splice(j, 1);
+        }
+      }
+    }
+  }
+  for (var i = 0; i < m.length; i++) {
+    if (m[i][1][0] === ":") {
+      this.shortCuts.push([m[i][0], m[i][1]]);
+    } else {
+      for (var key in this.defaults) {
+        if (key.toLowerCase() === m[i][1].toLowerCase()) {
+          this.defaults[key].push(m[i][0]);
+        }
+      }
+    }
+  }
+  for (var i = 0, l = Mappings.shortCuts.length; i < l; i++) {
+    Mappings.defaults.shortCuts.push(Mappings.shortCuts[i][0]);
+  }
+};
+
+Mappings.convertToAction = function(c) {
+  if (!c) return;
   if (hints_active) {
     return Hints.handleHint(c);
   }
-  Mappings.queue += c;
-  for (var key in this.defaults) {
-    if (this.defaults.hasOwnProperty(key)) {
-      if (!this.isValidQueue(c)) {
-        Mappings.queue = "";
-        if (this.isValidQueue(c)) {
-          Mappings.queue = c;
-        }
-      }
-      for (var i = 0, l = this.defaults[key].length; i < l; i++) {
-        if (Mappings.queue === this.defaults[key][i]) {
-          if (key === "shortCuts") {
-            return Mappings.actions[key](Mappings.queue);
-          }
-          return Mappings.actions[key]();
+  if (Mappings.queue === "" && /[0-9]/.test(c)) {
+    Mappings.repeats += c;
+  } else {
+    Mappings.queue += c;
+    for (var key in this.defaults) {
+      if (this.defaults.hasOwnProperty(key)) {
+        if (!this.isValidQueue(c)) {
           Mappings.queue = "";
+          Mappings.repeats = "";
+          if (this.isValidQueue(c)) {
+            Mappings.queue = c;
+          }
+        }
+        for (var i = 0, l = this.defaults[key].length; i < l; i++) {
+          if (Mappings.queue === this.defaults[key][i]) {
+            if (Mappings.repeats === "0" || Mappings.repeats === "") {
+              Mappings.repeats = "1";
+            }
+            if (key === "shortCuts") {
+              log(Mappings.repeats);
+              Mappings.actions[key](Mappings.queue, parseInt(Mappings.repeats));
+              return Mappings.repeats = "";
+            }
+            Mappings.actions[key](parseInt(Mappings.repeats));
+            Mappings.queue = "";
+            return Mappings.repeats = "";
+          }
         }
       }
     }

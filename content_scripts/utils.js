@@ -1,7 +1,7 @@
 Object.prototype.isInput = function() {
   return (
       (this.nodeName === "TEXTAREA" || this.nodeName === "INPUT") &&
-      !/button|checkbox|submit/.test(this.getAttribute("type"))
+      !/button|image|checkbox|submit/.test(this.getAttribute("type"))
   );
 };
 

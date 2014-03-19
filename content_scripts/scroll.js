@@ -11,7 +11,19 @@ easeOutSine = function (t, b, c, d) {
 	return c * Math.sin(t/d * (Math.PI/2)) + b;
 };
 
-Scroll.smoothScrollBy = function(x, y) {
+Scroll.smoothScrollBy = function(x, y, ignoreRepeats) {
+
+  if (!ignoreRepeats) {
+    if (document.body.scrollTop + y < 0)
+      y = -document.body.scrollTop - window.innerHeight;
+    else if (document.body.scrollTop + y > document.body.scrollHeight)
+      y = document.body.scrollHeight - document.body.scrollTop;
+    else if (document.body.scrollLeft + x < 0)
+      x = -document.body.scrollLeft - window.innerWidth;
+    else if (document.body.scrollLeft + x > document.body.scrollWidth)
+      x = document.body.scrollWidth - document.body.scrollLeft;
+  }
+
   var direction = (x == 0)? "vertical" : "horizontal";
   var duration = 30;
   var scale = 0.30;
@@ -31,32 +43,32 @@ Scroll.smoothScrollBy = function(x, y) {
   }, 1000 / 60);
 };
 var endScale = 1.35;
-Scroll.scroll = function(type) {
+Scroll.scroll = function(type, repeats) {
   if (Scroll.smooth) {
     switch (type) {
       case "down":
-        Scroll.smoothScrollBy(0, step);
+        Scroll.smoothScrollBy(0, repeats * step);
         break;
       case "up":
-        Scroll.smoothScrollBy(0, -step);
+        Scroll.smoothScrollBy(0, repeats * -step);
         break;
       case "pageDown":
-        Scroll.smoothScrollBy(0, window.innerHeight / 2);
+        Scroll.smoothScrollBy(0, repeats * window.innerHeight / 2);
         break;
       case "pageUp":
-        Scroll.smoothScrollBy(0, -1 * window.innerHeight / 2);
+        Scroll.smoothScrollBy(0, -repeats * window.innerHeight / 2);
         break;
       case "top":
-        Scroll.smoothScrollBy(0, document.body.scrollTop * -endScale);
+        Scroll.smoothScrollBy(0, document.body.scrollTop * -endScale, true);
         break;
       case "bottom":
-        Scroll.smoothScrollBy(0, (document.body.scrollHeight - document.body.scrollTop) * endScale);
+        Scroll.smoothScrollBy(0, (document.body.scrollHeight - document.body.scrollTop) * endScale, true);
         break;
       case "left":
-        Scroll.smoothScrollBy(-step, 0);
+        Scroll.smoothScrollBy(repeats * -step / 2, 0);
         break;
       case "right":
-        Scroll.smoothScrollBy(step, 0);
+        Scroll.smoothScrollBy(repeats * step / 2, 0);
         break;
       default:
         break;

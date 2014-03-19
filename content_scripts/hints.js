@@ -13,16 +13,10 @@ var Hints = {};
 Hints.hintCharacters = "asdfgzxcvbqwert";
 
 Hints.hideHints = function() {
-  for (var i = 0; i < link_arr.length; i++) {
-    if (link_arr[i].parentNode) {
-      link_arr[i].parentNode.removeChild(link_arr[i]);
-    }
-  }
   document.getElementById("link_main").parentNode.removeChild(document.getElementById("link_main"));
   current_string = "";
   hints_active = false;
   link_arr = [];
-  hint_links = [];
 };
 
 Hints.handleHintFeedback = function(choice) {
@@ -51,41 +45,41 @@ Hints.handleHintFeedback = function(choice) {
     }
   }
   if (links_found === 1) {
-    if (this.yank) {
-      Clipboard.copy(hint_links[cur_index].href);
-    } else if (hint_links[cur_index].nodeName === "BUTTON" || hint_links[cur_index].nodeName === "AREA") {
-      hint_links[cur_index].click();
-    } else if (hint_links[cur_index].nodeName === "SELECT") {
-      var e = new MouseEvent("mousedown");
-      hint_links[cur_index].dispatchEvent(e);
-    } else if (hint_links[cur_index].nodeName === "TEXTAREA") {
-      setTimeout(function() {
-        hint_links[cur_index].focus();
-      }, 0);
-    } else if (hint_links[cur_index].nodeName === "INPUT") {
-      switch (hint_links[cur_index].type) {
-        case "text": case "password": case "email": case "search":
-          setTimeout(function() {
-            hint_links[cur_index].focus();
-          }, 0);
-          break;
-        case "radio": case "submit":
-          hint_links[cur_index].click();
-          break;
-        case "checkbox":
-          hint_links[cur_index].checked = !hint_links[cur_index].checked;
-          break;
-        default:
-          hint_links[cur_index].click();
-          break;
-      }
-    } else if (!this.tabbed || hint_links[cur_index].getAttribute("onclick")) {
-      hint_links[cur_index].click();
-    } else {
-      chrome.runtime.sendMessage({action: "openLinkTab", url: (!this.numeric) ? hint_links[cur_index].href : hint_links[choice].href});
-    }
+    Hints.hideHints();
     setTimeout(function() {
-      Hints.hideHints();
+      if (Hints.yank) {
+        Clipboard.copy(hint_links[cur_index].href);
+      } else if (hint_links[cur_index].nodeName === "BUTTON" || hint_links[cur_index].nodeName === "AREA") {
+        hint_links[cur_index].click();
+      } else if (hint_links[cur_index].nodeName === "SELECT") {
+        var e = new MouseEvent("mousedown");
+        hint_links[cur_index].dispatchEvent(e);
+      } else if (hint_links[cur_index].nodeName === "TEXTAREA") {
+        setTimeout(function() {
+          hint_links[cur_index].focus();
+        }, 0);
+      } else if (hint_links[cur_index].nodeName === "INPUT") {
+        switch (hint_links[cur_index].type) {
+          case "text": case "password": case "email": case "search":
+            setTimeout(function() {
+              hint_links[cur_index].focus();
+            }, 0);
+            break;
+          case "radio": case "submit":
+            hint_links[cur_index].click();
+            break;
+          case "checkbox":
+            hint_links[cur_index].checked = !hint_links[cur_index].checked;
+            break;
+          default:
+            hint_links[cur_index].click();
+            break;
+        }
+      } else if (!Hints.tabbed || hint_links[cur_index].getAttribute("onclick")) {
+        hint_links[cur_index].click();
+      } else {
+        chrome.runtime.sendMessage({action: "openLinkTab", url: (!Hints.numeric) ? hint_links[cur_index].href : hint_links[choice].href});
+      }
     }, 0);
   } else if (links_found === 0) {
     Hints.hideHints();
@@ -113,6 +107,7 @@ Hints.handleHint = function(key) {
 
 Hints.create = function(tabbed, numeric, yank) {
   hint_strings = [];
+  hint_links = [];
   this.yank = yank;
   this.tabbed = tabbed;
   this.numeric = numeric;
@@ -142,9 +137,9 @@ Hints.create = function(tabbed, numeric, yank) {
           clickable.push(elements[i]);
         }
       } else {
-      if ((elements[i].getAttribute("onclick") || /^(AREA|SELECT|BUTTON|TEXTAREA|A|INPUT)$/.test(elements[i].nodeName) || elements[i].getAttribute("aria-haspopup") || elements[i].getAttribute("data-cmd") || elements[i].getAttribute("jsaction") || special_urls.inclusive.imgur || special_urls.inclusive.stackoverflow) && special_urls.exclusive.reddit && computedStyle.visibility !== "hidden") {
-        clickable.push(elements[i]);
-      }
+        if ((elements[i].getAttribute("onclick") || /^(AREA|SELECT|BUTTON|TEXTAREA|A|INPUT)$/.test(elements[i].nodeName) || elements[i].getAttribute("aria-haspopup") || elements[i].getAttribute("data-cmd") || elements[i].getAttribute("jsaction") || special_urls.inclusive.imgur || special_urls.inclusive.stackoverflow) && special_urls.exclusive.reddit && computedStyle.visibility !== "hidden") {
+          clickable.push(elements[i]);
+        }
       }
     }
     return clickable;

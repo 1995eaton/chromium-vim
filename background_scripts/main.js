@@ -1,13 +1,6 @@
-function getTab(sender, reverse) {
+function getTab(sender, reverse, count) {
   chrome.tabs.query({windowId: sender.tab.windowId}, function(tabs) {
-    for (var i = 0; i < tabs.length; i++) {
-      if (tabs[i].index === sender.tab.index) {
-        if (!reverse) {
-          return chrome.tabs.update((sender.tab.index + 1 === tabs.length) ? tabs[0].id : tabs[i + 1].id, {active: true});
-        }
-        return chrome.tabs.update((sender.tab.index === 0) ? tabs[tabs.length - 1].id : tabs[i - 1].id, {active: true});
-      }
-    }
+    return chrome.tabs.update(tabs[((((reverse ? -count : count) + sender.tab.index) % tabs.length) + tabs.length) % tabs.length].id, {active: true});
   });
 }
 
@@ -84,42 +77,41 @@ chrome.extension.onConnect.addListener(function(port) {
 });
 
 chrome.runtime.onMessage.addListener(function(request, sender, callback) {
+  if (!request.repeats || !/[0-9]([0-9]+)?/.test(request.repeats.toString())) request.repeats = 1;
+  //if (!request.repeats) request.repeats = 1;
   switch (request.action) {
     case "openLink":
       chrome.tabs.update({url: request.url});
       break;
     case "openLinkTab":
+      console.log(request.repeats);
+      for (var i = 0; i < request.repeats; i++) {
       chrome.tabs.create({url: request.url, index: sender.tab.index + 1});
+      }
       break;
     case "closeTab":
       chrome.tabs.remove(sender.tab.id);
-      break;
-    case "getBookmarks":
-      getMarks();
-      callback(marks);
       break;
     case "reloadTab":
       chrome.tabs.reload({});
       break;
     case "newTab":
-      chrome.tabs.create({url: "https://google.com", index: sender.tab.index + 1});
+      console.log(request.repeats);
+      for (var i = 0; i < request.repeats; i++) {
+        chrome.tabs.create({url: "https://google.com", index: sender.tab.index + 1});
+      }
       break;
     case "nextTab":
-      getTab(sender, false);
+      getTab(sender, false, request.repeats);
       break;
     case "previousTab":
-      getTab(sender, true);
+      getTab(sender, true, request.repeats);
       break;
     case "appendHistory":
       history.append(request.value, request.type);
       break;
     case "retrieveHistory":
       callback(history.retrieve(request.type));
-      break;
-    case "searchHistory":
-      history.retrieveSearchHistory(request.search);
-      console.log(history.searchResults);
-      callback(history.searchResults);
       break;
     case "copy":
       Clipboard.copy(request.text);

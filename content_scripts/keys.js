@@ -1,7 +1,6 @@
 var keyQueue, inputFocused, insertMode, commandMode, port, skipDefault, settings;
 var inputElements = [];
 var inputIndex = 0;
-
 keyDown = function(e) {
   if (e.which === 16) return;
   if (!insertMode && !document.activeElement.isInput()) {
@@ -20,27 +19,16 @@ keyDown = function(e) {
       document.activeElement.blur();
     }
   }
-  var ch = Mappings.fromKeyDown(e);
-  setTimeout(function() {
-    Mappings.convertToAction(ch); // Mappable commands go here
-  }, 0);
-  if (!Command.enterHit && Command.type === "search") {
-    document.activeElement.blur();
-    barInput.focus();
-  } else if (Command.enterHit && Command.type === "search") {
-    if (e.which === 78) {
-      e.preventDefault();
-      //Find.search(e.shiftKey, false);
-    }
-    //document.activeElement.blur();
-  }
   if (Mappings.actions.inputFocused || commandMode) {
-    if (e.which === 27) {
+    if (e.keyCode === 27) {
       Mappings.actions.inputFocused = false;
       commandMode = false;
       Command.hide();
-    } else if (Mappings.actions.inputFocused || /command/.test(document.activeElement.id || document.activeElement.className)) { // General command bar actions
-      switch (e.which) {
+    } else if (Mappings.actions.inputFocused && e.keyCode === 9) { // Tab
+      e.preventDefault();
+      Mappings.actions.handleTab(e);
+    } else if (bar.style.display === "block" && /command/.test(document.activeElement.id || document.activeElement.className)) { // General command bar actions
+      switch (e.keyCode) {
         case 8: // Backspace
           if (barInput.value === "") {
             commandMode = false;
@@ -49,13 +37,9 @@ keyDown = function(e) {
             Find.clear();
             setTimeout(function() {
               if (barInput.value !== "") {
-                Find.highlight(document.body, barInput.value);
+                Find.highlight(document.body, barInput.value, true);
               }
             }, 0);
-            barInput.blur();
-            window.focus();
-            window.blur();
-            barInput.focus();
           } else if (barInput.value !== "") {
             Search.index = null;
             setTimeout(function() {
@@ -89,13 +73,14 @@ keyDown = function(e) {
             document.activeElement.blur();
           }
           if (Command.type === "search") {
-            Find.search(false);
+            Find.index = 0;
+            Find.search(false, 1);
+            Command.hide();
           } else if (Command.actionType === "query") {
             Search.go();
           } else {
             Command.parse(barInput.value);
           }
-          Command.hide();
           break;
         default:
           if (Command.type === "action") {
@@ -107,7 +92,7 @@ keyDown = function(e) {
               if (Command.type === "search") {
                 Find.clear();
                 if (barInput.value !== "") {
-                  Find.highlight(document.body, barInput.value);
+                  Find.highlight(document.body, barInput.value, true);
                 }
               }
             }, 2);
@@ -118,4 +103,13 @@ keyDown = function(e) {
   }
 };
 
+keyPress = function(e) {
+  if (!insertMode && !document.activeElement.isInput()) {
+    setTimeout(function() {
+      Mappings.convertToAction(String.fromCharCode(e.which)); // Mappable commands go here
+    }, 0);
+  }
+};
+
+document.addEventListener("keypress", keyPress, true);
 document.addEventListener("keydown", keyDown, true);

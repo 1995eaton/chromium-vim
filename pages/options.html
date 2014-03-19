@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="codemirror/codemirror.css">
 </head>
 <body>
-<div id="background_main"></div>
+<div id="background_main">
 <div id="container_main">
   <div id="container_title">cVim Options</div>
   <div id="settings">
@@ -38,6 +38,12 @@
       </tr>
       <tr>
         <td>
+          <span class="setting">Custom mappings</span>
+          <textarea id="mappings"></textarea>
+        </td>
+      </tr>
+      <tr>
+        <td>
           <span class="setting">CSS
             <select id="edit_mode">
               <option disabled>Mode</option>
@@ -54,6 +60,7 @@
     <button id="save_button">Save</button>
     <button id="reset_button">Reset</button>
   </div>
+</div>
 </div>
 </body>
 <script src="options.js"></script>

@@ -50,7 +50,7 @@ Search.fetchQuery = function(query, callback) {
   xhr.send();
 };
 
-Search.go = function(tabbed) {
+Search.go = function(repeats) {
   var search = barInput.value.replace(/^(t|tab)?o(pen)?(\s+)/, "");
   if (!Search.urlMatch.test(search)) {
     search = "https://google.com/search?q=" + search;
@@ -58,9 +58,9 @@ Search.go = function(tabbed) {
     search = "http://" + search;
   }
   if (/^(to|tabopen) /.test(barInput.value)) {
-    chrome.runtime.sendMessage({action: "openLinkTab", url: search});
+    chrome.runtime.sendMessage({action: "openLinkTab", url: search, repeats: repeats});
   } else {
-    chrome.runtime.sendMessage({action: "openLink", url: search});
+    chrome.runtime.sendMessage({action: "openLink", url: search, repeats: repeats});
   }
 };
 

@@ -166,26 +166,29 @@ Command.complete = function(input, reverse, doSearch) {
   }
 };
 
-Command.parse = function(value) {
+Command.parse = function(value, pseudoReturn, repeats) {
   Command.typed = barInput.value;
-  if (Command.enterHit) {
+  if (pseudoReturn || Command.enterHit) {
+    Command.hideData();
     if (/^ex(tensions)?(\s+)?$/.test(value)) {
       chrome.runtime.sendMessage({action: "openLinkTab", url: "chrome://extensions"});
     } else if (/^fl(ags)?(\s+)?$/.test(value)) {
-      chrome.runtime.sendMessage({action: "openLinkTab", url: "chrome://flags"});
+      chrome.runtime.sendMessage({action: "openLinkTab", url: "chrome://flags", repeats: repeats});
     } else if (/^(tabnew|t(ab)?o(pen)?)(\s+)?$/.test(value)) {
-      chrome.runtime.sendMessage({action: "openLinkTab", url: "chrome://newtab"});
+      chrome.runtime.sendMessage({action: "openLinkTab", url: "chrome://newtab", repeats: repeats});
     } else if (/^nohl(\s+)?$/.test(value)) {
       Find.clear();
     } else if (/^cl(osetab)?(\s+)?$/.test(value)) {
-      chrome.runtime.sendMessage({action: "closeTab"});
+      chrome.runtime.sendMessage({action: "closeTab", repeats: repeats});
     } else if (/^b(ook)?marks(\s+)?/.test(value)) {
       if (barInput.value.replace(/^b(ook)?marks(\s+)?/, "").length !== 0) {
         chrome.runtime.sendMessage({action: "openLinkTab", url: barInput.value.replace(/^b(ook)?marks(\s+)?/, "")});
       }
+    } else if (pseudoReturn) {
+      Search.go(repeats);
     }
-  }
-  if (!Command.enterHit) {
+    Command.hide();
+  } else if (!Command.enterHit) {
     Search.searchHistory = [];
     if (/^(t(ab)?)?o(pen)?(\s+)/.test(barInput.value)) {
       Search.index = null;
@@ -231,6 +234,8 @@ Command.show = function(search, value) {
 };
 
 Command.hide = function() {
+  document.activeElement.blur();
+  Command.hideData();
   bar.style.display = "none";
   barInput.value = "";
   Search.index = null;
@@ -270,13 +275,14 @@ document.addEventListener("DOMContentLoaded", function() {
   loadFont();
   chrome.runtime.sendMessage({getSettings: true}, function (s) {
     settings = s;
+    Mappings.parseCustom(settings.mappings);
     var cssStyle = document.createElement("style");
     cssStyle.innerText = settings.commandBarCSS;
     document.getElementsByTagName("head")[0].appendChild(cssStyle);
     barOnBottom = (settings.commandBarOnBottom === "true") ? true : false;
     Scroll.smooth= (settings.smoothScroll === "true") ? true : false;
-    if (settings.linkHintCharacters.split("").unique().length > 1) {
-      Hints.hintCharacters = settings.linkHintCharacters.split("").unique().join("");
+    if (settings.linkHintCharacters.split("").unique().length > 1 && !/\\|\||\[|\]|\(|\)|\//.test(settings.linkHintCharacters)) {
+      Hints.hintCharacters = settings.linkHintCharacters.split("").unique().join("").replace(/\\/, "\\\\");
     }
     Command.setup();
     Command.loadFont();
