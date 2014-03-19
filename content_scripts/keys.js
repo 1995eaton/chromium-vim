@@ -18,6 +18,9 @@ keyDown = function(e) {
     if (document.activeElement.isInput()) {
       document.activeElement.blur();
     }
+  } else if (e.which === 32 && hints_active) {
+    e.preventDefault();
+    Hints.hideHints();
   }
   if (Mappings.actions.inputFocused || commandMode) {
     if (e.keyCode === 27) {
