@@ -47,16 +47,16 @@ Scroll.scroll = function(type, repeats) {
   if (Scroll.smooth) {
     switch (type) {
       case "down":
-        Scroll.smoothScrollBy(0, repeats * step);
+        Scroll.smoothScrollBy(0, repeats * step, repeats === 1);
         break;
       case "up":
-        Scroll.smoothScrollBy(0, repeats * -step);
+        Scroll.smoothScrollBy(0, repeats * -step, repeats === 1);
         break;
       case "pageDown":
-        Scroll.smoothScrollBy(0, repeats * window.innerHeight / 2);
+        Scroll.smoothScrollBy(0, repeats * window.innerHeight / 2, repeats === 1);
         break;
       case "pageUp":
-        Scroll.smoothScrollBy(0, -repeats * window.innerHeight / 2);
+        Scroll.smoothScrollBy(0, -repeats * window.innerHeight / 2, repeats === 1);
         break;
       case "top":
         Scroll.smoothScrollBy(0, document.body.scrollTop * -endScale, true);
@@ -65,10 +65,10 @@ Scroll.scroll = function(type, repeats) {
         Scroll.smoothScrollBy(0, (document.body.scrollHeight - document.body.scrollTop) * endScale, true);
         break;
       case "left":
-        Scroll.smoothScrollBy(repeats * -step / 2, 0);
+        Scroll.smoothScrollBy(repeats * -step / 2, 0, repeats === 1);
         break;
       case "right":
-        Scroll.smoothScrollBy(repeats * step / 2, 0);
+        Scroll.smoothScrollBy(repeats * step / 2, 0, repeats === 1);
         break;
       default:
         break;
