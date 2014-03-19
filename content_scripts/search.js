@@ -62,6 +62,7 @@ Search.go = function(repeats) {
   } else {
     chrome.runtime.sendMessage({action: "openLink", url: search, repeats: repeats});
   }
+  Command.hide();
 };
 
 Search.appendFromHistory = function(data) {
