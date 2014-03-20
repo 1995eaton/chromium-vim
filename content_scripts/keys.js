@@ -116,5 +116,12 @@ keyPress = function(e) {
   }
 };
 
+var Mouse = {};
+mouseMove = function(e) {
+  Mouse.x = e.pageX;
+  Mouse.y = e.pageY;
+};
+
 document.addEventListener("keypress", keyPress, true);
 document.addEventListener("keydown", keyDown, true);
+document.addEventListener("mousemove", mouseMove, true);

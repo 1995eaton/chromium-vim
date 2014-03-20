@@ -3,37 +3,50 @@ var step = 120;
 var smooth = true;
 Scroll.smooth = true;
 
-easeOutExpo = function (t, b, c, d) {
-	return c * ( -Math.pow( 2, -10 * t/d ) + 1 ) + b;
+var ease = {
+  outSine: function(t, b, c, d) {
+    return c * Math.sin(t/d * (Math.PI/2)) + b;
+  },
+  outQuint: function(t, b, c, d) {
+    t /= d;
+    t--;
+    return c*(t*t*t*t*t + 1) + b;
+  },
+  outQuad: function(t, b, c, d) {
+    t /= d;
+    return -c * t*(t-2) + b;
+  },
+  outExpo: function(t, b, c, d) {
+    return c * ( -Math.pow( 2, -10 * t/d ) + 1 ) + b;
+  },
+  outQuart: function(t, b, c, d) {
+    return -c * ((t=t/d-1)*t*t*t - 1) + b;
+  }
 };
-
-easeOutSine = function (t, b, c, d) {
-	return c * Math.sin(t/d * (Math.PI/2)) + b;
-};
-
+var endScale = 1.6;
 Scroll.smoothScrollBy = function(x, y, ignoreRepeats) {
 
   if (!ignoreRepeats) {
     if (document.body.scrollTop + y < 0)
-      y = -document.body.scrollTop - window.innerHeight;
+      y = (-document.body.scrollTop - window.innerHeight) * endScale;
     else if (document.body.scrollTop + y > document.body.scrollHeight)
-      y = document.body.scrollHeight - document.body.scrollTop;
+      y = (document.body.scrollHeight - document.body.scrollTop) * endScale;
     else if (document.body.scrollLeft + x < 0)
-      x = -document.body.scrollLeft - window.innerWidth;
+      x = (-document.body.scrollLeft - window.innerWidth) * endScale;
     else if (document.body.scrollLeft + x > document.body.scrollWidth)
-      x = document.body.scrollWidth - document.body.scrollLeft;
+      x = (document.body.scrollWidth - document.body.scrollLeft) * endScale;
   }
 
   var direction = (x == 0)? "vertical" : "horizontal";
   var duration = 30;
-  var scale = 0.30;
+  var scale = 1;
   y *= scale;
   var i = 0;
   var begin = setInterval(function() {
     if (direction === "horizontal") {
-      window.scrollBy(easeOutSine(i, i/duration*x, -i/duration*x, duration), 0);
+      window.scrollBy(ease.outQuint(i, i/duration*x, -i/duration*x, duration), 0);
     } else {
-      window.scrollBy(0, easeOutSine(i, i/duration*y, -i/duration*y, duration));
+      window.scrollBy(0, ease.outQuint(i, i/duration*y, -i/duration*y, duration));
     }
     i += 1;
     if (i >= duration) {
@@ -42,7 +55,7 @@ Scroll.smoothScrollBy = function(x, y, ignoreRepeats) {
 
   }, 1000 / 60);
 };
-var endScale = 1.35;
+
 Scroll.scroll = function(type, repeats) {
   if (Scroll.smooth) {
     switch (type) {

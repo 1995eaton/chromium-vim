@@ -50,7 +50,6 @@ Hints.handleHintFeedback = function(choice) {
       if (Hints.yank) {
         Clipboard.copy(hint_links[cur_index].href);
       } else if (Hints.image) {
-        log(hint_links[cur_index].src);
         chrome.runtime.sendMessage({action: "openLinkTab", url: "https://www.google.com/searchbyimage?image_url=" + hint_links[cur_index].src});
       } else if (hint_links[cur_index].nodeName === "BUTTON" || hint_links[cur_index].nodeName === "AREA") {
         hint_links[cur_index].click();
@@ -165,14 +164,29 @@ Hints.create = function(tabbed, numeric, yank, image) {
   main.left = document.body.scrollLeft + "px";
   document.lastChild.appendChild(main);
   for (var i = 0; i < links.length; i++) {
-    var link_location = links[i].getBoundingClientRect();
-    if (link_location.top >= 0 && link_location.top + link_location.height < window.innerHeight && link_location.left + link_location.width > 0 && link_location.left < window.innerWidth) {
+    var isAreaNode = false;
+    if (links[i].nodeName === "AREA" && links[i].parentNode && links[i].parentNode.nodeName === "MAP") {
+      link_location = links[i].parentNode.getBoundingClientRect();
+      isAreaNode = true;
+    } else {
+      link_location = links[i].getBoundingClientRect();
+    }
+    if (link_location.top >= 0 && link_location.top < window.innerHeight && link_location.left > 0 && link_location.left < window.innerWidth) {
       hint_strings.push(link_number.toString());
       hint_links.push(links[i]);
       var temp = document.createElement("div");
       temp.className = "link_hint";
-      temp.style.top = link_location.top + screen.top + "px";
-      temp.style.left = link_location.left + screen.left + "px";
+      if (isAreaNode) {
+        if (!/,/.test(links[i].getAttribute("coords"))) continue;
+        var mapCoordinates = links[i].coords.split(",");
+        if (mapCoordinates.length < 2) continue;
+        temp.style.top = link_location.top + screen.top + parseInt(mapCoordinates[1]) + "px";
+        temp.style.left = link_location.left + screen.left + parseInt(mapCoordinates[0]) + "px";
+      } else {
+        temp.style.top = link_location.top + screen.top + "px";
+        temp.style.left = link_location.left + screen.left + "px";
+      }
+
       if (numeric) {
         temp.innerText = link_number;
         frag.appendChild(temp);

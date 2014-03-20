@@ -45,6 +45,15 @@ Mappings.actions = {
       }
     }
   },
+  scrollMouseH: function() {
+    return document.body.scrollTop = Mouse.y - window.innerHeight / 2;
+  },
+  scrollMouseT: function() {
+    return document.body.scrollTop = Mouse.y;
+  },
+  scrollMouseB: function() {
+    return document.body.scrollTop = Mouse.y - window.innerHeight + 25;
+  },
   scrollDown: function(repeats) {
     return Scroll.scroll("down", repeats);
   },
@@ -224,6 +233,9 @@ Mappings.defaults = {
   createTabbedHint: ["F"],
   goToInput: ["gi"],
   nextTab: ["K", "R", "gt"],
+  scrollMouseT: ["zt"],
+  scrollMouseB: ["zb"],
+  scrollMouseH: ["zz"],
   goToSource: ["gs"],
   yankUrl: ["Y"],
   yankDocumentUrl: ["yy"],
@@ -344,7 +356,6 @@ Mappings.convertToAction = function(c) {
               Mappings.repeats = "1";
             }
             if (key === "shortCuts") {
-              log(Mappings.repeats);
               Mappings.actions[key](Mappings.queue, parseInt(Mappings.repeats));
               return Mappings.repeats = "";
             }

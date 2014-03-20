@@ -78,13 +78,11 @@ chrome.extension.onConnect.addListener(function(port) {
 
 chrome.runtime.onMessage.addListener(function(request, sender, callback) {
   if (!request.repeats || !/[0-9]([0-9]+)?/.test(request.repeats.toString())) request.repeats = 1;
-  //if (!request.repeats) request.repeats = 1;
   switch (request.action) {
     case "openLink":
       chrome.tabs.update({url: request.url});
       break;
     case "openLinkTab":
-      console.log(request.repeats);
       for (var i = 0; i < request.repeats; i++) {
       chrome.tabs.create({url: request.url, index: sender.tab.index + 1});
       }
@@ -96,7 +94,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
       chrome.tabs.reload({});
       break;
     case "newTab":
-      console.log(request.repeats);
       for (var i = 0; i < request.repeats; i++) {
         chrome.tabs.create({url: "https://google.com", index: sender.tab.index + 1});
       }
