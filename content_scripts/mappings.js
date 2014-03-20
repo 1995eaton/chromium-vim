@@ -33,16 +33,15 @@ Mappings.actions = {
   closeTab: function(repeats) {
     return chrome.runtime.sendMessage({action: "closeTab", repeats: repeats});
   },
-  revImg: function() {
-    setTimeout(function() {
-      Hints.create(true, false, false, true);
-    }, 0);
-  },
-  revImgDocumentUrl: function() {
+  reverseImage: function() {
     if (document.body.childNodes.length === 1 && document.body.firstChild.nodeName === "IMG") {
       if (document.body.firstChild.src) {
         return chrome.runtime.sendMessage({action: "openLinkTab", url: "https://www.google.com/searchbyimage?image_url=" + document.body.firstChild.src});
       }
+    } else {
+      setTimeout(function() {
+        Hints.create(true, false, false, true);
+      }, 0);
     }
   },
   scrollMouseH: function() {
@@ -227,8 +226,7 @@ Mappings.defaults = {
   reloadTab: ["r"],
   createHint: ["f"],
   goBack: ["H", "S"],
-  revImg: ["R"],
-  revImgDocumentUrl: ["gr"],
+  reverseImage: ["gr"],
   goForward: ["L", "D"],
   createTabbedHint: ["F"],
   goToInput: ["gi"],
@@ -333,7 +331,7 @@ Mappings.parseCustom = function(config) {
 };
 
 Mappings.convertToAction = function(c) {
-  if (!c) return;
+  if (!c || !/[a-zA-Z:;0-9.,\/]/.test(c)) return;
   if (hints_active) {
     return Hints.handleHint(c);
   }

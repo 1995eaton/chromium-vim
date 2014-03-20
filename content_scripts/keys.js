@@ -8,7 +8,7 @@ keyDown = function(e) {
       e.stopPropagation();
     }
   }
-  if (e.which === 27) {
+  if (e.which === 27 || (e.which === 219 && e.ctrlKey)) {
     if (hints_active) {
       e.preventDefault();
       e.stopPropagation();
@@ -25,7 +25,7 @@ keyDown = function(e) {
     Hints.hideHints();
   }
   if (Mappings.actions.inputFocused || commandMode) {
-    if (e.keyCode === 27) {
+    if (e.keyCode === 27 || (e.which === 219 && e.ctrlKey)) {
       Mappings.actions.inputFocused = false;
       commandMode = false;
       Command.hide();
@@ -34,6 +34,8 @@ keyDown = function(e) {
       Mappings.actions.handleTab(e);
     } else if (bar.style.display === "block" && /command/.test(document.activeElement.id || document.activeElement.className)) { // General command bar actions
       switch (e.keyCode) {
+        case 18: case 17: case 91: case 123: case 16: // Ignore non-character keys
+          break;
         case 8: // Backspace
           if (barInput.value === "") {
             commandMode = false;
