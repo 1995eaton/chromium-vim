@@ -15,7 +15,7 @@
   "background": {
     "scripts": [
       "background_scripts/main.js",
-      "background_scripts/settings.js"
+      "background_scripts/options.js"
     ]
   },
   "content_scripts": [
