@@ -110,8 +110,17 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
     case "retrieveHistory":
       callback(history.retrieve(request.type));
       break;
+    case "pinTab":
+      chrome.tabs.update({pinned: !sender.tab.pinned});
+      break;
     case "copy":
       Clipboard.copy(request.text);
+      break;
+    case "moveTabRight":
+      chrome.tabs.move(sender.tab.id, {index: sender.tab.index + request.repeats});
+      break;
+    case "moveTabLeft":
+      chrome.tabs.move(sender.tab.id, {index: (sender.tab.index - request.repeats <= -1) ? 0 : sender.tab.index - request.repeats});
       break;
     case "openPasteTab":
       var paste = Clipboard.paste();

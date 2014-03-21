@@ -33,6 +33,15 @@ Mappings.actions = {
   closeTab: function(repeats) {
     return chrome.runtime.sendMessage({action: "closeTab", repeats: repeats});
   },
+  pinTab: function() {
+    return chrome.runtime.sendMessage({action: "pinTab"});
+  },
+  moveTabRight: function(repeats) {
+    return chrome.runtime.sendMessage({action: "moveTabRight", repeats: repeats});
+  },
+  moveTabLeft: function(repeats) {
+    return chrome.runtime.sendMessage({action: "moveTabLeft", repeats: repeats});
+  },
   reverseImage: function() {
     if (document.body.childNodes.length === 1 && document.body.firstChild.nodeName === "IMG") {
       if (document.body.firstChild.src) {
@@ -225,6 +234,9 @@ Mappings.defaults = {
   insertMode: ["i"],
   reloadTab: ["r"],
   createHint: ["f"],
+  pinTab: ["gp"],
+  moveTabRight: [">"],
+  moveTabLeft: ["<"],
   goBack: ["H", "S"],
   reverseImage: ["gr"],
   goForward: ["L", "D"],
