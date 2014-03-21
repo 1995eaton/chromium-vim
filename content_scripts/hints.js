@@ -24,7 +24,17 @@ Hints.handleHintFeedback = function(choice) {
   if (!this.numeric) {
     var cur_index;
     for (var i = 0; i < hint_strings.length; i++) {
-      if (new RegExp("^" + choice).test(letter_perms[i])) {
+      var r = letter_perms[i].match(new RegExp("^" + current_string));
+      if (r) {
+        if (link_arr[i].children.length) {
+          link_arr[i].replaceChild(link_arr[i].firstChild.firstChild, link_arr[i].firstChild);
+          link_arr[i].normalize();
+        }
+        var span = document.createElement("span");
+        span.className = "link_hint_match";
+        var matched_chars = link_arr[i].firstChild.splitText(r[0].length);
+        span.appendChild(link_arr[i].firstChild.cloneNode(true));
+        link_arr[i].replaceChild(span, link_arr[i].firstChild);
         cur_index = i;
         links_found++;
       } else {

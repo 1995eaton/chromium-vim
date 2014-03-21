@@ -1,9 +1,8 @@
 #link_main, .link_hint, #command_bar, #command_bar_mode, #command_input, #command_search_results, .completion-item, .completion-item .full, .completion-item .left, .completion-item .right {
   font-family: Neue;
-  font-size: 10pt !important;
+  font-size: 11pt !important;
   -webkit-font-smoothing: antialiased !important;
 }
-
 #link_main {
   position: absolute;
   pointer-events: none;
@@ -13,18 +12,20 @@
 }
 .link_hint {
   background: linear-gradient(to top, #262626 50%, #474747 100%);
-  border: 1px solid rgba(255,255,255,0.2) !important;
-  background-clip: padding-box !important;
-  border-radius: 1px !important;
+  border: 1px solid rgba(255,255,255,0.5) !important;
+  border-radius: 2px;
   color: #ccc !important;
   padding: 2px !important;
-  font-size: 10pt !important;
+  font-size: 11pt !important;
   font-weight: 100 !important;
   display: inline-block !important;
   vertical-align: middle !important;
   text-align: center !important;
-  box-shadow: 2px 2px 3px rgba(0,0,0,0.15) !important;
+  box-shadow: 2px 2px 3px rgba(0,0,0,0.4) !important;
   position: absolute !important;
+}
+.link_hint_match {
+  color: #666;
 }
 #command_bar {
   position: fixed !important;
@@ -58,7 +59,6 @@
   width: calc(100% - 10px) !important;
   position: absolute !important;
 }
-
 #command_search_results {
   position: fixed;
   width: 100% !important;
@@ -68,7 +68,6 @@
   box-shadow: 0 3px 3px rgba(0,0,0,0.4);
   background-color: #383838;
 }
-
 .completion-item, .completion-item .full, .completion-item .left, .completion-item .right {
   text-overflow: ellipsis;
   padding: 1px;
@@ -83,15 +82,12 @@
   width: 100%; left: 0;
   color: #fff;
 }
-
 .completion-item .full {
 }
-
 .completion-item .left {
   color: #fff;
   width: 47%;
 }
-
 .completion-item .right {
   font-style: italic;
   color: #888;
