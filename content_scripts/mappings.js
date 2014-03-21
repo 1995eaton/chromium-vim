@@ -218,7 +218,9 @@ Mappings.shortCuts = [
   ["o", ":open "],
   ["O", ":tabopen "],
   ["b", ":bookmarks "],
-  ["t", ":tabopen "]
+  ["t", ":tabopen "],
+  ["T", ":tabopen<cr>"],
+  ["gd", ":tabopen chrome://downloads<cr>"]
 ];
 
 Mappings.defaults = {

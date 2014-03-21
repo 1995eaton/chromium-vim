@@ -31,7 +31,7 @@ port.onMessage.addListener(function(response) {
   }
 });
 
-Search.urlMatch = /(http(s)?:\/\/)?(\S+)\.(com|org|mil|ru|ca|jp|ch|io|net|biz|edu|gov|me)(([\/]+)?([\/\S]+)?)?/i;
+Search.urlMatch = /^chrome:\/\/|(http(s)?:\/\/)?(\S+)\.(com|org|mil|ru|ca|jp|ch|io|net|biz|edu|gov|me)(([\/]+)?([\/\S]+)?)?/i;
 
 Search.index = null;
 Search.searchHistory = [];
@@ -54,7 +54,7 @@ Search.go = function(repeats) {
   var search = barInput.value.replace(/^(t|tab)?o(pen)?(\s+)/, "");
   if (!Search.urlMatch.test(search)) {
     search = "https://google.com/search?q=" + search;
-  } else if (!/^http(s)?/.test(search)) {
+  } else if (!/^chrome:\/\//.test(search) && !/^http(s)?/.test(search)) {
     search = "http://" + search;
   }
   if (/^(to|tabopen) /.test(barInput.value)) {
