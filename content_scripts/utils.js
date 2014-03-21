@@ -8,7 +8,7 @@ Object.prototype.isInput = function() {
 Object.prototype.isVisible = function() {
   return (
       this.offsetParent &&
-      !this.getAttribute("disabled") &&
+      !this.disabled &&
       this.getAttribute("type") !== "hidden" &&
       this.getAttribute("display") !== "none"
   );
