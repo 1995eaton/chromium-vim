@@ -1,8 +1,22 @@
 var keyQueue, inputFocused, insertMode, commandMode, port, skipDefault, settings;
 var inputElements = [];
 var inputIndex = 0;
+var modifier = "";
 keyDown = function(e) {
   if (e.which === 16) return;
+  modifier = "";
+  if (e.ctrlKey) {
+    modifier = "<C-";
+  } else if (e.metaKey) {
+    modifier = "<M-";
+  } else if (e.altKey) {
+    modifier = "<A-";
+  }
+  if (modifier) {
+    modifier = modifier + (e.shiftKey? String.fromCharCode(e.which) : String.fromCharCode(e.which).toLowerCase()) + ">";
+  } else {
+    modifier = null;
+  }
   if (!insertMode && !document.activeElement.isInput()) {
     if (e.which > 40 && e.which !== 91 && e.which !== 123) {
       e.stopPropagation();
@@ -113,7 +127,12 @@ keyDown = function(e) {
 keyPress = function(e) {
   if (!insertMode && !document.activeElement.isInput()) {
     setTimeout(function() {
-      Mappings.convertToAction(String.fromCharCode(e.which)); // Mappable commands go here
+      if (modifier) {
+        e.preventDefault();
+        Mappings.convertToAction(modifier); // Mappable commands go here
+      } else {
+        Mappings.convertToAction(String.fromCharCode(e.which)) // Mappable commands go here
+      }
     }, 0);
   }
 };

@@ -7,6 +7,7 @@
 
 body {
   font-family: Gafata;
+  -webkit-font-smoothing: antialiased;
   font-size: 14pt;
 }
 
@@ -22,6 +23,14 @@ body {
 }
 
 #container_main {
+  min-width: 825px;
+  max-width: 1000px;
+  position: absolute;
+  width: 75%;
+  height: 100%; top: 0;
+  left: 0; right: 0;
+  box-shadow: 0 0 15px rgba(0,0,0,0.5);
+  margin: 0 auto;
 }
 
 #container_title {
@@ -162,4 +171,77 @@ textarea:focus, input:focus {
 
 #save_button:active, #reset_button:active {
   box-shadow: 0 0 20px #000;
+}
+
+#mappingContainer {
+  position: absolute;
+  z-index: 23948;
+  box-sizing: border-box;
+  padding: 5px;
+  display: none;
+  left: 0; right: 0;
+  opacity: 0;
+  transition: opacity 0.2s ease-out;
+  margin: 0 auto;
+  background-color: #fff;
+  box-shadow: 1px 1px 5px rgba(0,0,0,0.3);
+  width: 1000px;
+}
+
+#mappingContainer h2 {
+  font-weight: 100;
+  text-align: center;
+}
+
+#mappingContainer #close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 18px;
+  height: 20px;
+  background-color: #555;
+  cursor: pointer;
+  -webkit-user-select: none;
+  text-align: center;
+  color: #fff
+}
+
+#mappingContainer hr {
+  background-color: #bbb;
+  padding: 0;
+  margin-top: -15px;
+  outline-style: none;
+  border: 0;
+  height: 1px;
+}
+
+#mappingContainer table {
+  table-layout: fixed;
+  margin-bottom: 5px;
+  border-collapse: collapse;
+  border: 1px solid #bbb;
+}
+
+#mappingContainer .single-column {
+  table-layout: auto;
+}
+
+#mappingContainer td {
+  font-size: 11pt;
+  width: 50%;
+  height: 10px !important;
+  line-height: 1 !important;
+}
+
+#mappingContainer th {
+  text-align: left;
+  font-weight: 100;
+}
+
+#mappingContainer .single-column td {
+  width: 100%;
+}
+
+#mappingContainer td:nth-child(odd) {
+  border-right: 1px solid #aaa;
 }

@@ -331,7 +331,7 @@ Mappings.parseCustom = function(config) {
 };
 
 Mappings.convertToAction = function(c) {
-  if (!c || !/[a-zA-Z:;0-9.,\/]/.test(c)) return;
+  if (!c || !/[a-zA-Z:;0-9.,\/-<>]/.test(c)) return;
   if (hints_active) {
     return Hints.handleHint(c);
   }

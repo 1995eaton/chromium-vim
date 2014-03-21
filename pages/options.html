@@ -7,7 +7,185 @@
   <link rel="stylesheet" href="codemirror/codemirror.css">
 </head>
 <body>
-<div id="background_main">
+<div id="mappingContainer">
+  <div id="close">X</div>
+  <h2>Default Command Mappings</h2>
+  <hr>
+  Movement
+  <table>
+    <tr>
+      <td>
+        <div class="setting">j, s</div>
+        <div class="value">Scroll down (scrollDown)</div>
+      </td>
+      <td>
+        <div class="setting">k, w</div>
+        <div class="value">Scroll up (scrollUp)</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">d</div>
+        <div class="value">Scroll half-page down (scrollPageDown)</div>
+      </td>
+      <td>
+        <div class="setting">u, e</div>
+        <div class="value">Scroll half-page up (scrollPageUp)</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">h</div>
+        <div class="value">Scroll left (scrollLeft)</div>
+      </td>
+      <td>
+        <div class="setting">l</div>
+        <div class="value">Scroll right (scrollRight)</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">gi</div>
+        <div class="value">Go to first input box (tab to cycle through) (goToInput)</div>
+      </td>
+      <td>
+        <div class="setting">zz</div>
+        <div class="value">Center page to mouse cursor (middle) (scrollMouseH)</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">zt</div>
+        <div class="value">Center page to mouse cursor (top) (scrollMouseT)</div>
+      </td>
+      <td>
+        <div class="setting">zb</div>
+        <div class="value">Center page to mouse cursor (bottom) (scrollMouseB)</div>
+      </td>
+    </tr>
+  </table>
+  Link Hints
+  <table>
+    <tr>
+      <td>
+        <div class="setting">f</div>
+        <div class="value">Open link in current tab (createHint)</div>
+      </td>
+      <td>
+        <div class="setting">F</div>
+        <div class="value">Open link in new tab (createTabbedHint)</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">Y</div>
+        <div class="value">Copy Url from link to clipboard (yankUrl)</div>
+      </td>
+      <td>
+        <div class="setting">gr</div>
+        <div class="value">Reverse image search (Google) an image on the page (reverseImage)</div>
+      </td>
+    </tr>
+  </table>
+  Tab navigation
+  <table>
+    <tr>
+      <td>
+        <div class="setting">gt, K, R</div>
+        <div class="value">Navigate to the next tab (nextTab)</div>
+      </td>
+      <td>
+        <div class="setting">gT, J, E</div>
+        <div class="value">Navigate to the previous tab (previousTab)</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">x</div>
+        <div class="value">Close the current tab (closeTab)</div>
+      </td>
+      <td>
+        <div class="setting">t + &lt;Enter&gt; (:tabopen)</div>
+        <div class="value">Open a new tab</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">H, S (goBack)</div>
+        <div class="value">Go back</div>
+      </td>
+      <td>
+        <div class="setting">L, D</div>
+        <div class="value">Go forward (goForward)</div>
+      </td>
+    </tr>
+  </table>
+  Search Mode (open with "/")
+  <table>
+    <tr>
+      <td>
+        <div class="setting">n</div>
+        <div class="value">Go to next search result (nextSearchResult)</div>
+      </td>
+      <td>
+        <div class="setting">N</div>
+        <div class="value">Go to previous search result (previousSearchResult)</div>
+      </td>
+    </tr>
+  </table>
+  Command Mode (open with ":")
+  <table class="single-column">
+    <tr>
+      <td>
+        <div class="setting">:t(ab)o(pen) &lt;SEARCH/AUTOCOMPLETE&gt;</div>
+        <div class="value">Open a new tab with the typed/completed Url or Google search</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">:o(pen) &lt;SEARCH/AUTOCOMPLETE&gt;</div>
+        <div class="value">Open the typed/completed Url or Google search in the same tab</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">:tabclose</div>
+        <div class="value">Close the current tab</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">:b(ook)marks &lt;SEARCH/AUTOCOMPLETE&gt;</div>
+        <div class="value">Search through your bookmarks</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">:nohl</div>
+        <div class="value">Clears the page highlighting from the last search</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">:ex(tensions)</div>
+        <div class="value">Open the chrome://extensions page in a new tab</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">:fl(ags)</div>
+        <div class="value">Open the chrome://flags page in a new tab</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">:h(elp)</div>
+        <div class="value">Show this help dialogue</div>
+      </td>
+    </tr>
+  </table>
+</div>
+<div id="background_main"></div>
 <div id="container_main">
   <div id="container_title">cVim Options</div>
   <div id="settings">
@@ -38,7 +216,7 @@
       </tr>
       <tr>
         <td>
-          <span class="setting">Custom mappings</span>
+          <span class="setting">Custom mappings <a href="#" class="mapping-help" style="font-size: 10pt; font-weight: bold">?</a></span>
           <textarea id="mappings"></textarea>
         </td>
       </tr>
@@ -60,7 +238,6 @@
     <button id="save_button">Save</button>
     <button id="reset_button">Reset</button>
   </div>
-</div>
 </div>
 </body>
 <script src="options.js"></script>
