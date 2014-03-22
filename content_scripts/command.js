@@ -101,14 +101,6 @@ Command.appendResults = function(data, bookmarks, search, completion) {
       barData.appendChild(temp);
     }
   } else {
-    for (var i = 0; i < Search.searchHistory.length; i++) {
-      var temp = document.createElement("div");
-      temp.cVim = true;
-      temp.className = "completion-item";
-      temp.innerHTML = '<span class="left">' + '<span style="color:#00BED3">History</span>: ' + Search.searchHistory[i][0] + '</span>' + '<span class="right">' + Search.searchHistory[i][1] + '</span>';
-      dataElements.push(temp);
-      barData.appendChild(temp);
-    }
     if (completion) {
       for (var i = 0; i < data.length; i++) {
         var temp = document.createElement("div");
@@ -119,14 +111,22 @@ Command.appendResults = function(data, bookmarks, search, completion) {
         barData.appendChild(temp);
       }
     } else {
-      for (var i = 0; i < data.length; i++) {
+      for (var i = 0; i < Search.completionResults.length; i++) {
         var temp = document.createElement("div");
         temp.cVim = true;
         temp.className = "completion-item";
-        temp.innerHTML = '<span class="full">' + data[i] + '</span>';
+        temp.innerHTML = '<span class="full">' + Search.completionResults[i] + '</span>';
         dataElements.push(temp);
         barData.appendChild(temp);
       }
+    }
+    for (var i = 0; i < Search.searchHistory.length; i++) {
+      var temp = document.createElement("div");
+      temp.cVim = true;
+      temp.className = "completion-item";
+      temp.innerHTML = '<span class="left">' + '<span style="color:#00BED3">History</span>: ' + Search.searchHistory[i][0] + '</span>' + '<span class="right">' + Search.searchHistory[i][1] + '</span>';
+      dataElements.push(temp);
+      barData.appendChild(temp);
     }
   }
   barData.style.display = "block";
@@ -206,14 +206,18 @@ Command.parse = function(value, pseudoReturn, repeats) {
     if (/^(t(ab)?)?o(pen)?(\s+)/.test(barInput.value)) {
       Search.index = null;
       var search = barInput.value.replace(/^(t(ab)?)?o(pen)?(\s+)/, "");
-      if (!search) return Command.hideData();
       if (!/^(\s+)?$/.test(search)) {
-        Search.appendFromHistory(search);
+        Search.appendFromHistory(search, 8);
       }
+      if (!search) return Command.hideData();
       Search.fetchQuery(search, function(response) {
         Command.typed = barInput.value;
+        log(response);
         Command.actionType = "query";
-        Command.appendResults(response);
+        if (response) {
+          Search.completionResults = response;
+          Command.appendResults(response);
+        }
       });
     } else if (/^b(ook)?marks(\s+)/.test(barInput.value)) {
       var search = barInput.value.replace(/^b(ook)?marks(\s+)/, "");
@@ -221,7 +225,8 @@ Command.parse = function(value, pseudoReturn, repeats) {
       Command.actionType = "bookmarks";
       Command.appendResults(null, true, search);
     } else {
-      Command.actionType = "";
+      Search.index = null;
+      Command.actionType = "complete";
       Command.complete(barInput.value, false, false);
     }
   }

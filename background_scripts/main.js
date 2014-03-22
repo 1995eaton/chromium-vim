@@ -54,8 +54,8 @@ var history = {
     return [type, localStorage[type].split(",")];
   },
 
-  retrieveSearchHistory: function(search, callback) {
-    chrome.history.search({text: search, maxResults: 4}, function(results) {
+  retrieveSearchHistory: function(search, items, callback) {
+    chrome.history.search({text: search, maxResults: items}, function(results) {
       callback(results);
     });
   }
@@ -75,7 +75,7 @@ chrome.extension.onConnect.addListener(function(port) {
         port.postMessage({bookmarks: marks});
       });
     } else if (request.action == "searchHistory") {
-      history.retrieveSearchHistory(request.search, function(results) {
+      history.retrieveSearchHistory(request.search, request.items, function(results) {
         port.postMessage({history: results});
       });
     }
@@ -115,12 +115,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
       break;
     case "lastTab":
       getTab(sender, false, false, false, true);
-      break;
-    case "appendHistory":
-      history.append(request.value, request.type);
-      break;
-    case "retrieveHistory":
-      callback(history.retrieve(request.type));
       break;
     case "pinTab":
       chrome.tabs.update({pinned: !sender.tab.pinned});

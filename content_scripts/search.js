@@ -2,6 +2,7 @@ var Search = {};
 
 Search.urlMatch = /^chrome:\/\/|(http(s)?:\/\/)?(\S+)\.(com|org|mil|ru|ca|jp|ch|io|net|biz|edu|gov|me)(([\/]+)?([\/\S]+)?)?/i;
 Search.index = null;
+Search.completionResults = [];
 Search.searchHistory = [];
 
 var port = chrome.extension.connect({name: "main"});
@@ -22,46 +23,90 @@ port.onMessage.addListener(function(response) {
     Search.searchHistory = [];
     for (var key in response.history) {
       if (response.history[key].url) {
+        Command.actionType = "query";
         Search.searchHistory.push([response.history[key].title, response.history[key].url]);
       }
     }
+    Command.appendResults([]);
   } else if (response.bookmarks) {
     Marks.bookmarks = [];
     getAllMarks(response.bookmarks);
   }
 });
 
-Search.fetchQuery = function(query, callback) {
-  var api = "https://suggestqueries.google.com/complete/search?client=firefox&q=";
-  //var api = "http://toolbarqueries.google.com/complete/search?output=toolbar&hl=en&q="
-  //var api = "https://clients1.google.com/complete/search?client=hp&hl=en&gs_rn=37&gs_ri=hp&tok=ZrCrC4RUUHoLw7nw3h5B7Q&cp=1&gs_id=7&gs_gbg=99XWStbq0&q=";
+Search.apis = [
+  ["google", "https://suggestqueries.google.com/complete/search?client=firefox&q=", "https://google.com/search?q="],
+  ["wikipedia", "http://en.wikipedia.org/w/api.php?format=json&action=opensearch&search=", "https://en.wikipedia.org/wiki/"]
+];
+
+Search.parse = function() {
+  var parsed = barInput.value.split(/\s+/);
+  var data = [];
+  this.noComplete = false;
+  if (!parsed || parsed.length === 1) {
+    return false;
+  }
+  if (parsed[0] === "to" || parsed[0] === "tabopen") {
+    data.push("tabopen");
+  } else if (parsed[0] === "o" || parsed[0] === "open") {
+    data.push("open");
+  } else {
+    return false;
+  }
+  parsed.shift();
+  for (var i = 0, l = this.apis.length; i < l; i++) {
+    if (parsed[0] === this.apis[i][0]) {
+      data.push(i);
+      parsed.shift();
+      if (parsed.length) {
+        data.push(parsed.join(" "));
+      }
+      return data;
+    }
+  }
+  if (data.length === 1 && parsed.length === 1 && Search.urlMatch.test(parsed[0])) {
+    data.push("url");
+    data.push(parsed[0]);
+    return data;
+  }
+  data.push(0);
+  data.push(parsed.join(" "));
+  this.noComplete = true;
+  return data;
+};
+
+Search.fetchQuery = function(query, callback, api) {
+  this.data = this.parse();
+  if (!this.data || this.noComplete || this.data[1] === "url" || this.data.length === 2) return;
   var xhr = new XMLHttpRequest();
-  xhr.open("GET", api + query);
+  xhr.open("GET", this.apis[this.data[1]][1] + this.data[2]);
   xhr.onreadystatechange = function() {
     if (xhr.readyState === 4 && xhr.status === 200) {
       callback(JSON.parse(xhr.responseText)[1]);
+    } else {
+      callback(NaN);
     }
   };
   xhr.send();
 };
 
 Search.go = function(repeats) {
-  var search = barInput.value.replace(/^(to|tabopen)(\s+)/, "");
-  if (!Search.urlMatch.test(search)) {
-    search = "https://google.com/search?q=" + search;
-  } else if (!/^chrome:\/\//.test(search) && !/^http(s)?/.test(search)) {
-    search = "http://" + search;
-  }
-  if (/^(to|tabopen) /.test(barInput.value)) {
-    chrome.runtime.sendMessage({action: "openLinkTab", url: search, repeats: repeats});
+  if (!this.data) return;
+  this.data = this.parse();
+  if (this.data[1] !== "url") {
+  chrome.runtime.sendMessage({action: (this.data[0] === "tabopen") ? "openLinkTab" : "openLink", url: this.apis[this.data[1]][2] + this.data[2], repeats: repeats});
   } else {
-    chrome.runtime.sendMessage({action: "openLink", url: search, repeats: repeats});
+    if (!/:\/\//.test(this.data[2])) {
+      this.data[2] = "http://" + this.data[2];
+  }
+    chrome.runtime.sendMessage({action: (this.data[0] === "tabopen") ? "openLinkTab" : "openLink", url: this.data[2], repeats: repeats});
   }
   Command.hide();
+  return this.data = [];
 };
 
-Search.appendFromHistory = function(data) {
-  port.postMessage({action: "searchHistory", search: data});
+Search.appendFromHistory = function(data, items) {
+  port.postMessage({action: "searchHistory", search: data, items: items});
 }
 
 Search.getBookmarks = function() {
@@ -110,11 +155,15 @@ Search.nextResult = function(reverse) {
   }
   if (Command.actionType === "bookmarks") {
     barInput.value = barInput.value.match(/^(bmarks|bookmarks) /)[0] + Marks.currentBookmarks[this.index];
+  } else if (/^(to|tabopen|open|o) /.test(barInput.value) && dataElements[this.index].children.length > 1) {
+    var m = barInput.value.match(/^(to|tabopen|open|o) /);
+    if (!m || barInput.value.replace(m[0], "").trim() === "") return;
+    barInput.value = m[0] + " " + Search.searchHistory[this.index - (dataElements.length - Search.searchHistory.length)][1];
   } else if (Command.actionType === "complete") {
     barInput.value = completionMatches[this.index][0];
-  } else if (Search.searchHistory[this.index]) {
-    barInput.value = barInput.value.match(/^(to|tabopen) /)[0] + Search.searchHistory[this.index][1];
   } else {
-    barInput.value = barInput.value.match(/^(to|tabopen) /)[0] + dataElements[this.index].innerText;
+    if (this.data.length) {
+      barInput.value = barInput.value.match(/^(to|tabopen) /)[0] + this.apis[this.data[1]][0] + " " + dataElements[this.index].innerText;
+    }
   }
 };
