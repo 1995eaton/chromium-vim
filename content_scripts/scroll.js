@@ -23,26 +23,28 @@ var ease = {
     return -c * ((t=t/d-1)*t*t*t - 1) + b;
   }
 };
+
 Scroll.smoothScrollBy = function(x, y) {
   var isVertical = (y) ? true : false;
-  var duration = 50;
+  var duration = 75;
   var easeFunc = ease.outExpo;
   var i = 0;
-  y *= 1.005;
+  y *= 1.075;
   var delta = 0;
-  var begin = setInterval(function() {
+  var id;
+  function loop() {
     if (isVertical) {
       window.scrollBy(0, Math.round(easeFunc(i, 0, y, duration) - delta));
     } else {
       window.scrollBy(Math.round(easeFunc(i, 0, x, duration) - delta), 0);
     }
-    if (i > duration) {
-      clearInterval(begin);
+    if (i < duration) {
+      id = window.requestAnimationFrame(loop);
     }
     delta = easeFunc(i, 0, (x || y), duration);
-    i += 1;
-
-  }, 1000 / 60);
+    i += 1.2;
+  }
+  if (!id) loop();
 };
 
 Scroll.scroll = function(type, repeats) {

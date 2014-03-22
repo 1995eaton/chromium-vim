@@ -6,6 +6,7 @@ var completionMatches = [];
 Command.setup = function() {
   bar = document.createElement("div");
   bar.id = "command_bar";
+  bar.cVim = true;
   if (barOnBottom) {
     bar.style.bottom = "0";
   } else {
@@ -14,8 +15,10 @@ Command.setup = function() {
   barInput = document.createElement("input");
   barInput.type = "text";
   barInput.id = "command_input";
+  barInput.cVim = true;
   barMode = document.createElement("div");
   barMode.id = "command_bar_mode";
+  barMode.cVim = true;
   bar.appendChild(barMode);
   bar.appendChild(barInput);
   bar.spellcheck = false;
@@ -27,6 +30,11 @@ var historyStates = ["action", "url", "search"];
 Command.history = {
   index: {},
   cycle: function(type, reverse, search) {
+    if (Command.history.reset) {
+      Command.history.reset = false;
+      Command.history.index = {};
+    }
+    var previousCommand;
     Command.actionType = "";
     if (!this[type]) return;
     if (!this.index[type] && this.index[type] !== 0) {
@@ -39,18 +47,19 @@ Command.history = {
       barInput.value = Command.typed;
       return;
     }
-    if (!reverse && !this[type][this.index[type]]) return;
+    previousCommand = this[type][this.index[type]];
+    if (!reverse && !previousCommand) return;
     if (!search && Command.typed !== "") {
       return this.cycle(type, reverse, true);
     }
     this.index[type] += (reverse) ? -1 : 1;
-    if (search && !new RegExp("^" + Command.typed).test(this[type][this.index[type]])) {
+    if (!previousCommand || (search && Command.typed !== previousCommand.substring(0, Command.typed.length))) {
       return this.cycle(type, reverse, true);
     }
-    if (/^(tabopen|open) /.test(this[type][this.index[type]])) {
+    if (/^(to|tabopen) /.test(previousCommand)) {
       Command.actionType = "query";
     }
-    barInput.value = this[type][this.index[type]];
+    barInput.value = previousCommand;
   }
 };
 
@@ -65,6 +74,7 @@ Command.appendResults = function(data, bookmarks, search, completion) {
   if (!barData) {
     barData = document.createElement("div");
     barData.id = "command_search_results";
+    barData.cVim = true;
     if (barOnBottom) {
       barData.style.bottom = "20px";
     } else {
@@ -77,13 +87,14 @@ Command.appendResults = function(data, bookmarks, search, completion) {
     var c = 0;
     Marks.currentBookmarks = [];
     for (var i = 0, length = Marks.bookmarks.length; i < length; i++) {
-      if (!new RegExp(search, "i").test(Marks.bookmarks[i][0] + Marks.bookmarks[i][1])) {
-        continue;
-      }
+      try { var rxp = new RegExp(search, "i"); }
+      catch(e) { continue; }
+      if (!rxp.test(Marks.bookmarks[i][0] + Marks.bookmarks[i][1])) continue;
       c++;
-      if (c > 15) break;
+      if (c > 20) break;
       Marks.currentBookmarks.push(Marks.bookmarks[i][1]);
       var temp = document.createElement("div");
+      temp.cVim = true;
       temp.className = "completion-item";
       temp.innerHTML = '<span class="left">' + Marks.bookmarks[i][0] + '</span>' + '<span class="right">' + Marks.bookmarks[i][1] + '</span>';
       dataElements.push(temp);
@@ -92,6 +103,7 @@ Command.appendResults = function(data, bookmarks, search, completion) {
   } else {
     for (var i = 0; i < Search.searchHistory.length; i++) {
       var temp = document.createElement("div");
+      temp.cVim = true;
       temp.className = "completion-item";
       temp.innerHTML = '<span class="left">' + '<span style="color:#00BED3">History</span>: ' + Search.searchHistory[i][0] + '</span>' + '<span class="right">' + Search.searchHistory[i][1] + '</span>';
       dataElements.push(temp);
@@ -100,6 +112,7 @@ Command.appendResults = function(data, bookmarks, search, completion) {
     if (completion) {
       for (var i = 0; i < data.length; i++) {
         var temp = document.createElement("div");
+        temp.cVim = true;
         temp.className = "completion-item";
         temp.innerHTML = data[i];
         dataElements.push(temp);
@@ -108,6 +121,7 @@ Command.appendResults = function(data, bookmarks, search, completion) {
     } else {
       for (var i = 0; i < data.length; i++) {
         var temp = document.createElement("div");
+        temp.cVim = true;
         temp.className = "completion-item";
         temp.innerHTML = '<span class="full">' + data[i] + '</span>';
         dataElements.push(temp);
@@ -139,9 +153,8 @@ Command.descriptions = [
 
 Command.match = function(input) {
   completionMatches = [];
-  input = new RegExp("^" + input);
   for (var i = 0; i < Command.descriptions.length; i++) {
-    if (!input || input.test(Command.descriptions[i][0])) {
+    if (!input || input === Command.descriptions[i][0].substring(0, input.length)) {
       completionMatches.push(Command.descriptions[i]);
     }
   }
@@ -272,19 +285,20 @@ document.addEventListener("DOMContentLoaded", function() {
       document.body.removeChild(e);
     }, 50);
   }
+  Command.setup();
+  Command.loadFont();
   loadFont();
-  chrome.runtime.sendMessage({getSettings: true}, function (s) {
-    settings = s;
-    Mappings.parseCustom(settings.mappings);
-    var cssStyle = document.createElement("style");
-    cssStyle.innerText = settings.commandBarCSS;
-    document.getElementsByTagName("head")[0].appendChild(cssStyle);
-    barOnBottom = (settings.commandBarOnBottom === "true") ? true : false;
-    Scroll.smooth= (settings.smoothScroll === "true") ? true : false;
-    if (settings.linkHintCharacters.split("").unique().length > 1 && !/\\|\||\[|\]|\(|\)|\//.test(settings.linkHintCharacters)) {
-      Hints.hintCharacters = settings.linkHintCharacters.split("").unique().join("").replace(/\\/, "\\\\");
-    }
-    Command.setup();
-    Command.loadFont();
-  });
+});
+
+chrome.runtime.sendMessage({getSettings: true}, function (s) {
+  settings = s;
+  Mappings.parseCustom(settings.mappings);
+  var cssStyle = document.createElement("style");
+  cssStyle.innerText = settings.commandBarCSS;
+  document.getElementsByTagName("head")[0].appendChild(cssStyle);
+  barOnBottom = (settings.commandBarOnBottom === "true") ? true : false;
+  Scroll.smooth = (settings.smoothScroll === "true") ? true : false;
+  if (settings.linkHintCharacters.split("").unique().length > 1) {
+    Hints.hintCharacters = settings.linkHintCharacters.split("").unique().join("");
+  }
 });

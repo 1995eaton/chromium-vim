@@ -4,13 +4,14 @@ var inputIndex = 0;
 var modifier = "";
 keyDown = function(e) {
   if (e.which === 16) return;
-  modifier = "";
   if (e.ctrlKey) {
     modifier = "<C-";
   } else if (e.metaKey) {
     modifier = "<M-";
   } else if (e.altKey) {
     modifier = "<A-";
+  } else {
+    modifier = "";
   }
   if (modifier) {
     modifier = modifier + (e.shiftKey? String.fromCharCode(e.which) : String.fromCharCode(e.which).toLowerCase()) + ">";
@@ -39,16 +40,31 @@ keyDown = function(e) {
     Hints.hideHints();
   }
   if (Mappings.actions.inputFocused || commandMode) {
-    if (e.keyCode === 27 || (e.which === 219 && e.ctrlKey)) {
+    if (e.keyCode === 27 || (e.which === 219 && e.ctrlKey)) { // <Esc> + <C-[>
       Mappings.actions.inputFocused = false;
       commandMode = false;
       Command.hide();
     } else if (Mappings.actions.inputFocused && e.keyCode === 9) { // Tab
       e.preventDefault();
-      Mappings.actions.handleTab(e);
-    } else if (bar.style.display === "block" && /command/.test(document.activeElement.id || document.activeElement.className)) { // General command bar actions
+      if (!e.shiftKey) {
+        if (Mappings.actions.inputElementsIndex + 1 === Mappings.actions.inputElements.length) {
+          Mappings.actions.inputElementsIndex = 0;
+        } else {
+          Mappings.actions.inputElementsIndex++;
+        }
+      } else {
+        if (Mappings.actions.inputElementsIndex - 1 < 0) {
+          Mappings.actions.inputElementsIndex = Mappings.actions.inputElements.length - 1;
+        } else {
+          Mappings.actions.inputElementsIndex--;
+        }
+      }
+      if (Mappings.actions.inputElements.length) {
+        Mappings.actions.inputElements[Mappings.actions.inputElementsIndex].focus();
+      }
+    } else if (bar.style.display === "block" && document.activeElement.hasOwnProperty("cVim") && document.activeElement.id === "command_input") { // Non-mappable command bar actions
       switch (e.keyCode) {
-        case 18: case 17: case 91: case 123: case 16: // Ignore non-character keys
+        case 18: case 17: case 91: case 123: case 16: // Ignore non-character keys (CTRL, SHIFT, etc)
           break;
         case 8: // Backspace
           if (barInput.value === "") {
@@ -69,11 +85,25 @@ keyDown = function(e) {
           }
           break;
         case 9: // Tab
-          if (!/input|textarea/i.test(document.activeElement.nodeName)) {
+          if (!document.activeElement.isInput()) {
             Mappings.actions.inputFocused = false;
-          } else {
-            e.preventDefault();
-            Mappings.actions.handleTab(e);
+            break;
+          }
+          e.preventDefault();
+          if (Mappings.actions.inputFocused) {
+          } else if (document.activeElement.hasOwnProperty("cVim")) {
+            if (Command.type === "action") {
+              if (Command.actionType === "query" || Command.actionType === "bookmarks") {
+                Search.nextResult(e.shiftKey);
+              }else {
+                if (!Command.typed) {
+                  barInput.value = "";
+                  Command.complete(barInput.value, e.shiftKey, true);
+                } else {
+                  Command.complete(Command.typed, e.shiftKey, true);
+                }
+              }
+            }
           }
           break;
         case 38: // Up
@@ -104,6 +134,7 @@ keyDown = function(e) {
           }
           break;
         default:
+          Command.history.reset = true;
           if (Command.type === "action") {
             setTimeout(function() {
               Command.parse();

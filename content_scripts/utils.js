@@ -31,6 +31,19 @@ Array.prototype.compare = function (array) {
   return true;
 };
 
+Object.prototype.getOffset = function() {
+  var elem = this;
+  var left = 0;
+  var top = 0;
+  while (elem = elem.parentNode) {
+    if (elem.nodeName === "HTML") break;
+    var bcr = elem.getBoundingClientRect();
+    left += bcr.left;
+    top += bcr.top;
+  }
+  return [left, top];
+};
+
 Array.prototype.compress = function() {
   for (var i = 0; i < this.length; i++) {
     if (!this[i]) {

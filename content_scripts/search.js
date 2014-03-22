@@ -1,7 +1,12 @@
 var Search = {};
+
+Search.urlMatch = /^chrome:\/\/|(http(s)?:\/\/)?(\S+)\.(com|org|mil|ru|ca|jp|ch|io|net|biz|edu|gov|me)(([\/]+)?([\/\S]+)?)?/i;
+Search.index = null;
+Search.searchHistory = [];
+
 var port = chrome.extension.connect({name: "main"});
 
-var getAllMarks = function(marks, callback) {
+var getAllMarks = function(marks) {
   marks.forEach(function(bookmark) {
     if (bookmark.url) {
       Marks.bookmarks.push([bookmark.title, bookmark.url]);
@@ -10,9 +15,6 @@ var getAllMarks = function(marks, callback) {
       getAllMarks(bookmark.children);
     }
   });
-  if (callback) {
-    callback();
-  }
 };
 
 port.onMessage.addListener(function(response) {
@@ -25,16 +27,9 @@ port.onMessage.addListener(function(response) {
     }
   } else if (response.bookmarks) {
     Marks.bookmarks = [];
-    getAllMarks(response.bookmarks, function() {
-      //Command.appendResults(null, true);
-    });
+    getAllMarks(response.bookmarks);
   }
 });
-
-Search.urlMatch = /^chrome:\/\/|(http(s)?:\/\/)?(\S+)\.(com|org|mil|ru|ca|jp|ch|io|net|biz|edu|gov|me)(([\/]+)?([\/\S]+)?)?/i;
-
-Search.index = null;
-Search.searchHistory = [];
 
 Search.fetchQuery = function(query, callback) {
   var api = "https://suggestqueries.google.com/complete/search?client=firefox&q=";
@@ -51,7 +46,7 @@ Search.fetchQuery = function(query, callback) {
 };
 
 Search.go = function(repeats) {
-  var search = barInput.value.replace(/^(t|tab)?o(pen)?(\s+)/, "");
+  var search = barInput.value.replace(/^(to|tabopen)(\s+)/, "");
   if (!Search.urlMatch.test(search)) {
     search = "https://google.com/search?q=" + search;
   } else if (!/^chrome:\/\//.test(search) && !/^http(s)?/.test(search)) {
@@ -93,28 +88,13 @@ Search.nextResult = function(reverse) {
         this.index++;
       } else {
         this.index = null;
-        if (Command.actionType === "bookmarks") {
-          if (/^b(ook)?marks(\s+)?/.test(Command.typed)) {
-            barInput.value = barInput.value.match(/^b(ook)?marks(\s+)?/)[0];
-          } else {
-            barInput.value = "bookmarks ";
-          }
-        } else {
-          barInput.value = Command.typed;
-        }
+        barInput.value = Command.typed;
         return;
       }
     } else {
       if (this.index === 0) {
         this.index = null;
         barInput.value = Command.typed;
-        if (Command.actionType === "bookmarks") {
-          if (/^b(ook)?marks /.test(Command.typed)) {
-            barInput.value = barInput.value.match(/^b(ook)?marks /)[0];
-          } else {
-            barInput.value = "bookmarks ";
-          }
-        }
         return;
       } else {
         this.index--;
@@ -126,15 +106,15 @@ Search.nextResult = function(reverse) {
     dataElements[this.index].children[0].style.color = "#1b1d1e";
     dataElements[this.index].children[1].style.color = "#1b1d1e";
   } else {
-  dataElements[this.index].style.color = "#1b1d1e";
+    dataElements[this.index].style.color = "#1b1d1e";
   }
   if (Command.actionType === "bookmarks") {
-    barInput.value = barInput.value.match(/^b(ook)?marks /)[0] + Marks.currentBookmarks[this.index];
+    barInput.value = barInput.value.match(/^(bmarks|bookmarks) /)[0] + Marks.currentBookmarks[this.index];
   } else if (Command.actionType === "complete") {
     barInput.value = completionMatches[this.index][0];
   } else if (Search.searchHistory[this.index]) {
-    barInput.value = barInput.value.match(/^(t(ab)?)?o(pen)? /)[0] + Search.searchHistory[this.index][1];
+    barInput.value = barInput.value.match(/^(to|tabopen) /)[0] + Search.searchHistory[this.index][1];
   } else {
-    barInput.value = barInput.value.match(/^(t(ab)?)?o(pen)? /)[0] + dataElements[this.index].innerText;
+    barInput.value = barInput.value.match(/^(to|tabopen) /)[0] + dataElements[this.index].innerText;
   }
 };

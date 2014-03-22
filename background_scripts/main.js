@@ -1,6 +1,12 @@
-function getTab(sender, reverse, count) {
+function getTab(sender, reverse, count, first, last) {
   chrome.tabs.query({windowId: sender.tab.windowId}, function(tabs) {
-    return chrome.tabs.update(tabs[((((reverse ? -count : count) + sender.tab.index) % tabs.length) + tabs.length) % tabs.length].id, {active: true});
+    if (first) {
+      return chrome.tabs.update(tabs[0].id, {active: true});
+    } else if (last) {
+      return chrome.tabs.update(tabs[tabs.length - 1].id, {active: true});
+    } else {
+      return chrome.tabs.update(tabs[((((reverse ? -count : count) + sender.tab.index) % tabs.length) + tabs.length) % tabs.length].id, {active: true});
+    }
   });
 }
 
@@ -99,10 +105,16 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
       }
       break;
     case "nextTab":
-      getTab(sender, false, request.repeats);
+      getTab(sender, false, request.repeats, false, false);
       break;
     case "previousTab":
-      getTab(sender, true, request.repeats);
+      getTab(sender, true, request.repeats, false, false);
+      break;
+    case "firstTab":
+      getTab(sender, false, false, true, false);
+      break;
+    case "lastTab":
+      getTab(sender, false, false, false, true);
       break;
     case "appendHistory":
       history.append(request.value, request.type);

@@ -1,32 +1,6 @@
 var Mappings = {};
 
 Mappings.repeats = "";
-
-Mappings.toKeyCode = function(c) {
-  var isCap = c.toUpperCase() === c;
-  return [isCap, c.toUpperCase().charCodeAt()];
-};
-
-Mappings.fromKeyDown = function(key) {
-  if (key.ctrlKey || key.metaKey) {
-    return;
-  }
-  if (key.keyCode >= 180 && key.keyCode < 200 && !key.shiftKey) {
-    return String.fromCharCode(key.keyCode - 144);
-  } else if (key.keyCode === 186 && key.shiftKey) {
-    return ":";
-  } else if (key.keyCode === 9) {
-    if (key.shiftKey) {
-      return "<S-TAB>";
-    }
-    return "<TAB>";
-  }
-  if (key.shiftKey) {
-    return String.fromCharCode(key.keyCode).toUpperCase();
-  }
-  return String.fromCharCode(key.keyCode).toLowerCase();
-};
-
 Mappings.queue = "";
 
 Mappings.actions = {
@@ -35,6 +9,12 @@ Mappings.actions = {
   },
   pinTab: function() {
     return chrome.runtime.sendMessage({action: "pinTab"});
+  },
+  firstTab: function() {
+    return chrome.runtime.sendMessage({action: "firstTab"});
+  },
+  lastTab: function() {
+    return chrome.runtime.sendMessage({action: "lastTab"});
   },
   moveTabRight: function(repeats) {
     return chrome.runtime.sendMessage({action: "moveTabRight", repeats: repeats});
@@ -141,39 +121,6 @@ Mappings.actions = {
   goToSource: function() {
     return chrome.runtime.sendMessage({action: "openLinkTab", url: "view-source:" + document.URL});
   },
-  handleTab: function(e) {
-    if (this.inputFocused) {
-      if (!e.shiftKey) {
-        if (this.inputElementsIndex + 1 === this.inputElements.length) {
-          this.inputElementsIndex = 0;
-        } else {
-          this.inputElementsIndex++;
-        }
-      } else {
-        if (this.inputElementsIndex - 1 < 0) {
-          this.inputElementsIndex = this.inputElements.length - 1;
-        } else {
-          this.inputElementsIndex--;
-        }
-      }
-      if (this.inputElements.length) {
-        this.inputElements[this.inputElementsIndex].focus();
-      }
-    } else if (/command/.test(document.activeElement.id || document.activeElement.className)) {
-      if (Command.type === "action") {
-        if (Command.actionType === "query" || Command.actionType === "bookmarks") {
-          Search.nextResult(e.shiftKey);
-        }else {
-          if (!Command.typed) {
-            barInput.value = "";
-            Command.complete(barInput.value, e.shiftKey, true);
-          } else {
-            Command.complete(Command.typed, e.shiftKey, true);
-          }
-        }
-      }
-    }
-  },
   goToInput: function(repeats) {
     this.inputElements = [];
     var allInput = document.querySelectorAll("input,textarea");
@@ -242,6 +189,8 @@ Mappings.defaults = {
   goBack: ["H", "S"],
   reverseImage: ["gr"],
   goForward: ["L", "D"],
+  firstTab: ["g0"],
+  lastTab: ["g$"],
   createTabbedHint: ["F"],
   goToInput: ["gi"],
   nextTab: ["K", "R", "gt"],
@@ -264,17 +213,9 @@ Mappings.defaults = {
 Mappings.isValidQueue = function(c) {
   for (var key in this.defaults) {
     if (this.defaults.hasOwnProperty(key)) {
-      if (Mappings.queue === "") {
-        for (var i = 0, l = this.defaults[key].length; i < l; i++) {
-          if ((new RegExp("^" + c)).test(this.defaults[key][i])) {
-            return true;
-          }
-        }
-      } else {
-        for (var i = 0, l = this.defaults[key].length; i < l; i++) {
-          if ((new RegExp("^" + Mappings.queue)).test(this.defaults[key][i])) {
-            return true;
-          }
+      for (var i = 0, l = this.defaults[key].length; i < l; i++) {
+        if (this.defaults[key][i].substring(0, Mappings.queue.length) === Mappings.queue) {
+          return true;
         }
       }
     }
@@ -345,11 +286,11 @@ Mappings.parseCustom = function(config) {
 };
 
 Mappings.convertToAction = function(c) {
-  if (!c || !/[a-zA-Z:;0-9.,\/-<>]/.test(c)) return;
-  if (hints_active) {
-    return Hints.handleHint(c);
-  }
-  if (Mappings.queue === "" && /[0-9]/.test(c)) {
+  if (!c) {
+    return;
+  } else if (hints_active) {
+    Hints.handleHint(c);
+  } else if (Mappings.queue === "" && /[0-9]/.test(c)) {
     Mappings.repeats += c;
   } else {
     Mappings.queue += c;
@@ -358,22 +299,20 @@ Mappings.convertToAction = function(c) {
         if (!this.isValidQueue(c)) {
           Mappings.queue = "";
           Mappings.repeats = "";
-          if (this.isValidQueue(c)) {
-            Mappings.queue = c;
-          }
-        }
-        for (var i = 0, l = this.defaults[key].length; i < l; i++) {
-          if (Mappings.queue === this.defaults[key][i]) {
-            if (Mappings.repeats === "0" || Mappings.repeats === "") {
-              Mappings.repeats = "1";
-            }
-            if (key === "shortCuts") {
-              Mappings.actions[key](Mappings.queue, parseInt(Mappings.repeats));
+        } else {
+          for (var i = 0, l = this.defaults[key].length; i < l; i++) {
+            if (Mappings.queue === this.defaults[key][i]) {
+              if (Mappings.repeats === "0" || Mappings.repeats === "") {
+                Mappings.repeats = "1";
+              }
+              if (key === "shortCuts") {
+                Mappings.actions[key](Mappings.queue, parseInt(Mappings.repeats));
+                return Mappings.repeats = "";
+              }
+              Mappings.actions[key](parseInt(Mappings.repeats));
+              Mappings.queue = "";
               return Mappings.repeats = "";
             }
-            Mappings.actions[key](parseInt(Mappings.repeats));
-            Mappings.queue = "";
-            return Mappings.repeats = "";
           }
         }
       }
