@@ -36,7 +36,7 @@ port.onMessage.addListener(function(response) {
 
 Search.apis = [
   ["google", "https://suggestqueries.google.com/complete/search?client=firefox&q=", "https://google.com/search?q="],
-  ["wikipedia", "http://en.wikipedia.org/w/api.php?format=json&action=opensearch&search=", "https://en.wikipedia.org/wiki/"]
+  ["wikipedia", "https://en.wikipedia.org/w/api.php?format=json&action=opensearch&search=", "https://en.wikipedia.org/wiki/"]
 ];
 
 Search.parse = function() {
@@ -78,6 +78,9 @@ Search.parse = function() {
 Search.fetchQuery = function(query, callback, api) {
   this.data = this.parse();
   if (!this.data || this.noComplete || this.data[1] === "url" || this.data.length === 2) return;
+  if (this.data[2].trim() === "") {
+    return;
+  }
   var xhr = new XMLHttpRequest();
   xhr.open("GET", this.apis[this.data[1]][1] + this.data[2]);
   xhr.onreadystatechange = function() {
@@ -163,7 +166,7 @@ Search.nextResult = function(reverse) {
     barInput.value = completionMatches[this.index][0];
   } else {
     if (this.data.length) {
-      barInput.value = barInput.value.match(/^(to|tabopen) /)[0] + this.apis[this.data[1]][0] + " " + dataElements[this.index].innerText;
+      barInput.value = barInput.value.match(/^(to|tabopen|open|o) /)[0] + this.apis[this.data[1]][0] + " " + dataElements[this.index].innerText;
     }
   }
 };

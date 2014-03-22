@@ -1,6 +1,6 @@
 var loadSettings, mouseDown, saveRelease, resetRelease, fetchSettings;
 var fade, save, save_clicked, reset_clicked, reset, linkHintCharacters, commandBarCSS, commandBarOnBottom, hoverDelay, settings, editor, mappingContainerFadeOut, usedPlaceholder;
-var placeholder = 'Look at the mappings page for command names\n\nCommands are "map" and "unmap"\n\nExample:\n # unmap j\n # map j scrollDown\n\nCommands can also be mapping to command mode\n\nExample:\n # map v :tabopen http://www.google.com\n\nCommand mode commands can be followed by <CR> so enter does not have to be pressed to execute\n # map v :tabopen http://www.google.com<CR>\n\nModifier keys may also be mapped (if it is not already used by Chrome or the operating system)\n\nExample:\n "<C-" => Control key\n # map <C-i> goToInput\n "<M-" => Meta key (Windows key / Command key (Mac))\n # map <M-i> goToInput\n "<A-" => Alt key\n # map <A-i> goToInput\n';
+var placeholder = 'Click the question mark to the left for a list of default commands and their according variable names\n\nCommands are prefixed by either "map" or "unmap"\n\nExample:\n # unmap j\n # map j scrollDown\n\nCommands can also reference command mode commands\n\nExample:\n # map v :tabopen http://www.google.com\nCommands followed by <CR> execute the command immediately\n # map v :tabopen http://www.google.com<CR>\n\nModifier keys may also be mapped (if they are not already used by Chrome or the operating system)\n\nExample:\n "<C-" => Control key\n # map <C-i> goToInput\n "<M-" => Meta key (Windows key / Command key (Mac))\n # map <M-i> goToInput\n "<A-" => Alt key\n # map <A-i> goToInput\n';
 
 loadSettings = function () {
   for (var key in settings) {
@@ -66,7 +66,6 @@ saveRelease = function (e) {
 };
 
 fadeTransitionEnd = function(e) {
-  console.log(e);
   if (e.target.id === "mappingContainer" && e.propertyName === "opacity" && mappingContainerFadeOut) {
     mappingContainerFadeOut = false;
     mappingContainer.style.display = "none";

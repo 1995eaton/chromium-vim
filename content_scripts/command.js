@@ -69,7 +69,7 @@ for (var i = 0; i < historyStates.length; i++) {
   });
 }
 
-Command.appendResults = function(data, bookmarks, search, completion) {
+Command.appendResults = function(data, bookmarks, search, completion, completeEngines) {
   dataElements = [];
   if (!barData) {
     barData = document.createElement("div");
@@ -120,7 +120,16 @@ Command.appendResults = function(data, bookmarks, search, completion) {
         barData.appendChild(temp);
       }
     }
-    for (var i = 0; i < Search.searchHistory.length; i++) {
+    if (completeEngines) {
+      for (var i = 0; i < Search.apis.length; i++) {
+        var temp = document.createElement("div");
+        temp.className = "completion-item";
+        temp.innerHTML = '<span class="left">' + '<span style="color:#00BED3">Search Engin</span>: ' + Search.apis[i][0] + '</span>' + '<span class="right">' + Search.apis[i][2] + '</span>';
+        dataElements.push(temp);
+        barData.appendChild(temp);
+      }
+    }
+    for (var i = 0; i < Search.searchHistory.length && dataElements.length < 14; i++) {
       var temp = document.createElement("div");
       temp.cVim = true;
       temp.className = "completion-item";
@@ -207,12 +216,21 @@ Command.parse = function(value, pseudoReturn, repeats) {
       Search.index = null;
       var search = barInput.value.replace(/^(t(ab)?)?o(pen)?(\s+)/, "");
       if (!/^(\s+)?$/.test(search)) {
-        Search.appendFromHistory(search, 8);
+        var removeSearchEngine = search;
+        for (var i = 0, l = Search.apis.length; i < l; i++) {
+          removeSearchEngine = removeSearchEngine.replace(new RegExp("^" + Search.apis[i][0]), "");
+          if (removeSearchEngine.length !== search.length) {
+            break;
+          }
+        }
+        Search.appendFromHistory(removeSearchEngine, 8);
       }
-      if (!search) return Command.hideData();
+      if (barInput.value.split(" ").length <= 2) {
+        Command.appendResults([], false, false, false, true);
+        Search.completionResults = [];
+      }
       Search.fetchQuery(search, function(response) {
         Command.typed = barInput.value;
-        log(response);
         Command.actionType = "query";
         if (response) {
           Search.completionResults = response;
