@@ -69,7 +69,7 @@ for (var i = 0; i < historyStates.length; i++) {
   });
 }
 
-Command.appendResults = function(data, bookmarks, search, completion, completeEngines) {
+Command.appendResults = function(data, bookmarks, search, completion) {
   dataElements = [];
   if (!barData) {
     barData = document.createElement("div");
@@ -101,6 +101,14 @@ Command.appendResults = function(data, bookmarks, search, completion, completeEn
       barData.appendChild(temp);
     }
   } else {
+    for (var i = 0; i < Search.searchHistory.length; i++) {
+      var temp = document.createElement("div");
+      temp.cVim = true;
+      temp.className = "completion-item";
+      temp.innerHTML = '<span class="left">' + '<span style="color:#00BED3">History</span>: ' + Search.searchHistory[i][0] + '</span>' + '<span class="right">' + Search.searchHistory[i][1] + '</span>';
+      dataElements.push(temp);
+      barData.appendChild(temp);
+    }
     if (completion) {
       for (var i = 0; i < data.length; i++) {
         var temp = document.createElement("div");
@@ -111,31 +119,14 @@ Command.appendResults = function(data, bookmarks, search, completion, completeEn
         barData.appendChild(temp);
       }
     } else {
-      for (var i = 0; i < Search.completionResults.length; i++) {
+      for (var i = 0; i < data.length; i++) {
         var temp = document.createElement("div");
         temp.cVim = true;
         temp.className = "completion-item";
-        temp.innerHTML = '<span class="full">' + Search.completionResults[i] + '</span>';
+        temp.innerHTML = '<span class="full">' + data[i] + '</span>';
         dataElements.push(temp);
         barData.appendChild(temp);
       }
-    }
-    if (completeEngines) {
-      for (var i = 0; i < Search.apis.length; i++) {
-        var temp = document.createElement("div");
-        temp.className = "completion-item";
-        temp.innerHTML = '<span class="left">' + '<span style="color:#00BED3">Search Engin</span>: ' + Search.apis[i][0] + '</span>' + '<span class="right">' + Search.apis[i][2] + '</span>';
-        dataElements.push(temp);
-        barData.appendChild(temp);
-      }
-    }
-    for (var i = 0; i < Search.searchHistory.length && dataElements.length < 14; i++) {
-      var temp = document.createElement("div");
-      temp.cVim = true;
-      temp.className = "completion-item";
-      temp.innerHTML = '<span class="left">' + '<span style="color:#00BED3">History</span>: ' + Search.searchHistory[i][0] + '</span>' + '<span class="right">' + Search.searchHistory[i][1] + '</span>';
-      dataElements.push(temp);
-      barData.appendChild(temp);
     }
   }
   barData.style.display = "block";
@@ -215,27 +206,14 @@ Command.parse = function(value, pseudoReturn, repeats) {
     if (/^(t(ab)?)?o(pen)?(\s+)/.test(barInput.value)) {
       Search.index = null;
       var search = barInput.value.replace(/^(t(ab)?)?o(pen)?(\s+)/, "");
+      if (!search) return Command.hideData();
       if (!/^(\s+)?$/.test(search)) {
-        var removeSearchEngine = search;
-        for (var i = 0, l = Search.apis.length; i < l; i++) {
-          removeSearchEngine = removeSearchEngine.replace(new RegExp("^" + Search.apis[i][0]), "");
-          if (removeSearchEngine.length !== search.length) {
-            break;
-          }
-        }
-        Search.appendFromHistory(removeSearchEngine, 8);
-      }
-      if (barInput.value.split(" ").length <= 2) {
-        Command.appendResults([], false, false, false, true);
-        Search.completionResults = [];
+        Search.appendFromHistory(search);
       }
       Search.fetchQuery(search, function(response) {
         Command.typed = barInput.value;
         Command.actionType = "query";
-        if (response) {
-          Search.completionResults = response;
-          Command.appendResults(response);
-        }
+        Command.appendResults(response);
       });
     } else if (/^b(ook)?marks(\s+)/.test(barInput.value)) {
       var search = barInput.value.replace(/^b(ook)?marks(\s+)/, "");
@@ -243,8 +221,7 @@ Command.parse = function(value, pseudoReturn, repeats) {
       Command.actionType = "bookmarks";
       Command.appendResults(null, true, search);
     } else {
-      Search.index = null;
-      Command.actionType = "complete";
+      Command.actionType = "";
       Command.complete(barInput.value, false, false);
     }
   }

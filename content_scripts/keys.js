@@ -127,9 +127,8 @@ keyDown = function(e) {
             Find.index = 0;
             Find.search(false, 1);
             Command.hide();
-          } else if (Search.data) {
+          } else if (Command.actionType === "query") {
             Search.go();
-            Command.hide();
           } else {
             Command.parse(barInput.value);
           }
@@ -140,11 +139,13 @@ keyDown = function(e) {
             setTimeout(function() {
               Command.parse();
             }, 0);
-          } else if (Command.type === "search") {
+          } else {
             setTimeout(function() {
-              Find.clear();
-              if (barInput.value !== "") {
-                Find.highlight(document.body, barInput.value, true);
+              if (Command.type === "search") {
+                Find.clear();
+                if (barInput.value !== "") {
+                  Find.highlight(document.body, barInput.value, true);
+                }
               }
             }, 2);
           }
