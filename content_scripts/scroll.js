@@ -31,7 +31,6 @@ Scroll.smoothScrollBy = function(x, y) {
   var i = 0;
   y *= 1.075;
   var delta = 0;
-  var id;
   function loop() {
     if (isVertical) {
       window.scrollBy(0, Math.round(easeFunc(i, 0, y, duration) - delta));
@@ -39,12 +38,12 @@ Scroll.smoothScrollBy = function(x, y) {
       window.scrollBy(Math.round(easeFunc(i, 0, x, duration) - delta), 0);
     }
     if (i < duration) {
-      id = window.requestAnimationFrame(loop);
+      window.requestAnimationFrame(loop);
     }
     delta = easeFunc(i, 0, (x || y), duration);
     i += 1.2;
   }
-  if (!id) loop();
+  loop();
 };
 
 Scroll.scroll = function(type, repeats) {

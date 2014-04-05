@@ -61,7 +61,7 @@ Hints.handleHintFeedback = function(choice) {
         Clipboard.copy(hint_links[cur_index].href);
       } else if (Hints.image) {
         chrome.runtime.sendMessage({action: "openLinkTab", url: "https://www.google.com/searchbyimage?image_url=" + hint_links[cur_index].src});
-      } else if (hint_links[cur_index].nodeName === "BUTTON" || hint_links[cur_index].nodeName === "AREA") {
+      } else if (hint_links[cur_index].nodeName === "BUTTON") {
         hint_links[cur_index].click();
       } else if (hint_links[cur_index].nodeName === "SELECT") {
         var e = new MouseEvent("mousedown");
@@ -131,32 +131,19 @@ Hints.create = function(tabbed, numeric, yank, image) {
     right: document.body.scrollLeft + window.innerWidth
   };
   var getClickableLinks = function() {
-    var elements = document.getElementsByTagName("*");
-    var currentCoordinate, special_urls;
+    var elements;
+    if (yank) {
+      elements = document.querySelectorAll("[href]")
+    } else if (image) {
+      elements = document.querySelectorAll("img")
+    } else {
+      elements = document.querySelectorAll("[onclick],a,area,select,button,textarea,input,[aria-haspopup],[data-cmd],[jsaction]")
+    }
     var clickable = [];
     for (var i = 0, length = elements.length; i < length; i++) {
       var computedStyle = getComputedStyle(elements[i], null);
-      special_urls = {
-        inclusive: {
-          stackoverflow: /stackoverflow\.com/.test(document.URL) && (elements[i].className === "wmd-button" || /mdhelp/.test(elements[i].getAttribute("data-tab")) || elements[i].id === "wmd-help-button"),
-          imgur: /imgur\.com/.test(document.URL) && (/favorite-image|report-image|file-wrapper/.test(elements[i].id) || /submit-caption-button|caption-toolbar combobox edit-button( opened)?|arrow.*(up|down)|navBrowse|navNext|navPrev|item.*link|triangle|item center/.test(elements[i].className))
-        },
-        exclusive: {
-          reddit: !(/reddit\.com/.test(document.URL) && elements[i].parentNode && (elements[i].parentNode.className === "parent" && elements[i].classList.length && (elements[i].classList[0] === "author" || elements[i].classList[0] === "subreddit"))) && !/click_thing/.test(elements[i].getAttribute("onclick"))
-        }
-      };
-      if (yank) {
-        if (elements[i].href) {
-          clickable.push(elements[i]);
-        }
-      } else if (image) {
-        if (elements[i].src) {
-          clickable.push(elements[i]);
-        }
-      } else {
-        if ((elements[i].getAttribute("onclick") || /^(AREA|SELECT|BUTTON|TEXTAREA|A|INPUT)$/.test(elements[i].nodeName) || elements[i].getAttribute("aria-haspopup") || elements[i].getAttribute("data-cmd") || elements[i].getAttribute("jsaction") || special_urls.inclusive.imgur || special_urls.inclusive.stackoverflow) && special_urls.exclusive.reddit && computedStyle.visibility !== "hidden" && !elements[i].hasOwnProperty("cVim")) {
-          clickable.push(elements[i]);
-        }
+      if (computedStyle.visibility !== "hidden" && !elements[i].hasOwnProperty("cVim")) {
+        clickable.push(elements[i]);
       }
     }
     return clickable;
@@ -171,7 +158,11 @@ Hints.create = function(tabbed, numeric, yank, image) {
   main.id = "link_main";
   main.top = document.body.scrollTop + "px";
   main.left = document.body.scrollLeft + "px";
-  document.lastChild.appendChild(main);
+  try {
+    document.lastChild.appendChild(main);
+  } catch(e) {
+    document.body.appendChild(main);
+  }
   for (var i = 0; i < links.length; i++) {
     var isAreaNode = false;
     if (links[i].nodeName === "AREA" && links[i].parentNode && links[i].parentNode.nodeName === "MAP") {
@@ -182,7 +173,7 @@ Hints.create = function(tabbed, numeric, yank, image) {
     } else {
       link_location = links[i].getBoundingClientRect();
     }
-    if (link_location.top + link_location.height > 0 && link_location.top < window.innerHeight && link_location.left >= 0 && link_location.left < window.innerWidth && link_location.width > 0) {
+    if (link_location.top + link_location.height >= 0 && link_location.top < window.innerHeight && link_location.left >= 0 && link_location.left < window.innerWidth && link_location.width > 0) {
       hint_strings.push(link_number.toString());
       hint_links.push(links[i]);
       var temp = document.createElement("div");
@@ -198,7 +189,6 @@ Hints.create = function(tabbed, numeric, yank, image) {
         temp.style.top = link_location.top + screen.top + "px";
         temp.style.left = link_location.left + screen.left + "px";
       }
-
       if (numeric) {
         temp.innerText = link_number;
         frag.appendChild(temp);
@@ -210,9 +200,6 @@ Hints.create = function(tabbed, numeric, yank, image) {
   if (!numeric) {
     letter_perms = [];
     var lim = Math.ceil(Math.log(link_arr.length) / Math.log(Hints.hintCharacters.length));
-    log(lim);
-    log(Math.pow(Hints.hintCharacters.length, lim));
-    log(link_arr.length);
     if (lim === 0) lim = 1;
     function genHint(n) {
       var l, r;
@@ -228,7 +215,7 @@ Hints.create = function(tabbed, numeric, yank, image) {
     for (var i = 1; i <= link_arr.length; i++) {
       letter_perms.push(genHint(i));
     }
-    function optimizeHint(hint, orig_index) { // TODO: Find a better way to get optimized hints
+    function optimizeHint(hint, orig_index) {
       var reduction = hint.substring(0, hint.length - 1);
       for (var i = 0, l = letter_perms.length; i < l; i++) {
         if (i != orig_index && reduction === letter_perms[i].substring(0, reduction.length)) {

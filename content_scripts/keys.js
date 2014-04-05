@@ -174,6 +174,14 @@ mouseMove = function(e) {
   Mouse.y = e.pageY;
 };
 
+keyUp = function(e) {
+  if (!insertMode) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
+};
+
 document.addEventListener("keypress", keyPress, true);
+document.addEventListener("keyup", keyUp, true);
 document.addEventListener("keydown", keyDown, true);
 document.addEventListener("mousemove", mouseMove, true);

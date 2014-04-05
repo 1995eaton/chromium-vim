@@ -22,7 +22,8 @@ Command.setup = function() {
   bar.appendChild(barMode);
   bar.appendChild(barInput);
   bar.spellcheck = false;
-  document.lastChild.appendChild(bar);
+  // document.lastChild.appendChild(bar);
+  document.body.appendChild(bar);
 };
 var lastMatch;
 var historyStates = ["action", "url", "search"];
@@ -80,7 +81,8 @@ Command.appendResults = function(data, bookmarks, search, completion) {
     } else {
       barData.style.top = "20px";
     }
-    document.lastChild.appendChild(barData);
+    // document.lastChild.appendChild(barData);
+    document.body.appendChild(barData);
   }
   barData.innerHTML = "";
   if (bookmarks) {
@@ -261,33 +263,9 @@ Command.hide = function() {
   if (barData) barData.style.display = "none";
 };
 
-Command.loadFont = function() {
-  var e = document.createElement("div");
-  e.style.position = "absolute";
-  e.style.left = "-100%";
-  e.innerText = "Loading font";
-  document.body.appendChild(e);
-  setTimeout(function() {
-    document.body.removeChild(e);
-  }, 5);
-};
-
 document.addEventListener("DOMContentLoaded", function() {
   Search.getBookmarks();
-  function loadFont() { // Prevents custom font from flickering before load
-    var e = document.createElement("div");
-    e.style.fontFamily = "Neue";
-    e.style.fontSize = "11pt";
-    e.innerHTML = "Loading font";
-    e.style.opacity = "0";
-    document.body.appendChild(e);
-    setTimeout(function() {
-      document.body.removeChild(e);
-    }, 50);
-  }
   Command.setup();
-  Command.loadFont();
-  loadFont();
 });
 
 chrome.runtime.sendMessage({getSettings: true}, function (s) {
