@@ -32,9 +32,8 @@ port.onMessage.addListener(function(response) {
 });
 
 Search.fetchQuery = function(query, callback) {
+
   var api = "https://suggestqueries.google.com/complete/search?client=firefox&q=";
-  //var api = "http://toolbarqueries.google.com/complete/search?output=toolbar&hl=en&q="
-  //var api = "https://clients1.google.com/complete/search?client=hp&hl=en&gs_rn=37&gs_ri=hp&tok=ZrCrC4RUUHoLw7nw3h5B7Q&cp=1&gs_id=7&gs_gbg=99XWStbq0&q=";
   var xhr = new XMLHttpRequest();
   xhr.open("GET", api + query);
   xhr.onreadystatechange = function() {
@@ -43,16 +42,17 @@ Search.fetchQuery = function(query, callback) {
     }
   };
   xhr.send();
+
 };
 
 Search.go = function(repeats) {
-  var search = barInput.value.replace(/^(to|tabopen)(\s+)/, "");
+  var search = Command.input.value.replace(/^(to|tabopen)(\s+)/, "");
   if (!Search.urlMatch.test(search)) {
     search = "https://google.com/search?q=" + search;
   } else if (!/^chrome:\/\//.test(search) && !/^http(s)?/.test(search)) {
     search = "http://" + search;
   }
-  if (/^(to|tabopen) /.test(barInput.value)) {
+  if (/^(to|tabopen) /.test(Command.input.value)) {
     chrome.runtime.sendMessage({action: "openLinkTab", url: search, repeats: repeats});
   } else {
     chrome.runtime.sendMessage({action: "openLink", url: search, repeats: repeats});
@@ -69,52 +69,58 @@ Search.getBookmarks = function() {
 }
 
 Search.nextResult = function(reverse) {
-  if (!dataElements.length) return;
+
+  if (!Command.dataElements.length) {
+    return;
+  }
+
   if (this.index === null) {
     if (!reverse) {
       this.index = 0;
     } else {
-      this.index = dataElements.length - 1;
+      this.index = Command.dataElements.length - 1;
     }
   } else {
-    dataElements[this.index].style.backgroundColor = "";
-    dataElements[this.index].style.color = "";
-    if (dataElements[this.index].children.length > 1) {
-      dataElements[this.index].children[0].style.color = "";
-      dataElements[this.index].children[1].style.color = "";
+    Command.dataElements[this.index].style.backgroundColor = "";
+    Command.dataElements[this.index].style.color = "";
+    if (Command.dataElements[this.index].children.length > 1) {
+      Command.dataElements[this.index].children[0].style.color = "";
+      Command.dataElements[this.index].children[1].style.color = "";
     }
     if (!reverse) {
-      if (this.index + 1 < dataElements.length) {
+      if (this.index + 1 < Command.dataElements.length) {
         this.index++;
       } else {
         this.index = null;
-        barInput.value = Command.typed;
+        Command.input.value = Command.typed;
         return;
       }
     } else {
       if (this.index === 0) {
         this.index = null;
-        barInput.value = Command.typed;
+        Command.input.value = Command.typed;
         return;
       } else {
         this.index--;
       }
     }
   }
-  dataElements[this.index].style.backgroundColor = "#fefefe";
-  if (dataElements[this.index].children.length > 1) {
-    dataElements[this.index].children[0].style.color = "#1b1d1e";
-    dataElements[this.index].children[1].style.color = "#1b1d1e";
+
+  Command.dataElements[this.index].style.backgroundColor = "#fefefe";
+  if (Command.dataElements[this.index].children.length > 1) {
+    Command.dataElements[this.index].children[0].style.color = "#1b1d1e";
+    Command.dataElements[this.index].children[1].style.color = "#1b1d1e";
   } else {
-    dataElements[this.index].style.color = "#1b1d1e";
+    Command.dataElements[this.index].style.color = "#1b1d1e";
   }
   if (Command.actionType === "bookmarks") {
-    barInput.value = barInput.value.match(/^(bmarks|bookmarks) /)[0] + Marks.currentBookmarks[this.index];
+    Command.input.value = Command.input.value.match(/^(bmarks|bookmarks) /)[0] + Marks.currentBookmarks[this.index];
   } else if (Command.actionType === "complete") {
-    barInput.value = completionMatches[this.index][0];
+    Command.input.value = Command.matches[this.index][0];
   } else if (Search.searchHistory[this.index]) {
-    barInput.value = barInput.value.match(/^(to|tabopen) /)[0] + Search.searchHistory[this.index][1];
+    Command.input.value = Command.input.value.match(/^(to|tabopen|open|o) /)[0] + Search.searchHistory[this.index][1];
   } else {
-    barInput.value = barInput.value.match(/^(to|tabopen) /)[0] + dataElements[this.index].innerText;
+    Command.input.value = Command.input.value.match(/^(to|tabopen|open|o) /)[0] + Command.dataElements[this.index].innerText;
   }
+
 };

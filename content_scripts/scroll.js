@@ -1,7 +1,7 @@
 var Scroll = {};
-var step = 120;
-var smooth = true;
-Scroll.smooth = true;
+
+Scroll.stepSize = 75;
+Scroll.smoothScroll = true;
 
 var ease = {
   outSine: function(t, b, c, d) {
@@ -25,35 +25,42 @@ var ease = {
 };
 
 Scroll.smoothScrollBy = function(x, y) {
-  var isVertical = (y) ? true : false;
-  var duration = 75;
-  var easeFunc = ease.outExpo;
-  var i = 0;
-  y *= 1.075;
-  var delta = 0;
-  function loop() {
+
+  var isVertical = (y) ? true : false,
+      duration = 40,
+      easeFunc = ease.outExpo,
+      i = 0,
+      delta = 0;
+
+  function animLoop() {
+
     if (isVertical) {
       window.scrollBy(0, Math.round(easeFunc(i, 0, y, duration) - delta));
     } else {
       window.scrollBy(Math.round(easeFunc(i, 0, x, duration) - delta), 0);
     }
+
     if (i < duration) {
-      window.requestAnimationFrame(loop);
+      window.requestAnimationFrame(animLoop);
     }
+
     delta = easeFunc(i, 0, (x || y), duration);
-    i += 1.2;
+    i += 1;
   }
-  loop();
+
+  animLoop();
 };
 
 Scroll.scroll = function(type, repeats) {
-  if (Scroll.smooth) {
+
+  if (Scroll.smoothScroll) {
+
     switch (type) {
       case "down":
-        Scroll.smoothScrollBy(0, repeats * step);
+        Scroll.smoothScrollBy(0, repeats * this.stepSize);
         break;
       case "up":
-        Scroll.smoothScrollBy(0, repeats * -step);
+        Scroll.smoothScrollBy(0, repeats * -this.stepSize);
         break;
       case "pageDown":
         Scroll.smoothScrollBy(0, repeats * window.innerHeight / 2);
@@ -62,27 +69,29 @@ Scroll.scroll = function(type, repeats) {
         Scroll.smoothScrollBy(0, -repeats * window.innerHeight / 2);
         break;
       case "top":
-        Scroll.smoothScrollBy(0, -document.body.scrollTop);
+        Scroll.smoothScrollBy(0, -document.body.scrollTop - 10);
         break;
       case "bottom":
-        Scroll.smoothScrollBy(0, document.body.scrollHeight - document.body.scrollTop - window.innerHeight);
+        Scroll.smoothScrollBy(0, document.body.scrollHeight - document.body.scrollTop - window.innerHeight + 10);
         break;
       case "left":
-        Scroll.smoothScrollBy(repeats * -step / 2, 0);
+        Scroll.smoothScrollBy(repeats * -this.stepSize / 2, 0);
         break;
       case "right":
-        Scroll.smoothScrollBy(repeats * step / 2, 0);
+        Scroll.smoothScrollBy(repeats * this.stepSize / 2, 0);
         break;
       default:
         break;
     }
+
   } else {
+
     switch (type) {
       case "down":
-        scrollBy(0, step);
+        scrollBy(0, this.stepSize);
         break;
       case "up":
-        scrollBy(0, -1 * step);
+        scrollBy(0, -1 * this.stepSize);
         break;
       case "pageDown":
         scrollBy(0, window.innerHeight / 2);
@@ -97,13 +106,14 @@ Scroll.scroll = function(type, repeats) {
         scrollTo(0, document.body.offsetHeight);
         break;
       case "left":
-        scrollBy(-1 * step, 0);
+        scrollBy(-1 * this.stepSize, 0);
         break;
       case "right":
-        scrollBy(step, 0);
+        scrollBy(this.stepSize, 0);
         break;
       default:
         break;
     }
+
   }
 }

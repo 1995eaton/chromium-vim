@@ -29,7 +29,7 @@ Mappings.actions = {
       }
     } else {
       setTimeout(function() {
-        Hints.create(true, false, false, true);
+        Hints.create(true, false, true);
       }, 0);
     }
   },
@@ -68,12 +68,12 @@ Mappings.actions = {
   },
   createHint: function() {
     setTimeout(function() {
-      return Hints.create(false, false, false);
+      return Hints.create();
     }, 0);
   },
   createTabbedHint: function() {
     setTimeout(function() {
-      return Hints.create(true, false, false);
+      return Hints.create(true);
     }, 0);
   },
   yankUrl: function() {
@@ -142,9 +142,9 @@ Mappings.actions = {
         commandMode = true;
         Command.show(false, Mappings.shortCuts[i][1].replace(/^:/, "").replace(/<cr>(\s+)?$/i, ""));
         if (/<cr>(\s+)?$/i.test(Mappings.shortCuts[i][1])) {
-          return Command.parse(barInput.value, true, repeats);
+          return Command.parse(Command.input.value, true, repeats);
         }
-        return Command.parse(barInput.value, false, repeats);
+        return Command.parse(Command.input.value, false, repeats);
       }
     }
   },
@@ -231,7 +231,7 @@ Mappings.parseCustom = function(config) {
   var keywords = [
     /^(\s+)?map /i,
     /^(\s+)?unmap /i
-      ];
+  ];
   var m = [];
   var u = [];
   for (var i = 0, l = config.length; i < l; i++) {
@@ -288,7 +288,7 @@ Mappings.parseCustom = function(config) {
 Mappings.convertToAction = function(c) {
   if (!c) {
     return;
-  } else if (hints_active) {
+  } else if (Hints.active) {
     Hints.handleHint(c);
   } else if (Mappings.queue === "" && /[0-9]/.test(c)) {
     Mappings.repeats += c;
