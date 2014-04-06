@@ -8,6 +8,7 @@
 body {
   font-family: Gafata;
   -webkit-font-smoothing: antialiased;
+  background-color: #aaa;
   font-size: 14pt;
 }
 
@@ -18,6 +19,7 @@ body {
   width: 75%;
   height: 100%; top: 0;
   left: 0; right: 0;
+  background-color: #fff;
   box-shadow: 0 0 15px rgba(0,0,0,0.5);
   margin: 0 auto;
 }
@@ -180,6 +182,8 @@ textarea:focus, input:focus {
   padding: 5px;
   display: none;
   left: 0; right: 0;
+  top: 0;
+  height: 100%;
   opacity: 0;
   transition: opacity 0.2s ease-out;
   margin: 0 auto;
