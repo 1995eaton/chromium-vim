@@ -66,7 +66,6 @@ saveRelease = function (e) {
 };
 
 fadeTransitionEnd = function(e) {
-  console.log(e);
   if (e.target.id === "mappingContainer" && e.propertyName === "opacity" && mappingContainerFadeOut) {
     mappingContainerFadeOut = false;
     mappingContainer.style.display = "none";
