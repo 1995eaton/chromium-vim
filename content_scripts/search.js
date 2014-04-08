@@ -22,7 +22,11 @@ port.onMessage.addListener(function(response) {
     Search.searchHistory = [];
     for (var key in response.history) {
       if (response.history[key].url) {
-        Search.searchHistory.push([response.history[key].title, response.history[key].url]);
+        if (response.history[key].title.trim() === "") {
+          Search.searchHistory.push(["Untitled", response.history[key].url]);
+        } else {
+          Search.searchHistory.push([response.history[key].title, response.history[key].url]);
+        }
       }
     }
   } else if (response.bookmarks) {
@@ -33,7 +37,19 @@ port.onMessage.addListener(function(response) {
 
 Search.fetchQuery = function(query, callback) {
 
+  Search.current = query;
+  if (Search.delay) {
+    return;
+  }
+  Search.delay = true;
   var api = "https://suggestqueries.google.com/complete/search?client=firefox&q=";
+  var lastQuery = query;
+  setTimeout(function() {
+    Search.delay = false;
+    if (lastQuery !== Search.current) {
+      return Search.fetchQuery(query, callback);
+    }
+  }, 150); // This is so Google's servers don't think we're spamming; TODO: find a better way to do this.
   var xhr = new XMLHttpRequest();
   xhr.open("GET", api + query);
   xhr.onreadystatechange = function() {
