@@ -10,7 +10,7 @@ Find.search = function(reverse, repeats) {
     return;
   if (this.index >= 0)
     this.matches[this.index].style.backgroundColor = "";
-  if (reverse && repeats === 1 && this.index == 0) {
+  if (reverse && repeats === 1 && this.index === 0) {
     this.index = this.matches.length - 1;
   } else if (!reverse && repeats === 1 && this.index + 1 === this.matches.length) {
     this.index = 0;
