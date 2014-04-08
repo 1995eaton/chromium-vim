@@ -1,139 +1,120 @@
-var handleHint, handleHintFeedback, hideHints;
-var hints_active, hint_strings, tab_open, links, link_arr, hint_links, letter_perms;
 var log = console.log.bind(console);
-
-links = [];
-hint_links = [];
-link_arr = [];
-
-var current_string = "";
-
 var Hints = {};
 
 Hints.hintCharacters = "asdfgzxcvbqwert";
 
 Hints.hideHints = function() {
   document.getElementById("link_main").parentNode.removeChild(document.getElementById("link_main"));
-  current_string = "";
-  hints_active = false;
-  link_arr = [];
+  this.currentString = "";
+  this.active = false;
+  this.linkArr = [];
 };
 
 Hints.handleHintFeedback = function(choice) {
   var links_found = 0;
-  if (!this.numeric) {
-    var cur_index;
-    for (var i = 0; i < hint_strings.length; i++) {
-      if (current_string === letter_perms[i].substring(0, current_string.length)) {
-        if (link_arr[i].children.length) {
-          link_arr[i].replaceChild(link_arr[i].firstChild.firstChild, link_arr[i].firstChild);
-          link_arr[i].normalize();
-        }
-        var span = document.createElement("span");
-        span.cVim = true;
-        span.className = "link_hint_match";
-        var matched_chars = link_arr[i].firstChild.splitText(current_string.length);
-        span.appendChild(link_arr[i].firstChild.cloneNode(true));
-        link_arr[i].replaceChild(span, link_arr[i].firstChild);
-        cur_index = i;
-        links_found++;
-      } else {
-        if (link_arr[i].parentNode) {
-          link_arr[i].style.opacity = "0";
-        }
+  var index;
+
+  for (var i = 0; i < this.strings.length; i++) {
+    if (this.currentString === this.permutations[i].substring(0, this.currentString.length)) {
+      if (this.linkArr[i].children.length) {
+        this.linkArr[i].replaceChild(this.linkArr[i].firstChild.firstChild, this.linkArr[i].firstChild);
+        this.linkArr[i].normalize();
       }
-    }
-  } else {
-    if (choice > link_arr.length) {
-      current_string = "";
-      Hints.hideHints();
-    }
-    for (var i = 0; i < hint_strings.length; i++) {
-      if (hint_strings[i].substring(0, current_string.length) === current_string) {
-        links_found++;
+      var span = document.createElement("span");
+      span.cVim = true;
+      span.className = "link_hint_match";
+      var matched_chars = this.linkArr[i].firstChild.splitText(this.currentString.length);
+      span.appendChild(this.linkArr[i].firstChild.cloneNode(true));
+      this.linkArr[i].replaceChild(span, this.linkArr[i].firstChild);
+      index = i;
+      links_found++;
+    } else {
+      if (this.linkArr[i].parentNode) {
+        this.linkArr[i].style.opacity = "0";
       }
     }
   }
+
   if (links_found === 1) {
-    Hints.hideHints();
+    this.hideHints();
     setTimeout(function() {
-      if (Hints.yank) {
-        Clipboard.copy(hint_links[cur_index].href);
-      } else if (Hints.image) {
-        chrome.runtime.sendMessage({action: "openLinkTab", url: "https://www.google.com/searchbyimage?image_url=" + hint_links[cur_index].src});
-      } else if (hint_links[cur_index].nodeName === "BUTTON") {
-        hint_links[cur_index].click();
-      } else if (hint_links[cur_index].nodeName === "SELECT") {
+      var node = this.linkHints[index].nodeName;
+      if (this.yank) {
+        Clipboard.copy(this.linkHints[index].href);
+      } else if (this.image) {
+        chrome.runtime.sendMessage({action: "openLinkTab", url: "https://www.google.com/searchbyimage?image_url=" + this.linkHints[index].src});
+      } else if (node === "BUTTON") {
+        this.linkHints[index].click();
+      } else if (node === "SELECT") {
         var e = new MouseEvent("mousedown");
-        hint_links[cur_index].dispatchEvent(e);
-      } else if (hint_links[cur_index].nodeName === "TEXTAREA") {
+        this.linkHints[index].dispatchEvent(e);
+      } else if (node === "TEXTAREA") {
         setTimeout(function() {
-          hint_links[cur_index].focus();
-        }, 0);
-      } else if (hint_links[cur_index].nodeName === "INPUT") {
-        switch (hint_links[cur_index].type) {
+          this.linkHints[index].focus();
+        }.bind(this), 0);
+      } else if (node === "INPUT") {
+        switch (this.linkHints[index].type) {
           case "text": case "password": case "email": case "search":
             setTimeout(function() {
-              hint_links[cur_index].focus();
-            }, 0);
+              this.linkHints[index].focus();
+            }.bind(this), 0);
             break;
           case "radio": case "submit":
-            hint_links[cur_index].click();
+            this.linkHints[index].click();
             break;
           case "checkbox":
-            hint_links[cur_index].checked = !hint_links[cur_index].checked;
+            this.linkHints[index].checked = !this.linkHints[index].checked;
             break;
           default:
-            hint_links[cur_index].click();
+            this.linkHints[index].click();
             break;
         }
-      } else if (!Hints.tabbed || hint_links[cur_index].getAttribute("onclick")) {
-        hint_links[cur_index].click();
+      } else if (!this.tabbed || this.linkHints[index].getAttribute("onclick")) {
+        this.linkHints[index].click();
       } else {
-        chrome.runtime.sendMessage({action: "openLinkTab", url: (!Hints.numeric) ? hint_links[cur_index].href : hint_links[choice].href});
+        chrome.runtime.sendMessage({action: "openLinkTab", url: this.linkHints[index].href});
       }
-    }, 0);
+    }.bind(this), 0);
   } else if (links_found === 0) {
-    Hints.hideHints();
+    this.hideHints();
   }
+
 };
 
 
 Hints.handleHint = function(key) {
-  if (!this.numeric) {
-    if (Hints.hintCharacters.split("").indexOf(key.toLowerCase()) > -1) {
-      current_string += key.toLowerCase();
-      Hints.handleHintFeedback(current_string);
-    } else {
-      Hints.hideHints();
-    }
+  if (this.hintCharacters.split("").indexOf(key.toLowerCase()) > -1) {
+    this.currentString += key.toLowerCase();
+    this.handleHintFeedback(this.currentString);
   } else {
-    if (/0|1|2|3|4|5|6|7|8|9/.test(key)) {
-      current_string += key;
-      Hints.handleHintFeedback(parseInt(current_string));
-    } else {
-      Hints.hideHints();
-    }
+    this.hideHints();
   }
 };
 
-Hints.create = function(tabbed, numeric, yank, image) {
-  hint_strings = [];
-  hint_links = [];
+
+Hints.create = function(tabbed, yank, image) {
+  var links = [];
+  this.strings = [];
+  this.linkHints = [];
+  this.permutations = [];
+  this.linkArr = [];
+  this.currentString = "";
   this.yank = yank;
   this.image = image;
   this.tabbed = tabbed;
-  this.numeric = numeric;
+
   var screen = {
     top: document.body.scrollTop,
     bottom: document.body.scrollTop + window.innerHeight,
     left: document.body.scrollLeft,
     right: document.body.scrollLeft + window.innerWidth
   };
+
   var getClickableLinks = function() {
     var elements;
+    var isRedditUrl = /\.reddit\.com/.test(window.location.host);
     if (yank) {
-      elements = document.querySelectorAll("[href]")
+      elements = document.querySelectorAll("a,[href]")
     } else if (image) {
       elements = document.querySelectorAll("img")
     } else {
@@ -142,40 +123,50 @@ Hints.create = function(tabbed, numeric, yank, image) {
     var clickable = [];
     for (var i = 0, length = elements.length; i < length; i++) {
       var computedStyle = getComputedStyle(elements[i], null);
+
+      if (isRedditUrl && /click_thing/.test(elements[i].getAttribute("onclick"))) {
+        continue;
+      }
       if (computedStyle.visibility !== "hidden" && !elements[i].hasOwnProperty("cVim")) {
         clickable.push(elements[i]);
       }
+
     }
     return clickable;
   }
+
   links = getClickableLinks();
   if (!links.length) return;
+
   var link_number = 0;
   var main = document.createElement("div");
   main.cVim = true;
-  hints_active = true;
+  this.active = true;
   var frag = document.createDocumentFragment();
+
   main.id = "link_main";
   main.top = document.body.scrollTop + "px";
   main.left = document.body.scrollLeft + "px";
+
   try {
     document.lastChild.appendChild(main);
   } catch(e) {
     document.body.appendChild(main);
   }
+
   for (var i = 0; i < links.length; i++) {
     var isAreaNode = false;
     if (links[i].nodeName === "AREA" && links[i].parentNode && links[i].parentNode.nodeName === "MAP") {
-        var img_parent = document.querySelectorAll("img[usemap='#" + links[i].parentNode.name + "'");
-        if (!img_parent.length) continue;
-        link_location = img_parent[0].getBoundingClientRect();
-        isAreaNode = true;
+      var img_parent = document.querySelectorAll("img[usemap='#" + links[i].parentNode.name + "'");
+      if (!img_parent.length) continue;
+      link_location = img_parent[0].getBoundingClientRect();
+      isAreaNode = true;
     } else {
       link_location = links[i].getBoundingClientRect();
     }
     if (link_location.top + link_location.height >= 0 && link_location.top < window.innerHeight && link_location.left >= 0 && link_location.left < window.innerWidth && link_location.width > 0) {
-      hint_strings.push(link_number.toString());
-      hint_links.push(links[i]);
+      this.strings.push(link_number.toString());
+      this.linkHints.push(links[i]);
       var temp = document.createElement("div");
       temp.cVim = true;
       temp.className = "link_hint";
@@ -189,48 +180,47 @@ Hints.create = function(tabbed, numeric, yank, image) {
         temp.style.top = link_location.top + screen.top + "px";
         temp.style.left = link_location.left + screen.left + "px";
       }
-      if (numeric) {
-        temp.innerText = link_number;
-        frag.appendChild(temp);
-      }
-      link_arr.push(temp);
+      this.linkArr.push(temp);
       link_number++;
     }
   }
-  if (!numeric) {
-    letter_perms = [];
-    var lim = Math.ceil(Math.log(link_arr.length) / Math.log(Hints.hintCharacters.length));
-    if (lim === 0) lim = 1;
-    function genHint(n) {
-      var l, r;
-      l = [];
-      for (var i = 0; i < lim; i++) {
-        r = n % Hints.hintCharacters.length;
-        l.push(Hints.hintCharacters[r]);
-        n -= r;
-        n = Math.floor(n / Hints.hintCharacters.length);
+
+  var lim = Math.ceil(Math.log(this.linkArr.length) / Math.log(this.hintCharacters.length));
+  if (lim === 0) lim = 1;
+
+  function genHint(n) {
+    var l, r;
+    l = [];
+    for (var i = 0; i < lim; i++) {
+      r = n % Hints.hintCharacters.length;
+      l.push(Hints.hintCharacters[r]);
+      n -= r;
+      n = Math.floor(n / Hints.hintCharacters.length);
+    }
+    return l.join("");
+  };
+
+  for (var i = 1; i <= this.linkArr.length; i++) {
+    this.permutations.push(genHint(i));
+  }
+
+  function optimizeHint(hint, orig_index) {
+    var reduction = hint.substring(0, hint.length - 1);
+    for (var i = 0, l = Hints.permutations.length; i < l; i++) {
+      if (i != orig_index && reduction === Hints.permutations[i].substring(0, reduction.length)) {
+        return hint;
       }
-      return l.join("");
     }
-    for (var i = 1; i <= link_arr.length; i++) {
-      letter_perms.push(genHint(i));
+    if (hint.length !== 1) {
+      return optimizeHint(hint.substring(0, hint.length - 1));
     }
-    function optimizeHint(hint, orig_index) {
-      var reduction = hint.substring(0, hint.length - 1);
-      for (var i = 0, l = letter_perms.length; i < l; i++) {
-        if (i != orig_index && reduction === letter_perms[i].substring(0, reduction.length)) {
-          return hint;
-        }
-      }
-      if (hint.length !== 1) {
-        return optimizeHint(hint.substring(0, hint.length - 1));
-      }
-      return hint;
-    }
-    for (var i = link_arr.length - 1; i >= 0; i--) {
-      link_arr[i].innerText = optimizeHint(letter_perms[i], i);
-      frag.appendChild(link_arr[i]);
-    }
+    return hint;
+  }
+
+  for (var i = this.linkArr.length - 1; i >= 0; i--) {
+    this.linkArr[i].innerText = optimizeHint(this.permutations[i], i);
+    frag.appendChild(this.linkArr[i]);
   }
   main.appendChild(frag);
+
 };

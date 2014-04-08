@@ -1,4 +1,5 @@
 var Clipboard = {
+
   copy: function(text) {
     chrome.runtime.sendMessage({action: "copy", text: text});
   },
@@ -6,4 +7,5 @@ var Clipboard = {
     if (tabbed) return chrome.runtime.sendMessage({action: "openPasteTab"});
     return chrome.runtime.sendMessage({action: "openPaste"});
   }
+
 };

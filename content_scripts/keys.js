@@ -2,8 +2,10 @@ var keyQueue, inputFocused, insertMode, commandMode, port, skipDefault, settings
 var inputElements = [];
 var inputIndex = 0;
 var modifier = "";
+
 keyDown = function(e) {
   if (e.which === 16) return;
+
   if (e.ctrlKey) {
     modifier = "<C-";
   } else if (e.metaKey) {
@@ -13,18 +15,21 @@ keyDown = function(e) {
   } else {
     modifier = "";
   }
+
   if (modifier) {
     modifier = modifier + (e.shiftKey? String.fromCharCode(e.which) : String.fromCharCode(e.which).toLowerCase()) + ">";
   } else {
     modifier = null;
   }
+
   if (!insertMode && !document.activeElement.isInput()) {
     if (e.which > 40 && e.which !== 91 && e.which !== 123) {
       e.stopPropagation();
     }
   }
+
   if (e.which === 27 || (e.which === 219 && e.ctrlKey)) {
-    if (hints_active) {
+    if (Hints.active) {
       e.preventDefault();
       e.stopPropagation();
       Hints.hideHints();
@@ -34,12 +39,14 @@ keyDown = function(e) {
     if (document.activeElement.isInput()) {
       document.activeElement.blur();
     }
-  } else if (e.which === 32 && hints_active) {
+  } else if (e.which === 32 && Hints.active) {
     e.preventDefault();
     e.stopPropagation();
     Hints.hideHints();
   }
+
   if (Mappings.actions.inputFocused || commandMode) {
+
     if (e.keyCode === 27 || (e.which === 219 && e.ctrlKey)) { // <Esc> + <C-[>
       Mappings.actions.inputFocused = false;
       commandMode = false;
@@ -62,22 +69,23 @@ keyDown = function(e) {
       if (Mappings.actions.inputElements.length) {
         Mappings.actions.inputElements[Mappings.actions.inputElementsIndex].focus();
       }
-    } else if (bar.style.display === "block" && document.activeElement.hasOwnProperty("cVim") && document.activeElement.id === "command_input") { // Non-mappable command bar actions
+    } else if (Command.bar.style.display === "block" && document.activeElement.hasOwnProperty("cVim") && document.activeElement.id === "command_input") { // Non-mappable command bar actions
+
       switch (e.keyCode) {
         case 18: case 17: case 91: case 123: case 16: // Ignore non-character keys (CTRL, SHIFT, etc)
           break;
         case 8: // Backspace
-          if (barInput.value === "") {
+          if (Command.input.value === "") {
             commandMode = false;
             Command.hide();
           } else if (Command.type === "search") {
             Find.clear();
             setTimeout(function() {
-              if (barInput.value !== "") {
-                Find.highlight(document.body, barInput.value, true);
+              if (Command.input.value !== "") {
+                Find.highlight(document.body, Command.input.value, true);
               }
             }, 0);
-          } else if (barInput.value !== "") {
+          } else if (Command.input.value !== "") {
             Search.index = null;
             setTimeout(function() {
               Command.parse()
@@ -97,8 +105,8 @@ keyDown = function(e) {
                 Search.nextResult(e.shiftKey);
               }else {
                 if (!Command.typed) {
-                  barInput.value = "";
-                  Command.complete(barInput.value, e.shiftKey, true);
+                  Command.input.value = "";
+                  Command.complete(Command.input.value, e.shiftKey, true);
                 } else {
                   Command.complete(Command.typed, e.shiftKey, true);
                 }
@@ -107,8 +115,10 @@ keyDown = function(e) {
           }
           break;
         case 38: // Up
-          e.preventDefault();
-          Command.history.cycle("action", true);
+          if (Command.type !== "search") {
+            e.preventDefault();
+            Command.history.cycle("action", true);
+          }
           break;
         case 40: // Down
           e.preventDefault();
@@ -117,8 +127,8 @@ keyDown = function(e) {
         case 13: // Enter
           Command.enterHit = true;
           if (Command.type === "action" && Command.history["action"]) {
-            Command.history.action.push(barInput.value);
-            chrome.runtime.sendMessage({action: "appendHistory", value: barInput.value, type: "action"});
+            Command.history.action.push(Command.input.value);
+            chrome.runtime.sendMessage({action: "appendHistory", value: Command.input.value, type: "action"});
           } else if (Command.type === "search") {
             e.preventDefault();
             document.activeElement.blur();
@@ -130,7 +140,7 @@ keyDown = function(e) {
           } else if (Command.actionType === "query") {
             Search.go();
           } else {
-            Command.parse(barInput.value);
+            Command.parse(Command.input.value);
           }
           break;
         default:
@@ -143,23 +153,27 @@ keyDown = function(e) {
             setTimeout(function() {
               if (Command.type === "search") {
                 Find.clear();
-                if (barInput.value !== "") {
-                  Find.highlight(document.body, barInput.value, true);
+                if (Command.input.value !== "") {
+                  Find.highlight(document.body, Command.input.value, true);
                 }
               }
             }, 2);
           }
           break;
       }
+
     }
   }
+
 };
+
 
 keyPress = function(e) {
   if (!insertMode && !document.activeElement.isInput()) {
     setTimeout(function() {
+      e.preventDefault();
+      e.stopPropagation();
       if (modifier) {
-        e.preventDefault();
         Mappings.convertToAction(modifier); // Mappable commands go here
       } else {
         Mappings.convertToAction(String.fromCharCode(e.which)) // Mappable commands go here
@@ -168,11 +182,13 @@ keyPress = function(e) {
   }
 };
 
+
 var Mouse = {};
 mouseMove = function(e) {
   Mouse.x = e.pageX;
   Mouse.y = e.pageY;
 };
+
 
 keyUp = function(e) {
   if (!insertMode) {
@@ -181,7 +197,9 @@ keyUp = function(e) {
   }
 };
 
-document.addEventListener("keypress", keyPress, true);
-document.addEventListener("keyup", keyUp, true);
-document.addEventListener("keydown", keyDown, true);
-document.addEventListener("mousemove", mouseMove, true);
+document.addEventListener("DOMContentLoaded", function() {
+  document.addEventListener("keypress", keyPress, true);
+  document.addEventListener("keyup", keyUp, true);
+  document.addEventListener("keydown", keyDown, true);
+  document.addEventListener("mousemove", mouseMove, true);
+});

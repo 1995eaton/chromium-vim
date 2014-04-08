@@ -49,7 +49,7 @@ Find.highlight = function(baseNode, match, regexp) {
   var names = [];
   while (node = walker.nextNode()) {
     var nName = node.parentNode.nodeName;
-    if (nName !== "SCRIPT" && nName !== "STYLE" && nName !== "NOSCRIPT" && node.data.trim() !== "") {
+    if (nName !== "SCRIPT" && nName !== "STYLE" && nName !== "NOSCRIPT" && node.data.trim() !== "" && !node.parentNode.hasAttribute("cVim")) {
       if (regexp) {
         var matchPosition = node.data.regexIndexOf(match);
       } else {
