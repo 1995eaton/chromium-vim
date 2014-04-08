@@ -62,7 +62,7 @@ Search.fetchQuery = function(query, callback) {
 };
 
 Search.go = function(repeats) {
-  var search = Command.input.value.replace(/^(to|tabopen)(\s+)/, "");
+  var search = Command.input.value.replace(/^(to|tabopen|o|open)(\s+)/, "");
   if (!Search.urlMatch.test(search)) {
     search = "https://google.com/search?q=" + search;
   } else if (!/^chrome:\/\//.test(search) && !/^http(s)?/.test(search)) {
