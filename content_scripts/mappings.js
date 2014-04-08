@@ -308,6 +308,7 @@ Mappings.convertToAction = function(c) {
               }
               if (key === "shortCuts") {
                 Mappings.actions[key](Mappings.queue, parseInt(Mappings.repeats));
+                Mappings.queue = "";
                 return Mappings.repeats = "";
               }
               Mappings.actions[key](parseInt(Mappings.repeats));
