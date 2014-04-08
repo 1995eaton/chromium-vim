@@ -149,6 +149,7 @@ Mappings.actions = {
     }
   },
   openSearchBar: function() {
+    Command.hide();
     commandMode = true;
     Command.enterHit = false;
     return Command.show(true);
