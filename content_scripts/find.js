@@ -41,12 +41,19 @@ Find.search = function(reverse, repeats) {
 
 Find.highlight = function(baseNode, match, regexp) {
   if (this.clearing) return;
+  var mode;
+  if (/\/i$/.test(match)) {
+    mode = "gi";
+    match = match.replace(/\/i$/, "");
+  } else {
+    mode = "g";
+  }
   if (regexp) {
     if (match === "." || match === ".*") {
       match = ".*.";
     }
     try {
-      match = new RegExp(match, "g");
+      match = new RegExp(match, mode);
     } catch(e) {
       return;
     }
