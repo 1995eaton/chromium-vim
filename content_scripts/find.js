@@ -87,8 +87,12 @@ Find.highlight = function(baseNode, match, regexp) {
 
 Find.clear = function() {
   this.clearing = true;
-  for (var i = 0, l = this.matches.length; i < l; i++) {
-    this.matches[i].parentNode.replaceChild(this.matches[i].firstChild, this.matches[i]);
+  for (var i = 0; i < this.matches.length; i++) {
+    try { // Ignore text nodes that have changed since last search
+      this.matches[i].parentNode.replaceChild(this.matches[i].firstChild, this.matches[i]);
+    } catch(e) {
+      continue;
+    }
   }
   this.matches = [];
   this.clearing = false;
