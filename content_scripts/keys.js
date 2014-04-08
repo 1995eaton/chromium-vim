@@ -134,9 +134,11 @@ keyDown = function(e) {
             document.activeElement.blur();
           }
           if (Command.type === "search") {
-            Find.index = -1;
-            Find.search(false, 1);
-            Command.hide();
+            setTimeout(function() {
+              Find.index = -1;
+              Find.search(false, 1);
+              Command.hide();
+            }, 0);
           } else if (Command.actionType === "query") {
             Search.go();
           } else {

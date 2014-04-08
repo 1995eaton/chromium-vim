@@ -25,9 +25,18 @@ Find.search = function(reverse, repeats) {
   } else {
     this.tries = 0;
   }
+  document.activeElement.blur();
+  document.body.focus();
+  var node = this.matches[this.index];
+  while (node = node.parentNode) {
+    if (node.nodeName === "A") {
+      node.focus();
+      break;
+    }
+  }
   this.matches[this.index].style.backgroundColor = "#ff9632";
   var b = this.matches[this.index].getBoundingClientRect();
-  window.scrollBy(b.left, b.top - window.innerHeight / 2);
+  window.scrollBy(b.left - window.innerWidth / 2, b.top - window.innerHeight / 2);
 };
 
 Find.highlight = function(baseNode, match, regexp) {
@@ -37,7 +46,7 @@ Find.highlight = function(baseNode, match, regexp) {
       match = ".*.";
     }
     try {
-      match = new RegExp(match, "gi");
+      match = new RegExp(match, "g");
     } catch(e) {
       return;
     }
@@ -46,10 +55,11 @@ Find.highlight = function(baseNode, match, regexp) {
   document.body.normalize();
   var pass = false;
   var node;
+  var c = 0;
   var names = [];
   while (node = walker.nextNode()) {
     var nName = node.parentNode.nodeName;
-    if (nName !== "SCRIPT" && nName !== "STYLE" && nName !== "NOSCRIPT" && node.data.trim() !== "" && !node.parentNode.hasAttribute("cVim")) {
+    if (nName !== "SCRIPT" && nName !== "STYLE" && nName !== "NOSCRIPT" && !node.parentNode.hasAttribute("cVim")) {
       if (regexp) {
         var matchPosition = node.data.regexIndexOf(match);
       } else {
@@ -74,6 +84,7 @@ Find.highlight = function(baseNode, match, regexp) {
           }
           mark.appendChild(mid.cloneNode(true));
           mid.parentNode.replaceChild(mark, mid);
+          c += 1;
           this.matches.push(mark);
           pass = true;
         }
@@ -82,6 +93,7 @@ Find.highlight = function(baseNode, match, regexp) {
       }
     }
   }
+  log("Matches found: " + c);
   document.body.normalize();
 };
 
