@@ -97,12 +97,12 @@ Mappings.actions = {
     return chrome.runtime.sendMessage({action: "reloadTab"});
   },
   nextSearchResult: function(repeats) {
-    if (Command.type === "search") {
+    if (Command.type === "search" || Find.matches.length) {
       return Find.search(false, repeats);
     }
   },
   previousSearchResult: function(repeats) {
-    if (Command.type === "search") {
+    if (Command.type === "search" || Find.matches.length) {
       return Find.search(true, repeats);
     }
   },

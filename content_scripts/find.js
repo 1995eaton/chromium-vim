@@ -43,10 +43,10 @@ Find.highlight = function(baseNode, match, regexp) {
   if (this.clearing) return;
   var mode;
   if (/\/i$/.test(match)) {
-    mode = "gi";
+    mode = "i";
     match = match.replace(/\/i$/, "");
   } else {
-    mode = "g";
+    mode = "";
   }
   if (regexp) {
     if (match === "." || match === ".*") {
@@ -66,7 +66,7 @@ Find.highlight = function(baseNode, match, regexp) {
   var names = [];
   while (node = walker.nextNode()) {
     var nName = node.parentNode.nodeName;
-    if (nName !== "SCRIPT" && nName !== "STYLE" && nName !== "NOSCRIPT" && !node.parentNode.hasAttribute("cVim")) {
+    if (nName !== "SCRIPT" && nName !== "STYLE" && nName !== "NOSCRIPT" && node.data.trim() !== "" && !node.parentNode.hasAttribute("cVim")) {
       if (regexp) {
         var matchPosition = node.data.regexIndexOf(match);
       } else {
@@ -108,7 +108,9 @@ Find.clear = function() {
   this.clearing = true;
   for (var i = 0; i < this.matches.length; i++) {
     try { // Ignore text nodes that have changed since last search
-      this.matches[i].parentNode.replaceChild(this.matches[i].firstChild, this.matches[i]);
+      var parent = this.matches[i].parentNode;
+      parent.replaceChild(this.matches[i].firstChild, this.matches[i]);
+      parent.normalize();
     } catch(e) {
       continue;
     }
