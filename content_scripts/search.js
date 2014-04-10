@@ -65,13 +65,13 @@ Search.fetchQuery = function(query, callback) {
 };
 
 Search.go = function(repeats) {
-  var search = Command.input.value.replace(/^(to|tabopen|o|open)(\s+)/, "");
+  var search = Command.input.value.replace(/^(to|tabopen|o|open|hist(ory)?)(\s+)/, "");
   if (!Search.urlMatch.test(search)) {
     search = "https://google.com/search?q=" + search;
   } else if (!/^chrome:\/\//.test(search) && !/^http(s)?/.test(search)) {
     search = "http://" + search;
   }
-  if (/^(to|tabopen) /.test(Command.input.value)) {
+  if (/^(to|tabopen|hist(ory)?) /.test(Command.input.value)) {
     chrome.runtime.sendMessage({action: "openLinkTab", url: search, repeats: repeats});
   } else {
     chrome.runtime.sendMessage({action: "openLink", url: search, repeats: repeats});

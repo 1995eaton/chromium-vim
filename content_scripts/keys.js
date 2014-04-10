@@ -141,7 +141,7 @@ keyDown = function(e) {
               Find.search(false, 1);
               Command.hide();
             }, 0);
-          } else if (Command.actionType === "query") {
+          } else if (/history|query/.test(Command.actionType)) {
             Search.go();
           } else {
             Command.parse(Command.input.value);
