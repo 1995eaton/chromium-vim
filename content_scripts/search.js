@@ -29,6 +29,9 @@ port.onMessage.addListener(function(response) {
         }
       }
     }
+    if (Command.actionType === "history") {
+      Command.appendResults(Search.searchHistory);
+    }
   } else if (response.bookmarks) {
     Marks.bookmarks = [];
     getAllMarks(response.bookmarks);
@@ -76,8 +79,8 @@ Search.go = function(repeats) {
   Command.hide();
 };
 
-Search.appendFromHistory = function(data) {
-  port.postMessage({action: "searchHistory", search: data});
+Search.appendFromHistory = function(data, limit) {
+  port.postMessage({action: "searchHistory", search: data, limit: limit});
 }
 
 Search.getBookmarks = function() {
@@ -134,7 +137,7 @@ Search.nextResult = function(reverse) {
   } else if (Command.actionType === "complete") {
     Command.input.value = Command.matches[this.index][0];
   } else if (Search.searchHistory[this.index]) {
-    Command.input.value = Command.input.value.match(/^(to|tabopen|open|o) /)[0] + Search.searchHistory[this.index][1];
+    Command.input.value = Command.input.value.match(/^(to|tabopen|open|o|hist(ory)?) /)[0] + Search.searchHistory[this.index][1];
   } else {
     Command.input.value = Command.input.value.match(/^(to|tabopen|open|o) /)[0] + Command.dataElements[this.index].innerText;
   }

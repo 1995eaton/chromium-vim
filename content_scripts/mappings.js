@@ -78,7 +78,7 @@ Mappings.actions = {
   },
   yankUrl: function() {
     setTimeout(function() {
-      return Hints.create(true, false, true);
+      return Hints.create(true, true);
     }, 0);
   },
   yankDocumentUrl: function() {
@@ -167,6 +167,7 @@ Mappings.shortCuts = [
   ["O", ":tabopen "],
   ["b", ":bookmarks "],
   ["t", ":tabopen "],
+  ["I", ":history "],
   ["T", ":tabopen<cr>"],
   ["gd", ":tabopen chrome://downloads<cr>"]
 ];

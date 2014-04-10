@@ -29,7 +29,7 @@ Command.setup = function() {
 Command.init = (function() {
   var historyStates = ["action", "url", "search"];
   for (var i = 0; i < historyStates.length; i++) {
-      chrome.runtime.sendMessage({action: "retrieveHistory", type: historyStates[i]}, function(result) {
+    chrome.runtime.sendMessage({action: "retrieveHistory", type: historyStates[i]}, function(result) {
       Command.history[result[0]] = result[1];
     });
   }
@@ -51,7 +51,7 @@ Command.history = {
     }
     if (reverse && this.index[type] === 0) return;
     if (!reverse && this.index[type] + 1 === this[type].length) {
-      this.index[type] = this[type].length
+      this.index[type] = this[type].length;
       Command.input.value = Command.typed;
       return;
     }
@@ -73,6 +73,7 @@ Command.history = {
 
 Command.appendResults = function(data, bookmarks, search, completion) {
   this.dataElements = [];
+  var temp, rxp;
   if (!this.data) {
     this.data = document.createElement("div");
     this.data.id = "command_search_results";
@@ -93,13 +94,20 @@ Command.appendResults = function(data, bookmarks, search, completion) {
     var c = 0;
     Marks.currentBookmarks = [];
     for (var i = 0, length = Marks.bookmarks.length; i < length; i++) {
-      try { var rxp = new RegExp(search, "i"); }
-      catch(e) { continue; }
-      if (!rxp.test(Marks.bookmarks[i][0] + Marks.bookmarks[i][1])) continue;
+      try {
+        rxp = new RegExp(search, "i");
+      } catch(e) {
+        continue;
+      }
+      if (!rxp.test(Marks.bookmarks[i][0] + Marks.bookmarks[i][1])) {
+        continue;
+      }
       c++;
-      if (c > 20) break;
+      if (c > 20) {
+        break;
+      }
       Marks.currentBookmarks.push(Marks.bookmarks[i][1]);
-      var temp = document.createElement("div");
+      temp = document.createElement("div");
       temp.cVim = true;
       temp.className = "completion-item";
       temp.innerHTML = '<span class="left">' + Marks.bookmarks[i][0] + '</span>' + '<span class="right">' + Marks.bookmarks[i][1] + '</span>';
@@ -108,30 +116,32 @@ Command.appendResults = function(data, bookmarks, search, completion) {
     }
   } else {
     for (var i = 0; i < Search.searchHistory.length; i++) {
-      var temp = document.createElement("div");
+      temp = document.createElement("div");
       temp.cVim = true;
       temp.className = "completion-item";
       temp.innerHTML = '<span class="left">' + '<span style="color:#00BED3">History</span>: ' + Search.searchHistory[i][0] + '</span>' + '<span class="right">' + Search.searchHistory[i][1] + '</span>';
       this.dataElements.push(temp);
       this.data.appendChild(temp);
     }
-    if (completion) {
-      for (var i = 0; i < data.length; i++) {
-        var temp = document.createElement("div");
-        temp.cVim = true;
-        temp.className = "completion-item";
-        temp.innerHTML = data[i];
-        this.dataElements.push(temp);
-        this.data.appendChild(temp);
-      }
-    } else {
-      for (var i = 0; i < data.length; i++) {
-        var temp = document.createElement("div");
-        temp.cVim = true;
-        temp.className = "completion-item";
-        temp.innerHTML = '<span class="full">' + data[i] + '</span>';
-        this.dataElements.push(temp);
-        this.data.appendChild(temp);
+    if (Command.actionType !== "history") {
+      if (completion) {
+        for (var i = 0; i < data.length; i++) {
+          temp = document.createElement("div");
+          temp.cVim = true;
+          temp.className = "completion-item";
+          temp.innerHTML = data[i];
+          this.dataElements.push(temp);
+          this.data.appendChild(temp);
+        }
+      } else {
+        for (var i = 0; i < data.length; i++) {
+          temp = document.createElement("div");
+          temp.cVim = true;
+          temp.className = "completion-item";
+          temp.innerHTML = '<span class="full">' + data[i] + '</span>';
+          this.dataElements.push(temp);
+          this.data.appendChild(temp);
+        }
       }
     }
   }
@@ -152,6 +162,7 @@ Command.descriptions = [
   ["open ", "o(pen)", "Open a link in the current tab"],
   ["nohl", "nohl", "Clears the search highlight"],
   ["bookmarks ", "b(ook)marks", "Search through your bookmarks"],
+  ["history ", "hist(ory)", "Search through your browser history"],
   ["extensions", "ex(tensions)", "Opens the chrome://extensions page"],
   ["flags", "fl(ags)", "Opens the chrome://flags page"]
 ];
@@ -208,20 +219,31 @@ Command.parse = function(value, pseudoReturn, repeats) {
     Command.hide();
   } else if (!Command.enterHit) {
     Search.searchHistory = [];
+    var search;
     if (/^(t(ab)?)?o(pen)?(\s+)/.test(this.input.value)) {
       Search.index = null;
-      var search = this.input.value.replace(/^(t(ab)?)?o(pen)?(\s+)/, "");
+      search = this.input.value.replace(/^(t(ab)?)?o(pen)?(\s+)/, "");
       if (!search) return Command.hideData();
       if (!/^(\s+)?$/.test(search)) {
         Search.appendFromHistory(search);
+      } else {
+        return Command.hideData();
       }
       Search.fetchQuery(search, function(response) {
         Command.typed = Command.input.value;
         Command.actionType = "query";
         Command.appendResults(response);
       });
+    } else if (/^hist(ory)?(\s+)/.test(this.input.value)) {
+      search = this.input.value.replace(/^hist(ory)?(\s+)/, "");
+      Search.index = null;
+      Command.actionType = "history";
+      if (!/^(\s+)?$/.test(search)) {
+        return Search.appendFromHistory(search, 15);
+      }
+      Command.hideData();
     } else if (/^b(ook)?marks(\s+)/.test(this.input.value)) {
-      var search = this.input.value.replace(/^b(ook)?marks(\s+)/, "");
+      search = this.input.value.replace(/^b(ook)?marks(\s+)/, "");
       Search.index = null;
       Command.actionType = "bookmarks";
       Command.appendResults(null, true, search);
@@ -230,7 +252,7 @@ Command.parse = function(value, pseudoReturn, repeats) {
       Command.complete(this.input.value, false, false);
     }
   }
-}
+};
 
 Command.show = function(search, value) {
   Command.type = "";

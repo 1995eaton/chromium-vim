@@ -101,9 +101,11 @@ keyDown = function(e) {
           if (Mappings.actions.inputFocused) {
           } else if (document.activeElement.hasOwnProperty("cVim")) {
             if (Command.type === "action") {
-              if (Command.actionType === "query" || Command.actionType === "bookmarks") {
-                Search.nextResult(e.shiftKey);
-              }else {
+              if (/query|bookmarks|history/.test(Command.actionType)) {
+                if (Command.input.value.replace(/^[a-z]+/, "").trim() !== "") {
+                  Search.nextResult(e.shiftKey);
+                }
+              } else {
                 if (!Command.typed) {
                   Command.input.value = "";
                   Command.complete(Command.input.value, e.shiftKey, true);
