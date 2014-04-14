@@ -249,3 +249,9 @@ textarea:focus, input:focus {
 #mappingContainer td:nth-child(odd) {
   border-right: 1px solid #aaa;
 }
+
+#blacklists {
+  float: right;
+  width: 80%;
+  resize: vertical;
+}

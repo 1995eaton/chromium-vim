@@ -230,9 +230,13 @@ Command.parse = function(value, pseudoReturn, repeats) {
         return Command.hideData();
       }
       Search.fetchQuery(search, function(response) {
-        Command.typed = Command.input.value;
-        Command.actionType = "query";
-        Command.appendResults(response);
+        if (Command.bar.style.display === "block") {
+          Command.typed = Command.input.value;
+          Command.actionType = "query";
+          Command.appendResults(response);
+        } else {
+          Command.hideData();
+        }
       });
     } else if (/^hist(ory)?(\s+)/.test(this.input.value)) {
       search = this.input.value.replace(/^hist(ory)?(\s+)/, "");
@@ -288,20 +292,36 @@ Command.hide = function() {
   if (this.data) this.data.style.display = "none";
 };
 
-document.addEventListener("DOMContentLoaded", function() {
-  Search.getBookmarks();
-  Command.setup();
-});
-
 chrome.runtime.sendMessage({getSettings: true}, function (s) {
   settings = s;
-  Mappings.parseCustom(settings.mappings);
-  var cssStyle = document.createElement("style");
-  cssStyle.innerText = settings.commandBarCSS;
-  document.getElementsByTagName("head")[0].appendChild(cssStyle);
-  Command.onBottom = (settings.commandBarOnBottom === "true") ? true : false;
-  Scroll.smooth = (settings.smoothScroll === "true") ? true : false;
-  if (settings.linkHintCharacters.split("").unique().length > 1) {
-    Hints.hintCharacters = settings.linkHintCharacters.split("").unique().join("");
+  function init() {
+    Mappings.parseCustom(settings.mappings);
+    var cssStyle = document.createElement("style");
+    cssStyle.innerText = settings.commandBarCSS;
+    document.getElementsByTagName("head")[0].appendChild(cssStyle);
+    Command.onBottom = (settings.commandBarOnBottom === "true") ? true : false;
+    Scroll.smooth = (settings.smoothScroll === "true") ? true : false;
+    if (settings.linkHintCharacters.split("").unique().length > 1) {
+      Hints.hintCharacters = settings.linkHintCharacters.split("").unique().join("");
+    }
+    Search.getBookmarks();
+    Command.setup();
+    keyListeners();
   }
+  function checkBlacklist(callback) {
+    var blacklists = settings.blacklists.split("\n");
+    for (var i = 0, l = blacklists.length; i < l; i++) {
+      log(blacklists[i]);
+      if (blacklists[i].trim() === "") continue;
+      if (new RegExp(blacklists, "i").test(window.location.origin)) {
+        return callback(true);
+      }
+    }
+    return callback(false);
+  }
+  checkBlacklist(function(isBlacklisted) {
+    if (!isBlacklisted) {
+      init();
+    }
+  });
 });

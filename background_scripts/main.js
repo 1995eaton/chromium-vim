@@ -54,8 +54,8 @@ var history = {
     return [type, localStorage[type].split(",")];
   },
 
-  retrieveSearchHistory: function(search, callback) {
-    chrome.history.search({text: search, maxResults: 4}, function(results) {
+  retrieveSearchHistory: function(search, limit, callback) {
+    chrome.history.search({text: search, maxResults: limit}, function(results) {
       callback(results);
     });
   }
@@ -75,7 +75,7 @@ chrome.extension.onConnect.addListener(function(port) {
         port.postMessage({bookmarks: marks});
       });
     } else if (request.action == "searchHistory") {
-      history.retrieveSearchHistory(request.search, function(results) {
+      history.retrieveSearchHistory(request.search, request.limit || 4, function(results) {
         port.postMessage({history: results});
       });
     }

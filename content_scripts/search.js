@@ -39,20 +39,17 @@ port.onMessage.addListener(function(response) {
 });
 
 Search.fetchQuery = function(query, callback) {
-
   Search.current = query;
-  if (Search.delay) {
-    return;
-  }
+  if (Search.delay) return false;
   Search.delay = true;
   var api = "https://suggestqueries.google.com/complete/search?client=firefox&q=";
   var lastQuery = query;
   setTimeout(function() {
     Search.delay = false;
     if (lastQuery !== Search.current) {
-      return Search.fetchQuery(query, callback);
+      Search.fetchQuery(query, callback);
     }
-  }, 150); // This is so Google's servers don't think we're spamming; TODO: find a better way to do this.
+  }, 150);
   var xhr = new XMLHttpRequest();
   xhr.open("GET", api + query);
   xhr.onreadystatechange = function() {
@@ -61,7 +58,6 @@ Search.fetchQuery = function(query, callback) {
     }
   };
   xhr.send();
-
 };
 
 Search.go = function(repeats) {

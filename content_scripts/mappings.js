@@ -4,6 +4,23 @@ Mappings.repeats = "";
 Mappings.queue = "";
 
 Mappings.actions = {
+  goToRootUrl: function() {
+    if (window.location.pathname.length === 0 || window.location.pathname === "/") {
+      return false;
+    }
+    return chrome.runtime.sendMessage({action: "openLink", url: window.location.origin});
+  },
+  goUpUrl: function(repeats) {
+    var rxp = new RegExp("(\/([^\/])+){0," + repeats + "}(\/)?$");
+    if (window.location.pathname.length === 0 || window.location.pathname === "/") {
+      return false;
+    }
+    var match = window.location.pathname.replace(rxp, "");
+    if (match === window.location.pathname) {
+      return false;
+    }
+    return chrome.runtime.sendMessage({action: "openLink", url: window.location.origin + match});
+  },
   closeTab: function(repeats) {
     return chrome.runtime.sendMessage({action: "closeTab", repeats: repeats});
   },
@@ -200,6 +217,8 @@ Mappings.defaults = {
   scrollMouseB: ["zb"],
   scrollMouseH: ["zz"],
   goToSource: ["gs"],
+  goToRootUrl: ["gU"],
+  goUpUrl: ["gu"],
   yankUrl: ["Y"],
   yankDocumentUrl: ["yy"],
   openPaste: ["p"],

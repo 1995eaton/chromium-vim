@@ -102,7 +102,7 @@ keyDown = function(e) {
           } else if (document.activeElement.hasOwnProperty("cVim")) {
             if (Command.type === "action") {
               if (/query|bookmarks|history/.test(Command.actionType)) {
-                if (Command.input.value.replace(/^[a-z]+/, "").trim() !== "") {
+                if (Command.dataElements.length) {
                   Search.nextResult(e.shiftKey);
                 }
               } else {
@@ -201,9 +201,17 @@ keyUp = function(e) {
   }
 };
 
-document.addEventListener("DOMContentLoaded", function() {
-  document.addEventListener("keypress", keyPress, true);
-  document.addEventListener("keyup", keyUp, true);
-  document.addEventListener("keydown", keyDown, true);
-  document.addEventListener("mousemove", mouseMove, true);
-});
+keyListeners = function() {
+  function addListeners() {
+    document.addEventListener("keypress", keyPress, true);
+    document.addEventListener("keyup", keyUp, true);
+    document.addEventListener("keydown", keyDown, true);
+    document.addEventListener("mousemove", mouseMove, true);
+  }
+  if (document.readyState !== "loading") {
+    return addListeners();
+  }
+  document.addEventListener("DOMContentLoaded", function() {
+    addListeners();
+  });
+}
