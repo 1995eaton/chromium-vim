@@ -28,7 +28,8 @@
   "background": {
     "scripts": [
       "background_scripts/main.js",
-      "background_scripts/options.js"
+      "background_scripts/options.js",
+      "background_scripts/popup.js"
     ]
   },
   "content_scripts": [

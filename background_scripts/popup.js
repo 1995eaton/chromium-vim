@@ -29,6 +29,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
       chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         if (!tabs || !tabs.length) return false;
         chrome.tabs.sendMessage(tabs[0].id, {action: "toggleEnabled", state: !request.blacklisted});
+        if (!request.blacklisted) {
+          chrome.browserAction.setIcon({path: "icons/38.png", tabId: tabs[0].id});
+        } else {
+          chrome.browserAction.setIcon({path: "icons/disabled.png", tabId: tabs[0].id});
+        }
       });
     } else {
       chrome.tabs.query({}, function(tabs) {
@@ -37,6 +42,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
         if (!request.blacklisted) {
           for (var i = 0; i < tabs.length; i++) {
             chrome.tabs.sendMessage(tabs[i].id, {action: "toggleEnabled", state: isEnabled});
+            if (isEnabled) {
+              chrome.browserAction.setIcon({path: "icons/38.png", tabId: tabs[i].id});
+            } else {
+              chrome.browserAction.setIcon({path: "icons/disabled.png", tabId: tabs[i].id});
+            }
           }
         }
       });
