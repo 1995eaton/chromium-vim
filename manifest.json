@@ -8,6 +8,14 @@
     "48":  "icons/48.png",
     "16":  "icons/16.png"
   },
+  "browser_action": {
+    "default_icon": {
+      "19": "icons/19.png",
+      "38": "icons/38.png"
+    },
+    "default_title": "cVim",
+    "default_popup": "pages/popup.html"
+  },
   "author": "Jake Eaton",
   "permissions": [
     "<all_urls>",
