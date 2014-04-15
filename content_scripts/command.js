@@ -305,7 +305,7 @@ Command.init = function(enabled) {
     }
     Search.getBookmarks();
     Command.setup();
-    keyListeners();
+    addListeners();
   } else {
     Command.css.parentNode.removeChild(Command.css);
     var links = document.getElementById("link_hints");

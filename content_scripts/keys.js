@@ -178,9 +178,9 @@ keyPress = function(e) {
       e.preventDefault();
       e.stopPropagation();
       if (modifier) {
-        Mappings.convertToAction(modifier); // Mappable commands go here
+        Mappings.convertToAction(modifier);
       } else {
-        Mappings.convertToAction(String.fromCharCode(e.which)) // Mappable commands go here
+        Mappings.convertToAction(String.fromCharCode(e.which));
       }
     }, 0);
   }
@@ -225,12 +225,3 @@ chrome.extension.onMessage.addListener(function(request, callback) {
     callback(Command.blacklisted);
   }
 });
-
-keyListeners = function() {
-  if (document.readyState !== "loading") {
-    return addListeners();
-  }
-  document.addEventListener("DOMContentLoaded", function() {
-    addListeners();
-  });
-}
