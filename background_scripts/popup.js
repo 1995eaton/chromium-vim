@@ -1,7 +1,8 @@
 var isEnabled = true;
 var isBlacklisted;
 var currentDomain;
-var blacklists = localStorage.blacklists.split("\n");
+if (!localStorage["blacklists"]) localStorage.blacklists = "";
+var blacklists = localStorage["blacklists"].split("\n");
 function parseDomain(url) {
   return url.replace(/(\.([^\.]+))\/.*$/, "$1");
 }
