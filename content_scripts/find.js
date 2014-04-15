@@ -49,8 +49,6 @@ Find.highlight = function(baseNode, match, regexp) {
     mode = "";
   }
   if (regexp) {
-    match = match.replace(/\+$/, "");
-    match += "+";
     if (match === "." || match === ".*") {
       match = ".*.";
     }
