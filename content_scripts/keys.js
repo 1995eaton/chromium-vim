@@ -201,13 +201,32 @@ keyUp = function(e) {
   }
 };
 
-keyListeners = function() {
-  function addListeners() {
-    document.addEventListener("keypress", keyPress, true);
-    document.addEventListener("keyup", keyUp, true);
-    document.addEventListener("keydown", keyDown, true);
-    document.addEventListener("mousemove", mouseMove, true);
+function addListeners() {
+  document.addEventListener("keypress", keyPress, true);
+  document.addEventListener("keyup", keyUp, true);
+  document.addEventListener("keydown", keyDown, true);
+  document.addEventListener("mousemove", mouseMove, true);
+}
+function removeListeners() {
+  document.removeEventListener("keypress", keyPress, true);
+  document.removeEventListener("keyup", keyUp, true);
+  document.removeEventListener("keydown", keyDown, true);
+  document.removeEventListener("mousemove", mouseMove, true);
+}
+
+chrome.extension.onMessage.addListener(function(request, callback) {
+  if (request.action === "toggleEnabled") {
+    if (request.state === true) {
+      Command.init(true);
+    } else {
+      Command.init(false);
+    }
+  } else if (request.action === "getBlacklistStatus") {
+    callback(Command.blacklisted);
   }
+});
+
+keyListeners = function() {
   if (document.readyState !== "loading") {
     return addListeners();
   }

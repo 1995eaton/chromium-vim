@@ -292,13 +292,12 @@ Command.hide = function() {
   if (this.data) this.data.style.display = "none";
 };
 
-chrome.runtime.sendMessage({getSettings: true}, function (s) {
-  settings = s;
-  function init() {
+Command.init = function(enabled) {
+  if (enabled) {
     Mappings.parseCustom(settings.mappings);
-    var cssStyle = document.createElement("style");
-    cssStyle.innerText = settings.commandBarCSS;
-    document.getElementsByTagName("head")[0].appendChild(cssStyle);
+    Command.css = document.createElement("style");
+    Command.css.innerText = settings.commandBarCSS;
+    document.getElementsByTagName("head")[0].appendChild(Command.css);
     Command.onBottom = (settings.commandBarOnBottom === "true") ? true : false;
     Scroll.smooth = (settings.smoothScroll === "true") ? true : false;
     if (settings.linkHintCharacters.split("").unique().length > 1) {
@@ -307,21 +306,37 @@ chrome.runtime.sendMessage({getSettings: true}, function (s) {
     Search.getBookmarks();
     Command.setup();
     keyListeners();
+  } else {
+    Command.css.parentNode.removeChild(Command.css);
+    var cVimElements = document.querySelectorAll("[cVim]");
+    for (var i = 0; i < cVimElements.length; i++) {
+      cVimElements[i].parentNode.removeChild(cVimElements[i]);
+    }
+    removeListeners();
   }
+}
+
+chrome.runtime.sendMessage({getSettings: true}, function (s) {
+  settings = s;
   function checkBlacklist(callback) {
     var blacklists = settings.blacklists.split("\n");
     for (var i = 0, l = blacklists.length; i < l; i++) {
-      log(blacklists[i]);
       if (blacklists[i].trim() === "") continue;
-      if (new RegExp(blacklists, "i").test(window.location.origin)) {
+      if (new RegExp(blacklists[i], "i").test(document.URL)) {
+        Command.blacklisted = true;
         return callback(true);
       }
     }
+    Command.blacklisted = false;
     return callback(false);
   }
   checkBlacklist(function(isBlacklisted) {
     if (!isBlacklisted) {
-      init();
+      chrome.runtime.sendMessage({action: "getEnabledCallback"}, function(response) {
+        if (response) {
+          Command.init(true);
+        }
+      });
     }
   });
 });
