@@ -308,9 +308,10 @@ Command.init = function(enabled) {
     keyListeners();
   } else {
     Command.css.parentNode.removeChild(Command.css);
-    var cVimElements = document.querySelectorAll("[cVim]");
-    for (var i = 0; i < cVimElements.length; i++) {
-      cVimElements[i].parentNode.removeChild(cVimElements[i]);
+    var links = document.getElementById("link_hints");
+    Command.bar.parentNode.removeChild(Command.bar);
+    if (links) {
+      links.parentNode.removeChild(links);
     }
     removeListeners();
   }
@@ -334,9 +335,13 @@ chrome.runtime.sendMessage({getSettings: true}, function (s) {
     if (!isBlacklisted) {
       chrome.runtime.sendMessage({action: "getEnabledCallback"}, function(response) {
         if (response) {
-          Command.init(true);
+          return Command.init(true);
+        } else {
+          chrome.runtime.sendMessage({action: "setIconDisabled"});
         }
       });
+    } else {
+      chrome.runtime.sendMessage({action: "setIconDisabled"});
     }
   });
 });

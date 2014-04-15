@@ -20,6 +20,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
     });
   } else if (request.action === "getBlacklistedResponse") {
     callback(isBlacklisted);
+  } else if (request.action === "setIconDisabled") {
+    chrome.browserAction.setIcon({path: "icons/disabled.png", tabId: sender.tab.id});
   } else if (request.action === "getEnabled") {
     chrome.tabs.sendMessage(tabs[0].id, {action: "toggleEnabled", state: isEnabled});
   } else if (request.action === "getEnabledCallback") {
@@ -58,6 +60,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
       url = parseDomain(tabs[0].url);
       var foundMatch;
       for (var i = 0; i < blacklists.length; i++) {
+        if (blacklists[i] === "") {
+          blacklists.splice(i, 1);
+          continue;
+        }
         if (blacklists[i] === url) {
           blacklists.splice(i, 1);
           foundMatch = true;
