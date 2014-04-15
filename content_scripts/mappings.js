@@ -146,12 +146,20 @@ Mappings.actions = {
         this.inputElements.push(allInput[i]);
       }
     }
-    this.inputElementsIndex = repeats % this.inputElements.length;
-    this.inputFocused = true;
-    if (this.inputElements.length) {
-      insertMode = true;
-      return this.inputElements[this.inputElementsIndex].focus();
+    if (this.inputElements.length === 0) return false;
+    this.inputElementsIndex = repeats % this.inputElements.length - 1;
+    if (this.inputElementsIndex < 0) this.inputElementsIndex = 0;
+    for (var i = 0, l = this.inputElements.length; i < l; i++) {
+      var br = this.inputElements[i].getBoundingClientRect();
+      if (br.top + br.height >= 0 && br.left + br.width >= 0 && br.right - br.width <= window.innerWidth && br.top < window.innerHeight) {
+        this.inputElementsIndex = i;
+        break;
+      }
     }
+    log(this.inputElementsIndex);
+    this.inputFocused = true;
+    insertMode = true;
+    this.inputElements[this.inputElementsIndex].focus();
   },
   shortCuts: function(s, repeats) {
     for (var i = 0, l = Mappings.shortCuts.length; i < l; i++) {
