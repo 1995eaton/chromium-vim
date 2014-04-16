@@ -23,6 +23,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
     callback(isBlacklisted);
   } else if (request.action === "setIconDisabled") {
     chrome.browserAction.setIcon({path: "icons/disabled.png", tabId: sender.tab.id});
+  } else if (request.action === "setIconEnabled") {
+    chrome.browserAction.setIcon({path: "icons/38.png", tabId: sender.tab.id});
   } else if (request.action === "getEnabled") {
     chrome.tabs.sendMessage(tabs[0].id, {action: "toggleEnabled", state: isEnabled});
   } else if (request.action === "getEnabledCallback") {

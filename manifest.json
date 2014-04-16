@@ -10,8 +10,8 @@
   },
   "browser_action": {
     "default_icon": {
-      "19": "icons/19.png",
-      "38": "icons/38.png"
+      "19": "icons/disabled.png",
+      "38": "icons/disabled-38.png"
     },
     "default_title": "cVim",
     "default_popup": "pages/popup.html"
@@ -45,7 +45,8 @@
              "content_scripts/find.js",
              "content_scripts/command.js",
              "content_scripts/scroll.js",
-             "content_scripts/search.js"
+             "content_scripts/search.js",
+             "content_scripts/frames.js"
             ],
       "css": ["content_scripts/main.css"],
       "run_at": "document_start",

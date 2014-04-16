@@ -1,4 +1,5 @@
 var Command = {};
+var settings;
 
 Command.setup = function() {
   this.bar = document.createElement("div");
@@ -19,6 +20,9 @@ Command.setup = function() {
   this.bar.appendChild(this.modeIdentifier);
   this.bar.appendChild(this.input);
   this.bar.spellcheck = false;
+  this.findMatches = document.createElement("div");
+  this.findMatches.id = "cVim-findmatches";
+  this.bar.appendChild(this.findMatches);
   try {
     document.lastChild.appendChild(this.bar);
   } catch(e) {
@@ -262,7 +266,7 @@ Command.show = function(search, value) {
   Command.type = "";
   if (search) {
     Command.type = "search";
-    this.modeIdentifier.innerHTML = "/";
+    this.modeIdentifier.innerHTML = search;
   } else {
     Command.type = "action";
     this.modeIdentifier.innerHTML = ":";
@@ -273,7 +277,13 @@ Command.show = function(search, value) {
   }
   this.bar.style.display = "block";
   setTimeout(function() {
+    document.activeElement.blur();
+    window.blur();
+    window.focus();
+    document.body.focus();
+    document.body.blur();
     this.input.focus();
+    this.input.click();
   }.bind(this), 0);
 };
 
@@ -282,6 +292,7 @@ Command.hide = function() {
   Command.hideData();
   this.bar.style.display = "none";
   this.input.value = "";
+  this.findMatches.innerText = "";
   Search.index = null;
   Search.searchHistory = [];
   Command.enterHit = false;
@@ -323,7 +334,7 @@ chrome.runtime.sendMessage({getSettings: true}, function (s) {
     var blacklists = settings.blacklists.split("\n");
     for (var i = 0, l = blacklists.length; i < l; i++) {
       if (blacklists[i].trim() === "") continue;
-      if (new RegExp(blacklists[i], "i").test(document.URL)) {
+      if (document.URL.substring(0, blacklists[i].length) === blacklists[i] || blacklists[i].substring(0, document.URL.length) === document.URL) {
         Command.blacklisted = true;
         return callback(true);
       }
@@ -335,13 +346,10 @@ chrome.runtime.sendMessage({getSettings: true}, function (s) {
     if (!isBlacklisted) {
       chrome.runtime.sendMessage({action: "getEnabledCallback"}, function(response) {
         if (response) {
+          chrome.runtime.sendMessage({action: "setIconEnabled"});
           return Command.init(true);
-        } else {
-          chrome.runtime.sendMessage({action: "setIconDisabled"});
         }
       });
-    } else {
-      chrome.runtime.sendMessage({action: "setIconDisabled"});
     }
   });
 });

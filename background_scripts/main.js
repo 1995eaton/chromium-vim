@@ -144,6 +144,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
       if (!paste) return;
       chrome.tabs.update({url: paste});
       break;
+    case "focusMainWindow":
+      chrome.tabs.getSelected(null, function(tab) {
+        chrome.tabs.sendMessage(tab.id, {action: "focus", repeats: request.repeats});
+      });
+      break;
     default:
       break;
   }

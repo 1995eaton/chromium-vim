@@ -7,11 +7,12 @@ Object.prototype.isInput = function() {
 
 
 Object.prototype.isVisible = function() {
+  var br = this.getBoundingClientRect();
   return (
-      this.offsetParent &&
+      (this.offsetParent &&
       !this.disabled &&
       this.getAttribute("type") !== "hidden" &&
-      this.getAttribute("display") !== "none"
+      this.getAttribute("display") !== "none")
   );
 }
 

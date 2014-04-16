@@ -76,6 +76,7 @@ keyDown = function(e) {
           break;
         case 8: // Backspace
           if (Command.input.value === "") {
+            e.preventDefault();
             commandMode = false;
             Command.hide();
           } else if (Command.type === "search") {
@@ -83,6 +84,8 @@ keyDown = function(e) {
             setTimeout(function() {
               if (Command.input.value !== "") {
                 Find.highlight(document.body, Command.input.value, true);
+              } else {
+                Command.findMatches.innerText = "";
               }
             }, 0);
           } else if (Command.input.value !== "") {
@@ -138,6 +141,7 @@ keyDown = function(e) {
           if (Command.type === "search") {
             setTimeout(function() {
               Find.index = -1;
+              Find.setIndex();
               Find.search(false, 1);
               Command.hide();
             }, 0);
@@ -174,9 +178,9 @@ keyDown = function(e) {
 
 keyPress = function(e) {
   if (!insertMode && !document.activeElement.isInput()) {
+    e.stopPropagation();
     setTimeout(function() {
       e.preventDefault();
-      e.stopPropagation();
       if (modifier) {
         Mappings.convertToAction(modifier);
       } else {

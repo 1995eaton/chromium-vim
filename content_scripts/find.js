@@ -5,7 +5,18 @@ Find.index = 0;
 Find.matches = [];
 Find.tries = 0;
 
+Find.setIndex = function() {
+  for (var i = 0; i < this.matches.length; i++) {
+    var br = this.matches[i].getBoundingClientRect();
+    if (br.top > 0 && br.left > 0) {
+      this.index = i - 1;
+      break;
+    }
+  }
+};
+
 Find.search = function(reverse, repeats) {
+  if (Find.swap) reverse = !reverse;
   if (!this.matches.length)
     return;
   if (this.index >= 0)
@@ -21,22 +32,43 @@ Find.search = function(reverse, repeats) {
     this.tries++;
     if (this.tries > this.matches.length)
       return;
+    if (this.swap) {
+      return this.search(!reverse, 1);
+    }
     return this.search(reverse, 1);
   } else {
     this.tries = 0;
   }
+  var isLink = false;
+  var orig = [document.body.scrollLeft, document.body.scrollTop];
+  var br = this.matches[this.index].getBoundingClientRect();
   document.activeElement.blur();
   document.body.focus();
   var node = this.matches[this.index];
   while (node = node.parentNode) {
     if (node.nodeName === "A") {
       node.focus();
+      isLink = true;
       break;
     }
   }
   this.matches[this.index].style.backgroundColor = "#ff9632";
-  var b = this.matches[this.index].getBoundingClientRect();
-  window.scrollBy(b.left - window.innerWidth / 2, b.top - window.innerHeight / 2);
+  var v = 0;
+  var h = 0;
+  var linkOffset = 0;
+  if (isLink) linkOffset = 25;
+  if (br.top < 0) {
+    v = br.top;
+  } else if (br.top + linkOffset + br.height > window.innerHeight) {
+    v = br.top + linkOffset + br.height - window.innerHeight;
+  }
+  if (br.left < 0) {
+    h = br.left;
+  } else if (br.left + br.width > window.innerWidth) {
+    h = br.left + br.width - window.innerWidth;
+  }
+  document.body.scrollTop = orig[1] + v;
+  document.body.scrollLeft = orig[0] + h;
 };
 
 Find.highlight = function(baseNode, match, regexp) {
@@ -62,7 +94,6 @@ Find.highlight = function(baseNode, match, regexp) {
   document.body.normalize();
   var pass = false;
   var node;
-  var c = 0;
   var names = [];
   while (node = walker.nextNode()) {
     var nName = node.parentNode.nodeName;
@@ -91,7 +122,6 @@ Find.highlight = function(baseNode, match, regexp) {
           }
           mark.appendChild(mid.cloneNode(true));
           mid.parentNode.replaceChild(mark, mid);
-          c += 1;
           this.matches.push(mark);
           pass = true;
         }
@@ -100,7 +130,11 @@ Find.highlight = function(baseNode, match, regexp) {
       }
     }
   }
-  log("Matches found: " + c);
+  if (this.matches.length === 0) {
+    Command.findMatches.innerText = "No matches";
+  } else {
+    Command.findMatches.innerText = this.matches.length;
+  }
   document.body.normalize();
 };
 

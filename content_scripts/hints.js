@@ -163,8 +163,18 @@ Hints.create = function(tabbed, yank, image) {
       isAreaNode = true;
     } else {
       link_location = links[i].getBoundingClientRect();
+      if (link_location.width === 0) {
+        if (!links[i].firstElementChild) {
+          continue;
+        } else {
+          link_location = links[i].firstElementChild.getBoundingClientRect();
+          if (link_location.width === 0) {
+            continue;
+          }
+        }
+      }
     }
-    if (link_location.top + link_location.height >= 0 && link_location.top < window.innerHeight && link_location.left >= 0 && link_location.left < window.innerWidth && link_location.width > 0) {
+    if (link_location.top + link_location.height >= 0 && link_location.top <= window.innerHeight && link_location.left + link_location.width >= 0 && link_location.left < window.innerWidth) {
       this.strings.push(link_number.toString());
       this.linkHints.push(links[i]);
       var temp = document.createElement("div");
@@ -177,8 +187,16 @@ Hints.create = function(tabbed, yank, image) {
         temp.style.top = link_location.top + screen.top + parseInt(mapCoordinates[1]) + "px";
         temp.style.left = link_location.left + screen.left + parseInt(mapCoordinates[0]) + "px";
       } else {
-        temp.style.top = link_location.top + screen.top + "px";
-        temp.style.left = link_location.left + screen.left + "px";
+        if (link_location.top < 0) {
+          temp.style.top = screen.top + "px";
+        } else {
+          temp.style.top = link_location.top + screen.top + "px";
+        }
+        if (link_location.left < 0) {
+          temp.style.left = screen.left + "px";
+        } else {
+          temp.style.left = link_location.left + screen.left + "px";
+        }
       }
       this.linkArr.push(temp);
       link_number++;

@@ -21,6 +21,12 @@ Mappings.actions = {
     }
     return chrome.runtime.sendMessage({action: "openLink", url: window.location.origin + match});
   },
+  nextFrame: function(repeats) {
+    return chrome.runtime.sendMessage({action: "focusMainWindow", repeats: repeats});
+  },
+  previousFrame: function(repeats) {
+    return chrome.runtime.sendMessage({action: "focusMainWindow", repeats: -1 * repeats});
+  },
   closeTab: function(repeats) {
     return chrome.runtime.sendMessage({action: "closeTab", repeats: repeats});
   },
@@ -177,7 +183,15 @@ Mappings.actions = {
     Command.hide();
     commandMode = true;
     Command.enterHit = false;
-    return Command.show(true);
+    Find.swap = false;
+    return Command.show("/");
+  },
+  openSearchBarReverse: function() {
+    Command.hide();
+    commandMode = true;
+    Command.enterHit = false;
+    Find.swap = true;
+    return Command.show("?");
   },
   openCommandBar: function() {
     Command.hide();
@@ -189,11 +203,11 @@ Mappings.actions = {
 
 Mappings.shortCuts = [
   ["o", ":open "],
-  ["O", ":tabopen "],
+  ["O", ":open $0"],
   ["b", ":bookmarks "],
   ["t", ":tabopen "],
   ["I", ":history "],
-  ["T", ":tabopen<cr>"],
+  ["T", ":tabopen $0"],
   ["gd", ":tabopen chrome://downloads<cr>"]
 ];
 
@@ -221,6 +235,8 @@ Mappings.defaults = {
   createTabbedHint: ["F"],
   goToInput: ["gi"],
   nextTab: ["K", "R", "gt"],
+  nextFrame: ["gf"],
+  previousFrame: ["gF"],
   scrollMouseT: ["zt"],
   scrollMouseB: ["zb"],
   scrollMouseH: ["zz"],
@@ -235,6 +251,7 @@ Mappings.defaults = {
   nextSearchResult: ["n"],
   previousSearchResult: ["N"],
   openSearchBar: ["/"],
+  openSearchBarReverse: ["?"],
   openCommandBar: [":"],
   shortCuts: []
 }
@@ -310,6 +327,7 @@ Mappings.parseCustom = function(config) {
     }
   }
   for (var i = 0, l = Mappings.shortCuts.length; i < l; i++) {
+    Mappings.shortCuts[i][1] = Mappings.shortCuts[i][1].replace("$0", document.URL);
     Mappings.defaults.shortCuts.push(Mappings.shortCuts[i][0]);
   }
 };
