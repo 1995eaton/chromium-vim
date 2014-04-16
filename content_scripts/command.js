@@ -107,7 +107,7 @@ Command.appendResults = function(data, bookmarks, search, completion) {
         continue;
       }
       c++;
-      if (c > 20) {
+      if (c > settings.searchLimit) {
         break;
       }
       Marks.currentBookmarks.push(Marks.bookmarks[i][1]);
@@ -247,7 +247,7 @@ Command.parse = function(value, pseudoReturn, repeats) {
       Search.index = null;
       Command.actionType = "history";
       if (!/^(\s+)?$/.test(search)) {
-        return Search.appendFromHistory(search, 15);
+        return Search.appendFromHistory(search, settings.searchLimit);
       }
       Command.hideData();
     } else if (/^b(ook)?marks(\s+)/.test(this.input.value)) {
@@ -330,6 +330,7 @@ Command.init = function(enabled) {
 
 chrome.runtime.sendMessage({getSettings: true}, function (s) {
   settings = s;
+  settings.searchLimit = parseInt(settings.searchLimit);
   function checkBlacklist(callback) {
     var blacklists = settings.blacklists.split("\n");
     for (var i = 0, l = blacklists.length; i < l; i++) {
