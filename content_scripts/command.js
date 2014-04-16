@@ -42,36 +42,43 @@ Command.init = (function() {
 Command.history = {
   index: {},
   cycle: function(type, reverse, search) {
+    Command.hideData();
     if (Command.history.reset) {
       Command.history.reset = false;
       Command.history.index = {};
     }
-    var previousCommand;
-    Command.actionType = "";
-    if (!this[type]) return;
-    if (!this.index[type] && this.index[type] !== 0) {
+    if (this.index[type] === undefined) {
       Command.typed = Command.input.value;
       this.index[type] = this[type].length;
     }
-    if (reverse && this.index[type] === 0) return;
-    if (!reverse && this.index[type] + 1 === this[type].length) {
-      this.index[type] = this[type].length;
-      Command.input.value = Command.typed;
-      return;
+    if (Command.input.value === "") {
+      if (reverse) {
+        if (this.index[type] - 1 < 0) return false;
+        this.index[type]--;
+        return Command.input.value = this[type][this.index[type]];
+      } else {
+        if (this.index[type] + 1 === this[type].length) return Command.input.value = Command.typed;
+        this.index[type]++;
+        return Command.input.value = this[type][this.index[type]];
+      }
+    } else {
+      if (reverse) {
+        while (this.index[type] > 0) {
+          this.index[type]--;
+          if (this[type][this.index[type]].substring(0, Command.typed.length) === Command.typed) {
+            return Command.input.value = this[type][this.index[type]];
+          }
+        }
+      } else {
+        while (this.index[type] + 1 < this[type].length) {
+          this.index[type]++;
+          if (this[type][this.index[type]].substring(0, Command.typed.length) === Command.typed) {
+            return Command.input.value = this[type][this.index[type]];
+          }
+        }
+        return Command.input.value = Command.typed;
+      }
     }
-    previousCommand = this[type][this.index[type]];
-    if (!reverse && !previousCommand) return;
-    if (!search && Command.typed !== "") {
-      return this.cycle(type, reverse, true);
-    }
-    this.index[type] += (reverse) ? -1 : 1;
-    if (!previousCommand || (search && Command.typed !== previousCommand.substring(0, Command.typed.length))) {
-      return this.cycle(type, reverse, true);
-    }
-    if (/^(to|tabopen) /.test(previousCommand)) {
-      Command.actionType = "query";
-    }
-    Command.input.value = previousCommand;
   }
 };
 
@@ -201,6 +208,7 @@ Command.complete = function(input, reverse, doSearch) {
 
 Command.parse = function(value, pseudoReturn, repeats) {
   Command.typed = this.input.value;
+  Command.history.index = {};
   if (pseudoReturn || Command.enterHit) {
     Command.hideData();
     if (/^ex(tensions)?(\s+)?$/.test(value)) {

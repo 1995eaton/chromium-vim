@@ -123,11 +123,19 @@ keyDown = function(e) {
           if (Command.type !== "search") {
             e.preventDefault();
             Command.history.cycle("action", true);
+          } else {
+            e.preventDefault();
+            Command.history.cycle("search", true);
           }
           break;
         case 40: // Down
-          e.preventDefault();
-          Command.history.cycle("action", false);
+          if (Command.type !== "search") {
+            e.preventDefault();
+            Command.history.cycle("action", false);
+          } else {
+            e.preventDefault();
+            Command.history.cycle("search", false);
+          }
           break;
         case 13: // Enter
           Command.enterHit = true;
@@ -136,9 +144,15 @@ keyDown = function(e) {
             chrome.runtime.sendMessage({action: "appendHistory", value: Command.input.value, type: "action"});
           } else if (Command.type === "search") {
             e.preventDefault();
+            Command.history.search.push(Command.input.value);
+            chrome.runtime.sendMessage({action: "appendHistory", value: Command.input.value, type: "search"});
             document.activeElement.blur();
           }
           if (Command.type === "search") {
+            if (Command.typed !== "") {
+              Find.clear();
+              Find.highlight(document.body, Command.input.value, true);
+            }
             setTimeout(function() {
               Find.index = -1;
               Find.setIndex();

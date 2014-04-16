@@ -19,6 +19,7 @@ var getAllMarks = function(marks) {
 
 port.onMessage.addListener(function(response) {
   if (response.history) {
+    log(response.history);
     Search.searchHistory = [];
     for (var key in response.history) {
       if (response.history[key].url) {
