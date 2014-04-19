@@ -83,7 +83,7 @@ chrome.extension.onConnect.addListener(function(port) {
 });
 
 chrome.runtime.onMessage.addListener(function(request, sender, callback) {
-  if (!request.repeats || !/[0-9]([0-9]+)?/.test(request.repeats.toString())) request.repeats = 1;
+  if (request.action !== "focusMainWindow" && (!request.repeats || !/[0-9]([0-9]+)?/.test(request.repeats.toString()))) request.repeats = 1;
   switch (request.action) {
     case "openLink":
       chrome.tabs.update({url: request.url});

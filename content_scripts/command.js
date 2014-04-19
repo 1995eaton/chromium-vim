@@ -30,14 +30,12 @@ Command.setup = function() {
   }
 };
 
-Command.init = (function() {
-  var historyStates = ["action", "url", "search"];
-  for (var i = 0; i < historyStates.length; i++) {
-    chrome.runtime.sendMessage({action: "retrieveHistory", type: historyStates[i]}, function(result) {
-      Command.history[result[0]] = result[1];
-    });
-  }
-})();
+var historyStates = ["action", "url", "search"];
+for (var i = 0; i < historyStates.length; i++) {
+  chrome.runtime.sendMessage({action: "retrieveHistory", type: historyStates[i]}, function(result) {
+    Command.history[result[0]] = result[1];
+  });
+}
 
 Command.history = {
   index: {},
@@ -165,7 +163,6 @@ Command.hideData = function() {
     Search.index = null;
   }
 };
-
 
 Command.descriptions = [
   ["tabopen ", "t(ab)o(pen)", "Open a link in a new tab"],
@@ -351,14 +348,18 @@ chrome.runtime.sendMessage({getSettings: true}, function (s) {
     Command.blacklisted = false;
     return callback(false);
   }
+  function loadMain() {
+    chrome.runtime.sendMessage({action: "setIconEnabled"});
+    Command.init(true);
+  }
   checkBlacklist(function(isBlacklisted) {
-    if (!isBlacklisted) {
-      chrome.runtime.sendMessage({action: "getEnabledCallback"}, function(response) {
-        if (response) {
-          chrome.runtime.sendMessage({action: "setIconEnabled"});
-          return Command.init(true);
-        }
-      });
-    }
+    if (isBlacklisted) return false;
+    chrome.runtime.sendMessage({action: "getEnabledCallback"}, function(response) {
+      if (!response) return false;
+      if (document.readyState === "complete" || document.readyState === "interactive") {
+        return loadMain();
+      }
+      document.addEventListener("DOMContentLoaded", loadMain, false);
+    });
   });
 });

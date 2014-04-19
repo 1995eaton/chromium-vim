@@ -3,18 +3,21 @@ var Hints = {};
 
 Hints.hintCharacters = "asdfgzxcvbqwert";
 
-Hints.hideHints = function() {
-  document.getElementById("link_main").parentNode.removeChild(document.getElementById("link_main"));
+Hints.hideHints = function(reset) {
+  if (document.getElementById("link_main") !== null) {
+    document.getElementById("link_main").parentNode.removeChild(document.getElementById("link_main"));
+  }
+  this.active = reset;
   this.currentString = "";
-  this.active = false;
   this.linkArr = [];
+  this.linkHints = [];
+  this.permutations = [];
 };
 
 Hints.handleHintFeedback = function(choice) {
   var links_found = 0;
   var index;
-
-  for (var i = 0; i < this.strings.length; i++) {
+  for (var i = 0; i < this.permutations.length; i++) {
     if (this.currentString === this.permutations[i].substring(0, this.currentString.length)) {
       if (this.linkArr[i].children.length) {
         this.linkArr[i].replaceChild(this.linkArr[i].firstChild.firstChild, this.linkArr[i].firstChild);
@@ -34,49 +37,71 @@ Hints.handleHintFeedback = function(choice) {
       }
     }
   }
-
   if (links_found === 1) {
-    this.hideHints();
+    var link = this.linkHints[index];
     setTimeout(function() {
-      var node = this.linkHints[index].nodeName;
+      var node = link.nodeName;
       if (this.yank) {
-        Clipboard.copy(this.linkHints[index].href);
+        Clipboard.copy(link.href);
       } else if (this.image) {
-        chrome.runtime.sendMessage({action: "openLinkTab", url: "https://www.google.com/searchbyimage?image_url=" + this.linkHints[index].src});
+        chrome.runtime.sendMessage({action: "openLinkTab", url: "https://www.google.com/searchbyimage?image_url=" + link.src});
       } else if (node === "BUTTON") {
-        this.linkHints[index].click();
+        link.click();
+      } else if (/^(button|checkbox)$/.test(link.getAttribute("role"))) {
+        var ev;
+        switch (link.getAttribute("aria-expanded")) {
+          case "false":
+            ev = new MouseEvent("mouseover");
+            link.dispatchEvent(ev);
+            if (link.getAttribute("aria-expanded") === "false") {
+              ev = new MouseEvent("mousedown");
+              link.dispatchEvent(ev);
+            }
+            break;
+          case "true":
+            ev = new MouseEvent("mouseover");
+            link.dispatchEvent(ev);
+            if (link.getAttribute("aria-expanded") === "false") break;
+            ev = new MouseEvent("mousedown");
+            link.dispatchEvent(ev);
+            break;
+          default:
+            link.click();
+            break;
+        }
       } else if (node === "SELECT") {
         var e = new MouseEvent("mousedown");
-        this.linkHints[index].dispatchEvent(e);
+        link.dispatchEvent(e);
       } else if (node === "TEXTAREA") {
         setTimeout(function() {
-          this.linkHints[index].focus();
+          link.focus();
         }.bind(this), 0);
       } else if (node === "INPUT") {
-        switch (this.linkHints[index].type) {
+        switch (link.type) {
           case "text": case "password": case "email": case "search":
             setTimeout(function() {
-              this.linkHints[index].focus();
+              link.focus();
             }.bind(this), 0);
             break;
           case "radio": case "submit":
-            this.linkHints[index].click();
+            link.click();
             break;
           case "checkbox":
-            this.linkHints[index].checked = !this.linkHints[index].checked;
+            link.checked = !link.checked;
             break;
           default:
-            this.linkHints[index].click();
+            link.click();
             break;
         }
-      } else if (!this.tabbed || this.linkHints[index].getAttribute("onclick")) {
-        this.linkHints[index].click();
+      } else if (!this.tabbed || link.getAttribute("onclick")) {
+        link.click();
       } else {
-        chrome.runtime.sendMessage({action: "openLinkTab", url: this.linkHints[index].href});
+        chrome.runtime.sendMessage({action: "openLinkTab", url: link.href});
       }
     }.bind(this), 0);
-  } else if (links_found === 0) {
-    this.hideHints();
+  }
+  if (links_found < 2) {
+    this.hideHints(false);
   }
 
 };
@@ -87,61 +112,61 @@ Hints.handleHint = function(key) {
     this.currentString += key.toLowerCase();
     this.handleHintFeedback(this.currentString);
   } else {
-    this.hideHints();
+    this.hideHints(false);
   }
 };
 
+Hints.getLinks = function(type) {
+  var candidates, selection, item;
+  var valid = [],
+      isRedditUrl = /\.reddit\.com/.test(window.location.origin);
+
+  switch (type) {
+    case "yank":
+      selection = "//a|//area[@href]";
+      break;
+    case "image":
+      selection = "//img";
+      break;
+    default:
+      selection = "//a|//area[@href]|//*[not(@aria-disabled='true') and (@onclick or @role='button' or @role='checkbox' or @tabindex or @aria-haspopup or @data-cmd or @jsaction)]|//button|//select|//textarea|//input";
+      break;
+  }
+  candidates = document.evaluate(selection, document.body, null, 6, null);
+  for (var i = 0, l = candidates.snapshotLength; i < l; i++) {
+    item = candidates.snapshotItem(i);
+    var computedStyle = getComputedStyle(item, null);
+    if (isRedditUrl && (/click_thing/.test(item.getAttribute("onclick")) || (document.body.classList.contains("listing-chooser-collapsed") && item.offsetParent && (item.offsetParent.classList.contains("listing-chooser") || item.offsetParent.offsetParent && item.offsetParent.offsetParent.classList.contains("listing-chooser"))))) continue;
+    if (!item.hasOwnProperty("cVim")) {
+      valid.push(item);
+    }
+
+  }
+  if (isRedditUrl) {
+    var grippy = document.getElementsByClassName("grippy");
+    if (grippy && grippy.length) {
+      valid.push(grippy[0]);
+    }
+  }
+  return valid;
+};
 
 Hints.create = function(tabbed, yank, image) {
-  var links = [];
-  this.strings = [];
-  this.linkHints = [];
-  this.permutations = [];
-  this.linkArr = [];
-  this.currentString = "";
+  this.hideHints(true);
+  var links = this.getLinks(yank ? "yank" : (image ? "image" : undefined));
+  if (!links.length) return false;
   this.yank = yank;
   this.image = image;
   this.tabbed = tabbed;
-
   var screen = {
     top: document.body.scrollTop,
     bottom: document.body.scrollTop + window.innerHeight,
     left: document.body.scrollLeft,
     right: document.body.scrollLeft + window.innerWidth
   };
-
-  var getClickableLinks = function() {
-    var elements;
-    var isRedditUrl = /\.reddit\.com/.test(window.location.host);
-    if (yank) {
-      elements = document.querySelectorAll("a,[href]")
-    } else if (image) {
-      elements = document.querySelectorAll("img")
-    } else {
-      elements = document.querySelectorAll("[onclick],a,area,select,button,textarea,input,[aria-haspopup],[data-cmd],[jsaction]")
-    }
-    var clickable = [];
-    for (var i = 0, length = elements.length; i < length; i++) {
-      var computedStyle = getComputedStyle(elements[i], null);
-
-      if (isRedditUrl && /click_thing/.test(elements[i].getAttribute("onclick"))) {
-        continue;
-      }
-      if (computedStyle.visibility !== "hidden" && !elements[i].hasOwnProperty("cVim")) {
-        clickable.push(elements[i]);
-      }
-
-    }
-    return clickable;
-  }
-
-  links = getClickableLinks();
-  if (!links.length) return;
-
   var link_number = 0;
   var main = document.createElement("div");
   main.cVim = true;
-  this.active = true;
   var frag = document.createDocumentFragment();
 
   main.id = "link_main";
@@ -156,13 +181,16 @@ Hints.create = function(tabbed, yank, image) {
 
   for (var i = 0; i < links.length; i++) {
     var isAreaNode = false;
+    var computedStyle;
     if (links[i].nodeName === "AREA" && links[i].parentNode && links[i].parentNode.nodeName === "MAP") {
       var img_parent = document.querySelectorAll("img[usemap='#" + links[i].parentNode.name + "'");
       if (!img_parent.length) continue;
       link_location = img_parent[0].getBoundingClientRect();
       isAreaNode = true;
+      computedStyle = getComputedStyle(img_parent[0]);
     } else {
       link_location = links[i].getBoundingClientRect();
+      computedStyle = getComputedStyle(links[i]);
       if (link_location.width === 0) {
         if (!links[i].firstElementChild) {
           continue;
@@ -174,12 +202,12 @@ Hints.create = function(tabbed, yank, image) {
         }
       }
     }
-    if (link_location.top + link_location.height >= 0 && link_location.top <= window.innerHeight && link_location.left + link_location.width >= 0 && link_location.left < window.innerWidth) {
-      this.strings.push(link_number.toString());
+    if (computedStyle.opacity !== "0" && computedStyle.visibility === "visible" && computedStyle.display !== "none" && link_location.top + link_location.height >= 5 && link_location.top <= window.innerHeight && link_location.left + link_location.width >= 0 && link_location.left < window.innerWidth && link_location.width > 0) {
       this.linkHints.push(links[i]);
       var temp = document.createElement("div");
       temp.cVim = true;
       temp.className = "link_hint";
+      temp.style.zIndex = i;
       if (isAreaNode) {
         if (!/,/.test(links[i].getAttribute("coords"))) continue;
         var mapCoordinates = links[i].coords.split(",");
@@ -195,48 +223,43 @@ Hints.create = function(tabbed, yank, image) {
         if (link_location.left < 0) {
           temp.style.left = screen.left + "px";
         } else {
-          temp.style.left = link_location.left + screen.left + "px";
+          if (links[i].offsetLeft > link_location.left) {
+            temp.style.left = links[i].offsetLeft + "px";
+          } else {
+            temp.style.left = link_location.left + screen.left + "px";
+          }
         }
       }
       this.linkArr.push(temp);
-      link_number++;
     }
   }
 
   var lim = Math.ceil(Math.log(this.linkArr.length) / Math.log(this.hintCharacters.length));
+  var rlim = Math.floor((Math.pow(this.hintCharacters.length, lim) - this.linkArr.length) / this.hintCharacters.length);
   if (lim === 0) lim = 1;
 
-  function genHint(n) {
-    var l, r;
+  function genHint(n, x) {
+    var l, len, r;
     l = [];
-    for (var i = 0; i < lim; i++) {
-      r = n % Hints.hintCharacters.length;
-      l.push(Hints.hintCharacters[r]);
+    len = Hints.hintCharacters.length;
+    for (var i = 0; i < x; i++) {
+      r = n % len;
+      l.unshift(Hints.hintCharacters[r]);
       n -= r;
-      n = Math.floor(n / Hints.hintCharacters.length);
+      n /= Math.floor(len);
+      if (n < 0) break;
     }
     return l.join("");
   };
-
-  for (var i = 1; i <= this.linkArr.length; i++) {
-    this.permutations.push(genHint(i));
+  for (var i = 0; i < rlim; ++i) {
+    this.linkArr[i].innerText = genHint(i, lim - 1);
+    this.permutations.push(genHint(i, lim - 1));
   }
-
-  function optimizeHint(hint, orig_index) {
-    var reduction = hint.substring(0, hint.length - 1);
-    for (var i = 0, l = Hints.permutations.length; i < l; i++) {
-      if (i != orig_index && reduction === Hints.permutations[i].substring(0, reduction.length)) {
-        return hint;
-      }
-    }
-    if (hint.length !== 1) {
-      return optimizeHint(hint.substring(0, hint.length - 1));
-    }
-    return hint;
+  for (var i = rlim * this.hintCharacters.length, e = i + this.linkArr.length - rlim; i < e; ++i) {
+    this.permutations.push(genHint(i, lim));
   }
-
-  for (var i = this.linkArr.length - 1; i >= 0; i--) {
-    this.linkArr[i].innerText = optimizeHint(this.permutations[i], i);
+  for (var i = this.linkArr.length - 1; i >= 0; --i) {
+    this.linkArr[i].innerText = this.permutations[i];
     frag.appendChild(this.linkArr[i]);
   }
   main.appendChild(frag);

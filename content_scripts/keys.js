@@ -4,7 +4,7 @@ var inputIndex = 0;
 var modifier = "";
 
 keyDown = function(e) {
-  if (e.which === 16) return;
+  if (e.which === 16 || !Object.prototype.hasOwnProperty("isVisible")) return;
 
   if (e.ctrlKey) {
     modifier = "<C-";

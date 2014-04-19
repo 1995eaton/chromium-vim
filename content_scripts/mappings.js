@@ -24,8 +24,8 @@ Mappings.actions = {
   nextFrame: function(repeats) {
     return chrome.runtime.sendMessage({action: "focusMainWindow", repeats: repeats});
   },
-  previousFrame: function(repeats) {
-    return chrome.runtime.sendMessage({action: "focusMainWindow", repeats: -1 * repeats});
+  rootFrame: function() {
+    return chrome.runtime.sendMessage({action: "focusMainWindow", repeats: -1});
   },
   closeTab: function(repeats) {
     return chrome.runtime.sendMessage({action: "closeTab", repeats: repeats});
@@ -236,7 +236,7 @@ Mappings.defaults = {
   goToInput: ["gi"],
   nextTab: ["K", "R", "gt"],
   nextFrame: ["gf"],
-  previousFrame: ["gF"],
+  rootFrame: ["gF"],
   scrollMouseT: ["zt"],
   scrollMouseB: ["zb"],
   scrollMouseH: ["zz"],

@@ -11,15 +11,30 @@ Frames.focusMain = function() {
   }, 350);
 };
 
-Frames.nextFrame = function(repeats) {
+Frames.getFrames = function() {
+  var elements = document.getElementsByTagName("iframe");
+  Frames.elements = [];
+  for (var i = 0; i < elements.length; i++) {
+    var computedStyle = getComputedStyle(elements[i]);
+    var br = elements[i].getBoundingClientRect();
+    if (elements[i].getAttribute("aria-hidden") !== "true" && br.top >= 0 && br.left >= 0 && br.top < window.innerHeight && computedStyle.display !== "none" && computedStyle.opacity !== "0") {
+      // log(elements[i]);
+      Frames.elements.push(elements[i]);
+    }
+  }
+};
+
+Frames.nextFrame = function(repeats, n) {
   if (focusDocumentNext) {
     focusDocumentNext = false;
     Frames.focusMain();
   } else {
-    Frames.elements[(Frames.index < 0)? 0 : Frames.index].style.border = Frames.oldBorder;
-    Frames.index = (((repeats + Frames.index) % Frames.elements.length) + Frames.elements.length) % Frames.elements.length;
+    if (Frames.elements.length === 0 || repeats === -1) return Frames.focusMain();
+    if (!n) {
+      Frames.index = (((repeats + Frames.index) % Frames.elements.length) + Frames.elements.length) % Frames.elements.length;
+    } else if (Frames.index + 1 >= Frames.elements.length) return false;
+    document.activeElement.blur();
     Frames.elements[Frames.index].focus();
-    log(Frames.elements[Frames.index].innerHTML);
     Frames.oldBorder = Frames.elements[Frames.index].style.border;
     Frames.boxSizing = Frames.elements[Frames.index].style.boxSizing;
     Frames.elements[Frames.index].style.boxSizing = "border-box";
@@ -29,16 +44,25 @@ Frames.nextFrame = function(repeats) {
       Frames.elements[Frames.index].style.boxSizing = Frames.boxSizing;
     }, 350);
     Mappings.queue = "";
-    var wtf = (((repeats + Frames.index) % Frames.elements.length) + Frames.elements.length) % Frames.elements.length;
-    if (wtf === 0) {
-      focusDocumentNext = true;
+    if (!n) {
+      var wtf = (((repeats + Frames.index) % Frames.elements.length) + Frames.elements.length) % Frames.elements.length;
+      if (wtf === 0) {
+        focusDocumentNext = true;
+      }
     }
   }
 };
 
 chrome.runtime.onMessage.addListener(function(request) {
   if (request.action === "focus" && window.self === window.top) {
-    Frames.nextFrame(request.repeats);
+    Frames.getFrames();
+    if (request.repeats > 1) {
+      Frames.index = request.repeats - 1;
+      return Frames.nextFrame(request.repeats - 1, true);
+    } else if (request.repeats === -1) return Frames.focusMain();
+    Frames.nextFrame(1);
+  } else if (request.action === "focusMain") {
+    Frames.focusMain();
   }
 });
 
@@ -53,12 +77,7 @@ document.addEventListener("DOMContentLoaded", function() {
   Frames.highlight.style.left = "0";
   Frames.highlight.style.top = "0";
   if (window.self === window.top) {
-    Frames.elements = document.getElementsByTagName("iframe");
-    if (window.top.Frames.elements.length === 0) {
-      Frames.nextFrame = function() {
-        return Frames.focusMain();
-      };
-    }
+    Frames.getFrames();
     Frames.index = -1;
   }
 });
