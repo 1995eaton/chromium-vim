@@ -349,6 +349,7 @@ chrome.runtime.sendMessage({getSettings: true}, function (s) {
     return callback(false);
   }
   function loadMain() {
+    Command.loaded = true;
     chrome.runtime.sendMessage({action: "setIconEnabled"});
     Command.init(true);
   }
@@ -356,6 +357,12 @@ chrome.runtime.sendMessage({getSettings: true}, function (s) {
     if (isBlacklisted) return false;
     chrome.runtime.sendMessage({action: "getEnabledCallback"}, function(response) {
       if (!response) return false;
+      setTimeout(function() { // Failsafe -- sometimes needed in weird situations
+        if (!Command.loaded && document.readyState === "loaded" || document.readyState === "interactive") {
+          document.removeEventListener("DOMContentLoaded", loadMain, false);
+          return loadMain();
+        }
+      }, 200);
       if (document.readyState === "complete" || document.readyState === "interactive") {
         return loadMain();
       }
