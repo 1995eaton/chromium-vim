@@ -336,6 +336,9 @@ Mappings.convertToAction = function(c) {
   if (!c) {
     return;
   } else if (Hints.active) {
+    if (c === ";") {
+      return Hints.changeFocus();
+    }
     Hints.handleHint(c);
   } else if (Mappings.queue === "" && /[0-9]/.test(c)) {
     Mappings.repeats += c;

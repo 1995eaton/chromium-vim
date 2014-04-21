@@ -15,6 +15,12 @@ Hints.hideHints = function(reset) {
   this.permutations = [];
 };
 
+Hints.changeFocus = function() {
+  for (var i = 0, l = this.linkArr.length; i < l; ++i) {
+    this.linkArr[i].style.zIndex = l - parseInt(this.linkArr[i].style.zIndex);
+  }
+};
+
 Hints.handleHintFeedback = function(choice) {
   var links_found = 0;
   var index;
@@ -143,12 +149,12 @@ Hints.getLinks = function(type) {
     }
 
   }
-  if (isRedditUrl) {
-    var grippy = document.getElementsByClassName("grippy");
-    if (grippy && grippy.length) {
-      valid.push(grippy[0]);
-    }
-  }
+  // if (isRedditUrl) {
+  //   var grippy = document.getElementsByClassName("grippy");
+  //   if (grippy && grippy.length) {
+  //     valid.push(grippy[0]);
+  //   }
+  // }
   return valid;
 };
 
@@ -203,7 +209,7 @@ Hints.create = function(tabbed, yank, image) {
         }
       }
     }
-    if (computedStyle.opacity !== "0" && computedStyle.visibility === "visible" && computedStyle.display !== "none" && link_location.top + link_location.height >= 5 && link_location.top <= window.innerHeight && link_location.left + link_location.width >= 0 && link_location.left < window.innerWidth && link_location.width > 0) {
+    if (computedStyle.opacity !== "0" && computedStyle.visibility === "visible" && computedStyle.display !== "none" && link_location.top + link_location.height >= 0 && link_location.top + 15 <= window.innerHeight && link_location.left >= 0 && link_location.left + 10 < window.innerWidth && link_location.width > 0) {
       this.linkHints.push(links[i]);
       var temp = document.createElement("div");
       temp.cVim = true;
