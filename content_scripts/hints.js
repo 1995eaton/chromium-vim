@@ -238,7 +238,7 @@ Hints.create = function(tabbed, yank, image) {
   var rlim = Math.floor((Math.pow(this.hintCharacters.length, lim) - this.linkArr.length) / this.hintCharacters.length);
   if (lim === 0) lim = 1;
 
-  function genHint(n, x) {
+  function genHint(n, x) { // All credit goes to Vimium for this great way of generating link hints
     var l, len, r;
     l = [];
     len = Hints.hintCharacters.length;
