@@ -160,7 +160,6 @@ Command.descriptions = [
   ["tabopen ", "t(ab)o(pen)", "Open a link in a new tab"],
   ["closetab", "cl(osetab)", "Close the current tab"],
   ["open ", "o(pen)", "Open a link in the current tab"],
-  ["execute ", "ex(ecute)", "Execute normal mode commands"],
   ["nohl", "nohl", "Clears the search highlight"],
   ["bookmarks ", "b(ook)marks", "Search through your bookmarks"],
   ["history ", "hist(ory)", "Search through your browser history"],
@@ -211,10 +210,6 @@ Command.parse = function(value, pseudoReturn, repeats) {
       Find.clear();
     } else if (/^cl(osetab)?(\s+)?$/.test(value)) {
       chrome.runtime.sendMessage({action: "closeTab", repeats: repeats});
-    } else if (/^ex(ecute)?(\s+)/.test(value)) {
-      setTimeout(function() {
-        fireKey(value.replace(/^\w+\s+/, ""));
-      }, 0);
     } else if (/^b(ook)?marks(\s+)?/.test(value)) {
       if (this.input.value.replace(/^b(ook)?marks(\s+)?/, "").length !== 0) {
         chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: this.input.value.replace(/^b(ook)?marks(\s+)?/, "")});

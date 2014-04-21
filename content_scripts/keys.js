@@ -220,16 +220,6 @@ keyUp = function(e) {
   }
 };
 
-fireKey = function(keyString) {
-  keyString = keyString.split("");
-  for (var i = 0; i < keyString.length; ++i) {
-    var ev = new Event("keypress");
-    ev.which = keyString[i].charCodeAt(0);
-    ev.keyCode = keyString[i].charCodeAt(0);
-    document.dispatchEvent(ev);
-  }
-};
-
 function addListeners() {
   document.addEventListener("keypress", keyPress, true);
   document.addEventListener("keyup", keyUp, true);
