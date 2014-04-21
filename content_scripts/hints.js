@@ -45,6 +45,7 @@ Hints.handleHintFeedback = function(choice) {
     }
   }
   if (links_found === 1) {
+    document.getElementById("link_main").style.display = "none";
     var link = this.linkHints[index];
     setTimeout(function() {
       var node = link.nodeName;
@@ -149,19 +150,13 @@ Hints.getLinks = function(type) {
     }
 
   }
-  // if (isRedditUrl) {
-  //   var grippy = document.getElementsByClassName("grippy");
-  //   if (grippy && grippy.length) {
-  //     valid.push(grippy[0]);
-  //   }
-  // }
   return valid;
 };
 
 Hints.create = function(tabbed, yank, image) {
   this.hideHints(true);
   var links = this.getLinks(yank ? "yank" : (image ? "image" : undefined));
-  if (!links.length) return false;
+  if (links.length === 0) return this.hideHints(false);
   this.yank = yank;
   this.image = image;
   this.tabbed = tabbed;

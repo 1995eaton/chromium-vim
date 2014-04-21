@@ -18,7 +18,6 @@ Frames.getFrames = function() {
     var computedStyle = getComputedStyle(elements[i]);
     var br = elements[i].getBoundingClientRect();
     if (elements[i].getAttribute("aria-hidden") !== "true" && br.top >= 0 && br.left >= 0 && br.top < window.innerHeight && computedStyle.display !== "none" && computedStyle.opacity !== "0") {
-      // log(elements[i]);
       Frames.elements.push(elements[i]);
     }
   }

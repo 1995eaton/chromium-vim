@@ -5,11 +5,7 @@ Command.setup = function() {
   this.bar = document.createElement("div");
   this.bar.id = "command_bar";
   this.bar.cVim = true;
-  if (this.onBotton) {
-    this.bar.style.bottom = "0";
-  } else {
-    this.bar.style.top = "0";
-  }
+  this.bar.style[(this.onBottom) ? 'bottom' : 'top'] = "0";
   this.input = document.createElement("input");
   this.input.type = "text";
   this.input.id = "command_input";
@@ -87,11 +83,7 @@ Command.appendResults = function(data, bookmarks, search, completion) {
     this.data = document.createElement("div");
     this.data.id = "command_search_results";
     this.data.cVim = true;
-    if (this.onBotton) {
-      this.data.style.bottom = "20px";
-    } else {
-      this.data.style.top = "20px";
-    }
+    this.data.style[(this.onBottom) ? 'bottom' : 'top'] = "20px";
     try {
       document.lastChild.appendChild(this.data);
     } catch(e) {
@@ -297,13 +289,7 @@ Command.show = function(search, value) {
   }
   this.bar.style.display = "block";
   setTimeout(function() {
-    document.activeElement.blur();
-    window.blur();
-    window.focus();
-    document.body.focus();
-    document.body.blur();
     this.input.focus();
-    this.input.click();
   }.bind(this), 0);
 };
 
@@ -330,7 +316,8 @@ Command.init = function(enabled) {
     Command.css.innerText = settings.commandBarCSS;
     document.getElementsByTagName("head")[0].appendChild(Command.css);
     Command.onBottom = (settings.commandBarOnBottom === "true") ? true : false;
-    Scroll.smooth = (settings.smoothScroll === "true") ? true : false;
+    Scroll.smoothScroll = (settings.smoothScroll === "true") ? true : false;
+    Scroll.stepSize = parseInt(settings.scrollStepSize);
     if (settings.linkHintCharacters.split("").unique().length > 1) {
       Hints.hintCharacters = settings.linkHintCharacters.split("").unique().join("");
     }

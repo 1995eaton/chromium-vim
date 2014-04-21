@@ -162,7 +162,6 @@ Mappings.actions = {
         break;
       }
     }
-    log(this.inputElementsIndex);
     this.inputFocused = true;
     insertMode = true;
     this.inputElements[this.inputElementsIndex].focus();
