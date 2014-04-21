@@ -5,6 +5,7 @@ Hints.hintCharacters = "asdfgzxcvbqwert";
 
 Hints.hideHints = function(reset) {
   if (document.getElementById("link_main") !== null) {
+    document.getElementById("link_main").style.opacity = "0";
     document.getElementById("link_main").parentNode.removeChild(document.getElementById("link_main"));
   }
   this.active = reset;
@@ -44,7 +45,7 @@ Hints.handleHintFeedback = function(choice) {
       if (this.yank) {
         Clipboard.copy(link.href);
       } else if (this.image) {
-        chrome.runtime.sendMessage({action: "openLinkTab", url: "https://www.google.com/searchbyimage?image_url=" + link.src});
+        chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: "https://www.google.com/searchbyimage?image_url=" + link.src});
       } else if (node === "BUTTON") {
         link.click();
       } else if (/^(button|checkbox)$/.test(link.getAttribute("role"))) {
@@ -96,7 +97,7 @@ Hints.handleHintFeedback = function(choice) {
       } else if (!this.tabbed || link.getAttribute("onclick")) {
         link.click();
       } else {
-        chrome.runtime.sendMessage({action: "openLinkTab", url: link.href});
+        chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: link.href});
       }
     }.bind(this), 0);
   }

@@ -4,6 +4,7 @@ var inputIndex = 0;
 var modifier = "";
 
 keyDown = function(e) {
+
   if (e.which === 16 || !Object.prototype.hasOwnProperty("isVisible")) return;
 
   if (e.ctrlKey) {
@@ -39,7 +40,7 @@ keyDown = function(e) {
     if (document.activeElement.isInput()) {
       document.activeElement.blur();
     }
-  } else if (e.which === 32 && Hints.active) {
+  } else if ((e.which === 8 || e.which === 32) && Hints.active) {
     e.preventDefault();
     e.stopPropagation();
     Hints.hideHints();

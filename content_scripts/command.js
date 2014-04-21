@@ -209,18 +209,33 @@ Command.parse = function(value, pseudoReturn, repeats) {
   if (pseudoReturn || Command.enterHit) {
     Command.hideData();
     if (/^ex(tensions)?(\s+)?$/.test(value)) {
-      chrome.runtime.sendMessage({action: "openLinkTab", url: "chrome://extensions"});
+      chrome.runtime.sendMessage({action: "openLinkTab", active: true, url: "chrome://extensions"});
     } else if (/^fl(ags)?(\s+)?$/.test(value)) {
-      chrome.runtime.sendMessage({action: "openLinkTab", url: "chrome://flags", repeats: repeats});
+      chrome.runtime.sendMessage({action: "openLinkTab", active: true, url: "chrome://flags", repeats: repeats});
     } else if (/^(tabnew|t(ab)?o(pen)?)(\s+)?$/.test(value)) {
-      chrome.runtime.sendMessage({action: "openLinkTab", url: "chrome://newtab", repeats: repeats});
+      chrome.runtime.sendMessage({action: "openLinkTab", active: true, url: "chrome://newtab", repeats: repeats});
     } else if (/^nohl(\s+)?$/.test(value)) {
       Find.clear();
     } else if (/^cl(osetab)?(\s+)?$/.test(value)) {
       chrome.runtime.sendMessage({action: "closeTab", repeats: repeats});
     } else if (/^b(ook)?marks(\s+)?/.test(value)) {
       if (this.input.value.replace(/^b(ook)?marks(\s+)?/, "").length !== 0) {
-        chrome.runtime.sendMessage({action: "openLinkTab", url: this.input.value.replace(/^b(ook)?marks(\s+)?/, "")});
+        chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: this.input.value.replace(/^b(ook)?marks(\s+)?/, "")});
+      }
+    } else if (/^%?s\//.test(this.input.value)) {
+      var search = this.input.value.replace(/^%?s\//, "");
+      var match = search.match(/^([^\/]+)?([^\\])\//);
+      if (match) {
+        match = match[0].substring(0, match[0].length - 1);
+        search = search.substring(match.length + 1, search.length);
+        var replace = search.match(/^([^\/]+)?([^\\])\//);
+        if (replace) {
+          replace = replace[0].substring(0, replace[0].length - 1);
+          search = search.substring(replace.length + 1, search.length);
+          if (search.length === 0 || /^i$/.test(search)) {
+            replaceTextNodes(document.body, match, replace, search);
+          }
+        }
       }
     } else if (pseudoReturn) {
       Search.go(repeats);
@@ -333,40 +348,33 @@ Command.init = function(enabled) {
   }
 }
 
-chrome.runtime.sendMessage({getSettings: true}, function (s) {
-  settings = s;
-  settings.searchLimit = parseInt(settings.searchLimit);
-  function checkBlacklist(callback) {
-    var blacklists = settings.blacklists.split("\n");
-    for (var i = 0, l = blacklists.length; i < l; i++) {
-      if (blacklists[i].trim() === "") continue;
-      if (document.URL.substring(0, blacklists[i].length) === blacklists[i] || blacklists[i].substring(0, document.URL.length) === document.URL) {
-        Command.blacklisted = true;
-        return callback(true);
-      }
-    }
-    Command.blacklisted = false;
-    return callback(false);
-  }
-  function loadMain() {
-    Command.loaded = true;
-    chrome.runtime.sendMessage({action: "setIconEnabled"});
-    Command.init(true);
-  }
-  checkBlacklist(function(isBlacklisted) {
-    if (isBlacklisted) return false;
-    chrome.runtime.sendMessage({action: "getEnabledCallback"}, function(response) {
-      if (!response) return false;
-      setTimeout(function() { // Failsafe -- sometimes needed in weird situations
-        if (!Command.loaded && document.readyState === "loaded" || document.readyState === "interactive") {
-          document.removeEventListener("DOMContentLoaded", loadMain, false);
-          return loadMain();
+document.addEventListener("DOMContentLoaded", function() {
+  chrome.runtime.sendMessage({getSettings: true}, function (s) {
+    settings = s;
+    settings.searchLimit = parseInt(settings.searchLimit);
+    function checkBlacklist(callback) {
+      var blacklists = settings.blacklists.split("\n");
+      for (var i = 0, l = blacklists.length; i < l; i++) {
+        if (blacklists[i].trim() === "") continue;
+        if (document.URL.substring(0, blacklists[i].length) === blacklists[i] || blacklists[i].substring(0, document.URL.length) === document.URL) {
+          Command.blacklisted = true;
+          return callback(true);
         }
-      }, 200);
-      if (document.readyState === "complete" || document.readyState === "interactive") {
-        return loadMain();
       }
-      document.addEventListener("DOMContentLoaded", loadMain, false);
+      Command.blacklisted = false;
+      return callback(false);
+    }
+    function loadMain() {
+      Command.loaded = true;
+      chrome.runtime.sendMessage({action: "setIconEnabled"});
+      Command.init(true);
+    }
+    checkBlacklist(function(isBlacklisted) {
+      if (isBlacklisted) return false;
+      chrome.runtime.sendMessage({action: "getEnabledCallback"}, function(response) {
+        if (!response) return false;
+        return loadMain();
+      });
     });
   });
-});
+}, false);

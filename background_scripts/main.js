@@ -90,7 +90,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
       break;
     case "openLinkTab":
       for (var i = 0; i < request.repeats; i++) {
-      chrome.tabs.create({url: request.url, active: false, index: sender.tab.index + 1});
+      chrome.tabs.create({url: request.url, active: request.active, index: sender.tab.index + 1});
       }
       break;
     case "closeTab":

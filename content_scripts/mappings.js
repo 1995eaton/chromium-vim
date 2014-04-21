@@ -48,7 +48,7 @@ Mappings.actions = {
   reverseImage: function() {
     if (document.body.childNodes.length === 1 && document.body.firstChild.nodeName === "IMG") {
       if (document.body.firstChild.src) {
-        return chrome.runtime.sendMessage({action: "openLinkTab", url: "https://www.google.com/searchbyimage?image_url=" + document.body.firstChild.src});
+        return chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: "https://www.google.com/searchbyimage?image_url=" + document.body.firstChild.src});
       }
     } else {
       setTimeout(function() {
@@ -142,7 +142,7 @@ Mappings.actions = {
     return history.go(1 * repeats);
   },
   goToSource: function() {
-    return chrome.runtime.sendMessage({action: "openLinkTab", url: "view-source:" + document.URL});
+    return chrome.runtime.sendMessage({action: "openLinkTab", active: true, url: "view-source:" + document.URL});
   },
   goToInput: function(repeats) {
     this.inputElements = [];

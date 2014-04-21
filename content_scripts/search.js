@@ -69,7 +69,7 @@ Search.go = function(repeats) {
     search = "http://" + search;
   }
   if (/^(to|tabopen|hist(ory)?) /.test(Command.input.value)) {
-    chrome.runtime.sendMessage({action: "openLinkTab", url: search, repeats: repeats});
+    chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: search, repeats: repeats});
   } else {
     chrome.runtime.sendMessage({action: "openLink", url: search, repeats: repeats});
   }

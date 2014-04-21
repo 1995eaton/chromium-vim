@@ -45,6 +45,7 @@
              "content_scripts/find.js",
              "content_scripts/command.js",
              "content_scripts/scroll.js",
+             "content_scripts/replace.js",
              "content_scripts/search.js",
              "content_scripts/frames.js"
             ],
