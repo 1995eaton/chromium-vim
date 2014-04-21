@@ -332,6 +332,9 @@ Mappings.parseCustom = function(config) {
 };
 
 Mappings.convertToAction = function(c) {
+  if (c === "," ) {
+    return fireKey("j");
+  }
   if (!c) {
     return;
   } else if (Hints.active) {

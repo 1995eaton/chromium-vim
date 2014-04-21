@@ -1,4 +1,4 @@
-var keyQueue, inputFocused, insertMode, commandMode, port, skipDefault, settings;
+var keyQueue, inputFocused, insertMode, commandMode, port, skipDefault, settings, fireKey;
 var inputElements = [];
 var inputIndex = 0;
 var modifier = "";
@@ -217,6 +217,16 @@ keyUp = function(e) {
   if (!insertMode) {
     e.stopPropagation();
     e.preventDefault();
+  }
+};
+
+fireKey = function(keyString) {
+  keyString = keyString.split("");
+  for (var i = 0; i < keyString.length; ++i) {
+    var ev = new Event("keypress");
+    ev.which = keyString[i].charCodeAt(0);
+    ev.keyCode = keyString[i].charCodeAt(0);
+    document.dispatchEvent(ev);
   }
 };
 
