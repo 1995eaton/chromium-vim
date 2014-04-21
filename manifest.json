@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "cVim",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "An extension adding Vim-like bindings to Google Chrome",
   "icons": {
     "128": "icons/128.png",
