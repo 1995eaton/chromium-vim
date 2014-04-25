@@ -22,10 +22,14 @@ keyDown = function(e) {
   } else {
     modifier = null;
   }
-
   if (!insertMode && !document.activeElement.isInput()) {
     if (e.which > 40 && e.which !== 91 && e.which !== 123) {
       e.stopPropagation();
+    } else if (e.which >= 37 && e.which <= 40) {
+      if (Mappings.isValidMapping(Mappings.arrowKeys[e.which - 37])) {
+        e.preventDefault();
+        return Mappings.convertToAction(Mappings.arrowKeys[e.which - 37]);
+      }
     }
   }
 

@@ -2,6 +2,7 @@ var Mappings = {};
 
 Mappings.repeats = "";
 Mappings.queue = "";
+Mappings.arrowKeys = ["<Left>", "<Up>", "<Right>", "<Down>"];
 
 Mappings.actions = {
   goToRootUrl: function() {
@@ -165,6 +166,8 @@ Mappings.actions = {
     this.inputFocused = true;
     insertMode = true;
     this.inputElements[this.inputElementsIndex].focus();
+    document.activeElement.select();
+    document.getSelection().collapseToEnd();
   },
   shortCuts: function(s, repeats) {
     for (var i = 0, l = Mappings.shortCuts.length; i < l; i++) {
@@ -329,6 +332,17 @@ Mappings.parseCustom = function(config) {
     Mappings.shortCuts[i][1] = Mappings.shortCuts[i][1].replace("$0", document.URL);
     Mappings.defaults.shortCuts.push(Mappings.shortCuts[i][0]);
   }
+};
+
+Mappings.isValidMapping = function(c) {
+  for (var key in this.defaults) {
+    for (var i = 0, l = this.defaults[key].length; i < l; ++i) {
+      if (c === this.defaults[key][i]) {
+        return true;
+      }
+    }
+  }
+  return false;
 };
 
 Mappings.convertToAction = function(c) {
