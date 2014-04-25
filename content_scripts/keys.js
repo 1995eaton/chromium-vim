@@ -22,6 +22,7 @@ keyDown = function(e) {
   } else {
     modifier = null;
   }
+
   if (!insertMode && !document.activeElement.isInput()) {
     if (e.which > 40 && e.which !== 91 && e.which !== 123) {
       e.stopPropagation();
@@ -31,6 +32,10 @@ keyDown = function(e) {
         return Mappings.convertToAction(Mappings.arrowKeys[e.which - 37]);
       }
     }
+  }
+
+  if (e.which === 18 && Hints.active) {
+    return Hints.changeFocus();
   }
 
   if (e.which === 27 || (e.which === 219 && e.ctrlKey)) {
@@ -44,10 +49,12 @@ keyDown = function(e) {
     if (document.activeElement.isInput()) {
       document.activeElement.blur();
     }
+    return;
   } else if ((e.which === 8 || e.which === 32) && Hints.active) {
     e.preventDefault();
     e.stopPropagation();
     Hints.hideHints();
+    return;
   }
 
   if (Mappings.actions.inputFocused || commandMode) {
