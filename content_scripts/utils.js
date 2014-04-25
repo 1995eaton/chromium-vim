@@ -8,10 +8,12 @@ Object.prototype.isInput = function() {
 
 Object.prototype.isVisible = function() {
   var br = this.getBoundingClientRect();
+  var cs = getComputedStyle(this);
   return (
       (this.offsetParent &&
       !this.disabled &&
       this.getAttribute("type") !== "hidden" &&
+      cs.visibility !== "hidden" &&
       this.getAttribute("display") !== "none")
   );
 }

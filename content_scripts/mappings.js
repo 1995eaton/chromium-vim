@@ -57,14 +57,20 @@ Mappings.actions = {
       }, 0);
     }
   },
-  scrollMouseH: function() {
-    return document.body.scrollTop = Mouse.y - window.innerHeight / 2;
+  centerMatchT: function() {
+    if (Command.type === "search" || Find.matches.length) {
+      return window.scrollBy(0, Find.matches[Find.index].getBoundingClientRect().top);
+    }
   },
-  scrollMouseT: function() {
-    return document.body.scrollTop = Mouse.y;
+  centerMatchH: function() {
+    if (Command.type === "search" || Find.matches.length) {
+      return window.scrollBy(0, Find.matches[Find.index].getBoundingClientRect().top + Find.matches[Find.index].offsetHeight - 0.5 * window.innerHeight);
+    }
   },
-  scrollMouseB: function() {
-    return document.body.scrollTop = Mouse.y - window.innerHeight + 25;
+  centerMatchB: function() {
+    if (Command.type === "search" || Find.matches.length) {
+      return window.scrollBy(0, Find.matches[Find.index].getBoundingClientRect().top + Find.matches[Find.index].offsetHeight - window.innerHeight);
+    }
   },
   scrollDown: function(repeats) {
     return Scroll.scroll("down", repeats);
@@ -123,11 +129,15 @@ Mappings.actions = {
   nextSearchResult: function(repeats) {
     if (Command.type === "search" || Find.matches.length) {
       return Find.search(false, repeats);
+    } else if (Find.lastSearch !== undefined && typeof Find.lastSearch === "string") {
+      return Find.highlight(document.body, Find.lastSearch, true, true, true, false);
     }
   },
   previousSearchResult: function(repeats) {
     if (Command.type === "search" || Find.matches.length) {
       return Find.search(true, repeats);
+    } else if (Find.lastSearch !== undefined && typeof Find.lastSearch === "string") {
+      return Find.highlight(document.body, Find.lastSearch, true, true, true, true);
     }
   },
   nextTab: function(r) {
@@ -239,9 +249,9 @@ Mappings.defaults = {
   nextTab: ["K", "R", "gt"],
   nextFrame: ["gf"],
   rootFrame: ["gF"],
-  scrollMouseT: ["zt"],
-  scrollMouseB: ["zb"],
-  scrollMouseH: ["zz"],
+  centerMatchT: ["zt"],
+  centerMatchB: ["zb"],
+  centerMatchH: ["zz"],
   goToSource: ["gs"],
   goToRootUrl: ["gU"],
   goUpUrl: ["gu"],

@@ -101,7 +101,7 @@ keyDown = function(e) {
               }
             }, 0);
           } else if (Command.input.value !== "") {
-            Search.index = null;
+            // Search.index = null;
             setTimeout(function() {
               Command.parse()
             }, 0);
@@ -185,9 +185,9 @@ keyDown = function(e) {
             }, 0);
           } else {
             setTimeout(function() {
-              if (Command.type === "search") {
-                Find.clear();
+              if (Command.type === "search" && Command.input.value !== Find.lastSearch) {
                 if (Command.input.value !== "") {
+                  Find.clear();
                   Find.highlight(document.body, Command.input.value, true);
                 }
               }

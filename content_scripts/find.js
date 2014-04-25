@@ -45,8 +45,8 @@ Find.search = function(reverse, repeats) {
   document.activeElement.blur();
   document.body.focus();
   var node = this.matches[this.index];
-  while (node = node.parentNode) {
-    if (node.nodeName === "A") {
+  while (node = node.parentElement) {
+    if (node.getAttribute("href") !== null) {
       node.focus();
       isLink = true;
       break;
@@ -71,8 +71,9 @@ Find.search = function(reverse, repeats) {
   document.body.scrollLeft = orig[0] + h;
 };
 
-Find.highlight = function(baseNode, match, regexp) {
+Find.highlight = function(baseNode, match, regexp, setIndex, search, reverse) {
   if (this.clearing) return;
+  this.lastSearch = match;
   var mode;
   if (/\/i$/.test(match)) {
     mode = "i";
@@ -136,6 +137,12 @@ Find.highlight = function(baseNode, match, regexp) {
     Command.findMatches.innerText = this.matches.length;
   }
   document.body.normalize();
+
+  if (setIndex === true)
+    this.setIndex();
+  if (search === true)
+    return this.search(reverse, 1);
+
 };
 
 Find.clear = function() {
