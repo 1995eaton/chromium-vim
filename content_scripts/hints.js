@@ -236,6 +236,8 @@ Hints.create = function(tabbed, yank, image) {
     }
   }
 
+  if (this.linkArr.length === 0) return this.hideHints(false);
+
   var lim = Math.ceil(Math.log(this.linkArr.length) / Math.log(this.hintCharacters.length));
   var rlim = Math.floor((Math.pow(this.hintCharacters.length, lim) - this.linkArr.length) / this.hintCharacters.length);
   if (lim === 0) lim = 1;
