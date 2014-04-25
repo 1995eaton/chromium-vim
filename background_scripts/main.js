@@ -1,3 +1,11 @@
+var url = new RegExp(
+
+"^(http|chrome|https|ftp)\://([a-zA-Z0-9\.\-]+(\:[a-zA-Z0-9\.&amp;%\$\-]+)*@)*((25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])|([a-zA-Z0-9\-]+\.)*[a-zA-Z0-9\-]+\.(com|edu|gov|int|mil|net|org|biz|arpa|info|name|pro|aero|coop|museum|[a-zA-Z]{2}))(\:[0-9]+)*(/($|[a-zA-Z0-9\.\,\?\'\\\+&amp;%\$#\=~_\-]+))*$"
+
+);
+
+var google = "https://www.google.com/search?q=";
+
 function getTab(sender, reverse, count, first, last) {
   chrome.tabs.query({windowId: sender.tab.windowId}, function(tabs) {
     if (first) {
@@ -137,12 +145,12 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
     case "openPasteTab":
       var paste = Clipboard.paste();
       if (!paste) return;
-      chrome.tabs.create({url: paste, index: sender.tab.index + 1});
+      chrome.tabs.create({url: (url.test(paste) ? paste : google + paste), index: sender.tab.index + 1});
       break;
     case "openPaste":
       var paste = Clipboard.paste();
       if (!paste) return;
-      chrome.tabs.update({url: paste});
+      chrome.tabs.update({url: (url.test(paste) ? paste : google + paste)});
       break;
     case "focusMainWindow":
       chrome.tabs.getSelected(null, function(tab) {
