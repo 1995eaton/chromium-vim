@@ -3,6 +3,7 @@
   "name": "cVim",
   "version": "1.0.7",
   "description": "An extension adding Vim-like bindings to Google Chrome",
+  "update_url": "https://clients2.google.com/service/update2/crx",
   "icons": {
     "128": "icons/128.png",
     "48":  "icons/48.png",
@@ -26,6 +27,7 @@
     "clipboardWrite"
   ],
   "background": {
+    "persistant": false,
     "scripts": [
       "background_scripts/main.js",
       "background_scripts/options.js",

@@ -59,13 +59,13 @@ Find.search = function(reverse, repeats) {
   if (isLink) linkOffset = 25;
   if (br.top < 0) {
     v = br.top;
-  } else if (br.top + linkOffset + br.height > window.innerHeight) {
-    v = br.top + linkOffset + br.height - window.innerHeight;
+  } else if (br.top + linkOffset + br.height > document.documentElement.clientHeight) {
+    v = br.top + linkOffset + br.height - document.documentElement.clientHeight;
   }
   if (br.left < 0) {
     h = br.left;
-  } else if (br.left + br.width > window.innerWidth) {
-    h = br.left + br.width - window.innerWidth;
+  } else if (br.left + br.width > document.documentElement.clientWidth) {
+    h = br.left + br.width - document.documentElement.clientWidth;
   }
   document.body.scrollTop = orig[1] + v;
   document.body.scrollLeft = orig[0] + h;
@@ -99,28 +99,17 @@ Find.highlight = function(baseNode, match, regexp, setIndex, search, reverse) {
   while (node = walker.nextNode()) {
     var nName = node.parentNode.nodeName;
     if (nName !== "SCRIPT" && nName !== "STYLE" && nName !== "NOSCRIPT" && node.data.trim() !== "" && !node.parentNode.hasAttribute("cVim")) {
-      if (regexp) {
-        var matchPosition = node.data.regexIndexOf(match);
-      } else {
-        var matchPosition = node.data.indexOf(match);
-      }
+      var matchPosition = (regexp ? node.data.regexIndexOf(match) : node.data.indexOf(match));
       if (!pass) {
         if (matchPosition >= 0) {
           if (regexp) {
             var matches = node.data.match(match);
-            if (!matches.length)
-              continue;
-            var i = 0;
-            if (matches[i] === "")
+            if (!matches.length || matches[0] === "")
               continue;
           }
           var mark = document.createElement("mark");
           var mid = node.splitText(matchPosition);
-          if (regexp) {
-            mid.splitText(matches[i].length);
-          } else {
-            mid.splitText(match.length);
-          }
+          mid.splitText((regexp ? matches[0].length : match.length));
           mark.appendChild(mid.cloneNode(true));
           mid.parentNode.replaceChild(mark, mid);
           this.matches.push(mark);
@@ -158,4 +147,4 @@ Find.clear = function() {
   }
   this.matches = [];
   this.clearing = false;
-}
+};

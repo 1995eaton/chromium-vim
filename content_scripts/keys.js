@@ -5,163 +5,124 @@ var modifier = "";
 
 keyDown = function(e) {
 
-  if (e.which === 16 || !Object.prototype.hasOwnProperty("isVisible")) return;
+  if (e.which === 16 || !Object.prototype.hasOwnProperty("isVisible")) return false;
 
-  if (e.ctrlKey) {
-    modifier = "<C-";
-  } else if (e.metaKey) {
-    modifier = "<M-";
-  } else if (e.altKey) {
-    modifier = "<A-";
-  } else {
-    modifier = "";
+  var isInput = document.activeElement.isInput() || insertMode || Mappings.actions.inputFocused;
+
+  if (!isInput && e.which > 40 && e.which !== 91 && e.which !== 123)
+    e.stopPropagation();
+
+  var keyType = {
+    arrow: (e.which >= 37 && e.which <= 40),
+    modifier: (e.altKey || e.ctrlKey || e.metaKey),
+    escape: (e.which === 27 && !this.modifier) || (e.which === 219 && e.ctrlKey)
+  };
+
+  modifier = "";
+
+  if (keyType.modifier) {
+    if (e.ctrlKey)
+      modifier += "C-";
+    if (e.metaKey)
+      modifier += "M-";
+    if (e.altKey)
+      modifier += "A-";
+    if (modifier.length > 0)
+      modifier = "<" + modifier + (e.shiftKey? String.fromCharCode(e.which) : String.fromCharCode(e.which).toLowerCase()) + ">";
   }
 
-  if (modifier) {
-    modifier = modifier + (e.shiftKey? String.fromCharCode(e.which) : String.fromCharCode(e.which).toLowerCase()) + ">";
-  } else {
-    modifier = null;
-  }
-
-  if (!insertMode && !document.activeElement.isInput()) {
-    if (e.which > 40 && e.which !== 91 && e.which !== 123) {
-      e.stopPropagation();
-    } else if (e.which >= 37 && e.which <= 40) {
-      if (Mappings.isValidMapping(Mappings.arrowKeys[e.which - 37])) {
-        e.preventDefault();
-        return Mappings.convertToAction(Mappings.arrowKeys[e.which - 37]);
-      }
-    }
-  }
-
-  if (e.which === 18 && Hints.active) {
-    return Hints.changeFocus();
-  }
-
-  if (e.which === 27 || (e.which === 219 && e.ctrlKey)) {
-    if (Hints.active) {
+  if (Hints.active) {
+    if (e.which === 18) {
+      Hints.changeFocus();
+    } else if (keyType.escape || e.which <= 40) {
       e.preventDefault();
       e.stopPropagation();
       Hints.hideHints();
+      return true;
     }
-    insertMode = false;
-    Mappings.actions.inputFocused = false;
-    if (document.activeElement.isInput()) {
-      document.activeElement.blur();
-    }
-    return;
-  } else if ((e.which === 8 || e.which === 32) && Hints.active) {
-    e.preventDefault();
-    e.stopPropagation();
-    Hints.hideHints();
-    return;
-  }
-
-  if (Mappings.actions.inputFocused || commandMode) {
-
-    if (e.keyCode === 27 || (e.which === 219 && e.ctrlKey)) { // <Esc> + <C-[>
+  } else if (!commandMode) {
+    if (keyType.escape) {
+      insertMode = false;
       Mappings.actions.inputFocused = false;
-      commandMode = false;
-      Command.hide();
-    } else if (Mappings.actions.inputFocused && e.keyCode === 9) { // Tab
+      if (isInput) document.activeElement.blur();
+    } else if (!isInput && keyType.arrow && Mappings.isValidMapping(Mappings.arrowKeys[e.which - 37])) {
       e.preventDefault();
-      if (!e.shiftKey) {
-        if (Mappings.actions.inputElementsIndex + 1 === Mappings.actions.inputElements.length) {
-          Mappings.actions.inputElementsIndex = 0;
-        } else {
-          Mappings.actions.inputElementsIndex++;
-        }
-      } else {
-        if (Mappings.actions.inputElementsIndex - 1 < 0) {
-          Mappings.actions.inputElementsIndex = Mappings.actions.inputElements.length - 1;
-        } else {
-          Mappings.actions.inputElementsIndex--;
-        }
-      }
-      if (Mappings.actions.inputElements.length) {
-        Mappings.actions.inputElements[Mappings.actions.inputElementsIndex].focus();
-      }
-    } else if (Command.bar.style.display === "block" && document.activeElement.hasOwnProperty("cVim") && document.activeElement.id === "command_input") { // Non-mappable command bar actions
-
-      switch (e.keyCode) {
-        case 18: case 17: case 91: case 123: case 16: // Ignore non-character keys (CTRL, SHIFT, etc)
-          break;
-        case 8: // Backspace
-          if (Command.input.value === "") {
-            e.preventDefault();
-            commandMode = false;
-            Command.hide();
-          } else if (Command.type === "search") {
-            Find.clear();
-            setTimeout(function() {
-              if (Command.input.value !== "") {
-                Find.highlight(document.body, Command.input.value, true);
-              } else {
-                Command.findMatches.innerText = "";
-              }
-            }, 0);
-          } else if (Command.input.value !== "") {
-            // Search.index = null;
-            setTimeout(function() {
-              Command.parse()
-            }, 0);
-          }
-          break;
-        case 9: // Tab
-          if (!document.activeElement.isInput()) {
-            Mappings.actions.inputFocused = false;
-            break;
-          }
+      Mappings.convertToAction(Mappings.arrowKeys[e.which - 37]);
+    } else if (Mappings.actions.inputFocused && e.keyCode === 9) { // Tab
+      if (!document.activeElement.isInput() || !Mappings.actions.inputElements.length) return Mappings.actions.inputFocused = false;
+      e.preventDefault();
+      Mappings.actions.inputElementsIndex = ((((e.shiftKey ? -1 : 1) + Mappings.actions.inputElementsIndex) % Mappings.actions.inputElements.length) + Mappings.actions.inputElements.length) % Mappings.actions.inputElements.length;
+      Mappings.actions.inputElements[Mappings.actions.inputElementsIndex].focus();
+    }
+  } else if (keyType.escape) {
+      Mappings.actions.inputFocused = false;
+      Command.hide();
+  } else if (Command.bar.style.display === "block" && document.activeElement.hasOwnProperty("cVim") && document.activeElement.id === "command_input") {
+    switch (e.keyCode) {
+      case 18: case 17: case 91: case 123: case 16: // Ignore non-character keys (CTRL, SHIFT, etc)
+        break;
+      case 8: // Backspace
+        if (Command.input.value === "") {
           e.preventDefault();
-          if (Mappings.actions.inputFocused) {
-          } else if (document.activeElement.hasOwnProperty("cVim")) {
-            if (Command.type === "action") {
-              if (/query|bookmarks|history/.test(Command.actionType)) {
-                if (Command.dataElements.length) {
-                  Search.nextResult(e.shiftKey);
-                }
+          Command.hide();
+        } else if (Command.type === "search") {
+          Find.clear();
+          setTimeout(function() {
+            if (Command.input.value !== "") {
+              Find.highlight(document.body, Command.input.value, true);
+            } else {
+              Command.findMatches.innerText = "";
+            }
+          }, 0);
+        } else if (Command.input.value !== "") {
+          // Search.index = null;
+          setTimeout(function() {
+            Command.parse();
+          }, 0);
+        }
+        break;
+      case 9: // Tab
+        if (!document.activeElement.isInput()) {
+          Mappings.actions.inputFocused = false;
+          break;
+        }
+        e.preventDefault();
+        if (document.activeElement.hasOwnProperty("cVim")) {
+          if (Command.type === "action") {
+            if (/query|bookmarks|history/.test(Command.actionType)) {
+              if (Command.dataElements.length) {
+                Search.nextResult(e.shiftKey);
+              }
+            } else {
+              if (!Command.typed) {
+                Command.input.value = "";
+                Command.complete(Command.input.value, e.shiftKey, true);
               } else {
-                if (!Command.typed) {
-                  Command.input.value = "";
-                  Command.complete(Command.input.value, e.shiftKey, true);
-                } else {
-                  Command.complete(Command.typed, e.shiftKey, true);
-                }
+                Command.complete(Command.typed, e.shiftKey, true);
               }
             }
           }
-          break;
-        case 38: // Up
-          if (Command.type !== "search") {
-            e.preventDefault();
-            Command.history.cycle("action", true);
-          } else {
-            e.preventDefault();
-            Command.history.cycle("search", true);
+        }
+        break;
+      case 38: // Up
+        e.preventDefault();
+        Command.history.cycle(Command.type, true);
+        break;
+      case 40: // Down
+        Command.history.cycle(Command.type, false);
+        break;
+      case 13: // Enter
+        Command.enterHit = true;
+        if (Command.type === "action" || Command.type === "search") {
+          Command.input.value = Command.input.value.trimLeft().trimRight();
+          if (Command.input.value.trim() !== "" && !(Command.history[Command.type].length > 0 && Command.history[Command.type].slice(-1)[0] === Command.input.value)) {
+            Command.history[Command.type].push(Command.input.value);
+            chrome.runtime.sendMessage({action: "appendHistory", value: Command.input.value, type: Command.type});
           }
-          break;
-        case 40: // Down
-          if (Command.type !== "search") {
-            e.preventDefault();
-            Command.history.cycle("action", false);
-          } else {
-            e.preventDefault();
-            Command.history.cycle("search", false);
-          }
-          break;
-        case 13: // Enter
-          Command.enterHit = true;
-          if (Command.type === "action" && Command.history["action"]) {
-            Command.history.action.push(Command.input.value);
-            chrome.runtime.sendMessage({action: "appendHistory", value: Command.input.value, type: "action"});
-          } else if (Command.type === "search") {
-            e.preventDefault();
-            Command.history.search.push(Command.input.value);
-            chrome.runtime.sendMessage({action: "appendHistory", value: Command.input.value, type: "search"});
-            document.activeElement.blur();
-          }
+          e.preventDefault();
+          document.activeElement.blur();
           if (Command.type === "search") {
-            if (Command.typed !== "") {
+            if (Command.input.value !== "" && (Command.input.value !== Find.lastSearch || Find.matches.length === 0)) {
               Find.clear();
               Find.highlight(document.body, Command.input.value, true);
             }
@@ -176,29 +137,27 @@ keyDown = function(e) {
           } else {
             Command.parse(Command.input.value);
           }
-          break;
-        default:
-          Command.history.reset = true;
-          if (Command.type === "action") {
-            setTimeout(function() {
-              Command.parse();
-            }, 0);
-          } else {
-            setTimeout(function() {
-              if (Command.type === "search" && Command.input.value !== Find.lastSearch) {
-                if (Command.input.value !== "") {
-                  Find.clear();
-                  Find.highlight(document.body, Command.input.value, true);
-                }
+        }
+        break;
+      default:
+        Command.history.reset = true;
+        if (Command.type === "action") {
+          setTimeout(function() {
+            Command.parse();
+          }, 0);
+        } else {
+          setTimeout(function() {
+            if (Command.type === "search" && Command.input.value !== Find.lastSearch) {
+              if (Command.input.value !== "") {
+                Find.clear();
+                Find.highlight(document.body, Command.input.value, true);
               }
-            }, 2);
-          }
-          break;
-      }
-
+            }
+          }, 2);
+        }
+        break;
     }
   }
-
 };
 
 

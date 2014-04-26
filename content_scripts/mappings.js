@@ -64,12 +64,12 @@ Mappings.actions = {
   },
   centerMatchH: function() {
     if (Command.type === "search" || Find.matches.length) {
-      return window.scrollBy(0, Find.matches[Find.index].getBoundingClientRect().top + Find.matches[Find.index].offsetHeight - 0.5 * window.innerHeight);
+      return window.scrollBy(0, Find.matches[Find.index].getBoundingClientRect().top + Find.matches[Find.index].offsetHeight - 0.5 * document.documentElement.clientHeight);
     }
   },
   centerMatchB: function() {
     if (Command.type === "search" || Find.matches.length) {
-      return window.scrollBy(0, Find.matches[Find.index].getBoundingClientRect().top + Find.matches[Find.index].offsetHeight - window.innerHeight);
+      return window.scrollBy(0, Find.matches[Find.index].getBoundingClientRect().top + Find.matches[Find.index].offsetHeight - document.documentElement.clientHeight);
     }
   },
   scrollDown: function(repeats) {
@@ -168,7 +168,7 @@ Mappings.actions = {
     if (this.inputElementsIndex < 0) this.inputElementsIndex = 0;
     for (var i = 0, l = this.inputElements.length; i < l; i++) {
       var br = this.inputElements[i].getBoundingClientRect();
-      if (br.top + br.height >= 0 && br.left + br.width >= 0 && br.right - br.width <= window.innerWidth && br.top < window.innerHeight) {
+      if (br.top + br.height >= 0 && br.left + br.width >= 0 && br.right - br.width <= document.documentElement.clientWidth && br.top < document.documentElement.clientHeight) {
         this.inputElementsIndex = i;
         break;
       }

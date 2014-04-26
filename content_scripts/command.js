@@ -1,6 +1,7 @@
 var Command = {};
 var settings;
-
+Command.dataElements = [];
+Command.matches = [];
 Command.setup = function() {
   this.bar = document.createElement("div");
   this.bar.id = "command_bar";
@@ -35,7 +36,16 @@ for (var i = 0; i < historyStates.length; i++) {
 
 Command.history = {
   index: {},
+  search: [],
+  url: [],
+  action: [],
   cycle: function(type, reverse, search) {
+    if (this[type].length === 0) return false;
+    if (this.index[type] === this[type].length - 1 && !reverse) {
+      return Command.input.value = Command.typed || "";
+    } else if (reverse && this.index[type] === this[type].length - 1 && Command.input.value === "") {
+      this.index[type] = this[type].length;
+    }
     Command.hideData();
     if (Command.history.reset) {
       Command.history.reset = false;
@@ -163,6 +173,7 @@ Command.descriptions = [
   ["nohl", "nohl", "Clears the search highlight"],
   ["bookmarks ", "b(ook)marks", "Search through your bookmarks"],
   ["history ", "hist(ory)", "Search through your browser history"],
+  ["settings", "settings", "Open the options page for this extension"],
   ["extensions", "ex(tensions)", "Opens the chrome://extensions page"],
   ["flags", "fl(ags)", "Opens the chrome://flags page"]
 ];
@@ -208,6 +219,8 @@ Command.parse = function(value, pseudoReturn, repeats) {
       chrome.runtime.sendMessage({action: "openLinkTab", active: true, url: "chrome://newtab", repeats: repeats});
     } else if (/^nohl(\s+)?$/.test(value)) {
       Find.clear();
+    } else if (/^settings(\s+)?/.test(value)) {
+      chrome.runtime.sendMessage({action: "openLinkTab", active: true, url: chrome.extension.getURL("/pages/options.html"), repeats: repeats});
     } else if (/^cl(osetab)?(\s+)?$/.test(value)) {
       chrome.runtime.sendMessage({action: "closeTab", repeats: repeats});
     } else if (/^b(ook)?marks(\s+)?/.test(value)) {
@@ -294,11 +307,13 @@ Command.show = function(search, value) {
 };
 
 Command.hide = function() {
+  if (!commandMode) return false;
   document.activeElement.blur();
   Command.hideData();
   this.bar.style.display = "none";
   this.input.value = "";
   this.findMatches.innerText = "";
+  commandMode = false;
   Search.index = null;
   Search.searchHistory = [];
   Command.enterHit = false;
@@ -333,7 +348,7 @@ Command.init = function(enabled) {
     }
     removeListeners();
   }
-}
+};
 
 document.addEventListener("DOMContentLoaded", function() {
   chrome.runtime.sendMessage({getSettings: true}, function (s) {
