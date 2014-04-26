@@ -1,11 +1,14 @@
-var keyQueue, inputFocused, insertMode, commandMode, port, skipDefault, settings, fireKey;
+var keyQueue, inputFocused, insertMode, commandMode, port, skipDefault, settings, fireKey, shiftKey;
 var inputElements = [];
 var inputIndex = 0;
 var modifier = "";
 
 keyDown = function(e) {
 
-  if (e.which === 16 || !Object.prototype.hasOwnProperty("isVisible")) return false;
+  if (e.which === 16) {
+    return (Hints.active ? Hints.invertColors(true) : false);
+  }
+  if (!Object.prototype.hasOwnProperty("isVisible")) return false;
 
   var isInput = document.activeElement.isInput() || insertMode || Mappings.actions.inputFocused;
 
@@ -162,6 +165,7 @@ keyDown = function(e) {
 
 
 keyPress = function(e) {
+  shiftKey = e.shiftKey;
   if (!insertMode && !document.activeElement.isInput()) {
     e.stopPropagation();
     setTimeout(function() {
@@ -184,6 +188,10 @@ mouseMove = function(e) {
 
 
 keyUp = function(e) {
+  if (e.which === 16 && Hints.active) {
+    shiftKey = false;
+    Hints.invertColors(false);
+  }
   if (!insertMode) {
     e.stopPropagation();
     e.preventDefault();

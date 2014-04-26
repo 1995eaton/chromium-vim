@@ -1,6 +1,10 @@
 var log = console.log.bind(console);
 var Hints = {};
 
+var gradient = ["#969696", "#d7d7d7"];
+var color = "#000";
+var border = "rgba(0,0,0,0.5)";
+
 Hints.hintCharacters = "asdfgzxcvbqwert";
 
 Hints.hideHints = function(reset) {
@@ -18,6 +22,24 @@ Hints.hideHints = function(reset) {
 Hints.changeFocus = function() {
   for (var i = 0, l = this.linkArr.length; i < l; ++i) {
     this.linkArr[i].style.zIndex = l - parseInt(this.linkArr[i].style.zIndex);
+  }
+};
+
+Hints.invertColors = function(invert) {
+  if (invert) {
+    var linkHints = document.getElementsByClassName("link_hint");
+    for (var i = 0; i < linkHints.length; ++i) {
+      linkHints[i].style.background = "linear-gradient(to top, " + gradient[0] + " 50%, " + gradient[1] + " 100%)";
+      linkHints[i].style.color = "#333";
+      linkHints[i].style.borderColor = border;
+    }
+  } else {
+    var linkHints = document.getElementsByClassName("link_hint");
+    for (var i = 0; i < linkHints.length; ++i) {
+      linkHints[i].style.background = "linear-gradient(to top, #262626 50%, #474747 100%)";
+      linkHints[i].style.color = "#ccc";
+      linkHints[i].style.borderColor = "rgba(255,255,255,0.5)";
+    }
   }
 };
 
@@ -48,6 +70,17 @@ Hints.handleHintFeedback = function(choice) {
     document.getElementById("link_main").style.display = "none";
     var link = this.linkHints[index];
     setTimeout(function() {
+      if (shiftKey) {
+        var e;
+        if (this.tabbed) {
+          e = new Event("mouseover");
+          link.dispatchEvent(e);
+        } else {
+          e = new Event("mouseout");
+        }
+        link.dispatchEvent(e);
+        return this.hideHints(false);
+      }
       var node = link.nodeName;
       if (this.yank) {
         Clipboard.copy(link.href);
@@ -267,5 +300,10 @@ Hints.create = function(tabbed, yank, image) {
     frag.appendChild(this.linkArr[i]);
   }
   main.appendChild(frag);
-
+  if (tabbed) {
+    window.setTimeout(function() {
+      if (shiftKey)
+        Hints.invertColors(true);
+    }, 150);
+  }
 };
