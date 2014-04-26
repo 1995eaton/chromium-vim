@@ -82,11 +82,11 @@ Search.go = function(repeats) {
 
 Search.appendFromHistory = function(data, limit) {
   port.postMessage({action: "searchHistory", search: data, limit: limit});
-}
+};
 
 Search.getBookmarks = function() {
   port.postMessage({action: "getBookmarks"});
-}
+};
 
 Search.nextResult = function(reverse) {
 

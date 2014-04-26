@@ -1,18 +1,18 @@
 var loadSettings, mouseDown, saveRelease, resetRelease, fetchSettings;
 var fade, save, save_clicked, reset_clicked, reset, linkHintCharacters, commandBarCSS, commandBarOnBottom, hoverDelay, settings, editor, mappingContainerFadeOut, usedPlaceholder, firstLoad;
+
 var placeholder = '<- Click here for command names\n\nCommands are prefixed by "map" and "unmap"\n\nExample:\n # unmap j\n # map j scrollDown\n\nCommands can also be mapped to command mode commands\n\nExample:\n # map v :tabopen http://www.google.com\n\nCommand mode commands followed by <CR> executes the command immediately (enter does not need to be pressed)\n # map v :tabopen http://www.google.com<CR>\n\nModifier keys may also be mapped (if not already used by Chrome or the operating system)\n\nExample:\n "<C-" => Control key\n # map <C-i> goToInput\n "<M-" => Meta key (Windows key / Command key [Mac])\n # map <M-i> goToInput\n "<A-" => Alt key\n # map <A-i> goToInput\n';
 
 loadSettings = function () {
   for (var key in settings) {
     if (typeof settings[key] === "boolean") {
-    // if (/true|false/.test(settings[key])) {
       document.getElementById(key).checked = settings[key];
     } else {
       document.getElementById(key).value = settings[key];
     }
   }
   if (editor) {
-    editor.setValue(settings["commandBarCSS"]);
+    editor.setValue(settings.commandBarCSS);
   }
   if (document.getElementById("mappings").value.trim() === "") {
     usedPlaceholder = true;

@@ -1,13 +1,25 @@
 var isEnabled = true;
 var isBlacklisted;
 var currentDomain;
-if (!localStorage["blacklists"]) localStorage.blacklists = "";
-var blacklists = localStorage["blacklists"].split("\n");
+var settings;
+var blacklists;
+
+chrome.storage.sync.get('settings', function(s) {
+  if (s.settings === undefined) return false;
+  settings = s.settings;
+  if (!s.settings.hasOwnProperty('blacklists')) {
+    settings.blacklists = "";
+    chrome.storage.sync.set({settings: settings});
+  }
+  blacklists = settings.blacklists.split("\n");
+});
+
 function parseDomain(url) {
   return url.replace(/(\.([^\.]+))\/.*$/, "$1");
 }
+
 chrome.runtime.onMessage.addListener(function(request, sender, callback) {
-  blacklists = localStorage.blacklists.split("\n");
+  blacklists = settings.blacklists.split("\n");
   if (request.action === "getBlacklisted") {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
       if (!tabs || !tabs.length) return false;
@@ -75,7 +87,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
       if (!foundMatch) {
         blacklists.push(url);
       }
-      localStorage.blacklists = blacklists.join("\n");
+      settings.blacklists = blacklists.join("\n");
+      chrome.storage.sync.set({settings: settings});
       isBlacklisted = !isBlacklisted;
     });
   }

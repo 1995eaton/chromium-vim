@@ -45,7 +45,6 @@ var Clipboard = {
 };
 
 var History = {
-
   searchResults: null,
   append: function(value, type) {
     if (!localStorage[type] || localStorage[type] === "")

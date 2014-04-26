@@ -16,7 +16,7 @@ Object.prototype.isVisible = function() {
       cs.visibility !== "hidden" &&
       this.getAttribute("display") !== "none")
   );
-}
+};
 
 
 Array.prototype.unique = function(){
@@ -29,4 +29,4 @@ Array.prototype.unique = function(){
 String.prototype.regexIndexOf = function(regex, startpos) {
   var indexOf = this.substring(startpos || 0).search(regex);
   return (indexOf >= 0) ? (indexOf + (startpos || 0)) : indexOf;
-}
+};

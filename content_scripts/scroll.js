@@ -116,4 +116,4 @@ Scroll.scroll = function(type, repeats) {
     }
 
   }
-}
+};

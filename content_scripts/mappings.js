@@ -5,17 +5,15 @@ Mappings.queue = "";
 Mappings.arrowKeys = ["<Left>", "<Up>", "<Right>", "<Down>"];
 
 Mappings.actions = {
+
   toggleVisualMode: function() {
-    caretMode = true;
-    getTextNodes();
+    Visual.caretModeActive = true;
+    Visual.getTextNodes();
     document.body.spellcheck = false;
     document.designMode = "on";
-    s = document.getSelection();
-    s.setPosition(Visual.closestNode(), 0);
-    // s.setPosition(textNodes.slice(-1)[0], 0);
+    Visual.selection = document.getSelection();
+    Visual.selection.setPosition(Visual.closestNode(), 0);
     Visual.scrollIntoView();
-    // document.body.focus();
-    // document.body.lastChild.click();
   },
   goToRootUrl: function() {
     if (window.location.pathname.length === 0 || window.location.pathname === "/") {
@@ -116,6 +114,11 @@ Mappings.actions = {
   createTabbedHint: function() {
     setTimeout(function() {
       return Hints.create(true);
+    }, 0);
+  },
+  createVisualHint: function() {
+    setTimeout(function() {
+      return Hints.create(false, false, false, true);
     }, 0);
   },
   yankUrl: function() {
@@ -271,6 +274,7 @@ Mappings.defaults = {
   yankDocumentUrl: ["yy"],
   openPaste: ["p"],
   toggleVisualMode: ["v"],
+  createVisualHint: ["V"],
   openPasteTab: ["P"],
   previousTab: ["J", "E", "gT"],
   nextSearchResult: ["n"],
@@ -279,7 +283,7 @@ Mappings.defaults = {
   openSearchBarReverse: ["?"],
   openCommandBar: [":"],
   shortCuts: []
-}
+};
 
 Mappings.isValidQueue = function(c) {
   for (var key in this.defaults) {
@@ -369,9 +373,6 @@ Mappings.isValidMapping = function(c) {
 };
 
 Mappings.convertToAction = function(c) {
-  if (visualMode) {
-    return Visual.action(c);
-  }
   if (!c) {
     return;
   } else if (Hints.active) {

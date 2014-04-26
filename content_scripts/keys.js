@@ -8,19 +8,19 @@ var s;
 
 keyDown = function(e) {
 
-  if (caretMode || visualMode) {
+  if (Visual.caretModeActive || Visual.visualModeActive) {
     if (e.which === 8) {
       e.preventDefault();
     }
     e.stopPropagation();
-    s = document.getSelection();
+    Visual.selection = document.getSelection();
     if (e.which === 27 || (e.ctrlKey && e.which === 219)) {
-      if (visualMode === false) {
-        caretMode = false;
+      if (Visual.visualModeActive === false) {
+        Visual.caretModeActive = false;
         document.designMode = "off";
         return document.body.spellcheck = true;
       }
-      visualMode = false;
+      Visual.visualModeActive = false;
       Visual.collapse();
     }
     return;
@@ -186,7 +186,7 @@ keyDown = function(e) {
 
 
 keyPress = function(e) {
-  if (caretMode || visualMode) {
+  if (Visual.caretModeActive || Visual.visualModeActive) {
     if (e.which !== 123) {
       e.preventDefault();
       e.stopPropagation();

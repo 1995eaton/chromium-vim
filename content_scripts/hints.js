@@ -27,20 +27,15 @@ Hints.changeFocus = function() {
 };
 
 Hints.invertColors = function(invert) {
-  if (invert) {
-    var linkHints = document.getElementsByClassName("link_hint");
-    for (var i = 0; i < linkHints.length; ++i) {
-      linkHints[i].style.background = "linear-gradient(to top, " + gradient[0] + " 50%, " + gradient[1] + " 100%)";
-      linkHints[i].style.color = "#333";
-      linkHints[i].style.borderColor = border;
-    }
-  } else {
-    var linkHints = document.getElementsByClassName("link_hint");
-    for (var i = 0; i < linkHints.length; ++i) {
-      linkHints[i].style.background = "linear-gradient(to top, #262626 50%, #474747 100%)";
-      linkHints[i].style.color = "#ccc";
-      linkHints[i].style.borderColor = "rgba(255,255,255,0.5)";
-    }
+  var linkHints = document.getElementsByClassName("link_hint");
+  var currentBackground = (invert ? "linear-gradient(to top, " + gradient[0] + " 50%, " + gradient[1] + " 100%)" :
+                           "linear-gradient(to top, #262626 50%, #474747 100%)");
+  var currentColor = (invert ? "#333" : "#ccc");
+  var currentBorderColor = (invert ? border : "rgba(255,255,255,0.5)");
+  for (var i = 0; i < linkHints.length; ++i) {
+    linkHints[i].style.background = currentBackground;
+    linkHints[i].style.color = currentColor;
+    linkHints[i].style.borderColor = currentBorderColor;
   }
 };
 
@@ -87,6 +82,16 @@ Hints.handleHintFeedback = function(choice) {
         Clipboard.copy(link.href);
       } else if (this.image) {
         chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: "https://www.google.com/searchbyimage?image_url=" + link.src});
+      } else if (this.visual) {
+        if (link.firstChild && link.firstChild.nodeType === 3) {
+          Visual.getTextNodes(function() {
+            var i = Visual.textNodes.indexOf(link.firstChild);
+            if (i >= 0) {
+              Mappings.actions.toggleVisualMode();
+              Visual.selectNode(i);
+            }
+          });
+        }
       } else if (node === "BUTTON" || link.getAttribute("jsaction")) {
         link.click();
       } else if (/^(button|checkbox)$/.test(link.getAttribute("role"))) {
@@ -112,8 +117,8 @@ Hints.handleHintFeedback = function(choice) {
             break;
         }
       } else if (node === "SELECT") {
-        var e = new MouseEvent("mousedown");
-        link.dispatchEvent(e);
+        var ev = new MouseEvent("mousedown");
+        link.dispatchEvent(ev);
       } else if (node === "TEXTAREA") {
         setTimeout(function() {
           link.focus();
@@ -170,6 +175,9 @@ Hints.getLinks = function(type) {
     case "image":
       selection = "//img";
       break;
+    case "visual":
+      selection = "//a|//area[@href]";
+      break;
     default:
       selection = "//a|//area[@href]|//*[not(@aria-disabled='true') and (@onclick or @role='button' or @role='checkbox' or @tabindex or @aria-haspopup or @data-cmd or @jsaction)]|//button|//select|//textarea|//input";
       break;
@@ -187,13 +195,14 @@ Hints.getLinks = function(type) {
   return valid;
 };
 
-Hints.create = function(tabbed, yank, image) {
+Hints.create = function(tabbed, yank, image, visual) {
   this.hideHints(true);
-  var links = this.getLinks(yank ? "yank" : (image ? "image" : undefined));
+  var links = this.getLinks(yank ? "yank" : (image ? "image" : (visual ? "visual" : undefined)));
   if (links.length === 0) return this.hideHints(false);
   this.yank = yank;
   this.image = image;
   this.tabbed = tabbed;
+  this.visual = visual;
   var screen = {
     top: document.body.scrollTop,
     bottom: document.body.scrollTop + window.innerHeight,
@@ -288,7 +297,7 @@ Hints.create = function(tabbed, yank, image) {
       if (n < 0) break;
     }
     return l.join("");
-  };
+  }
   for (var i = 0; i < rlim; ++i) {
     this.linkArr[i].innerText = genHint(i, lim - 1);
     this.permutations.push(genHint(i, lim - 1));
