@@ -5,6 +5,18 @@ Mappings.queue = "";
 Mappings.arrowKeys = ["<Left>", "<Up>", "<Right>", "<Down>"];
 
 Mappings.actions = {
+  toggleVisualMode: function() {
+    caretMode = true;
+    getTextNodes();
+    document.body.spellcheck = false;
+    document.designMode = "on";
+    s = document.getSelection();
+    s.setPosition(Visual.closestNode(), 0);
+    // s.setPosition(textNodes.slice(-1)[0], 0);
+    Visual.scrollIntoView();
+    // document.body.focus();
+    // document.body.lastChild.click();
+  },
   goToRootUrl: function() {
     if (window.location.pathname.length === 0 || window.location.pathname === "/") {
       return false;
@@ -258,6 +270,7 @@ Mappings.defaults = {
   yankUrl: ["Y"],
   yankDocumentUrl: ["yy"],
   openPaste: ["p"],
+  toggleVisualMode: ["v"],
   openPasteTab: ["P"],
   previousTab: ["J", "E", "gT"],
   nextSearchResult: ["n"],
@@ -356,8 +369,8 @@ Mappings.isValidMapping = function(c) {
 };
 
 Mappings.convertToAction = function(c) {
-  if (c === "," ) {
-    return fireKey("j");
+  if (visualMode) {
+    return Visual.action(c);
   }
   if (!c) {
     return;

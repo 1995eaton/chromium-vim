@@ -60,6 +60,7 @@
              "content_scripts/clipboard.js",
              "content_scripts/mappings.js",
              "content_scripts/find.js",
+             "content_scripts/visual.js",
              "content_scripts/command.js",
              "content_scripts/scroll.js",
              "content_scripts/replace.js",

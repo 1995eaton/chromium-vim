@@ -87,7 +87,7 @@ Hints.handleHintFeedback = function(choice) {
         Clipboard.copy(link.href);
       } else if (this.image) {
         chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: "https://www.google.com/searchbyimage?image_url=" + link.src});
-      } else if (node === "BUTTON") {
+      } else if (node === "BUTTON" || link.getAttribute("jsaction")) {
         link.click();
       } else if (/^(button|checkbox)$/.test(link.getAttribute("role"))) {
         var ev;

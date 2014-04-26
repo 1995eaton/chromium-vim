@@ -2,8 +2,29 @@ var keyQueue, inputFocused, insertMode, commandMode, port, skipDefault, settings
 var inputElements = [];
 var inputIndex = 0;
 var modifier = "";
+var visualMode = false;
+var caretMode = false;
+var s;
 
 keyDown = function(e) {
+
+  if (caretMode || visualMode) {
+    if (e.which === 8) {
+      e.preventDefault();
+    }
+    e.stopPropagation();
+    s = document.getSelection();
+    if (e.which === 27 || (e.ctrlKey && e.which === 219)) {
+      if (visualMode === false) {
+        caretMode = false;
+        document.designMode = "off";
+        return document.body.spellcheck = true;
+      }
+      visualMode = false;
+      Visual.collapse();
+    }
+    return;
+  }
 
   if (e.which === 16) {
     return ((Hints.active && linkHoverEnabled) ? Hints.invertColors(true) : false);
@@ -165,17 +186,25 @@ keyDown = function(e) {
 
 
 keyPress = function(e) {
-  shiftKey = e.shiftKey;
-  if (!insertMode && !document.activeElement.isInput()) {
-    e.stopPropagation();
-    setTimeout(function() {
+  if (caretMode || visualMode) {
+    if (e.which !== 123) {
       e.preventDefault();
-      if (modifier) {
-        Mappings.convertToAction(modifier);
-      } else {
-        Mappings.convertToAction(String.fromCharCode(e.which));
-      }
-    }, 0);
+      e.stopPropagation();
+      return Visual.action(String.fromCharCode(e.which));
+    }
+  } else {
+    shiftKey = e.shiftKey;
+    if (!insertMode && !document.activeElement.isInput()) {
+      e.stopPropagation();
+      setTimeout(function() {
+        e.preventDefault();
+        if (modifier) {
+          Mappings.convertToAction(modifier);
+        } else {
+          Mappings.convertToAction(String.fromCharCode(e.which));
+        }
+      }, 0);
+    }
   }
 };
 
