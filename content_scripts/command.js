@@ -330,8 +330,12 @@ Command.init = function(enabled) {
     Command.css = document.createElement("style");
     Command.css.innerText = settings.commandBarCSS;
     document.getElementsByTagName("head")[0].appendChild(Command.css);
-    Command.onBottom = (settings.commandBarOnBottom === "true") ? true : false;
-    Scroll.smoothScroll = (settings.smoothScroll === "true") ? true : false;
+    Command.onBottom = settings.commandBarOnBottom;
+    if (this.data !== undefined) {
+      this.data.style[(!this.onBottom) ? 'bottom' : 'top'] = "";
+      this.data.style[(this.onBottom) ? 'bottom' : 'top'] = "20px";
+    }
+    Scroll.smoothScroll = settings.smoothScroll;
     Scroll.stepSize = parseInt(settings.scrollStepSize);
     if (settings.linkHintCharacters.split("").unique().length > 1) {
       Hints.hintCharacters = settings.linkHintCharacters.split("").unique().join("");
@@ -340,6 +344,7 @@ Command.init = function(enabled) {
     Command.setup();
     addListeners();
   } else {
+    Command.loaded = false;
     Command.css.parentNode.removeChild(Command.css);
     var links = document.getElementById("link_hints");
     Command.bar.parentNode.removeChild(Command.bar);
@@ -350,9 +355,11 @@ Command.init = function(enabled) {
   }
 };
 
-Command.parseSettings = function(s) {
+Command.configureSettings = function(fetchOnly, s) {
   if (Command.loaded) Command.init(false);
-  chrome.runtime.sendMessage({getSettings: true}, function (s) {
+  if (fetchOnly) {
+    chrome.runtime.sendMessage({getSettings: true});
+  } else {
     settings = s;
     settings.searchLimit = parseInt(settings.searchLimit);
     function checkBlacklist(callback) {
@@ -379,14 +386,16 @@ Command.parseSettings = function(s) {
         return loadMain();
       });
     });
-  });
+  }
 };
 
 document.addEventListener("DOMContentLoaded", function() {
   chrome.extension.onMessage.addListener(function(request) {
     if (request.action === "refreshSettings") {
-      return Command.parseSettings();
+      return Command.configureSettings(true);
+    } else if (request.action === "sendSettings") {
+      Command.configureSettings(false, request.settings);
     }
   });
-  return Command.parseSettings();
+  return Command.configureSettings(true);
 }, false);

@@ -1,19 +1,12 @@
 var loadSettings, mouseDown, saveRelease, resetRelease, fetchSettings;
-var fade, save, save_clicked, reset_clicked, reset, linkHintCharacters, commandBarCSS, commandBarOnBottom, hoverDelay, settings, editor, mappingContainerFadeOut, usedPlaceholder;
+var fade, save, save_clicked, reset_clicked, reset, linkHintCharacters, commandBarCSS, commandBarOnBottom, hoverDelay, settings, editor, mappingContainerFadeOut, usedPlaceholder, firstLoad;
 var placeholder = '<- Click here for command names\n\nCommands are prefixed by "map" and "unmap"\n\nExample:\n # unmap j\n # map j scrollDown\n\nCommands can also be mapped to command mode commands\n\nExample:\n # map v :tabopen http://www.google.com\n\nCommand mode commands followed by <CR> executes the command immediately (enter does not need to be pressed)\n # map v :tabopen http://www.google.com<CR>\n\nModifier keys may also be mapped (if not already used by Chrome or the operating system)\n\nExample:\n "<C-" => Control key\n # map <C-i> goToInput\n "<M-" => Meta key (Windows key / Command key [Mac])\n # map <M-i> goToInput\n "<A-" => Alt key\n # map <A-i> goToInput\n';
 
 loadSettings = function () {
   for (var key in settings) {
-    if (/true|false/.test(settings[key])) {
-      if (settings[key] === "true") {
-        document.getElementById(key).checked = true;
-      } else {
-        if (settings[key] === "false") {
-          document.getElementById(key).checked = false;
-        } else {
-          document.getElementById(key).checked = true;
-        }
-      }
+    if (typeof settings[key] === "boolean") {
+    // if (/true|false/.test(settings[key])) {
+      document.getElementById(key).checked = settings[key];
     } else {
       document.getElementById(key).value = settings[key];
     }
@@ -31,9 +24,7 @@ loadSettings = function () {
 
 resetRelease = function () {
   if (reset_clicked) {
-    for (var key in settings) {
-      localStorage[key] = "";
-    }
+    chrome.runtime.sendMessage({setDefault: true});
     fetchSettings();
   }
 };
@@ -41,29 +32,23 @@ resetRelease = function () {
 saveRelease = function (e) {
   if (save_clicked) {
     for (var key in settings) {
-      if (/true|false/.test(settings[key])) {
-        if (document.getElementById(key).checked) {
-          localStorage[key] = "true";
-        } else {
-          localStorage[key] = "false";
-        }
-      }
-      else if (key === "commandBarCSS") {
-        localStorage[key] = editor.getValue();
+      if (typeof settings[key] === "boolean") {
+        settings[key] = document.getElementById(key).checked;
+      } else if (key === "commandBarCSS") {
+        settings[key] = editor.getValue();
+      } else if (key === "mappings" && usedPlaceholder) {
+        settings[key] = "";
       } else {
-        if (key === "mappings" && usedPlaceholder) {
-          localStorage[key] = "";
-        } else {
-          localStorage[key] = document.getElementById(key).value;
-        }
+        settings[key] = document.getElementById(key).value;
       }
     }
+    chrome.storage.sync.set({settings: settings});
+    chrome.runtime.sendMessage({reloadSettings: true});
+    save.innerText = "Saved";
+    setTimeout(function () {
+      save.innerText = "Save";
+    }, 3000);
   }
-  chrome.runtime.sendMessage({reloadSettings: true});
-  save.innerText = "Saved";
-  setTimeout(function () {
-    save.innerText = "Save";
-  }, 3000);
 };
 
 fadeTransitionEnd = function(e) {
@@ -92,14 +77,8 @@ mouseDown = function (e) {
   save.innerText = "Save";
 };
 
-fetchSettings = function (callback) {
-  chrome.runtime.sendMessage({getSettings: true}, function (s) {
-    settings = s;
-    loadSettings();
-    if (callback) {
-      callback();
-    }
-  });
+fetchSettings = function () {
+  chrome.runtime.sendMessage({getSettings: true});
 };
 
 editMode = function (e) {
@@ -131,6 +110,7 @@ onBlur = function(e) {
 };
 
 document.addEventListener("DOMContentLoaded", function () {
+  firstLoad = true;
   document.body.spellcheck = false;
   save = document.getElementById("save_button");
   reset = document.getElementById("reset_button");
@@ -148,4 +128,15 @@ document.addEventListener("DOMContentLoaded", function () {
   dropDown.addEventListener("change", editMode, false);
   save.addEventListener("mouseup", saveRelease, false);
   reset.addEventListener("mouseup", resetRelease, false);
+});
+
+chrome.extension.onMessage.addListener(function(request) {
+  if (request.action === "sendSettings") {
+    settings = request.settings;
+    if (firstLoad) {
+      editor = CodeMirror.fromTextArea(document.getElementById("commandBarCSS"), {lineNumbers: true});
+      firstLoad = false;
+    }
+    loadSettings();
+  }
 });

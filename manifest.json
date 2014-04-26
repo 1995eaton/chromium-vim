@@ -37,6 +37,7 @@
     "tabs",
     "history",
     "bookmarks",
+    "storage",
     "clipboardRead",
     "clipboardWrite"
   ],

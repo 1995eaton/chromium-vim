@@ -1,8 +1,8 @@
 var settingsDefault = {
 
-  smoothScroll: "true",
+  smoothScroll: true,
   linkHintCharacters: "asdfgqwertzxcvb",
-  commandBarOnBottom: "true",
+  commandBarOnBottom: true,
   mappings: null,
   searchLimit: 20,
   scrollStepSize: 75,
@@ -12,15 +12,15 @@ var settingsDefault = {
 
 chrome.runtime.onMessage.addListener(function (request, sender, response) {
   if (request.getSettings) {
-    var settings = {};
-    for (var key in settingsDefault) {
-      if (localStorage[key]) {
-        settings[key] = localStorage[key];
+    chrome.storage.sync.get('settings', function(settings) {
+      if (settings.settings === undefined) {
+        chrome.tabs.sendMessage(sender.tab.id, {action: "sendSettings", settings: settingsDefault});
       } else {
-        settings[key] = settingsDefault[key];
+        chrome.tabs.sendMessage(sender.tab.id, {action: "sendSettings", settings: settings.settings});
       }
-    }
-    response(settings);
+    });
+  } else if (request.setDefault) {
+    chrome.storage.sync.set({'settings': settingsDefault});
   } else if (request.reloadSettings) {
     chrome.tabs.query({}, function(tabs) {
       for (var i = 0; i < tabs.length; ++i) {
