@@ -6,7 +6,7 @@ var modifier = "";
 keyDown = function(e) {
 
   if (e.which === 16) {
-    return (Hints.active ? Hints.invertColors(true) : false);
+    return ((Hints.active && linkHoverEnabled) ? Hints.invertColors(true) : false);
   }
   if (!Object.prototype.hasOwnProperty("isVisible")) return false;
 
@@ -188,7 +188,7 @@ mouseMove = function(e) {
 
 
 keyUp = function(e) {
-  if (e.which === 16 && Hints.active) {
+  if (linkHoverEnabled && e.which === 16 && Hints.active) {
     shiftKey = false;
     Hints.invertColors(false);
   }

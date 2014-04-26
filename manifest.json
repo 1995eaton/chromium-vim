@@ -9,6 +9,20 @@
     "48":  "icons/48.png",
     "16":  "icons/16.png"
   },
+   "commands": {
+      "nextTab": {
+         "description": "Go to the next tab",
+         "suggested_key": {
+            "default": "Ctrl+K"
+         }
+      },
+      "previousTab": {
+         "description": "Go to the previous tab",
+         "suggested_key": {
+            "default": "Ctrl+J"
+         }
+      }
+   },
   "browser_action": {
     "default_icon": {
       "19": "icons/disabled.png",

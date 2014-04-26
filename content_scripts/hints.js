@@ -1,6 +1,7 @@
 var log = console.log.bind(console);
 var Hints = {};
 
+var linkHoverEnabled = false;
 var gradient = ["#969696", "#d7d7d7"];
 var color = "#000";
 var border = "rgba(0,0,0,0.5)";
@@ -70,7 +71,7 @@ Hints.handleHintFeedback = function(choice) {
     document.getElementById("link_main").style.display = "none";
     var link = this.linkHints[index];
     setTimeout(function() {
-      if (shiftKey) {
+      if (linkHoverEnabled && shiftKey) {
         var e;
         if (this.tabbed) {
           e = new Event("mouseover");
@@ -300,10 +301,10 @@ Hints.create = function(tabbed, yank, image) {
     frag.appendChild(this.linkArr[i]);
   }
   main.appendChild(frag);
-  if (tabbed) {
+  if (linkHoverEnabled && tabbed) {
     window.setTimeout(function() {
       if (shiftKey)
         Hints.invertColors(true);
-    }, 150);
+    }, 250);
   }
 };

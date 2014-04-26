@@ -87,6 +87,18 @@ chrome.extension.onConnect.addListener(function(port) {
   });
 });
 
+chrome.commands.onCommand.addListener(function(command) {
+  if (command === "nextTab") {
+    chrome.tabs.getSelected(function(e) {
+      return getTab({tab: e}, false, 1, false, false);
+    });
+  } else if (command === "previousTab") {
+    chrome.tabs.getSelected(function(e) {
+      return getTab({tab: e}, false, -1, false, false);
+    });
+  }
+});
+
 chrome.runtime.onMessage.addListener(function(request, sender, callback) {
   if (request.action !== "focusMainWindow" && (!request.repeats || !/[0-9]([0-9]+)?/.test(request.repeats.toString()))) request.repeats = 1;
   switch (request.action) {
