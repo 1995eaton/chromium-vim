@@ -59,6 +59,7 @@ saveRelease = function (e) {
       }
     }
   }
+  chrome.runtime.sendMessage({reloadSettings: true});
   save.innerText = "Saved";
   setTimeout(function () {
     save.innerText = "Save";

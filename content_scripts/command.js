@@ -350,7 +350,8 @@ Command.init = function(enabled) {
   }
 };
 
-document.addEventListener("DOMContentLoaded", function() {
+Command.parseSettings = function(s) {
+  if (Command.loaded) Command.init(false);
   chrome.runtime.sendMessage({getSettings: true}, function (s) {
     settings = s;
     settings.searchLimit = parseInt(settings.searchLimit);
@@ -379,4 +380,13 @@ document.addEventListener("DOMContentLoaded", function() {
       });
     });
   });
+};
+
+document.addEventListener("DOMContentLoaded", function() {
+  chrome.extension.onMessage.addListener(function(request) {
+    if (request.action === "refreshSettings") {
+      return Command.parseSettings();
+    }
+  });
+  return Command.parseSettings();
 }, false);
