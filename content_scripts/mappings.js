@@ -12,9 +12,13 @@ Mappings.actions = {
     document.body.spellcheck = false;
     document.designMode = "on";
     Visual.selection = document.getSelection();
-    Visual.selection.setPosition(Visual.closestNode(), 0);
-    HUD.display(" -- CARET -- ");
-    return Visual.scrollIntoView();
+    if (Find.matches.length) {
+      Visual.focusSearchResult();
+    } else {
+      Visual.selection.setPosition(Visual.closestNode(), 0);
+      HUD.display(" -- CARET -- ");
+      Visual.scrollIntoView();
+    }
   },
   hideDownloadsShelf: function() {
     return chrome.runtime.sendMessage({action: "hideDownloadsShelf"});
@@ -194,7 +198,6 @@ Mappings.actions = {
       }
     }
     this.inputFocused = true;
-    insertMode = true;
     this.inputElements[this.inputElementsIndex].focus();
     document.activeElement.select();
     document.getSelection().collapseToEnd();

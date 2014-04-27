@@ -17,6 +17,17 @@ Visual.getTextNodes = function(callback) {
   if (callback) return callback();
 };
 
+Visual.focusSearchResult = function() {
+  var node = Find.getSelectedTextNode();
+  if (node.data.length === 0) return false;
+  this.selection = document.getSelection();
+  HUD.display(" -- VISUAL -- ");
+  this.selection.setPosition(node, 0);
+  this.selection = document.getSelection();
+  this.selection.extend(node, node.data.trimRight().length);
+  this.visualModeActive = true;
+};
+
 Visual.collapse = function() {
   this.visualModeActive = false;
   var b = this.textNodes.indexOf(this.selection.anchorNode);
@@ -106,6 +117,14 @@ Visual.action = function(key) {
       break;
     case "G":
       this.selection.modify(movementType, "forward", "documentboundary");
+      break;
+    case "n":
+      Mappings.actions.nextSearchResult(1);
+      this.focusSearchResult();
+      break;
+    case "N":
+      Mappings.actions.previousSearchResult(1);
+      this.focusSearchResult();
       break;
     case "y":
       if (movementType === "extend") {

@@ -18,7 +18,9 @@ keyDown = function(e) {
       if (Visual.visualModeActive === false) {
         Visual.caretModeActive = false;
         document.designMode = "off";
-        HUD.hide();
+        if (!Find.matches.length) {
+          HUD.hide();
+        } else HUD.display(Find.index + 1 + " / " + Find.matches.length);
         return document.body.spellcheck = true;
       }
       Visual.visualModeActive = false;
@@ -68,7 +70,7 @@ keyDown = function(e) {
     }
   } else if (!commandMode) {
     if (keyType.escape || (!isInput && (e.which === 32 || e.which === 13))) {
-      if (insertMode) {
+      if (insertMode && !document.activeElement.isInput()) {
         insertMode = false;
         if (!Find.matches.length) {
           HUD.hide();

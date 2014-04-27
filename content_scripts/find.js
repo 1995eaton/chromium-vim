@@ -16,6 +16,13 @@ Find.setIndex = function() {
   }
 };
 
+Find.getSelectedTextNode = function() {
+  if (!this.matches.length) return false;
+  var el = this.matches[this.index];
+  if (!el) return false;
+  return el.firstChild;
+};
+
 Find.search = function(reverse, repeats, enterHit) {
   if (Find.swap) reverse = !reverse;
   if (!this.matches.length) {
