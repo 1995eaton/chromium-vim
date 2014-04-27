@@ -16,12 +16,7 @@ keyDown = function(e) {
     Visual.selection = document.getSelection();
     if (e.which === 27 || (e.ctrlKey && e.which === 219)) {
       if (Visual.visualModeActive === false) {
-        Visual.caretModeActive = false;
-        document.designMode = "off";
-        if (!Find.matches.length) {
-          HUD.hide();
-        } else HUD.display(Find.index + 1 + " / " + Find.matches.length);
-        return document.body.spellcheck = true;
+        return Visual.exit();
       }
       Visual.visualModeActive = false;
       HUD.setMessage(" -- CARET -- ");
@@ -116,7 +111,7 @@ keyDown = function(e) {
           Find.clear();
           setTimeout(function() {
             if (Command.input.value !== "") {
-              Find.highlight(document.body, Command.input.value, true);
+              Find.highlight(document.body, Command.input.value);
             } else {
               HUD.hide();
             }
@@ -136,17 +131,10 @@ keyDown = function(e) {
         e.preventDefault();
         if (document.activeElement.hasOwnProperty("cVim")) {
           if (Command.type === "action") {
-            if (/query|bookmarks|history/.test(Command.actionType)) {
-              if (Command.dataElements.length) {
-                Search.nextResult(e.shiftKey);
-              }
-            } else {
-              if (!Command.typed) {
-                Command.input.value = "";
-                Command.complete(Command.input.value, e.shiftKey, true);
-              } else {
-                Command.complete(Command.typed, e.shiftKey, true);
-              }
+            if (Command.dataElements.length) {
+              Search.nextResult(e.shiftKey);
+            } else if (Command.input.value === "") {
+              Command.complete("");
             }
           }
         }
@@ -171,7 +159,7 @@ keyDown = function(e) {
           if (Command.type === "search") {
             if (Command.input.value !== "" && (Command.input.value !== Find.lastSearch || Find.matches.length === 0)) {
               Find.clear();
-              Find.highlight(document.body, Command.input.value, true);
+              Find.highlight(document.body, Command.input.value);
             }
             setTimeout(function() {
               Find.index = -1;
@@ -179,8 +167,6 @@ keyDown = function(e) {
               Find.search(false, 1, true);
               Command.hide();
             }, 0);
-          } else if (/history|query/.test(Command.actionType)) {
-            Search.go();
           } else {
             Command.parse(Command.input.value);
           }
@@ -197,7 +183,7 @@ keyDown = function(e) {
             if (Command.type === "search" && Command.input.value !== Find.lastSearch) {
               if (Command.input.value !== "") {
                 Find.clear();
-                Find.highlight(document.body, Command.input.value, true);
+                Find.highlight(document.body, Command.input.value);
               }
             }
           }, 2);

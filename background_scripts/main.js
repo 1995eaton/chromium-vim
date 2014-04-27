@@ -1,10 +1,17 @@
-var url = new RegExp(
+String.prototype.convertLink = function() {
+  var url = this.trimLeft().trimRight();
+  if (/^(chrome|chrome-extension|file):\/\/\S+$/.test(url)) return url;
+  var pattern = new RegExp('^((https?|ftp):\\/\\/)?'+
+  '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+
+  '((\\d{1,3}\\.){3}\\d{1,3}))'+
+  '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+
+  '(\\?[;&a-z\\d%_.~+=-]*)?'+
+  '(\\#[-a-z\\d_]*)?$','i');
+  if (pattern.test(url))
+    return (/:\/\//.test(url) ? "" : "http://") + url;
+  return "https://www.google.com/search?q=" + url;
+}
 
-"^(http|chrome|https|ftp)\://([a-zA-Z0-9\.\-]+(\:[a-zA-Z0-9\.&amp;%\$\-]+)*@)*((25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])|([a-zA-Z0-9\-]+\.)*[a-zA-Z0-9\-]+\.(com|edu|gov|int|mil|net|org|biz|arpa|info|name|pro|aero|coop|museum|[a-zA-Z]{2}))(\:[0-9]+)*(/($|[a-zA-Z0-9\.\,\?\'\\\+&amp;%\$#\=~_\-]+))*$"
-
-);
-
-var google = "https://www.google.com/search?q=";
 
 function getTab(sender, reverse, count, first, last) {
   chrome.tabs.query({windowId: sender.tab.windowId}, function(tabs) {
@@ -102,11 +109,12 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
   if (request.action !== "focusMainWindow" && (!request.repeats || !/[0-9]([0-9]+)?/.test(request.repeats.toString()))) request.repeats = 1;
   switch (request.action) {
     case "openLink":
-      chrome.tabs.update({url: request.url});
+      chrome.tabs.update({url: request.url.convertLink()});
       break;
     case "openLinkTab":
+      var url = request.url.convertLink();
       for (var i = 0; i < request.repeats; i++) {
-      chrome.tabs.create({url: request.url, active: request.active, index: sender.tab.index + 1});
+        chrome.tabs.create({url: url, active: request.active, index: sender.tab.index + 1});
       }
       break;
     case "closeTab":
@@ -153,12 +161,12 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
     case "openPasteTab":
       var paste = Clipboard.paste();
       if (!paste) return;
-      chrome.tabs.create({url: (url.test(paste) ? paste : google + paste), index: sender.tab.index + 1});
+      chrome.tabs.create({url: paste.convertLink(), index: sender.tab.index + 1});
       break;
     case "openPaste":
       var paste = Clipboard.paste();
       if (!paste) return;
-      chrome.tabs.update({url: (url.test(paste) ? paste : google + paste)});
+      chrome.tabs.update({url: paste.convertLink()});
       break;
     case "focusMainWindow":
       chrome.tabs.getSelected(null, function(tab) {

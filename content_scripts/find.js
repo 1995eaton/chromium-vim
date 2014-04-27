@@ -82,11 +82,12 @@ Find.search = function(reverse, repeats, enterHit) {
   document.body.scrollLeft = orig[0] + h;
 };
 
-Find.highlight = function(baseNode, match, regexp, setIndex, search, reverse) {
+Find.highlight = function(baseNode, match, setIndex, search, reverse) {
+  var regexp = settings.useRegex;
   if (this.clearing) return;
   this.lastSearch = match;
   var mode;
-  if (/\/i$/.test(match)) {
+  if (settings.ignoreSearchCase || /\/i$/.test(match)) {
     mode = "i";
     match = match.replace(/\/i$/, "");
   } else {

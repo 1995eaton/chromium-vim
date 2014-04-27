@@ -9,39 +9,14 @@ Search.urlMatch = new RegExp(
 Search.index = null;
 Search.searchHistory = [];
 
-var port = chrome.extension.connect({name: "main"});
-
-var getAllMarks = function(marks) {
-  marks.forEach(function(bookmark) {
-    if (bookmark.url) {
-      Marks.bookmarks.push([bookmark.title, bookmark.url]);
-    }
-    if (bookmark.children) {
-      getAllMarks(bookmark.children);
-    }
-  });
+Search.chromeUrls = ["accessibility", "appcache-internals", "apps", "blob-internals", "bookmarks", "cache", "chrome", "chrome-urls", "components", "crashes", "credits", "devices", "dns", "downloads", "extensions", "flags", "flash", "gcm-internals", "gpu", "help", "histograms", "history", "indexeddb-internals", "inspect", "invalidations", "ipc", "linux-proxy-config", "media-internals", "memory", "memory-internals", "nacl", "net-internals", "newtab", "omnibox", "plugins", "policy", "predictors", "print", "profiler", "quota-internals", "sandbox", "serviceworker-internals", "settings", "signin-internals", "stats", "sync-internals", "system", "terms", "tracing", "translate-internals", "user-actions", "version", "view-http-cache", "webrtc-internals", "webrtc-logs", "crash", "kill", "hang", "shorthang", "gpuclean", "gpucrash", "gpuhang", "ppapiflashcrash", "ppapiflashhang", "quit", "restart"];
+Search.chromeMatch = function(string, callback) {
+  if (string.trim() === "") return callback(Search.chromeUrls.slice(0, 10).map(function(e){return["chrome",e]}));
+  var matches = [];
+  callback(this.chromeUrls.filter(function(element) {
+    return (string === element.substring(0, string.length));
+  }).map(function(e){return["chrome",e]}));
 };
-
-port.onMessage.addListener(function(response) {
-  if (response.history) {
-    Search.searchHistory = [];
-    for (var key in response.history) {
-      if (response.history[key].url) {
-        if (response.history[key].title.trim() === "") {
-          Search.searchHistory.push(["Untitled", response.history[key].url]);
-        } else {
-          Search.searchHistory.push([response.history[key].title, response.history[key].url]);
-        }
-      }
-    }
-    if (Command.actionType === "history") {
-      Command.appendResults(Search.searchHistory);
-    }
-  } else if (response.bookmarks) {
-    Marks.bookmarks = [];
-    getAllMarks(response.bookmarks);
-  }
-});
 
 Search.fetchQuery = function(query, callback) {
   Search.current = query;
@@ -58,34 +33,17 @@ Search.fetchQuery = function(query, callback) {
   var xhr = new XMLHttpRequest();
   xhr.open("GET", api + query);
   xhr.onreadystatechange = function() {
+    var matches = [];
     if (xhr.readyState === 4 && xhr.status === 200) {
-      callback(JSON.parse(xhr.responseText)[1]);
+      var data = JSON.parse(xhr.responseText)[1];
+      for (var i = 0, l = data.length; i < l; ++i) {
+        matches.push(["search", data[i]]);
+      }
+      callback(matches);
+      // callback(JSON.parse(xhr.responseText)[1]);
     }
   };
   xhr.send();
-};
-
-Search.go = function(repeats) {
-  var search = Command.input.value.replace(/^(to|tabopen|o|open|hist(ory)?)(\s+)/, "");
-  if (!Search.urlMatch.test(search)) {
-    search = "https://google.com/search?q=" + search;
-  } else if (!/^chrome:\/\//.test(search) && !/^http(s)?/.test(search)) {
-    search = "http://" + search;
-  }
-  if (/^(to|tabopen|hist(ory)?) /.test(Command.input.value)) {
-    chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: search, repeats: repeats});
-  } else {
-    chrome.runtime.sendMessage({action: "openLink", url: search, repeats: repeats});
-  }
-  Command.hide();
-};
-
-Search.appendFromHistory = function(data, limit) {
-  port.postMessage({action: "searchHistory", search: data, limit: limit});
-};
-
-Search.getBookmarks = function() {
-  port.postMessage({action: "getBookmarks"});
 };
 
 Search.nextResult = function(reverse) {
@@ -112,13 +70,13 @@ Search.nextResult = function(reverse) {
         this.index++;
       } else {
         this.index = null;
-        Command.input.value = Command.typed;
+        Command.input.value = Command.typed || "";
         return;
       }
     } else {
       if (this.index === 0) {
         this.index = null;
-        Command.input.value = Command.typed;
+        Command.input.value = Command.typed || "";
         return;
       } else {
         this.index--;
@@ -133,14 +91,22 @@ Search.nextResult = function(reverse) {
   } else {
     Command.dataElements[this.index].style.color = "#1b1d1e";
   }
-  if (Command.actionType === "bookmarks") {
-    Command.input.value = Command.input.value.match(/^(bmarks|bookmarks) /)[0] + Marks.currentBookmarks[this.index];
-  } else if (Command.actionType === "complete") {
-    Command.input.value = Command.matches[this.index][0];
-  } else if (Search.searchHistory[this.index]) {
-    Command.input.value = Command.input.value.match(/^(to|tabopen|open|o|hist(ory)?) /)[0] + Search.searchHistory[this.index][1];
-  } else {
-    Command.input.value = Command.input.value.match(/^(to|tabopen|open|o) /)[0] + Command.dataElements[this.index].innerText;
+
+  switch (Command.completionResults[this.index][0]) {
+    case "chrome":
+      Command.input.value = "chrome://" + Command.completionResults[this.index][1];
+      break;
+    case "bookmark": case "history":
+      Command.input.value = Command.input.value.match(/^\S+ /)[0] + Command.completionResults[this.index][2];
+      break;
+    case "search":
+      Command.input.value = Command.input.value.match(/^\S+ /)[0] + Command.completionResults[this.index][1];
+      break;
+    case "complete":
+      if (Command.completionResults[this.index][1] !== undefined) {
+        Command.input.value = Command.completionResults[this.index][1];
+      }
+      break;
   }
 
 };

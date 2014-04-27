@@ -17,6 +17,16 @@ Visual.getTextNodes = function(callback) {
   if (callback) return callback();
 };
 
+Visual.exit = function() {
+  this.caretModeActive  = false;
+  this.visualModeActive = false;
+  document.designMode   = "off";
+  if (!Find.matches.length) {
+    HUD.hide();
+  } else HUD.display(Find.index + 1 + " / " + Find.matches.length);
+  return document.body.spellcheck = true;
+};
+
 Visual.focusSearchResult = function() {
   var node = Find.getSelectedTextNode();
   if (node.data.length === 0) return false;
@@ -70,7 +80,7 @@ Visual.action = function(key) {
   this.selection = document.getSelection();
   if (key === "g") {
     if (!this.queue.length) {
-      return this.queue += "q";
+      return this.queue += "g";
     } else {
       this.queue = "";
       if (!this.visualModeActive) {
@@ -118,13 +128,15 @@ Visual.action = function(key) {
     case "G":
       this.selection.modify(movementType, "forward", "documentboundary");
       break;
-    case "n":
-      Mappings.actions.nextSearchResult(1);
+    case "n": case "N":
+      if (key === "N") Mappings.actions.previousSearchResult(1);
+      else Mappings.actions.nextSearchResult(1);
       this.focusSearchResult();
       break;
-    case "N":
-      Mappings.actions.previousSearchResult(1);
-      this.focusSearchResult();
+    case "p": case "P":
+      Clipboard.copy(this.selection.toString());
+      Clipboard.paste(key === "P");
+      this.exit();
       break;
     case "y":
       if (movementType === "extend") {

@@ -15,19 +15,8 @@
 #command_bar_mode {
   min-height: 0 !important;background-repeat: none !important;background-position: none !important;border-radius: 0 !important;box-sizing: content-box !important;vertical-align: none !important;box-shadow: none !important;outline: 0 !important;margin: 0 !important;-webkit-appearance: none !important;padding: 0 !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;text-align: start !important;outline: 0 !important;border: 0 !important;margin: 0 !important;outline-style: none !important;line-height: 1 !important;background: none !important; font-style: normal !important;
 }
-#cVim-findmatches {
-    min-height: 0 !important;background-repeat: none !important;background-position: none !important;border-radius: 0 !important;box-sizing: content-box !important;vertical-align: none !important;box-shadow: none !important;outline: 0 !important;margin: 0 !important;-webkit-appearance: none !important;padding: 0 !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;text-align: start !important;outline: 0 !important;border: 0 !important;margin: 0 !important;outline-style: none !important;line-height: 1 !important;background: none !important; font-style: normal !important;
-    position: absolute;
-    height: 100%;
-    display: inline-block;
-    vertical-align: middle;
-    right: 2px;
-    top: 2px;
-    color: white;
-    z-index: 100;
-}
 #command_input {
-  min-height: 0 !important;background-repeat: none !important;background-position: none !important;border-radius: 0 !important;box-sizing: content-box !important;vertical-align: none !important;box-shadow: none !important;outline: 0 !important;border: 0 !important;margin: 0 !important;-webkit-appearance: none !important;padding: 0 !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;text-align: start !important;outline: 0 !important;margin: 0 !important;outline-style: none !important;line-height: 1 !important; font-style: normal !important;
+  min-height: 0 !important;background-repeat: none !important;background-position: none !important;border-radius: 0 !important;box-sizing: content-box !important;vertical-align: none !important;box-shadow: none !important;outline: 0 !important;border: 0 !important;margin: 0 !important;-webkit-appearance: none !important;padding: 0 !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;text-align: start !important;outline: 0 !important;margin: 0 !important;outline-style: none !important;line-height: 1 !important; font-style: normal !important; background: none !important;
 }
 
 #command_search_results {

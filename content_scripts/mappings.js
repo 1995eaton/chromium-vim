@@ -20,6 +20,10 @@ Mappings.actions = {
       Visual.scrollIntoView();
     }
   },
+  percentScroll: function(repeats) {
+    if (Mappings.repeats === "0" || Mappings.repeats === "") repeats = 0;
+    return document.body.scrollTop = (document.body.scrollHeight - document.documentElement.clientHeight) * repeats / 100;
+  },
   hideDownloadsShelf: function() {
     return chrome.runtime.sendMessage({action: "hideDownloadsShelf"});
   },
@@ -154,14 +158,14 @@ Mappings.actions = {
     if (Command.type === "search" || Find.matches.length) {
       return Find.search(false, repeats);
     } else if (Find.lastSearch !== undefined && typeof Find.lastSearch === "string") {
-      return Find.highlight(document.body, Find.lastSearch, true, true, true, false);
+      return Find.highlight(document.body, Find.lastSearch, true, true, false);
     }
   },
   previousSearchResult: function(repeats) {
     if (Command.type === "search" || Find.matches.length) {
       return Find.search(true, repeats);
     } else if (Find.lastSearch !== undefined && typeof Find.lastSearch === "string") {
-      return Find.highlight(document.body, Find.lastSearch, true, true, true, true);
+      return Find.highlight(document.body, Find.lastSearch, true, true, true);
     }
   },
   nextTab: function(r) {
@@ -238,12 +242,14 @@ Mappings.actions = {
 
 Mappings.shortCuts = [
   ["o", ":open "],
-  ["O", ":open $0"],
+  ["O", ":open @%"],
   ["b", ":bookmarks "],
   ["t", ":tabopen "],
   ["I", ":history "],
-  ["T", ":tabopen $0"],
-  ["gd", ":tabopen chrome://downloads<cr>"]
+  ["go", ":duplicate&<cr>"],
+  ["gO", ":duplicate<cr>"],
+  ["T", ":tabopen @%"],
+  ["gd", ":chrome://downloads<cr>"]
 ];
 
 Mappings.defaults = {
@@ -273,6 +279,7 @@ Mappings.defaults = {
   nextTab: ["K", "R", "gt"],
   nextFrame: ["gf"],
   rootFrame: ["gF"],
+  percentScroll: ["%"],
   centerMatchT: ["zt"],
   centerMatchB: ["zb"],
   centerMatchH: ["zz"],
@@ -365,7 +372,7 @@ Mappings.parseCustom = function(config) {
     }
   }
   for (var i = 0, l = Mappings.shortCuts.length; i < l; i++) {
-    Mappings.shortCuts[i][1] = Mappings.shortCuts[i][1].replace("$0", document.URL);
+    Mappings.shortCuts[i][1] = Mappings.shortCuts[i][1].replace("@%", document.URL);
     Mappings.defaults.shortCuts.push(Mappings.shortCuts[i][0]);
   }
 };
@@ -382,6 +389,7 @@ Mappings.isValidMapping = function(c) {
 };
 
 Mappings.convertToAction = function(c) {
+  var addOne = false;
   if (!c) {
     return;
   } else if (Hints.active) {
@@ -402,14 +410,14 @@ Mappings.convertToAction = function(c) {
           for (var i = 0, l = this.defaults[key].length; i < l; i++) {
             if (Mappings.queue === this.defaults[key][i]) {
               if (Mappings.repeats === "0" || Mappings.repeats === "") {
-                Mappings.repeats = "1";
+                addOne = true;
               }
               if (key === "shortCuts") {
-                Mappings.actions[key](Mappings.queue, parseInt(Mappings.repeats));
+                Mappings.actions[key](Mappings.queue, (addOne ? 1 : parseInt(Mappings.repeats)));
                 Mappings.queue = "";
                 return Mappings.repeats = "";
               }
-              Mappings.actions[key](parseInt(Mappings.repeats));
+              Mappings.actions[key]((addOne ? 1 : parseInt(Mappings.repeats)));
               Mappings.queue = "";
               return Mappings.repeats = "";
             }

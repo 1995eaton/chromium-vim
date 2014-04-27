@@ -1,7 +1,16 @@
 var Command = {};
 var settings;
+
 Command.dataElements = [];
 Command.matches = [];
+
+var historyStates = ["action", "url", "search"];
+for (var i = 0; i < historyStates.length; i++) {
+  chrome.runtime.sendMessage({action: "retrieveHistory", type: historyStates[i]}, function(result) {
+    Command.history[result[0]] = result[1];
+  });
+}
+
 Command.setup = function() {
   this.bar = document.createElement("div");
   this.bar.id = "command_bar";
@@ -17,22 +26,23 @@ Command.setup = function() {
   this.bar.appendChild(this.modeIdentifier);
   this.bar.appendChild(this.input);
   this.bar.spellcheck = false;
-  this.findMatches = document.createElement("div");
-  this.findMatches.id = "cVim-findmatches";
-  this.bar.appendChild(this.findMatches);
   try {
     document.lastChild.appendChild(this.bar);
   } catch(e) {
     document.body.appendChild(this.bar);
   }
+  if (!this.data) {
+    this.data = document.createElement("div");
+    this.data.id = "command_search_results";
+    this.data.cVim = true;
+    this.data.style[(this.onBottom) ? 'bottom' : 'top'] = "20px";
+    try {
+      document.lastChild.appendChild(this.data);
+    } catch(e) {
+      document.body.appendChild(this.data);
+    }
+  }
 };
-
-var historyStates = ["action", "url", "search"];
-for (var i = 0; i < historyStates.length; i++) {
-  chrome.runtime.sendMessage({action: "retrieveHistory", type: historyStates[i]}, function(result) {
-    Command.history[result[0]] = result[1];
-  });
-}
 
 Command.history = {
   index: {},
@@ -86,75 +96,25 @@ Command.history = {
   }
 };
 
-Command.appendResults = function(data, bookmarks, search, completion) {
-  this.dataElements = [];
-  var temp, rxp;
-  if (!this.data) {
-    this.data = document.createElement("div");
-    this.data.id = "command_search_results";
-    this.data.cVim = true;
-    this.data.style[(this.onBottom) ? 'bottom' : 'top'] = "20px";
-    try {
-      document.lastChild.appendChild(this.data);
-    } catch(e) {
-      document.body.appendChild(this.data);
+Command.appendResults = function(data, extend, identifier, color) {
+  if (!data.length) return false;
+  if (!extend || !Array.isArray(this.completionResults)) {
+    this.dataElements = [];
+    this.completionResults = data;
+    this.data.innerHTML = "";
+  } else this.completionResults = this.completionResults.concat(data);
+  var arrCount = data[0].length;
+  for (var i = 0, l = data.length; i < l; ++i) {
+    var temp = document.createElement("div");
+    temp.cVim = true;
+    temp.className = "completion-item";
+    if (arrCount === 3) {
+      temp.innerHTML = '<span class="left">' + data[i][1] + '</span>' + '<span class="right">' + data[i][2] + '</span>';
+    } else {
+      temp.innerHTML = '<span class="full">' + data[i][1] + '</span>';
     }
-  }
-  this.data.innerHTML = "";
-  if (bookmarks) {
-    var c = 0;
-    Marks.currentBookmarks = [];
-    for (var i = 0, length = Marks.bookmarks.length; i < length; i++) {
-      try {
-        rxp = new RegExp(search, "i");
-      } catch(e) {
-        continue;
-      }
-      if (!rxp.test(Marks.bookmarks[i][0] + Marks.bookmarks[i][1])) {
-        continue;
-      }
-      c++;
-      if (c > settings.searchLimit) {
-        break;
-      }
-      Marks.currentBookmarks.push(Marks.bookmarks[i][1]);
-      temp = document.createElement("div");
-      temp.cVim = true;
-      temp.className = "completion-item";
-      temp.innerHTML = '<span class="left">' + Marks.bookmarks[i][0] + '</span>' + '<span class="right">' + Marks.bookmarks[i][1] + '</span>';
-      this.dataElements.push(temp);
-      this.data.appendChild(temp);
-    }
-  } else {
-    for (var i = 0; i < Search.searchHistory.length; i++) {
-      temp = document.createElement("div");
-      temp.cVim = true;
-      temp.className = "completion-item";
-      temp.innerHTML = '<span class="left">' + '<span style="color:#00BED3">History</span>: ' + Search.searchHistory[i][0] + '</span>' + '<span class="right">' + Search.searchHistory[i][1] + '</span>';
-      this.dataElements.push(temp);
-      this.data.appendChild(temp);
-    }
-    if (Command.actionType !== "history") {
-      if (completion) {
-        for (var i = 0; i < data.length; i++) {
-          temp = document.createElement("div");
-          temp.cVim = true;
-          temp.className = "completion-item";
-          temp.innerHTML = data[i];
-          this.dataElements.push(temp);
-          this.data.appendChild(temp);
-        }
-      } else {
-        for (var i = 0; i < data.length; i++) {
-          temp = document.createElement("div");
-          temp.cVim = true;
-          temp.className = "completion-item";
-          temp.innerHTML = '<span class="full">' + data[i] + '</span>';
-          this.dataElements.push(temp);
-          this.data.appendChild(temp);
-        }
-      }
-    }
+    this.dataElements.push(temp);
+    this.data.appendChild(temp);
   }
   this.data.style.display = "block";
 };
@@ -167,139 +127,128 @@ Command.hideData = function() {
 };
 
 Command.descriptions = [
-  ["tabopen ", "t(ab)o(pen)", "Open a link in a new tab"],
-  ["closetab", "cl(osetab)", "Close the current tab"],
-  ["open ", "o(pen)", "Open a link in the current tab"],
-  ["nohl", "nohl", "Clears the search highlight"],
-  ["bookmarks ", "b(ook)marks", "Search through your bookmarks"],
-  ["history ", "hist(ory)", "Search through your browser history"],
-  ["settings", "settings", "Open the options page for this extension"],
-  ["extensions", "ex(tensions)", "Opens the chrome://extensions page"],
-  ["flags", "fl(ags)", "Opens the chrome://flags page"]
+  ["tabopen ", "Open a link in a new tab"],
+  ["closetab", "Close the current tab"],
+  ["open ", "Open a link in the current tab"],
+  ["nohl", "Clears the search highlight"],
+  ["bookmarks ", "Search through your bookmarks"],
+  ["history ", "Search through your browser history"],
+  ["duplicate", "Clone the current tab"],
+  ["chrome://", "Opens Chrome urls"],
+  ["settings", "Open the options page for this extension"]
 ];
 
-Command.match = function(input) {
-  this.matches = [];
-  for (var i = 0; i < Command.descriptions.length; i++) {
-    if (!input || input === Command.descriptions[i][0].substring(0, input.length)) {
-      this.matches.push(Command.descriptions[i]);
-    }
-  }
-};
-
-Command.complete = function(input, reverse, doSearch) {
-  if (doSearch && this.dataElements.length && this.matches.length) {
-    Search.nextResult(reverse);
-  } else {
-    Command.match(input);
-    Command.actionType = "complete";
-    Command.typed = input;
-    var descriptions = [];
-    if (this.matches.length) {
-      for (var i = 0; i < this.matches.length; i++) {
-        descriptions.push('<span class="left">' + this.matches[i][1] + '</span>' + '<span class="right">' + this.matches[i][2] + '</span>');
-      }
-      Command.appendResults(descriptions, false, false, true);
-    } else {
-      Command.hideData();
-    }
-  }
+Command.complete = function(string, callback) {
+  var matches = [];
+  if (string === "")
+    return Command.appendResults(this.descriptions.slice(0, 10).map(function(e){return["complete"].concat(e)}));
+  callback(this.descriptions.filter(function(element) {
+    return string === element[0].slice(0, string.length);
+  }).map(function(e){return["complete"].concat(e)}));
 };
 
 Command.parse = function(value, pseudoReturn, repeats) {
-  Command.typed = this.input.value;
-  Command.history.index = {};
-  if (pseudoReturn || Command.enterHit) {
-    Command.hideData();
-    if (/^ex(tensions)?(\s+)?$/.test(value)) {
-      chrome.runtime.sendMessage({action: "openLinkTab", active: true, url: "chrome://extensions"});
-    } else if (/^fl(ags)?(\s+)?$/.test(value)) {
-      chrome.runtime.sendMessage({action: "openLinkTab", active: true, url: "chrome://flags", repeats: repeats});
-    } else if (/^(tabnew|t(ab)?o(pen)?)(\s+)?$/.test(value)) {
-      chrome.runtime.sendMessage({action: "openLinkTab", active: true, url: "chrome://newtab", repeats: repeats});
-    } else if (/^nohl(\s+)?$/.test(value)) {
-      HUD.hide();
-      Find.clear();
-    } else if (/^settings(\s+)?/.test(value)) {
-      chrome.runtime.sendMessage({action: "openLinkTab", active: true, url: chrome.extension.getURL("/pages/options.html"), repeats: repeats});
-    } else if (/^cl(osetab)?(\s+)?$/.test(value)) {
-      chrome.runtime.sendMessage({action: "closeTab", repeats: repeats});
-    } else if (/^b(ook)?marks(\s+)?/.test(value)) {
-      if (this.input.value.replace(/^b(ook)?marks(\s+)?/, "").length !== 0) {
-        chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: this.input.value.replace(/^b(ook)?marks(\s+)?/, "")});
-      }
-    } else if (/^%?s\//.test(this.input.value)) {
-      var search = this.input.value.replace(/^%?s\//, "");
-      var match = search.match(/^([^\/]+)?([^\\])\//);
-      if (match) {
-        match = match[0].substring(0, match[0].length - 1);
-        search = search.substring(match.length + 1, search.length);
-        var replace = search.match(/^([^\/]+)?([^\\])\//);
-        if (replace) {
-          replace = replace[0].substring(0, replace[0].length - 1);
-          search = search.substring(replace.length + 1, search.length);
-          if (search.length === 0 || /^i$/.test(search)) {
-            replaceTextNodes(document.body, match, replace, search);
-          }
-        }
-      }
-    } else if (pseudoReturn) {
-      Search.go(repeats);
+
+  var activeTab = true;
+  if (value) value = value.replace(/&$/, function(e) { activeTab = false; return ""; });
+  this.typed = this.input.value;
+  this.history.index = {};
+
+  if (pseudoReturn || this.enterHit) {
+    value = value.trimLeft().trimRight();
+    switch (value) {
+      case "nohl":
+        HUD.hide();
+        Find.clear();
+        break;
+      case "duplicate":
+        chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: document.URL, repeats: repeats});
+        break;
+      case "settings":
+        chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: chrome.extension.getURL("/pages/options.html"), repeats: repeats});
+        break;
+      case "cl": case "closetab":
+        chrome.runtime.sendMessage({action: "closeTab", repeats: repeats});
+        break;
+      default:
+        if (/^chrome:\/\/\S+$/.test(value))
+          chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value});
+        else if (/^b(ook)?marks(\s+)?/.test(value) && value !== "bookmarks" && value !== "bmarks")
+          chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: this.input.value.replace(/^b(ook)?marks(\s+)?/, "")});
+        else if (/^(to|tabopen|o|open)$/.test(value.replace(/ .*/, "")))
+          chrome.runtime.sendMessage({action: ((/^t[oa]/.test(value.substring(0, 2))) ? "openLinkTab" : "openLink"), active: activeTab, url: value.replace(/^\S+( +)?/, "")});
+        break;
     }
-    Command.hide();
-  } else if (!Command.enterHit) {
+    this.hideData();
+    this.hide();
+  } else if (!this.enterHit) {
+
     Search.searchHistory = [];
-    var search;
+    Search.index = null;
+    var search = this.input.value.replace(/^\S+ +/, "");
+
     if (/^(t(ab)?)?o(pen)?(\s+)/.test(this.input.value)) {
-      Search.index = null;
-      search = this.input.value.replace(/^(t(ab)?)?o(pen)?(\s+)/, "");
-      if (!search) return Command.hideData();
-      if (!/^(\s+)?$/.test(search)) {
-        Search.appendFromHistory(search);
-      } else {
-        return Command.hideData();
-      }
+      if (search.trim() === "") return this.hideData();
+      port.postMessage({action: "searchHistory", search: search, limit: 4});
       Search.fetchQuery(search, function(response) {
-        if (Command.bar.style.display === "block") {
-          Command.typed = Command.input.value;
-          Command.actionType = "query";
-          Command.appendResults(response);
-        } else {
-          Command.hideData();
+        if (this.bar.style.display === "block") {
+          this.typed = this.input.value;
+          this.hideData();
+          if (Marks.history) {
+            this.appendResults(Marks.history, false);
+            this.appendResults(response, true);
+          } else this.appendResults(response, false);
         }
-      });
-    } else if (/^hist(ory)?(\s+)/.test(this.input.value)) {
-      search = this.input.value.replace(/^hist(ory)?(\s+)/, "");
-      Search.index = null;
-      Command.actionType = "history";
-      if (!/^(\s+)?$/.test(search)) {
-        return Search.appendFromHistory(search, settings.searchLimit);
-      }
-      Command.hideData();
-    } else if (/^b(ook)?marks(\s+)/.test(this.input.value)) {
-      search = this.input.value.replace(/^b(ook)?marks(\s+)/, "");
-      Search.index = null;
-      Command.actionType = "bookmarks";
-      Command.appendResults(null, true, search);
-    } else {
-      Command.actionType = "";
-      Command.complete(this.input.value, false, false);
+      }.bind(this));
+      return;
     }
+
+    if (/^chrome:\/\//.test(this.input.value)) {
+      search = this.input.value.slice(9);
+      Search.chromeMatch(search, function(matches) {
+        this.appendResults(matches);
+      }.bind(this));
+      return;
+    }
+
+    if (/^hist(ory)?(\s+)/.test(this.input.value)) {
+      if (search.trim() === "") return this.hideData();
+      port.postMessage({action: "searchHistory", search: search, limit: 10});
+      return;
+    }
+
+    if (/^b(ook)?marks(\s+)/.test(this.input.value)) {
+      Marks.match(this.input.value.replace(/^\w+(\s+)?/, ""), function(response) {
+        if (response.length > 0) {
+          this.appendResults(response);
+        } else {
+          this.hideData();
+        }
+      }.bind(this));
+      return;
+    }
+
+    this.complete(this.input.value, function(data) {
+      if (data.length) {
+        this.appendResults(data);
+      } else this.hideData();
+    }.bind(this));
+
   }
 };
 
 Command.show = function(search, value) {
-  Command.type = "";
+  this.type = "";
   if (search) {
-    Command.type = "search";
+    this.type = "search";
     this.modeIdentifier.innerHTML = search;
   } else {
-    Command.type = "action";
+    this.type = "action";
     this.modeIdentifier.innerHTML = ":";
   }
   if (value) {
     this.input.value = value;
-    Command.typed = value;
+    this.typed = value;
   }
   this.bar.style.display = "block";
   setTimeout(function() {
@@ -310,17 +259,15 @@ Command.show = function(search, value) {
 Command.hide = function() {
   if (!commandMode) return false;
   document.activeElement.blur();
-  Command.hideData();
+  this.hideData();
   this.bar.style.display = "none";
   this.input.value = "";
-  this.findMatches.innerText = "";
   commandMode = false;
   Search.index = null;
   Search.searchHistory = [];
-  Command.enterHit = false;
-  Command.actionType = "";
-  Command.history.index = {};
-  Command.typed = "";
+  this.enterHit = false;
+  this.history.index = {};
+  this.typed = "";
   this.dataElements = [];
   if (this.data) this.data.style.display = "none";
 };
@@ -328,10 +275,10 @@ Command.hide = function() {
 Command.init = function(enabled) {
   if (enabled) {
     Mappings.parseCustom(settings.mappings);
-    Command.css = document.createElement("style");
-    Command.css.innerText = settings.commandBarCSS;
-    document.getElementsByTagName("head")[0].appendChild(Command.css);
-    Command.onBottom = settings.commandBarOnBottom;
+    this.css = document.createElement("style");
+    this.css.innerText = settings.commandBarCSS;
+    document.getElementsByTagName("head")[0].appendChild(this.css);
+    this.onBottom = settings.commandBarOnBottom;
     if (this.data !== undefined) {
       this.data.style[(!this.onBottom) ? 'bottom' : 'top'] = "";
       this.data.style[(this.onBottom) ? 'bottom' : 'top'] = "20px";
@@ -341,14 +288,14 @@ Command.init = function(enabled) {
     if (settings.linkHintCharacters.split("").unique().length > 1) {
       Hints.hintCharacters = settings.linkHintCharacters.split("").unique().join("");
     }
-    Search.getBookmarks();
-    Command.setup();
+    port.postMessage({action: "getBookmarks"});
+    this.setup();
     addListeners();
   } else {
-    Command.loaded = false;
-    Command.css.parentNode.removeChild(Command.css);
+    this.loaded = false;
+    this.css.parentNode.removeChild(this.css);
     var links = document.getElementById("link_hints");
-    Command.bar.parentNode.removeChild(Command.bar);
+    this.bar.parentNode.removeChild(this.bar);
     if (links) {
       links.parentNode.removeChild(links);
     }
@@ -357,7 +304,7 @@ Command.init = function(enabled) {
 };
 
 Command.configureSettings = function(fetchOnly, s) {
-  if (Command.loaded) Command.init(false);
+  if (this.loaded) this.init(false);
   if (fetchOnly) {
     chrome.runtime.sendMessage({getSettings: true});
   } else {
@@ -393,7 +340,7 @@ Command.configureSettings = function(fetchOnly, s) {
 document.addEventListener("DOMContentLoaded", function() {
   chrome.extension.onMessage.addListener(function(request) {
     if (request.action === "refreshSettings") {
-      return Command.configureSettings(true);
+      Command.configureSettings(true);
     } else if (request.action === "sendSettings") {
       Command.configureSettings(false, request.settings);
     }
