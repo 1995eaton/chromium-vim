@@ -218,6 +218,7 @@ Command.parse = function(value, pseudoReturn, repeats) {
     } else if (/^(tabnew|t(ab)?o(pen)?)(\s+)?$/.test(value)) {
       chrome.runtime.sendMessage({action: "openLinkTab", active: true, url: "chrome://newtab", repeats: repeats});
     } else if (/^nohl(\s+)?$/.test(value)) {
+      HUD.hide();
       Find.clear();
     } else if (/^settings(\s+)?/.test(value)) {
       chrome.runtime.sendMessage({action: "openLinkTab", active: true, url: chrome.extension.getURL("/pages/options.html"), repeats: repeats});

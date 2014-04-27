@@ -13,7 +13,11 @@ Mappings.actions = {
     document.designMode = "on";
     Visual.selection = document.getSelection();
     Visual.selection.setPosition(Visual.closestNode(), 0);
-    Visual.scrollIntoView();
+    HUD.display(" -- CARET -- ");
+    return Visual.scrollIntoView();
+  },
+  hideDownloadsShelf: function() {
+    return chrome.runtime.sendMessage({action: "hideDownloadsShelf"});
   },
   goToRootUrl: function() {
     if (window.location.pathname.length === 0 || window.location.pathname === "/") {
@@ -136,6 +140,7 @@ Mappings.actions = {
     return Clipboard.paste(true);
   },
   insertMode: function() {
+    HUD.display(" -- INSERT -- ");
     return insertMode = true;
   },
   reloadTab: function() {
@@ -259,6 +264,7 @@ Mappings.defaults = {
   goForward: ["L", "D"],
   firstTab: ["g0"],
   lastTab: ["g$"],
+  hideDownloadsShelf: ["gj", "gD"],
   createTabbedHint: ["F"],
   goToInput: ["gi"],
   nextTab: ["K", "R", "gt"],

@@ -18,9 +18,11 @@ keyDown = function(e) {
       if (Visual.visualModeActive === false) {
         Visual.caretModeActive = false;
         document.designMode = "off";
+        HUD.hide();
         return document.body.spellcheck = true;
       }
       Visual.visualModeActive = false;
+      HUD.setMessage(" -- CARET -- ");
       Visual.collapse();
     }
     return;
@@ -65,9 +67,24 @@ keyDown = function(e) {
       return true;
     }
   } else if (!commandMode) {
-    if (keyType.escape) {
-      insertMode = false;
+    if (keyType.escape || (!isInput && (e.which === 32 || e.which === 13))) {
+      if (insertMode) {
+        insertMode = false;
+        if (!Find.matches.length) {
+          HUD.hide();
+        } else {
+          HUD.display(Find.index + 1 + " / " + Find.matches.length);
+        }
+      } else if (Find.matches.length) {
+        Find.clear();
+        HUD.hide();
+      }
       Mappings.actions.inputFocused = false;
+      if (Mappings.queue !== "") {
+        e.preventDefault();
+        Mappings.queue = "";
+        Mappings.repeats  = "";
+      }
       if (isInput) document.activeElement.blur();
     } else if (!isInput && keyType.arrow && Mappings.isValidMapping(Mappings.arrowKeys[e.which - 37])) {
       e.preventDefault();
@@ -80,6 +97,10 @@ keyDown = function(e) {
     }
   } else if (keyType.escape) {
       Mappings.actions.inputFocused = false;
+      if (Command.type === "search") {
+        Find.clear();
+        HUD.hide();
+      }
       Command.hide();
   } else if (Command.bar.style.display === "block" && document.activeElement.hasOwnProperty("cVim") && document.activeElement.id === "command_input") {
     switch (e.keyCode) {
@@ -95,7 +116,7 @@ keyDown = function(e) {
             if (Command.input.value !== "") {
               Find.highlight(document.body, Command.input.value, true);
             } else {
-              Command.findMatches.innerText = "";
+              HUD.hide();
             }
           }, 0);
         } else if (Command.input.value !== "") {
@@ -153,7 +174,7 @@ keyDown = function(e) {
             setTimeout(function() {
               Find.index = -1;
               Find.setIndex();
-              Find.search(false, 1);
+              Find.search(false, 1, true);
               Command.hide();
             }, 0);
           } else if (/history|query/.test(Command.actionType)) {

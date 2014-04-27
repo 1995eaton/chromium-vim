@@ -10,15 +10,18 @@ Find.setIndex = function() {
     var br = this.matches[i].getBoundingClientRect();
     if (br.top > 0 && br.left > 0) {
       this.index = i - 1;
+      HUD.display(this.index + 1 + " / " + this.matches.length);
       break;
     }
   }
 };
 
-Find.search = function(reverse, repeats) {
+Find.search = function(reverse, repeats, enterHit) {
   if (Find.swap) reverse = !reverse;
-  if (!this.matches.length)
+  if (!this.matches.length) {
+    HUD.display("No matches", 1);
     return;
+  }
   if (this.index >= 0)
     this.matches[this.index].style.backgroundColor = "";
   if (reverse && repeats === 1 && this.index === 0) {
@@ -53,6 +56,7 @@ Find.search = function(reverse, repeats) {
     }
   }
   this.matches[this.index].style.backgroundColor = "#ff9632";
+  HUD.display(this.index + 1 + " / " + this.matches.length);
   var v = 0;
   var h = 0;
   var linkOffset = 0;
@@ -121,9 +125,9 @@ Find.highlight = function(baseNode, match, regexp, setIndex, search, reverse) {
     }
   }
   if (this.matches.length === 0) {
-    Command.findMatches.innerText = "No matches";
+    HUD.display("No matches");
   } else {
-    Command.findMatches.innerText = this.matches.length;
+    HUD.display(this.matches.length);
   }
   document.body.normalize();
 

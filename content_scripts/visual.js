@@ -73,8 +73,9 @@ Visual.action = function(key) {
   if (key === "v") {
     this.visualModeActive = !this.visualModeActive;
     if (!this.visualModeActive) {
+      HUD.setMessage(" -- CARET -- ");
       return Visual.collapse();
-    }
+    } else HUD.setMessage(" -- VISUAL -- ");
   }
   if (this.selection.type === "Range") this.visualModeActive = true;
   var movementType = ((this.selection.type === "Range" || this.visualModeActive) ? "extend" : "move");

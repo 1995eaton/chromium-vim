@@ -89,6 +89,7 @@ Hints.handleHintFeedback = function(choice) {
             if (i >= 0) {
               Mappings.actions.toggleVisualMode();
               Visual.selectNode(i);
+              HUD.display(" -- VISUAL -- ");
             }
           });
         }

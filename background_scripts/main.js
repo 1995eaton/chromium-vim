@@ -165,6 +165,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
         chrome.tabs.sendMessage(tab.id, {action: "focus", repeats: request.repeats});
       });
       break;
+    case "hideDownloadsShelf":
+      chrome.downloads.setShelfEnabled(false);
+      break;
     default:
       break;
   }
