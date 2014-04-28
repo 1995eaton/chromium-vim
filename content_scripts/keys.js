@@ -54,7 +54,11 @@ keyDown = function(e) {
       modifier = "<" + modifier + (e.shiftKey? String.fromCharCode(e.which) : String.fromCharCode(e.which).toLowerCase()) + ">";
   }
 
-  if (Hints.active) {
+  if (document.activeElement.isInput() && !insertMode && !keyType.escape && modifier !== "") {
+    Mappings.insertCommand(modifier, function(ret) {
+      e.preventDefault();
+    });
+  } else if (Hints.active) {
     if (e.which === 18) {
       Hints.changeFocus();
     } else if (keyType.escape || e.which <= 40) {
@@ -213,6 +217,8 @@ keyPress = function(e) {
           Mappings.convertToAction(String.fromCharCode(e.which));
         }
       }, 0);
+    } else {
+      var key = String.fromCharCode(modifier + e.which);
     }
   }
 };

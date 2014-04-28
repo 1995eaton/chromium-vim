@@ -302,6 +302,19 @@ Mappings.defaults = {
   shortCuts: []
 };
 
+Mappings.insertDefaults = {
+  deleteWord:        ["<C-y>"],
+  deleteForwardWord: ["<C-p>"],
+  beginningOfLine:   ["<C-i>"],
+  endOfLine:         ["<C-e>"],
+  deleteToBeginning: ["<C-u>"],
+  deleteToEnd:       ["<C-o>"],
+  forwardChar:       ["<C-f>"],
+  backwardChar:      ["<C-b>"],
+  forwardWord:       ["<C-l>"],
+  backwardWord:      ["<C-h>"]
+};
+
 Mappings.isValidQueue = function(c) {
   for (var key in this.defaults) {
     if (this.defaults.hasOwnProperty(key)) {
@@ -312,6 +325,98 @@ Mappings.isValidQueue = function(c) {
       }
     }
   }
+};
+
+Mappings.insertFunctions = {
+  deleteWord: function() {
+    var ae = document.activeElement;
+    var left  = ae.value.slice(0, ae.selectionStart),
+    right = ae.value.slice(ae.selectionStart);
+    left = left.replace(/([a-zA-Z_]+|[^a-zA-Z\s]+)?( +)?$/, "");
+    var sstart = ae.selectionStart;
+    var alen = ae.value.length;
+    ae.value = left + right;
+    if (sstart < alen) {
+      ae.selectionStart -= ae.value.length - left.length
+      ae.selectionEnd = ae.selectionStart;
+    }
+    return true;
+  },
+  beginningOfLine: function() {
+    document.activeElement.selectionStart = 0;
+    document.activeElement.selectionEnd   = 0;
+    return true;
+  },
+  endOfLine: function() {
+    document.activeElement.selectionStart = document.activeElement.value.length;
+    document.activeElement.selectionEnd   = document.activeElement.selectionStart;
+    return true;
+  },
+  deleteToBeginning: function() {
+    document.activeElement.value = document.activeElement.value.slice(document.activeElement.selectionStart - 1, -1);
+    document.activeElement.selectionStart = 0;
+    document.activeElement.selectionEnd   = 0;
+    return true;
+  },
+  deleteToEnd: function() {
+    document.activeElement.value = document.activeElement.value.substring(0, document.activeElement.selectionStart);
+    return true;
+  },
+  forwardChar: function() {
+    document.activeElement.selectionStart += 1;
+    return true;
+  },
+  backwardChar: function() {
+    document.activeElement.selectionStart -= 1;
+    document.activeElement.selectionEnd   -= 1;
+    return true;
+  },
+  forwardWord: function() {
+    var aval = (document.activeElement.value + " ").slice(document.activeElement.selectionStart, -1);
+    var diff = aval.length - aval.replace(/^([a-zA-Z_]+|[^a-zA-Z\s]+)( +)?/, "").length;
+    if (diff === 0)
+      document.activeElement.selectionStart = document.activeElement.value.length;
+    else
+      document.activeElement.selectionStart += diff;
+    return true;
+  },
+  backwardWord: function() {
+    var aval = document.activeElement.value.slice(0, document.activeElement.selectionStart);
+    var diff = aval.length - aval.replace(/([a-zA-Z_]+|[^a-zA-Z\s]+)( +)?$/, "").length;
+    document.activeElement.selectionStart -= diff;
+    document.activeElement.selectionEnd   -= diff;
+    return true;
+  },
+  deleteForwardWord: function() {
+    if (document.activeElement.selectionStart !== document.activeElement.value.length) {
+      this.forwardWord();
+      this.deleteWord();
+    }
+    return true;
+  }
+};
+
+Mappings.getInsertFunction = function(modifier, callback) {
+  var validMapping = false;
+  for (var key in this.insertDefaults) {
+    if (typeof this.insertDefaults[key] !== "object") continue;
+    this.insertDefaults[key].forEach(function(item) {
+      if (!validMapping && modifier === item) {
+        validMapping = true;
+        callback(key);
+      }
+    });
+    if (validMapping)
+      break;
+  }
+};
+
+Mappings.insertCommand = function(modifier, callback) {
+  this.getInsertFunction(modifier, function(func) {
+    if (func && document.activeElement.hasOwnProperty("value")) {
+      callback(Mappings.insertFunctions[func]());
+    }
+  });
 };
 
 Mappings.parseCustom = function(config) {

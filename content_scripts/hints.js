@@ -144,7 +144,7 @@ Hints.handleHintFeedback = function(choice) {
       } else if (!this.tabbed || link.getAttribute("onclick")) {
         link.click();
       } else {
-        chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: link.href});
+        chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: link.href, noconvert: true});
       }
     }.bind(this), 0);
   }

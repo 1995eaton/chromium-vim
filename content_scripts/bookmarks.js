@@ -45,9 +45,9 @@ port.onMessage.addListener(function(response) {
         }
       }
     }
-    if (Command.actionType === "history") {
+    if (Command.historyMode) {
       if (matches.length > 0) {
-        Command.appendResults(matches);
+        Command.appendResults(matches, false, "History", "cyan");
       } else Command.hideData();
     }
     Marks.history = matches;

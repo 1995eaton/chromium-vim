@@ -109,9 +109,9 @@ Command.appendResults = function(data, extend, identifier, color) {
     temp.cVim = true;
     temp.className = "completion-item";
     if (arrCount === 3) {
-      temp.innerHTML = '<span class="left">' + data[i][1] + '</span>' + '<span class="right">' + data[i][2] + '</span>';
+      temp.innerHTML = '<span class="left">' + (identifier ? '<span style="color:' + color + '">' + identifier + '</span>:&nbsp;' : "") + data[i][1] + '</span>' + '<span class="right">' + data[i][2] + '</span>';
     } else {
-      temp.innerHTML = '<span class="full">' + data[i][1] + '</span>';
+      temp.innerHTML = (identifier ? '<span style="color:' + color + '">' + identifier + '</span>:&nbsp;' : "") +'<span class="full">' + data[i][1] + '</span>';
     }
     this.dataElements.push(temp);
     this.data.appendChild(temp);
@@ -195,7 +195,7 @@ Command.parse = function(value, pseudoReturn, repeats) {
           this.typed = this.input.value;
           this.hideData();
           if (Marks.history) {
-            this.appendResults(Marks.history, false);
+            this.appendResults(Marks.history, false, "History", "cyan");
             this.appendResults(response, true);
           } else this.appendResults(response, false);
         }
@@ -206,13 +206,16 @@ Command.parse = function(value, pseudoReturn, repeats) {
     if (/^chrome:\/\//.test(this.input.value)) {
       search = this.input.value.slice(9);
       Search.chromeMatch(search, function(matches) {
-        this.appendResults(matches);
+        if (matches.length) {
+          this.appendResults(matches);
+        } else this.hideData();
       }.bind(this));
       return;
     }
 
     if (/^hist(ory)?(\s+)/.test(this.input.value)) {
       if (search.trim() === "") return this.hideData();
+      this.historyMode = true; 
       port.postMessage({action: "searchHistory", search: search, limit: 10});
       return;
     }
@@ -262,6 +265,7 @@ Command.hide = function() {
   this.hideData();
   this.bar.style.display = "none";
   this.input.value = "";
+  this.historyMode = false;
   commandMode = false;
   Search.index = null;
   Search.searchHistory = [];

@@ -109,10 +109,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
   if (request.action !== "focusMainWindow" && (!request.repeats || !/[0-9]([0-9]+)?/.test(request.repeats.toString()))) request.repeats = 1;
   switch (request.action) {
     case "openLink":
-      chrome.tabs.update({url: request.url.convertLink()});
+      var url = request.url;
+      if (!request.noconvert) url = url.convertLink();
+      chrome.tabs.update({url: url});
       break;
     case "openLinkTab":
-      var url = request.url.convertLink();
+      var url = request.url;
+      if (!request.noconvert) url = url.convertLink();
       for (var i = 0; i < request.repeats; i++) {
         chrome.tabs.create({url: url, active: request.active, index: sender.tab.index + 1});
       }
