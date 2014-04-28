@@ -249,7 +249,8 @@ Mappings.shortCuts = [
   ["go", ":duplicate&<cr>"],
   ["gO", ":duplicate<cr>"],
   ["T", ":tabopen @%"],
-  ["gd", ":chrome://downloads<cr>"]
+  ["gd", ":chrome://downloads<cr>"],
+  ["ge", ":chrome://extensions<cr>"]
 ];
 
 Mappings.defaults = {
