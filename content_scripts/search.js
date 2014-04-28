@@ -39,7 +39,7 @@ Search.fetchQuery = function(query, callback) {
     if (lastQuery !== Search.current) {
       Search.fetchQuery(query, callback);
     }
-  }, 150);
+  }, 50);
   var xhr = new XMLHttpRequest();
   xhr.open("GET", api + query);
   xhr.onreadystatechange = function() {
@@ -50,7 +50,6 @@ Search.fetchQuery = function(query, callback) {
         matches.push(["search", data[i]]);
       }
       callback(matches);
-      // callback(JSON.parse(xhr.responseText)[1]);
     }
   };
   xhr.send();

@@ -1,0 +1,384 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<link rel="stylesheet" href="options.css">
+</head>
+<body style="background-color: initial">
+<div id="mappingContainer">
+  <h2>Default Command Mappings</h2>
+  <hr>
+  Movement
+  <table>
+    <tr>
+      <td>
+        <div class="setting">j, s</div>
+        <div class="value">Scroll down (scrollDown)</div>
+      </td>
+      <td>
+        <div class="setting">k, w</div>
+        <div class="value">Scroll up (scrollUp)</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">d</div>
+        <div class="value">Scroll half-page down (scrollPageDown)</div>
+      </td>
+      <td>
+        <div class="setting">u, e</div>
+        <div class="value">Scroll half-page up (scrollPageUp)</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">h</div>
+        <div class="value">Scroll left (scrollLeft)</div>
+      </td>
+      <td>
+        <div class="setting">l</div>
+        <div class="value">Scroll right (scrollRight)</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">gi</div>
+        <div class="value">Go to first input box (tab to cycle through) (goToInput)</div>
+      </td>
+      <td>
+        <div class="setting">zz</div>
+        <div class="value">Center page to current search match (middle) (centerMatchH)</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">zt</div>
+        <div class="value">Center page to current search match (top) (centerMatchT)</div>
+      </td>
+      <td>
+        <div class="setting">zb</div>
+        <div class="value">Center page to current search match (bottom) (centerMatchB)</div>
+      </td>
+    </tr>
+  </table>
+  Link Hints
+  <table>
+    <tr>
+      <td>
+        <div class="setting">f</div>
+        <div class="value">Open link in current tab (createHint)</div>
+      </td>
+      <td>
+        <div class="setting">F</div>
+        <div class="value">Open link in new tab (createTabbedHint)</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">Y</div>
+        <div class="value">Copy Url from link to clipboard (yankUrl)</div>
+      </td>
+      <td>
+        <div class="setting">gr</div>
+        <div class="value">Reverse image search (Google) an image on the page (reverseImage)</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">; / Left Alt</div>
+        <div class="value">Change the focus of link hints</div>
+      </td>
+    </tr>
+  </table>
+  Miscellaneous
+  <table>
+    <tr>
+      <td>
+        <div class="setting">I</div>
+        <div class="value">Search through history (:history)</div>
+      </td>
+      <td>
+        <div class="setting">b</div>
+        <div class="value">Search through bookmarks (:bookmarks)</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">p</div>
+        <div class="value">Opens the clipboard selection</div>
+      </td>
+      <td>
+        <div class="setting">P</div>
+        <div class="value">Opens the clipboard selection (new tab)</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">gj</div>
+        <div class="value">Hide the download shelf (hideDownloadsShelf)</div>
+      </td>
+    </tr>
+  </table>
+  Tab navigation
+  <table>
+    <tr>
+      <td>
+        <div class="setting">gt, K, R</div>
+        <div class="value">Navigate to the next tab (nextTab)</div>
+      </td>
+      <td>
+        <div class="setting">gT, J, E</div>
+        <div class="value">Navigate to the previous tab (previousTab)</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">x</div>
+        <div class="value">Close the current tab (closeTab)</div>
+      </td>
+      <td>
+        <div class="setting">t + &lt;Enter&gt; (:tabopen)</div>
+        <div class="value">Open a new tab</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">H, S (goBack)</div>
+        <div class="value">Go back</div>
+      </td>
+      <td>
+        <div class="setting">L, D</div>
+        <div class="value">Go forward (goForward)</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">&lt;</div>
+        <div class="value">Move current tab left (moveTabLeft)</div>
+      </td>
+      <td>
+        <div class="setting">&gt;</div>
+        <div class="value">Move current tab right (moveTabRight)</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">gp</div>
+        <div class="value">Pin/unpin the current tab (pinTab)</div>
+      </td>
+      <td>
+        <div class="setting"></div>
+        <div class="value"></div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">go</div>
+        <div class="value">Duplicate the current tab (:duplicate&&lt;cr&gt;)</div>
+      </td>
+      <td>
+        <div class="setting">gO</div>
+        <div class="value">Duplicate the current tab (:duplicate&lt;cr&gt;)</div>
+      </td>
+    </tr>
+  </table>
+  Search Mode (open with "/")
+  <table>
+    <tr>
+      <td>
+        <div class="setting">n</div>
+        <div class="value">Go to next search result (nextSearchResult)</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">N</div>
+        <div class="value">Go to previous search result (previousSearchResult)</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">v</div>
+        <div class="value">Enter visual mode with the current search highlighted</div>
+      </td>
+    </tr>
+  </table>
+  Visual/Caret Mode (enter with "i")
+  <table>
+    <tr>
+      <td>
+        <div class="setting">Escape</div>
+        <div class="value">Exit visual mode to caret mode/exit caret mode to normal mode</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">v</div>
+        <div class="value">Toggle between visual/caret mode</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">h,j,k,l</div>
+        <div class="value">Move the caret/extend the current selection</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">n</div>
+        <div class="value">Highlight the next search result</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">N</div>
+        <div class="value">Highlight the previous search result</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">v</div>
+        <div class="value">Enter visual mode with the current search highlighted</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">p</div>
+        <div class="value">Opens the clipboard selection</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">P</div>
+        <div class="value">Opens the clipboard selection (new tab)</div>
+      </td>
+    </tr>
+  </table>
+  Text area / input box shortcuts
+  <table>
+    <tr>
+      <td>
+        <div class="setting">&lt;C-i&gt;</div>
+        <div class="value">Move cursor to the beginning of the line</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">&lt;C-y&gt;</div>
+        <div class="value">Move cursor to the end of the line</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">&lt;C-y&gt;</div>
+        <div class="value">Delete the previous word</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">&lt;C-p&gt;</div>
+        <div class="value">Delete the next word</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">&lt;C-u&gt;</div>
+        <div class="value">Delete to the beginning of the line</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">&lt;C-k&gt;</div>
+        <div class="value">Delete to the end of the line</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">&lt;C-f&gt;</div>
+        <div class="value">Move the cursor forward one character</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">&lt;C-b&gt;</div>
+        <div class="value">Move the cursor backward one character</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">&lt;C-l&gt;</div>
+        <div class="value">Move the cursor forward one word</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">&lt;C-h&gt;</div>
+        <div class="value">Move the cursor backward one word</div>
+      </td>
+    </tr>
+  </table>
+  Command Mode (open with ":")
+  <table class="single-column">
+    <tr>
+      <td>
+        <div class="setting">:tabopen &lt;SEARCH/AUTOCOMPLETE&gt;</div>
+        <div class="value">Open a new tab with the typed/completed Url or Google search</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">:open &lt;SEARCH/AUTOCOMPLETE&gt;</div>
+        <div class="value">Open the typed/completed Url or Google search in the same tab</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">:history &lt;SEARCH/AUTOCOMPLETE&gt;</div>
+        <div class="value">Search through browsing history</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">:bookmarks &lt;SEARCH/AUTOCOMPLETE&gt;</div>
+        <div class="value">Search through your bookmarks</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">:set &lt;SEARCH/AUTOCOMPLETE&gt;</div>
+        <div class="value">Temporarily map a setting</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">:chrome:// &lt;SEARCH/AUTOCOMPLETE&gt;</div>
+        <div class="value">Open one of the chrome://* Urls</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">:tabclose</div>
+        <div class="value">Close the current tab</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">:nohl</div>
+        <div class="value">Clears the page highlighting from the last search</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">:duplicate</div>
+        <div class="value">Duplicate the current tab</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="setting">:settings</div>
+        <div class="value">Opens this settings page</div>
+      </td>
+    </tr>
+  </table>
+</div>
+</body>
+</html>
