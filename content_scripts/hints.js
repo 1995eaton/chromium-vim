@@ -7,7 +7,7 @@ Hints.hintCharacters = "asdfgzxcvbqwert";
 
 Hints.hideHints = function(reset) {
   if (document.getElementById("link_main") !== null) {
-    if (!this.visual) HUD.hide();
+    HUD.hide();
     document.getElementById("link_main").parentNode.removeChild(document.getElementById("link_main"));
   }
   this.active = reset;
@@ -80,17 +80,6 @@ Hints.handleHintFeedback = function(choice) {
         Clipboard.copy(link.href);
       } else if (this.image) {
         chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: "https://www.google.com/searchbyimage?image_url=" + link.src, noconvert: true});
-      } else if (this.visual) {
-        if (link.firstChild && link.firstChild.nodeType === 3) {
-          Visual.getTextNodes(function() {
-            var i = Visual.textNodes.indexOf(link.firstChild);
-            if (i >= 0) {
-              Mappings.actions.toggleVisualMode();
-              Visual.selectNode(i);
-              HUD.display(" -- VISUAL -- ");
-            }
-          });
-        }
       } else if (node === "BUTTON" || link.getAttribute("jsaction")) {
         link.click();
       } else if (/^(button|checkbox)$/.test(link.getAttribute("role"))) {
@@ -174,9 +163,6 @@ Hints.getLinks = function(type) {
     case "image":
       selection = "//img";
       break;
-    case "visual":
-      selection = "//a|//area[@href]";
-      break;
     default:
       selection = "//a|//area[@href]|//*[not(@aria-disabled='true') and (@onclick or @role='button' or @role='checkbox' or @tabindex or @aria-haspopup or @data-cmd or @jsaction)]|//button|//select|//textarea|//input";
       break;
@@ -194,22 +180,20 @@ Hints.getLinks = function(type) {
   return valid;
 };
 
-Hints.create = function(tabbed, yank, image, visual) {
+Hints.create = function(tabbed, yank, image) {
   var screen, links, linkNumber, main, frag, linkElement, isAreaNode, mapCoordinates, computedStyle, imgParent;
   HUD.display("Follow link " + (function() {
     if (yank)   return "(yank)";
     if (image)  return "(reverse image)";
-    if (visual) return "(visual select)";
     if (tabbed) return "(tabbed)";
     return "";
   })());
   this.hideHints(true);
-  links = this.getLinks(yank ? "yank" : (image ? "image" : (visual ? "visual" : undefined)));
+  links = this.getLinks(yank ? "yank" : (image ? "image" : undefined));
   if (links.length === 0) return this.hideHints(false);
   this.yank = yank;
   this.image = image;
   this.tabbed = tabbed;
-  this.visual = visual;
   screen = {
     top: document.body.scrollTop,
     bottom: document.body.scrollTop + window.innerHeight,

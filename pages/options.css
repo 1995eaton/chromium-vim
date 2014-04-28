@@ -1,14 +1,6 @@
-@font-face {
-  font-family: 'Gafata';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Gafata'), local('Gafata-Regular'), url(./fonts/Gafata.woff) format('woff');
-}
-
 body {
-  font-family: Gafata;
+  font-family: Helvetica Neue, Neue, Helvetica, Sans, Arial;
   -webkit-font-smoothing: antialiased;
-  background-color: #aaa;
   font-size: 14pt;
 }
 
@@ -77,9 +69,6 @@ table {
 #edit_mode {
   font-size: 8pt;
   position: absolute;
-  top: 4px;
-  left: 30px;
-  width: 19px;
   background-color: rgba(0,0,0,0);
   border: none;
   outline-style: none;
@@ -149,20 +138,22 @@ textarea:focus, input:focus {
 
 #save_container {
   position: fixed;
-  width: 100%;
-  left: 0; right: 0;
-  background-color: rgba(10,10,10,0.4);
+  left: 0; top: 0;
   transition: opacity 0.2s ease-in-out;
+  box-sizing: border-box;
+  background-color: rgba(0,0,0,0.4);
+  height: 100%;
   text-align: center;
   z-index: 999;
-  margin: 0 auto;
-  bottom: 0;
 }
 
 #save_button, #reset_button {
-  width: 55px;
+  width: 60px;
   margin: 5px;
+  font-size: 12pt;
+  display: block;
   outline-style: none;
+  box-sizing: border-box;
   transition: box-shadow 0.2s ease-out;
   border: none;
 }
@@ -176,20 +167,19 @@ textarea:focus, input:focus {
 }
 
 #mappingContainer {
-  position: absolute;
+  position: fixed;
+  overflow: auto;
   z-index: 23948;
   box-sizing: border-box;
   padding: 5px;
-  display: none;
   left: 0; right: 0;
   top: 0;
   height: 100%;
-  opacity: 0;
   transition: opacity 0.2s ease-out;
   margin: 0 auto;
   background-color: #fff;
-  box-shadow: 1px 1px 5px rgba(0,0,0,0.3);
-  width: 1000px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.9);
+  width: 1024px;
 }
 
 #mappingContainer h2 {

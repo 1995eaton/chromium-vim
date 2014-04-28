@@ -65,11 +65,10 @@ mouseDown = function (e) {
     save_clicked = true;
   } else if (e.target.id === "reset_button") {
     reset_clicked = true;
-  } else if (e.target.className === "mapping-help") {
-    mappingContainer.style.display = "block";
-    setTimeout(function() {
-      mappingContainer.style.opacity = "1";
-    }, 5);
+  } else if (e.target.id === "clearHistory") {
+    localStorage["search"] = "";
+    localStorage["url"]    = "";
+    localStorage["action"] = "";
   } else if (e.target.id === "close") {
     mappingContainer.style.opacity = "0";
     mappingContainerFadeOut = true;

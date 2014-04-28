@@ -12,7 +12,7 @@ HUD.transitionEvent = function(ev) {
 };
 
 HUD.hide = function() {
-  if (this.element === undefined) return false;
+  if (settings.disableHUD || this.element === undefined) return false;
   if (Find.matches.length) return HUD.display(Find.index + 1 + " / " + Find.matches.length);
   this.element.addEventListener("transitionend", this.transitionEvent, true);
   var width = this.element.offsetWidth;
@@ -20,7 +20,7 @@ HUD.hide = function() {
 };
 
 HUD.setMessage = function(text, duration) {
-  if (this.element === undefined) return false;
+  if (settings.disableHUD || this.element === undefined) return false;
   this.element.firstElementChild.innerText = text;
   if (duration) {
     window.setTimeout(function() {
@@ -30,7 +30,7 @@ HUD.setMessage = function(text, duration) {
 };
 
 HUD.display = function(text, duration) {
-  if (HUD.element !== undefined) return HUD.setMessage(text, duration);
+  if (settings.disableHUD || HUD.element !== undefined) return HUD.setMessage(text, duration);
   var span, pageWidth, screenWidth, height, width;
   document.removeEventListener("transitionend", this.transitionEvent, true);
   this.element = document.createElement("div");

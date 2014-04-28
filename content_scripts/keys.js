@@ -54,7 +54,7 @@ keyDown = function(e) {
       modifier = "<" + modifier + (e.shiftKey? String.fromCharCode(e.which) : String.fromCharCode(e.which).toLowerCase()) + ">";
   }
 
-  if (document.activeElement.isInput() && !insertMode && !keyType.escape && modifier !== "") {
+  if (!settings.disableInsertMappings && document.activeElement.isInput() && !insertMode && !keyType.escape && modifier !== "") {
     Mappings.insertCommand(modifier, function(ret) {
       e.preventDefault();
     });

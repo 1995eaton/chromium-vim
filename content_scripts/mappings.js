@@ -128,11 +128,6 @@ Mappings.actions = {
       return Hints.create(true);
     }, 0);
   },
-  createVisualHint: function() {
-    setTimeout(function() {
-      return Hints.create(false, false, false, true);
-    }, 0);
-  },
   yankUrl: function() {
     setTimeout(function() {
       return Hints.create(true, true);
@@ -291,7 +286,6 @@ Mappings.defaults = {
   yankDocumentUrl: ["yy"],
   openPaste: ["p"],
   toggleVisualMode: ["v"],
-  createVisualHint: ["V"],
   openPasteTab: ["P"],
   previousTab: ["J", "E", "gT"],
   nextSearchResult: ["n"],
