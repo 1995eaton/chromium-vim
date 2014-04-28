@@ -174,7 +174,7 @@ Command.parse = function(value, pseudoReturn, repeats) {
       default:
         if (/^chrome:\/\/\S+$/.test(value))
           chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value});
-        else if (/^b(ook)?marks(\s+)?/.test(value) && value !== "bookmarks" && value !== "bmarks")
+        else if (/^bookmarks/.test(value) && value !== "bookmarks")
           chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value.replace(/^b(ook)?marks(\s+)?/, "")});
         else if (/^(to|tabopen|o|open)$/.test(value.replace(/ .*/, "")))
           chrome.runtime.sendMessage({action: ((/^t[oa]/.test(value.substring(0, 2))) ? "openLinkTab" : "openLink"), active: activeTab, url: value.replace(/^\S+( +)?/, "")});

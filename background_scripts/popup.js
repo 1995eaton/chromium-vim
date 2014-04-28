@@ -2,24 +2,32 @@ var isEnabled = true;
 var isBlacklisted;
 var currentDomain;
 var settings;
-var blacklists;
+var blacklists = "";
 
-chrome.storage.sync.get('settings', function(s) {
-  if (s.settings === undefined) return false;
-  settings = s.settings;
-  if (!s.settings.hasOwnProperty('blacklists')) {
-    settings.blacklists = "";
+function getSettings() {
+  chrome.storage.sync.get('settings', function(s) {
+    settings = s.settings;
+    if (settings === undefined) return chrome.storage.sync.set({settings: settingsDefault});
+    for (var key in settingsDefault) {
+      if (settings[key] === undefined) {
+        settings[key] = settingsDefault[key];
+      }
+    }
     chrome.storage.sync.set({settings: settings});
-  }
-  blacklists = settings.blacklists.split("\n");
-});
+    blacklists = settings.blacklists.split("\n");
+  });
+}
 
 function parseDomain(url) {
   return url.replace(/(\.([^\.]+))\/.*$/, "$1");
 }
+getSettings();
+if (!settings || !settings.blacklists) isBlacklisted = false;
+else {
+  blacklists = settings.blacklists.split("\n");
+}
 
 chrome.runtime.onMessage.addListener(function(request, sender, callback) {
-  blacklists = settings.blacklists.split("\n");
   if (request.action === "getBlacklisted") {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
       if (!tabs || !tabs.length) return false;
