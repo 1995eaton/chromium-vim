@@ -131,6 +131,7 @@ Command.descriptions = [
   ["closetab", "Close the current tab"],
   ["open ", "Open a link in the current tab"],
   ["nohl", "Clears the search highlight"],
+  ["set ", "Configure Settings"],
   ["bookmarks ", "Search through your bookmarks"],
   ["history ", "Search through your browser history"],
   ["duplicate", "Clone the current tab"],
@@ -177,6 +178,48 @@ Command.parse = function(value, pseudoReturn, repeats) {
           chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: this.input.value.replace(/^b(ook)?marks(\s+)?/, "")});
         else if (/^(to|tabopen|o|open)$/.test(value.replace(/ .*/, "")))
           chrome.runtime.sendMessage({action: ((/^t[oa]/.test(value.substring(0, 2))) ? "openLinkTab" : "openLink"), active: activeTab, url: value.replace(/^\S+( +)?/, "")});
+        else if (/^set(\s+)?/.test(value) && value !== "set") {
+          var matchFound = false;
+          value = value.replace(/^set( +)?/, "").split(" ");
+          if (value.length !== 2) HUD.display("Two arguments required", 1);
+          for (var i = 0, l = Search.settings.length; i < l; ++i) {
+            if (Search.settings[i] === value[0].trim()) {
+              matchFound = true;
+              break;
+            }
+          }
+          if (!matchFound) { HUD.display("Invalid option: " + value[0], 1); break; }
+          function validBoolean(b) { return (/^([Tt]rue|[Ff]alse|0|1)$/.test(b)) }
+          var isSet = /[Tt]rue|1/.test(value[1]);
+          switch (value[0]) {
+            case "regexsearch":
+              if (value[1] === undefined) { HUD.display("regexsearch: " + settings.useRegex, 3); break; }
+              if (!validBoolean(value[1])) HUD.display("Invalid value: " + value[1], 1);
+              else settings.useRegex = isSet;
+              break;
+            case "ignorecase":
+              if (value[1] === undefined) { HUD.display("ignorecase: " + settings.ignoreSearchCase, 3); break; }
+              if (!validBoolean(value[1])) HUD.display("Invalid value: " + value[1], 1);
+              else settings.ignoreSearchCase = isSet;
+              break;
+            case "smoothscroll":
+              if (value[1] === undefined) { HUD.display("smoothscroll: " + Scroll.smoothScroll, 3); break; }
+              if (!validBoolean(value[1])) HUD.display("Invalid value: " + value[1], 1);
+              else Scroll.smoothScroll = isSet;
+              break;
+            case "scrollstep":
+              if (value[1] === undefined) { HUD.display("scrollstep: " + Scroll.stepSize, 3); break; }
+              if (parseInt(value[1]) != value[1]) HUD.display("Invalid integer: " + value[1], 1);
+              else Scroll.stepSize = parseInt(value[1]);
+              break;
+            case "hintcharacters":
+              if (value[1] === undefined) { HUD.display("hintcharacters: " + Hints.hintCharacters, 3); break; }
+              value = value[1].split("").unique().join("");
+              if (value.length <= 1) HUD.display("Two unique hint characters are required", 1);
+              else Hints.hintCharacters = value;
+              break;
+          }
+        }
         break;
     }
     this.hideData();
@@ -213,9 +256,20 @@ Command.parse = function(value, pseudoReturn, repeats) {
       return;
     }
 
+    if (/^set(\s+)/.test(this.input.value)) {
+      search = this.input.value.slice(9);
+      var input = this.input.value.split(" ")[1];
+      Search.settingsMatch(input, function(matches) {
+        if (matches.length) {
+          this.appendResults(matches);
+        } else this.hideData();
+      }.bind(this));
+      return;
+    }
+
     if (/^hist(ory)?(\s+)/.test(this.input.value)) {
       if (search.trim() === "") return this.hideData();
-      this.historyMode = true; 
+      this.historyMode = true;
       port.postMessage({action: "searchHistory", search: search, limit: 10});
       return;
     }

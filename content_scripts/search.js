@@ -18,6 +18,16 @@ Search.chromeMatch = function(string, callback) {
   }).map(function(e){return["chrome",e]}));
 };
 
+Search.settings = ["smoothscroll", "scrollstep", "regexsearch", "ignorecase", "hintcharacters"];
+
+Search.settingsMatch = function(string, callback) {
+  if (string.trim() === "") return callback(Search.settings.slice(0, 10).map(function(e){return["settings",e]}));
+  var matches = [];
+  callback(this.settings.filter(function(element) {
+    return (string === element.substring(0, string.length));
+  }).map(function(e){return["settings",e]}));
+};
+
 Search.fetchQuery = function(query, callback) {
   Search.current = query;
   if (Search.delay) return false;
@@ -99,8 +109,8 @@ Search.nextResult = function(reverse) {
     case "bookmark": case "history":
       Command.input.value = Command.input.value.match(/^\S+ /)[0] + Command.completionResults[this.index][2];
       break;
-    case "search":
-      Command.input.value = Command.input.value.match(/^\S+ /)[0] + Command.completionResults[this.index][1];
+    case "search": case "settings":
+      Command.input.value = Command.input.value.match(/^\S+/)[0] + " " + Command.completionResults[this.index][1];
       break;
     case "complete":
       if (Command.completionResults[this.index][1] !== undefined) {
