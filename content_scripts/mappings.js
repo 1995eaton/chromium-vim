@@ -155,14 +155,14 @@ Mappings.actions = {
     return chrome.runtime.sendMessage({action: "reloadTab"});
   },
   nextSearchResult: function(repeats) {
-    if (Command.type === "search" || Find.matches.length) {
+    if (Find.matches.length) {
       return Find.search(false, repeats);
     } else if (Find.lastSearch !== undefined && typeof Find.lastSearch === "string") {
       return Find.highlight(document.body, Find.lastSearch, true, true, false);
     }
   },
   previousSearchResult: function(repeats) {
-    if (Command.type === "search" || Find.matches.length) {
+    if (Find.matches.length) {
       return Find.search(true, repeats);
     } else if (Find.lastSearch !== undefined && typeof Find.lastSearch === "string") {
       return Find.highlight(document.body, Find.lastSearch, true, true, true);

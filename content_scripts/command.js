@@ -142,7 +142,7 @@ Command.descriptions = [
 Command.complete = function(string, callback) {
   var matches = [];
   if (string === "")
-    return Command.appendResults(this.descriptions.slice(0, 10).map(function(e){return["complete"].concat(e)}));
+    return Command.appendResults(this.descriptions.slice(0, settings.searchLimit).map(function(e){return["complete"].concat(e)}));
   callback(this.descriptions.filter(function(element) {
     return string === element[0].slice(0, string.length);
   }).map(function(e){return["complete"].concat(e)}));
@@ -159,8 +159,8 @@ Command.parse = function(value, pseudoReturn, repeats) {
     value = value.trimLeft().trimRight();
     switch (value) {
       case "nohl":
-        HUD.hide();
         Find.clear();
+        HUD.hide();
         break;
       case "duplicate":
         chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: document.URL, repeats: repeats});
@@ -212,6 +212,11 @@ Command.parse = function(value, pseudoReturn, repeats) {
               if (parseInt(value[1]) != value[1]) HUD.display("Invalid integer: " + value[1], 1);
               else Scroll.stepSize = parseInt(value[1]);
               break;
+            case "searchlimit":
+              if (value[1] === undefined) { HUD.display("searchlimit: " + settings.searchLimit, 3); break; }
+              if (parseInt(value[1]) != value[1]) HUD.display("Invalid integer: " + value[1], 1);
+              else settings.searchLimit = parseInt(value[1]);
+              break;
             case "hintcharacters":
               if (value[1] === undefined) { HUD.display("hintcharacters: " + Hints.hintCharacters, 3); break; }
               value = value[1].split("").unique().join("");
@@ -237,10 +242,8 @@ Command.parse = function(value, pseudoReturn, repeats) {
         if (this.bar.style.display === "block") {
           this.typed = this.input.value;
           this.hideData();
-          if (Marks.history) {
-            this.appendResults(Marks.history, false, "History", "cyan");
-            this.appendResults(response, true);
-          } else this.appendResults(response, false);
+          this.appendResults(response, false);
+          if (Marks.history) this.appendResults(Marks.history, true, "History", "#0080d6");
         }
       }.bind(this));
       return;
@@ -270,7 +273,7 @@ Command.parse = function(value, pseudoReturn, repeats) {
     if (/^hist(ory)?(\s+)/.test(this.input.value)) {
       if (search.trim() === "") return this.hideData();
       this.historyMode = true;
-      port.postMessage({action: "searchHistory", search: search, limit: 10});
+      port.postMessage({action: "searchHistory", search: search, limit: settings.searchLimit});
       return;
     }
 

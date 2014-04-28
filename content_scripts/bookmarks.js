@@ -14,7 +14,7 @@ Marks.parse = function(marks) {
 };
 
 Marks.match = function(string, callback) {
-  if (string.trim() === "") return callback(this.bookmarks.slice(0, 10));
+  if (string.trim() === "") return callback(this.bookmarks.slice(0, settings.searchLimit));
   var regexp;
   var matches = [];
   for (var i = 0, l = this.bookmarks.length; i < l; ++i) {
@@ -28,7 +28,7 @@ Marks.match = function(string, callback) {
         matches.push(this.bookmarks[i]);
       }
     }
-    if (matches.length > 10) break;
+    if (matches.length > settings.searchLimit) break;
   }
   callback(matches);
 };
@@ -47,7 +47,7 @@ port.onMessage.addListener(function(response) {
     }
     if (Command.historyMode) {
       if (matches.length > 0) {
-        Command.appendResults(matches, false, "History", "cyan");
+        Command.appendResults(matches, false, "History", "#0080d6");
       } else Command.hideData();
     }
     Marks.history = matches;

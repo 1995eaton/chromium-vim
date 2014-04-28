@@ -11,17 +11,17 @@ Search.searchHistory = [];
 
 Search.chromeUrls = ["accessibility", "appcache-internals", "apps", "blob-internals", "bookmarks", "cache", "chrome", "chrome-urls", "components", "crashes", "credits", "devices", "dns", "downloads", "extensions", "flags", "flash", "gcm-internals", "gpu", "help", "histograms", "history", "indexeddb-internals", "inspect", "invalidations", "ipc", "linux-proxy-config", "media-internals", "memory", "memory-internals", "nacl", "net-internals", "newtab", "omnibox", "plugins", "policy", "predictors", "print", "profiler", "quota-internals", "sandbox", "serviceworker-internals", "settings", "signin-internals", "stats", "sync-internals", "system", "terms", "tracing", "translate-internals", "user-actions", "version", "view-http-cache", "webrtc-internals", "webrtc-logs", "crash", "kill", "hang", "shorthang", "gpuclean", "gpucrash", "gpuhang", "ppapiflashcrash", "ppapiflashhang", "quit", "restart"];
 Search.chromeMatch = function(string, callback) {
-  if (string.trim() === "") return callback(Search.chromeUrls.slice(0, 10).map(function(e){return["chrome",e]}));
+  if (string.trim() === "") return callback(Search.chromeUrls.slice(0, settings.searchLimit).map(function(e){return["chrome",e]}));
   var matches = [];
   callback(this.chromeUrls.filter(function(element) {
     return (string === element.substring(0, string.length));
   }).map(function(e){return["chrome",e]}));
 };
 
-Search.settings = ["smoothscroll", "scrollstep", "regexsearch", "ignorecase", "hintcharacters"];
+Search.settings = ["smoothscroll", "scrollstep", "searchlimit", "regexsearch", "ignorecase", "hintcharacters"];
 
 Search.settingsMatch = function(string, callback) {
-  if (string.trim() === "") return callback(Search.settings.slice(0, 10).map(function(e){return["settings",e]}));
+  if (string.trim() === "") return callback(Search.settings.slice(0, settings.searchLimit).map(function(e){return["settings",e]}));
   var matches = [];
   callback(this.settings.filter(function(element) {
     return (string === element.substring(0, string.length));

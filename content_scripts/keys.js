@@ -61,7 +61,7 @@ keyDown = function(e) {
   } else if (Hints.active) {
     if (e.which === 18) {
       Hints.changeFocus();
-    } else if (keyType.escape || e.which <= 40) {
+    } else if (keyType.escape || (e.which <= 40 && e.which !== 17)) {
       e.preventDefault();
       e.stopPropagation();
       Hints.hideHints();
@@ -71,11 +71,7 @@ keyDown = function(e) {
     if (keyType.escape || (!isInput && (e.which === 32 || e.which === 13))) {
       if (insertMode && !document.activeElement.isInput()) {
         insertMode = false;
-        if (!Find.matches.length) {
-          HUD.hide();
-        } else {
-          HUD.display(Find.index + 1 + " / " + Find.matches.length);
-        }
+        HUD.hide();
       } else if (Find.matches.length) {
         Find.clear();
         HUD.hide();
@@ -163,7 +159,7 @@ keyDown = function(e) {
           if (Command.type === "search") {
             if (Command.input.value !== "" && (Command.input.value !== Find.lastSearch || Find.matches.length === 0)) {
               Find.clear();
-              Find.highlight(document.body, Command.input.value);
+              Find.highlight(document.body, Command.input.value, false, false, false, true);
             }
             setTimeout(function() {
               Find.index = -1;

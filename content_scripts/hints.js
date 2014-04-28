@@ -2,15 +2,12 @@ var log = console.log.bind(console);
 var Hints = {};
 
 var linkHoverEnabled = false;
-var gradient = ["#969696", "#d7d7d7"];
-var color = "#000";
-var border = "rgba(0,0,0,0.5)";
 
 Hints.hintCharacters = "asdfgzxcvbqwert";
 
 Hints.hideHints = function(reset) {
   if (document.getElementById("link_main") !== null) {
-    document.getElementById("link_main").style.opacity = "0";
+    if (!this.visual) HUD.hide();
     document.getElementById("link_main").parentNode.removeChild(document.getElementById("link_main"));
   }
   this.active = reset;
@@ -21,12 +18,13 @@ Hints.hideHints = function(reset) {
 };
 
 Hints.changeFocus = function() {
-  for (var i = 0, l = this.linkArr.length; i < l; ++i) {
-    this.linkArr[i].style.zIndex = l - parseInt(this.linkArr[i].style.zIndex);
-  }
+  this.linkArr.forEach(function(item) { item.style.zIndex = 1 - parseInt(item.style.zIndex) });
 };
 
 Hints.invertColors = function(invert) {
+  var gradient = ["#969696", "#d7d7d7"];
+  var color = "#000";
+  var border = "rgba(0,0,0,0.5)";
   var linkHints = document.getElementsByClassName("link_hint");
   var currentBackground = (invert ? "linear-gradient(to top, " + gradient[0] + " 50%, " + gradient[1] + " 100%)" :
                            "linear-gradient(to top, #262626 50%, #474747 100%)");
@@ -40,7 +38,7 @@ Hints.invertColors = function(invert) {
 };
 
 Hints.handleHintFeedback = function(choice) {
-  var links_found = 0;
+  var linksFound = 0;
   var index;
   for (var i = 0; i < this.permutations.length; i++) {
     if (this.currentString === this.permutations[i].substring(0, this.currentString.length)) {
@@ -55,14 +53,14 @@ Hints.handleHintFeedback = function(choice) {
       span.appendChild(this.linkArr[i].firstChild.cloneNode(true));
       this.linkArr[i].replaceChild(span, this.linkArr[i].firstChild);
       index = i;
-      links_found++;
+      linksFound++;
     } else {
       if (this.linkArr[i].parentNode) {
         this.linkArr[i].style.opacity = "0";
       }
     }
   }
-  if (links_found === 1) {
+  if (linksFound === 1) {
     document.getElementById("link_main").style.display = "none";
     var link = this.linkHints[index];
     setTimeout(function() {
@@ -81,7 +79,7 @@ Hints.handleHintFeedback = function(choice) {
       if (this.yank) {
         Clipboard.copy(link.href);
       } else if (this.image) {
-        chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: "https://www.google.com/searchbyimage?image_url=" + link.src});
+        chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: "https://www.google.com/searchbyimage?image_url=" + link.src, noconvert: true});
       } else if (this.visual) {
         if (link.firstChild && link.firstChild.nodeType === 3) {
           Visual.getTextNodes(function() {
@@ -148,7 +146,7 @@ Hints.handleHintFeedback = function(choice) {
       }
     }.bind(this), 0);
   }
-  if (links_found < 2) {
+  if (linksFound < 2) {
     this.hideHints(false);
   }
 
@@ -197,23 +195,32 @@ Hints.getLinks = function(type) {
 };
 
 Hints.create = function(tabbed, yank, image, visual) {
+  var screen, links, linkNumber, main, frag, linkElement, isAreaNode, mapCoordinates, computedStyle, imgParent;
+  HUD.display("Follow link " + (function() {
+    if (yank)   return "(yank)";
+    if (image)  return "(reverse image)";
+    if (visual) return "(visual select)";
+    if (tabbed) return "(tabbed)";
+    return "";
+  })());
   this.hideHints(true);
-  var links = this.getLinks(yank ? "yank" : (image ? "image" : (visual ? "visual" : undefined)));
+  links = this.getLinks(yank ? "yank" : (image ? "image" : (visual ? "visual" : undefined)));
   if (links.length === 0) return this.hideHints(false);
   this.yank = yank;
   this.image = image;
   this.tabbed = tabbed;
   this.visual = visual;
-  var screen = {
+  screen = {
     top: document.body.scrollTop,
     bottom: document.body.scrollTop + window.innerHeight,
     left: document.body.scrollLeft,
     right: document.body.scrollLeft + window.innerWidth
   };
-  var link_number = 0;
-  var main = document.createElement("div");
+  linkNumber = 0;
+  main = document.createElement("div");
+  main.style.opacity = "0";
   main.cVim = true;
-  var frag = document.createDocumentFragment();
+  frag = document.createDocumentFragment();
 
   main.id = "link_main";
   main.top = document.body.scrollTop + "px";
@@ -225,60 +232,54 @@ Hints.create = function(tabbed, yank, image, visual) {
     document.body.appendChild(main);
   }
 
-  for (var i = 0; i < links.length; i++) {
-    var isAreaNode = false;
-    var computedStyle;
-    if (links[i].nodeName === "AREA" && links[i].parentNode && links[i].parentNode.nodeName === "MAP") {
-      var img_parent = document.querySelectorAll("img[usemap='#" + links[i].parentNode.name + "'");
-      if (!img_parent.length) continue;
-      link_location = img_parent[0].getBoundingClientRect();
+  links.forEach(function(l) {
+    isAreaNode = false;
+    if (l.nodeName === "AREA" && l.parentNode && l.parentNode.nodeName === "MAP") {
+      imgParent = document.querySelectorAll("img[usemap='#" + l.parentNode.name + "'");
+      if (!imgParent.length) return false;
+      linkLocation = imgParent[0].getBoundingClientRect();
       isAreaNode = true;
-      computedStyle = getComputedStyle(img_parent[0]);
+      computedStyle = getComputedStyle(imgParent[0], null);
     } else {
-      link_location = links[i].getBoundingClientRect();
-      computedStyle = getComputedStyle(links[i]);
-      if (link_location.width === 0) {
-        if (!links[i].firstElementChild) {
-          continue;
-        } else {
-          link_location = links[i].firstElementChild.getBoundingClientRect();
-          if (link_location.width === 0) {
-            continue;
-          }
-        }
+      linkLocation = l.getBoundingClientRect();
+      computedStyle = getComputedStyle(l, null);
+      if (linkLocation.width === 0) {
+        if (!l.firstElementChild) return false;
+        linkLocation = l.firstElementChild.getBoundingClientRect();
+        if (linkLocation.width === 0) return false;
       }
     }
-    if (computedStyle.opacity !== "0" && computedStyle.visibility === "visible" && computedStyle.display !== "none" && link_location.top + link_location.height >= 0 && link_location.top + 15 <= window.innerHeight && link_location.left >= 0 && link_location.left + 10 < window.innerWidth && link_location.width > 0) {
-      this.linkHints.push(links[i]);
-      var temp = document.createElement("div");
-      temp.cVim = true;
-      temp.className = "link_hint";
-      temp.style.zIndex = i;
+    if (computedStyle.opacity !== "0" && computedStyle.visibility === "visible" && computedStyle.display !== "none" && linkLocation.top + linkLocation.height >= 0 && linkLocation.top + 15 <= window.innerHeight && linkLocation.left >= 0 && linkLocation.left + 10 < window.innerWidth && linkLocation.width > 0) {
+      this.linkHints.push(l);
+      linkElement = document.createElement("div");
+      linkElement.cVim = true;
+      linkElement.className = "link_hint";
+      linkElement.style.zIndex = i;
       if (isAreaNode) {
-        if (!/,/.test(links[i].getAttribute("coords"))) continue;
-        var mapCoordinates = links[i].coords.split(",");
-        if (mapCoordinates.length < 2) continue;
-        temp.style.top = link_location.top + screen.top + parseInt(mapCoordinates[1]) + "px";
-        temp.style.left = link_location.left + screen.left + parseInt(mapCoordinates[0]) + "px";
+        if (!/,/.test(l.getAttribute("coords"))) return false;
+        mapCoordinates = l.coords.split(",");
+        if (mapCoordinates.length < 2) return false;
+        linkElement.style.top = linkLocation.top + screen.top + parseInt(mapCoordinates[1]) + "px";
+        linkElement.style.left = linkLocation.left + screen.left + parseInt(mapCoordinates[0]) + "px";
       } else {
-        if (link_location.top < 0) {
-          temp.style.top = screen.top + "px";
+        if (linkLocation.top < 0) {
+          linkElement.style.top = screen.top + "px";
         } else {
-          temp.style.top = link_location.top + screen.top + "px";
+          linkElement.style.top = linkLocation.top + screen.top + "px";
         }
-        if (link_location.left < 0) {
-          temp.style.left = screen.left + "px";
+        if (linkLocation.left < 0) {
+          linkElement.style.left = screen.left + "px";
         } else {
-          if (links[i].offsetLeft > link_location.left) {
-            temp.style.left = links[i].offsetLeft + "px";
+          if (l.offsetLeft > linkLocation.left) {
+            linkElement.style.left = l.offsetLeft + "px";
           } else {
-            temp.style.left = link_location.left + screen.left + "px";
+            linkElement.style.left = linkLocation.left + screen.left + "px";
           }
         }
       }
-      this.linkArr.push(temp);
+      this.linkArr.push(linkElement);
     }
-  }
+  }.bind(this));
 
   if (this.linkArr.length === 0) return this.hideHints(false);
 
@@ -311,6 +312,7 @@ Hints.create = function(tabbed, yank, image, visual) {
     frag.appendChild(this.linkArr[i]);
   }
   main.appendChild(frag);
+  main.style.opacity = "1";
   if (linkHoverEnabled && tabbed) {
     window.setTimeout(function() {
       if (shiftKey)
