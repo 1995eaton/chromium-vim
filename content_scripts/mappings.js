@@ -1,10 +1,9 @@
 var Mappings = {};
 
-Mappings.repeats = "";
-Mappings.queue = "";
+Mappings.repeats   = "";
+Mappings.queue     = "";
 Mappings.arrowKeys = ["<Left>", "<Up>", "<Right>", "<Down>"];
-
-Mappings.actions = {
+Mappings.actions   = {
 
   toggleVisualMode: function() {
     Visual.caretModeActive = true;
@@ -236,64 +235,64 @@ Mappings.actions = {
 };
 
 Mappings.shortCuts = [
-  ["o", ":open "],
-  ["O", ":open @%"],
-  ["b", ":bookmarks "],
-  ["t", ":tabopen "],
-  ["I", ":history "],
+  ["o",  ":open "],
+  ["O",  ":open @%"],
+  ["b",  ":bookmarks "],
+  ["t",  ":tabopen "],
+  ["I",  ":history "],
   ["go", ":duplicate&<cr>"],
   ["gO", ":duplicate<cr>"],
-  ["T", ":tabopen @%"],
+  ["T",  ":tabopen @%"],
   ["gd", ":chrome://downloads<cr>"],
   ["ge", ":chrome://extensions<cr>"]
 ];
 
 Mappings.defaults = {
-  closeTab: ["x"],
-  scrollDown: ["s", "j"],
-  scrollUp: ["w", "k"],
-  scrollPageUp: ["e", "u"],
-  scrollPageDown: ["d"],
-  scrollToTop: ["gg"],
-  scrollToBottom: ["G"],
-  scrollLeft: ["h"],
-  scrollRight: ["l"],
-  insertMode: ["i"],
-  reloadTab: ["r"],
-  createHint: ["f"],
-  pinTab: ["gp"],
-  moveTabRight: [">"],
-  moveTabLeft: ["<"],
-  goBack: ["H", "S"],
-  reverseImage: ["gr"],
-  goForward: ["L", "D"],
-  firstTab: ["g0"],
-  lastTab: ["g$"],
-  hideDownloadsShelf: ["gj", "gD"],
-  createTabbedHint: ["F"],
-  goToInput: ["gi"],
-  nextTab: ["K", "R", "gt"],
-  nextFrame: ["gf"],
-  rootFrame: ["gF"],
-  percentScroll: ["%"],
-  centerMatchT: ["zt"],
-  centerMatchB: ["zb"],
-  centerMatchH: ["zz"],
-  goToSource: ["gs"],
-  goToRootUrl: ["gU"],
-  goUpUrl: ["gu"],
-  yankUrl: ["Y"],
-  yankDocumentUrl: ["yy"],
-  openPaste: ["p"],
-  toggleVisualMode: ["v"],
-  openPasteTab: ["P"],
-  previousTab: ["J", "E", "gT"],
-  nextSearchResult: ["n"],
+  closeTab:             ["x"],
+  scrollDown:           ["s", "j"],
+  scrollUp:             ["w", "k"],
+  scrollPageUp:         ["e", "u"],
+  scrollPageDown:       ["d"],
+  scrollToTop:          ["gg"],
+  scrollToBottom:       ["G"],
+  scrollLeft:           ["h"],
+  scrollRight:          ["l"],
+  insertMode:           ["i"],
+  reloadTab:            ["r"],
+  createHint:           ["f"],
+  pinTab:               ["gp"],
+  moveTabRight:         [">"],
+  moveTabLeft:          ["<"],
+  goBack:               ["H", "S"],
+  reverseImage:         ["gr"],
+  goForward:            ["L", "D"],
+  firstTab:             ["g0"],
+  lastTab:              ["g$"],
+  hideDownloadsShelf:   ["gj", "gD"],
+  createTabbedHint:     ["F"],
+  goToInput:            ["gi"],
+  nextTab:              ["K", "R", "gt"],
+  nextFrame:            ["gf"],
+  rootFrame:            ["gF"],
+  percentScroll:        ["%"],
+  centerMatchT:         ["zt"],
+  centerMatchB:         ["zb"],
+  centerMatchH:         ["zz"],
+  goToSource:           ["gs"],
+  goToRootUrl:          ["gU"],
+  goUpUrl:              ["gu"],
+  yankUrl:              ["Y"],
+  yankDocumentUrl:      ["yy"],
+  openPaste:            ["p"],
+  toggleVisualMode:     ["v"],
+  openPasteTab:         ["P"],
+  previousTab:          ["J", "E", "gT"],
+  nextSearchResult:     ["n"],
   previousSearchResult: ["N"],
-  openSearchBar: ["/"],
+  openSearchBar:        ["/"],
   openSearchBarReverse: ["?"],
-  openCommandBar: [":"],
-  shortCuts: []
+  openCommandBar:       [":"],
+  shortCuts:            []
 };
 
 Mappings.insertDefaults = {
@@ -310,15 +309,10 @@ Mappings.insertDefaults = {
 };
 
 Mappings.isValidQueue = function(c) {
-  for (var key in this.defaults) {
-    if (this.defaults.hasOwnProperty(key)) {
-      for (var i = 0, l = this.defaults[key].length; i < l; i++) {
-        if (this.defaults[key][i].substring(0, Mappings.queue.length) === Mappings.queue) {
-          return true;
-        }
-      }
-    }
-  }
+  for (var key in this.defaults)
+    for (var i = 0, l = this.defaults[key].length; i < l; i++)
+      if (this.defaults[key][i].substring(0, Mappings.queue.length) === Mappings.queue)
+        return true;
 };
 
 Mappings.insertFunctions = {
@@ -396,12 +390,10 @@ Mappings.getInsertFunction = function(modifier, callback) {
     if (typeof this.insertDefaults[key] !== "object") continue;
     this.insertDefaults[key].forEach(function(item) {
       if (!validMapping && modifier === item) {
-        validMapping = true;
-        callback(key);
+        validMapping = true; callback(key);
       }
     });
-    if (validMapping)
-      break;
+    if (validMapping) break;
   }
 };
 
@@ -437,53 +429,29 @@ Mappings.parseCustom = function(config) {
 };
 
 Mappings.isValidMapping = function(c) {
-  for (var key in this.defaults) {
-    for (var i = 0, l = this.defaults[key].length; i < l; ++i) {
-      if (c === this.defaults[key][i]) {
-        return true;
-      }
-    }
-  }
-  return false;
+  for (var key in this.defaults)
+    if (this.defaults[key].indexOf(c) >= 0) return true;
 };
 
 Mappings.convertToAction = function(c, callback) {
   var addOne = false;
-  if (!c) {
-    return;
-  } else if (Hints.active) {
-    if (c === ";") {
-      return Hints.changeFocus();
+  if (!c) return false;
+  if (Hints.active) return (c === ";" ? Hints.changeFocus() : Hints.handleHint(c));
+  if (Mappings.queue === "" && /[0-9]/.test(c)) return Mappings.repeats += c;
+  Mappings.queue += c;
+  for (var key in this.defaults) {
+    if (!this.isValidQueue(c)) {
+      Mappings.queue = ""; Mappings.repeats = "";
+      continue;
     }
-    Hints.handleHint(c);
-  } else if (Mappings.queue === "" && /[0-9]/.test(c)) {
-    Mappings.repeats += c;
-  } else {
-    Mappings.queue += c;
-    for (var key in this.defaults) {
-      if (this.defaults.hasOwnProperty(key)) {
-        if (!this.isValidQueue(c)) {
-          Mappings.queue = "";
-          Mappings.repeats = "";
-        } else {
-          for (var i = 0, l = this.defaults[key].length; i < l; i++) {
-            if (Mappings.queue === this.defaults[key][i]) {
-              if (Mappings.repeats === "0" || Mappings.repeats === "") {
-                addOne = true;
-              }
-              if (key === "shortCuts") {
-                Mappings.actions[key](Mappings.queue, (addOne ? 1 : parseInt(Mappings.repeats)));
-                Mappings.queue = "";
-                Mappings.repeats = "";
-                return (callback ? callback() : true);
-              }
-              Mappings.actions[key]((addOne ? 1 : parseInt(Mappings.repeats)));
-              Mappings.queue = "";
-              Mappings.repeats = "";
-              return (callback ? callback() : true);
-            }
-          }
-        }
+    for (var i = 0, l = this.defaults[key].length; i < l; i++) {
+      if (Mappings.queue === this.defaults[key][i]) {
+        if (/^0?$/.test(Mappings.repeats)) addOne = true;
+        if (key === "shortCuts")
+          Mappings.actions[key](Mappings.queue, (addOne ? 1 : parseInt(Mappings.repeats)));
+        else Mappings.actions[key]((addOne ? 1 : parseInt(Mappings.repeats)));
+        Mappings.queue = ""; Mappings.repeats = "";
+        return (callback ? callback() : true);
       }
     }
   }
