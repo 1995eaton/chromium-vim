@@ -488,7 +488,7 @@ Mappings.isValidMapping = function(c) {
   return false;
 };
 
-Mappings.convertToAction = function(c) {
+Mappings.convertToAction = function(c, callback) {
   var addOne = false;
   if (!c) {
     return;
@@ -515,11 +515,13 @@ Mappings.convertToAction = function(c) {
               if (key === "shortCuts") {
                 Mappings.actions[key](Mappings.queue, (addOne ? 1 : parseInt(Mappings.repeats)));
                 Mappings.queue = "";
-                return Mappings.repeats = "";
+                Mappings.repeats = "";
+                return (callback ? callback() : true);
               }
               Mappings.actions[key]((addOne ? 1 : parseInt(Mappings.repeats)));
               Mappings.queue = "";
-              return Mappings.repeats = "";
+              Mappings.repeats = "";
+              return (callback ? callback() : true);
             }
           }
         }

@@ -32,9 +32,6 @@ keyDown = function(e) {
 
   var isInput = document.activeElement.isInput() || insertMode || Mappings.actions.inputFocused;
 
-  if (!isInput && e.which > 40 && e.which !== 91 && e.which !== 123)
-    e.stopPropagation();
-
   var keyType = {
     arrow: (e.which >= 37 && e.which <= 40),
     modifier: (e.altKey || e.ctrlKey || e.metaKey),
@@ -52,6 +49,15 @@ keyDown = function(e) {
       modifier += "A-";
     if (modifier.length > 0)
       modifier = "<" + modifier + (e.shiftKey? String.fromCharCode(e.which) : String.fromCharCode(e.which).toLowerCase()) + ">";
+  }
+
+  if (!isInput && e.which > 40 && e.which !== 91 && e.which !== 123) {
+    e.stopPropagation();
+    if (!commandMode && modifier !== "") {
+      Mappings.convertToAction(modifier, function() {
+        e.preventDefault();
+      });
+    }
   }
 
   if (!settings.disableInsertMappings && document.activeElement.isInput() && !insertMode && !keyType.escape && modifier !== "") {
@@ -206,10 +212,8 @@ keyPress = function(e) {
     if (!insertMode && !document.activeElement.isInput()) {
       e.stopPropagation();
       setTimeout(function() {
-        e.preventDefault();
-        if (modifier) {
-          Mappings.convertToAction(modifier);
-        } else {
+        if (!modifier) {
+          e.preventDefault();
           Mappings.convertToAction(String.fromCharCode(e.which));
         }
       }, 0);
