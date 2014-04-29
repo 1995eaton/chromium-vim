@@ -1,31 +1,25 @@
 var Search = {};
 
-Search.urlMatch = new RegExp(
-
-  "^(http|chrome|https|ftp)\://([a-zA-Z0-9\.\-]+(\:[a-zA-Z0-9\.&amp;%\$\-]+)*@)*((25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])|([a-zA-Z0-9\-]+\.)*[a-zA-Z0-9\-]+\.(com|edu|gov|int|mil|net|org|biz|arpa|info|name|pro|aero|coop|museum|[a-zA-Z]{2}))(\:[0-9]+)*(/($|[a-zA-Z0-9\.\,\?\'\\\+&amp;%\$#\=~_\-]+))*$"
-
-);
-
 Search.index = null;
 Search.searchHistory = [];
 
 Search.chromeUrls = ["accessibility", "appcache-internals", "apps", "blob-internals", "bookmarks", "cache", "chrome", "chrome-urls", "components", "crashes", "credits", "devices", "dns", "downloads", "extensions", "flags", "flash", "gcm-internals", "gpu", "help", "histograms", "history", "indexeddb-internals", "inspect", "invalidations", "ipc", "linux-proxy-config", "media-internals", "memory", "memory-internals", "nacl", "net-internals", "newtab", "omnibox", "plugins", "policy", "predictors", "print", "profiler", "quota-internals", "sandbox", "serviceworker-internals", "settings", "signin-internals", "stats", "sync-internals", "system", "terms", "tracing", "translate-internals", "user-actions", "version", "view-http-cache", "webrtc-internals", "webrtc-logs", "crash", "kill", "hang", "shorthang", "gpuclean", "gpucrash", "gpuhang", "ppapiflashcrash", "ppapiflashhang", "quit", "restart"];
 Search.chromeMatch = function(string, callback) {
-  if (string.trim() === "") return callback(Search.chromeUrls.slice(0, settings.searchLimit).map(function(e){return["chrome",e]}));
+  if (string.trim() === "") return callback(Search.chromeUrls.slice(0, settings.searchLimit).map(function(e){return["chrome",e];}));
   var matches = [];
   callback(this.chromeUrls.filter(function(element) {
     return (string === element.substring(0, string.length));
-  }).map(function(e){return["chrome",e]}));
+  }).map(function(e){return["chrome",e];}));
 };
 
 Search.settings = ["smoothscroll", "scrollstep", "searchlimit", "regexsearch", "ignorecase", "hintcharacters"];
 
 Search.settingsMatch = function(string, callback) {
-  if (string.trim() === "") return callback(Search.settings.slice(0, settings.searchLimit).map(function(e){return["settings",e]}));
+  if (string.trim() === "") return callback(Search.settings.slice(0, settings.searchLimit).map(function(e){return["settings",e];}));
   var matches = [];
   callback(this.settings.filter(function(element) {
     return (string === element.substring(0, string.length));
-  }).map(function(e){return["settings",e]}));
+  }).map(function(e){return["settings",e];}));
 };
 
 Search.fetchQuery = function(query, callback) {

@@ -182,7 +182,7 @@ Mappings.actions = {
     this.inputElements = [];
     var allInput = document.querySelectorAll("input,textarea");
     for (var i = 0, l = allInput.length; i < l; i++) {
-      if (allInput[i].isInput() && allInput[i].isVisible() && allInput[i].id !== "command_input") {
+      if (allInput[i].isInput() && allInput[i].isVisible() && allInput[i].id !== "cVim-command-bar-input") {
         this.inputElements.push(allInput[i]);
       }
     }
@@ -331,7 +331,7 @@ Mappings.insertFunctions = {
     var alen = ae.value.length;
     ae.value = left + right;
     if (sstart < alen) {
-      ae.selectionStart -= ae.value.length - left.length
+      ae.selectionStart -= ae.value.length - left.length;
       ae.selectionEnd = ae.selectionStart;
     }
     return true;

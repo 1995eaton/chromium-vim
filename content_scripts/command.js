@@ -13,15 +13,15 @@ for (var i = 0; i < historyStates.length; i++) {
 
 Command.setup = function() {
   this.bar = document.createElement("div");
-  this.bar.id = "command_bar";
+  this.bar.id = "cVim-command-bar";
   this.bar.cVim = true;
   this.bar.style[(this.onBottom) ? 'bottom' : 'top'] = "0";
   this.input = document.createElement("input");
   this.input.type = "text";
-  this.input.id = "command_input";
+  this.input.id = "cVim-command-bar-input";
   this.input.cVim = true;
   this.modeIdentifier = document.createElement("div");
-  this.modeIdentifier.id = "command_bar_mode";
+  this.modeIdentifier.id = "cVim-command-bar-mode";
   this.modeIdentifier.cVim = true;
   this.bar.appendChild(this.modeIdentifier);
   this.bar.appendChild(this.input);
@@ -33,7 +33,7 @@ Command.setup = function() {
   }
   if (!this.data) {
     this.data = document.createElement("div");
-    this.data.id = "command_search_results";
+    this.data.id = "cVim-command-bar-search-results";
     this.data.cVim = true;
     this.data.style[(this.onBottom) ? 'bottom' : 'top'] = "20px";
     try {
@@ -142,10 +142,10 @@ Command.descriptions = [
 Command.complete = function(string, callback) {
   var matches = [];
   if (string === "")
-    return Command.appendResults(this.descriptions.slice(0, settings.searchLimit).map(function(e){return["complete"].concat(e)}));
+    return Command.appendResults(this.descriptions.slice(0, settings.searchLimit).map(function(e){return["complete"].concat(e);}));
   callback(this.descriptions.filter(function(element) {
     return string === element[0].slice(0, string.length);
-  }).map(function(e){return["complete"].concat(e)}));
+  }).map(function(e){return["complete"].concat(e);}));
 };
 
 Command.parse = function(value, pseudoReturn, repeats) {
@@ -189,7 +189,7 @@ Command.parse = function(value, pseudoReturn, repeats) {
             }
           }
           if (!matchFound) { HUD.display("Invalid option: " + value[0], 1); break; }
-          function validBoolean(b) { return (/^([Tt]rue|[Ff]alse|0|1)$/.test(b)) }
+          function validBoolean(b) { return (/^([Tt]rue|[Ff]alse|0|1)$/.test(b)); }
           var isSet = /[Tt]rue|1/.test(value[1]);
           switch (value[0]) {
             case "regexsearch":
@@ -355,7 +355,7 @@ Command.init = function(enabled) {
   } else {
     this.loaded = false;
     this.css.parentNode.removeChild(this.css);
-    var links = document.getElementById("link_hints");
+    var links = document.getElementById("cVim-link-container");
     this.bar.parentNode.removeChild(this.bar);
     if (links) {
       links.parentNode.removeChild(links);

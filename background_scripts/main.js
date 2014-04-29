@@ -10,8 +10,7 @@ String.prototype.convertLink = function() {
   if (pattern.test(url))
     return (/:\/\//.test(url) ? "" : "http://") + url;
   return "https://www.google.com/search?q=" + url;
-}
-
+};
 
 function getTab(sender, reverse, count, first, last) {
   chrome.tabs.query({windowId: sender.tab.windowId}, function(tabs) {
@@ -45,7 +44,7 @@ var Clipboard = {
     document.body.appendChild(t);
     t.focus();
     document.execCommand("Paste");
-    var text = t.value;
+    text = t.value;
     document.body.removeChild(t);
     return text;
   }

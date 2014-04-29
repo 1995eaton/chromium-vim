@@ -6,9 +6,9 @@ var linkHoverEnabled = false;
 Hints.hintCharacters = "asdfgzxcvbqwert";
 
 Hints.hideHints = function(reset) {
-  if (document.getElementById("link_main") !== null) {
+  if (document.getElementById("cVim-link-container") !== null) {
     HUD.hide();
-    document.getElementById("link_main").parentNode.removeChild(document.getElementById("link_main"));
+    document.getElementById("cVim-link-container").parentNode.removeChild(document.getElementById("cVim-link-container"));
   }
   this.active = reset;
   this.currentString = "";
@@ -18,14 +18,14 @@ Hints.hideHints = function(reset) {
 };
 
 Hints.changeFocus = function() {
-  this.linkArr.forEach(function(item) { item.style.zIndex = 1 - parseInt(item.style.zIndex) });
+  this.linkArr.forEach(function(item) { item.style.zIndex = 1 - parseInt(item.style.zIndex); });
 };
 
 Hints.invertColors = function(invert) {
   var gradient = ["#969696", "#d7d7d7"];
   var color = "#000";
   var border = "rgba(0,0,0,0.5)";
-  var linkHints = document.getElementsByClassName("link_hint");
+  var linkHints = document.getElementsByClassName("cVim-link-hint");
   var currentBackground = (invert ? "linear-gradient(to top, " + gradient[0] + " 50%, " + gradient[1] + " 100%)" :
                            "linear-gradient(to top, #262626 50%, #474747 100%)");
   var currentColor = (invert ? "#333" : "#ccc");
@@ -48,7 +48,7 @@ Hints.handleHintFeedback = function(choice) {
       }
       var span = document.createElement("span");
       span.cVim = true;
-      span.className = "link_hint_match";
+      span.className = "cVim-link-hint_match";
       var matched_chars = this.linkArr[i].firstChild.splitText(this.currentString.length);
       span.appendChild(this.linkArr[i].firstChild.cloneNode(true));
       this.linkArr[i].replaceChild(span, this.linkArr[i].firstChild);
@@ -61,7 +61,7 @@ Hints.handleHintFeedback = function(choice) {
     }
   }
   if (linksFound === 1) {
-    document.getElementById("link_main").style.display = "none";
+    document.getElementById("cVim-link-container").style.display = "none";
     var link = this.linkHints[index];
     setTimeout(function() {
       if (linkHoverEnabled && shiftKey) {
@@ -206,7 +206,7 @@ Hints.create = function(tabbed, yank, image) {
   main.cVim = true;
   frag = document.createDocumentFragment();
 
-  main.id = "link_main";
+  main.id = "cVim-link-container";
   main.top = document.body.scrollTop + "px";
   main.left = document.body.scrollLeft + "px";
 
@@ -238,7 +238,7 @@ Hints.create = function(tabbed, yank, image) {
       this.linkHints.push(l);
       linkElement = document.createElement("div");
       linkElement.cVim = true;
-      linkElement.className = "link_hint";
+      linkElement.className = "cVim-link-hint";
       linkElement.style.zIndex = c;
       if (isAreaNode) {
         if (!/,/.test(l.getAttribute("coords"))) return false;

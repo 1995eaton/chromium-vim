@@ -66,9 +66,9 @@ mouseDown = function (e) {
   } else if (e.target.id === "reset_button") {
     reset_clicked = true;
   } else if (e.target.id === "clearHistory") {
-    localStorage["search"] = "";
-    localStorage["url"]    = "";
-    localStorage["action"] = "";
+    localStorage.search = "";
+    localStorage.url    = "";
+    localStorage.action = "";
   } else if (e.target.id === "close") {
     mappingContainer.style.opacity = "0";
     mappingContainerFadeOut = true;
