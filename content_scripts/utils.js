@@ -24,3 +24,15 @@ Array.prototype.unique = function() {
   }
   return a;
 };
+
+String.prototype.trimAround = function() {
+  return this.replace(/^(\s+)?(.*\S)?(\s+)?$/g, "$2");
+};
+
+String.prototype.span = function(attributes, className) {
+  var strat = "";
+  for (var key in attributes) {
+    strat += key + ":" + attributes[key] + ";";
+  }
+  return '<span ' + (className !== undefined ? 'class="' + className + '" ' : '') + 'style="' + strat + '">' + this + '</span>';
+};

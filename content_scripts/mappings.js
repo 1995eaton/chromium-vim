@@ -399,6 +399,15 @@ Mappings.parseCustom = function(config) {
       else if (mapping[1][0] === ":")
         return Mappings.shortCuts.push([mapping[0], mapping.slice(1).join(" ")]);
     } else if (mapping.length === 1)
+      for (var key in Mappings.defaults) {
+        if (Array.isArray(Mappings.defaults[key])) {
+          var index = 0;
+          while (index !== -1) {
+            index = Mappings.defaults[key].indexOf(mapping[0]);
+            if (index !== -1) Mappings.defaults[key].splice(index, 1);
+          }
+        }
+      }
       Mappings.shortCuts = Mappings.shortCuts.filter(function(item) {
         return item[0] !== mapping[0];
       });

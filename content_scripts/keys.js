@@ -156,7 +156,7 @@ keyDown = function(e) {
       case 13: // Enter
         Command.enterHit = true;
         if (Command.type === "action" || Command.type === "search") {
-          Command.input.value = Command.input.value.trimLeft().trimRight();
+          Command.input.value = Command.input.value.trimAround();
           if (Command.input.value.trim() !== "" && !(Command.history[Command.type].length > 0 && Command.history[Command.type].slice(-1)[0] === Command.input.value)) {
             Command.history[Command.type].push(Command.input.value);
             chrome.runtime.sendMessage({action: "appendHistory", value: Command.input.value, type: Command.type});

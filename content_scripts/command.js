@@ -109,9 +109,9 @@ Command.appendResults = function(data, extend, identifier, color) {
     temp.cVim = true;
     temp.className = "completion-item";
     if (arrCount === 3) {
-      temp.innerHTML = '<span class="left">' + (identifier ? '<span style="color:' + color + '">' + identifier + '</span>:&nbsp;' : "") + data[i][1] + '</span>' + '<span class="right">' + data[i][2] + '</span>';
+      temp.innerHTML = ((identifier ? identifier.span({"color": color}) + ":&nbsp;" : "") + data[i][1]).span({}, "left") + data[i][2].span({}, "right");
     } else {
-      temp.innerHTML = (identifier ? '<span style="color:' + color + '">' + identifier + '</span>:&nbsp;' : "") +'<span class="full">' + data[i][1] + '</span>';
+      temp.innerHTML = (identifier ? identifier.span({"color": color}) + "&nbsp;" : "") + data[i][1].span({}, "full");
     }
     this.dataElements.push(temp);
     this.data.appendChild(temp);
@@ -156,7 +156,7 @@ Command.parse = function(value, pseudoReturn, repeats) {
   this.history.index = {};
 
   if (pseudoReturn || this.enterHit) {
-    value = value.trimLeft().trimRight();
+    value = value.trimAround();
     switch (value) {
       case "nohl":
         Find.clear();

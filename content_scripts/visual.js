@@ -34,7 +34,7 @@ Visual.focusSearchResult = function() {
   HUD.display(" -- VISUAL -- ");
   this.selection.setPosition(node, 0);
   this.selection = document.getSelection();
-  this.selection.extend(node, node.data.trimRight().length);
+  this.selection.extend(node, node.data.replace(/\s+$/, "").length);
   this.visualModeActive = true;
 };
 
@@ -61,7 +61,7 @@ Visual.closestNode = function() {
 
 Visual.selectNode = function(index) {
   this.selection.setPosition(this.textNodes[index], 0);
-  this.selection.extend(this.textNodes[index], this.textNodes[index].data.trimRight().length);
+  this.selection.extend(this.textNodes[index], this.textNodes[index].data.replace(/\s+$/, "").length);
   this.visualModeActive = true;
 };
 
