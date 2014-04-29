@@ -63,6 +63,7 @@ keyDown = function(e) {
   if (!settings.disableInsertMappings && document.activeElement.isInput() && !insertMode && !keyType.escape && modifier !== "") {
     Mappings.insertCommand(modifier, function(ret) {
       e.preventDefault();
+      if (document.activeElement.id === "cVim-command-bar-input") Command.parse();
     });
   } else if (Hints.active) {
     if (e.which === 18) {

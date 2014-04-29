@@ -182,15 +182,15 @@ Hints.getLinks = function(type) {
 
 Hints.create = function(tabbed, yank, image) {
   var screen, links, linkNumber, main, frag, linkElement, isAreaNode, mapCoordinates, computedStyle, imgParent, c;
+  links = this.getLinks(yank ? "yank" : (image ? "image" : undefined));
+  if (links.length === 0) return false;
+  this.hideHints(true);
   HUD.display("Follow link " + (function() {
     if (yank)   return "(yank)";
     if (image)  return "(reverse image)";
     if (tabbed) return "(tabbed)";
     return "";
   })());
-  this.hideHints(true);
-  links = this.getLinks(yank ? "yank" : (image ? "image" : undefined));
-  if (links.length === 0) return this.hideHints(false);
   this.yank = yank;
   this.image = image;
   this.tabbed = tabbed;
@@ -215,7 +215,7 @@ Hints.create = function(tabbed, yank, image) {
   } catch(e) {
     document.body.appendChild(main);
   }
-  
+
   c = 0;
   links.forEach(function(l) {
     isAreaNode = false;
