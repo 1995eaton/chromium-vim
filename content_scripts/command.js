@@ -349,7 +349,6 @@ Command.init = function(enabled) {
     if (settings.linkHintCharacters.split("").unique().length > 1) {
       Hints.hintCharacters = settings.linkHintCharacters.split("").unique().join("");
     }
-    port.postMessage({action: "getBookmarks"});
     this.setup();
     addListeners();
   } else {
@@ -399,6 +398,7 @@ Command.configureSettings = function(fetchOnly, s) {
 };
 
 document.addEventListener("DOMContentLoaded", function() {
+  port.postMessage({action: "getBookmarks"});
   chrome.extension.onMessage.addListener(function(request) {
     if (request.action === "refreshSettings") {
       Command.configureSettings(true);
