@@ -414,67 +414,26 @@ Mappings.insertCommand = function(modifier, callback) {
 };
 
 Mappings.parseCustom = function(config) {
-  if (!/\n/.test(config)) {
-    config = [config];
-  } else {
-    config = config.split("\n");
-  }
-  var keywords = [
-    /^(\s+)?map /i,
-    /^(\s+)?unmap /i
-  ];
-  var m = [];
-  var u = [];
-  for (var i = 0, l = config.length; i < l; i++) {
-    for (var j = 0; j < keywords.length; j++) {
-      if (keywords[j].test(config[i])) {
-        var maps = config[i].split(/(\s+)/).filter(function(m) {
-          if (!/(\s+)/.test(m)) {
-            return m;
-          }
-        });
-        if (maps.length === 3 || (maps.length >= 3 && /^:/.test(maps[2]))) {
-          if (maps[0].toLowerCase() === "map") {
-            if (maps.length > 3) {
-              var c = "";
-              for (var k = 3; k < maps.length; k++) {
-                c += " " + maps[k];
-              }
-              m.push([maps[1], maps[2] + c]);
-            } else {
-              m.push([maps[1], maps[2]]);
-            }
-          }
-        } else if (maps.length === 2 && maps[0].toLowerCase() === "unmap") {
-          u.push(maps[1]);
-        }
-      }
-    }
-  }
-  for (var i = 0; i < u.length; i++) {
-    for (var key in this.defaults) {
-      for (var j = 0; j < this.defaults[key].length; j++) {
-        if (this.defaults[key][j] === u[i]) {
-          this.defaults[key].splice(j, 1);
-        }
-      }
-    }
-  }
-  for (var i = 0; i < m.length; i++) {
-    if (m[i][1][0] === ":") {
-      this.shortCuts.push([m[i][0], m[i][1]]);
-    } else {
-      for (var key in this.defaults) {
-        if (key.toLowerCase() === m[i][1].toLowerCase()) {
-          this.defaults[key].push(m[i][0]);
-        }
-      }
-    }
-  }
-  for (var i = 0, l = Mappings.shortCuts.length; i < l; i++) {
-    Mappings.shortCuts[i][1] = Mappings.shortCuts[i][1].replace("@%", document.URL);
-    Mappings.defaults.shortCuts.push(Mappings.shortCuts[i][0]);
-  }
+  config = config.split(/\n+|;+/).map(function(item) { return item.split(/ +/); });
+  config.forEach(function(mapping) {
+    if (mapping.length === 1 || !/(un)?map/.test(mapping[0])) return false;
+    if (mapping.shift() === "map") {
+      if (mapping.length === 2 && Mappings.defaults.hasOwnProperty(mapping[1]))
+        return Mappings.defaults[mapping[1]].push(mapping[0]);
+      else if (mapping[1][0] === ":")
+        return Mappings.shortCuts.push([mapping[0], mapping.slice(1).join(" ")]);
+    } else if (mapping.length === 1)
+      Mappings.shortCuts = Mappings.shortCuts.filter(function(item) {
+        return item[0] !== mapping[0];
+      });
+  });
+  Mappings.shortCuts = Mappings.shortCuts.map(function(item) {
+    item[1] = item[1].replace(/@%/, document.URL);
+    return item;
+  });
+  Mappings.shortCuts.forEach(function(item) {
+    Mappings.defaults.shortCuts.push(item[0]);
+  });
 };
 
 Mappings.isValidMapping = function(c) {

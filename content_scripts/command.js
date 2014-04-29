@@ -20,7 +20,7 @@ Command.setup = function() {
   this.input.type = "text";
   this.input.id = "cVim-command-bar-input";
   this.input.cVim = true;
-  this.modeIdentifier = document.createElement("div");
+  this.modeIdentifier = document.createElement("span");
   this.modeIdentifier.id = "cVim-command-bar-mode";
   this.modeIdentifier.cVim = true;
   this.bar.appendChild(this.modeIdentifier);
@@ -239,7 +239,7 @@ Command.parse = function(value, pseudoReturn, repeats) {
       if (search.trim() === "") return this.hideData();
       port.postMessage({action: "searchHistory", search: search, limit: 4});
       Search.fetchQuery(search, function(response) {
-        if (this.bar.style.display === "block") {
+        if (this.bar.style.display === "inline-block") {
           this.typed = this.input.value;
           this.hideData();
           this.appendResults(response, false);
@@ -310,7 +310,7 @@ Command.show = function(search, value) {
     this.input.value = value;
     this.typed = value;
   }
-  this.bar.style.display = "block";
+  this.bar.style.display = "inline-block";
   setTimeout(function() {
     this.input.focus();
   }.bind(this), 0);

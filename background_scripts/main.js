@@ -177,6 +177,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
       break;
     case "hideDownloadsShelf":
       chrome.downloads.setShelfEnabled(false);
+      chrome.downloads.setShelfEnabled(true);
       break;
     default:
       break;

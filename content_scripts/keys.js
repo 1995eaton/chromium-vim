@@ -105,7 +105,7 @@ keyDown = function(e) {
         HUD.hide();
       }
       Command.hide();
-  } else if (Command.bar.style.display === "block" && document.activeElement.hasOwnProperty("cVim") && document.activeElement.id === "cVim-command-bar-input") {
+  } else if (Command.bar.style.display === "inline-block" && document.activeElement.hasOwnProperty("cVim") && document.activeElement.id === "cVim-command-bar-input") {
     switch (e.keyCode) {
       case 18: case 17: case 91: case 123: case 16: // Ignore non-character keys (CTRL, SHIFT, etc)
         break;
