@@ -52,7 +52,7 @@ Hints.handleHintFeedback = function(choice) {
       var matched_chars = this.linkArr[i].firstChild.splitText(this.currentString.length);
       span.appendChild(this.linkArr[i].firstChild.cloneNode(true));
       this.linkArr[i].replaceChild(span, this.linkArr[i].firstChild);
-      index = i;
+      index = i.toString();
       linksFound++;
     } else {
       if (this.linkArr[i].parentNode) {
@@ -181,7 +181,7 @@ Hints.getLinks = function(type) {
 };
 
 Hints.create = function(tabbed, yank, image) {
-  var screen, links, linkNumber, main, frag, linkElement, isAreaNode, mapCoordinates, computedStyle, imgParent;
+  var screen, links, linkNumber, main, frag, linkElement, isAreaNode, mapCoordinates, computedStyle, imgParent, c;
   HUD.display("Follow link " + (function() {
     if (yank)   return "(yank)";
     if (image)  return "(reverse image)";
@@ -215,7 +215,8 @@ Hints.create = function(tabbed, yank, image) {
   } catch(e) {
     document.body.appendChild(main);
   }
-
+  
+  c = 0;
   links.forEach(function(l) {
     isAreaNode = false;
     if (l.nodeName === "AREA" && l.parentNode && l.parentNode.nodeName === "MAP") {
@@ -238,7 +239,7 @@ Hints.create = function(tabbed, yank, image) {
       linkElement = document.createElement("div");
       linkElement.cVim = true;
       linkElement.className = "link_hint";
-      linkElement.style.zIndex = i;
+      linkElement.style.zIndex = c;
       if (isAreaNode) {
         if (!/,/.test(l.getAttribute("coords"))) return false;
         mapCoordinates = l.coords.split(",");
@@ -263,6 +264,7 @@ Hints.create = function(tabbed, yank, image) {
       }
       this.linkArr.push(linkElement);
     }
+    c += 1;
   }.bind(this));
 
   if (this.linkArr.length === 0) return this.hideHints(false);
