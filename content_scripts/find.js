@@ -111,7 +111,7 @@ Find.highlight = function(baseNode, match, setIndex, search, reverse, saveSearch
   while (node = walker.nextNode()) {
     var nName = node.parentNode.nodeName;
     if (nName !== "SCRIPT" && nName !== "STYLE" && nName !== "NOSCRIPT" && node.data.trim() !== "" && !node.parentNode.hasAttribute("cVim")) {
-      var matchPosition = (regexp ? node.data.regexIndexOf(match) : node.data.indexOf(match));
+      var matchPosition = (regexp ? node.data.search(match) : node.data.indexOf(match));
       if (!pass) {
         if (matchPosition >= 0) {
           if (regexp) {

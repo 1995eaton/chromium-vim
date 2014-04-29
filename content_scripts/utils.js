@@ -7,26 +7,20 @@ Object.prototype.isInput = function() {
 
 
 Object.prototype.isVisible = function() {
-  var br = this.getBoundingClientRect();
-  var cs = getComputedStyle(this);
   return (
       (this.offsetParent &&
       !this.disabled &&
       this.getAttribute("type") !== "hidden" &&
-      cs.visibility !== "hidden" &&
+      getComputedStyle(this).visibility !== "hidden" &&
       this.getAttribute("display") !== "none")
   );
 };
 
-
-Array.prototype.unique = function(){
-  return Object.keys(this.reduce(function(r,v){
-    return r[v]=1,r;
-  },{}));
-};
-
-
-String.prototype.regexIndexOf = function(regex, startpos) {
-  var indexOf = this.substring(startpos || 0).search(regex);
-  return (indexOf >= 0) ? (indexOf + (startpos || 0)) : indexOf;
+Array.prototype.unique = function() {
+  var a = [];
+  for (var i = 0, l = this.length; i < l; ++i) {
+    if (a.indexOf(this[i]) === -1)
+      a.push(this[i]);
+  }
+  return a;
 };
