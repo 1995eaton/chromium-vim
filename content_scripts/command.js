@@ -379,7 +379,6 @@ Command.configureSettings = function(fetchOnly, s) {
   if (fetchOnly) {
     chrome.runtime.sendMessage({getSettings: true});
   } else {
-    log(s);
     settings = s;
     settings.searchLimit = parseInt(settings.searchLimit);
     function checkBlacklist(callback) {
