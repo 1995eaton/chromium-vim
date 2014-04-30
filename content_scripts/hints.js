@@ -202,7 +202,6 @@ Hints.create = function(tabbed, yank, image) {
   };
   linkNumber = 0;
   main = document.createElement("div");
-  main.style.opacity = "0";
   main.cVim = true;
   frag = document.createDocumentFragment();
 
@@ -298,7 +297,6 @@ Hints.create = function(tabbed, yank, image) {
     frag.appendChild(this.linkArr[i]);
   }
   main.appendChild(frag);
-  main.style.opacity = "1";
   if (linkHoverEnabled && tabbed) {
     window.setTimeout(function() {
       if (shiftKey)
