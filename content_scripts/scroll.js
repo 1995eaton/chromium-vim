@@ -27,7 +27,7 @@ var ease = {
 Scroll.smoothScrollBy = function(x, y) {
 
   var isVertical = (y) ? true : false,
-      duration = 40,
+      duration = 20,
       easeFunc = ease.outExpo,
       i = 0,
       delta = 0;

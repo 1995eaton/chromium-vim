@@ -4,7 +4,7 @@ var settingsDefault = {
   linkHintCharacters: "asdfgqwertzxcvb",
   commandBarOnBottom: true,
   useRegex: true,
-  mappings: null,
+  mappings: "",
   searchLimit: 20,
   ignoreSearchCase: true,
   disableHUD: false,
@@ -17,8 +17,8 @@ var settingsDefault = {
 chrome.runtime.onMessage.addListener(function (request, sender, response) {
   if (request.getSettings) {
     chrome.storage.sync.get('settings', function(settings) {
-      if (settings.settings === undefined || typeof settings.settings !== "object") {
-        chrome.tabs.sendMessage(sender.tab.id, {action: "sendSettings", settings: settingsDefault});
+      if (!settings.settings) {
+        chrome.storage.sync.set({settings: settingsDefault});
       } else {
         settings = settings.settings;
         for (var key in settingsDefault) {
@@ -27,8 +27,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, response) {
           }
         }
         chrome.storage.sync.set({settings: settings});
-        chrome.tabs.sendMessage(sender.tab.id, {action: "sendSettings", settings: settings});
       }
+      chrome.tabs.sendMessage(sender.tab.id, {action: "sendSettings", settings: settings});
     });
   } else if (request.setDefault) {
     chrome.storage.sync.set({'settings': settingsDefault});
