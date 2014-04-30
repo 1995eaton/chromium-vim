@@ -12,7 +12,7 @@ Search.chromeMatch = function(string, callback) {
   }).map(function(e){return["chrome",e];}));
 };
 
-Search.settings = ["smoothscroll", "scrollstep", "searchlimit", "regexsearch", "ignorecase", "hintcharacters"];
+Search.settings = ["smoothscroll", "scrollstep", "searchlimit", "regexsearch", "ignorecase", "hintcharacters", "showhud"];
 
 Search.settingsMatch = function(string, callback) {
   if (string.trim() === "") return callback(Search.settings.slice(0, settings.searchLimit).map(function(e){return["settings",e];}));

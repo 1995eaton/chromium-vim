@@ -20,6 +20,9 @@ Command.setup = function() {
   this.input.type = "text";
   this.input.id = "cVim-command-bar-input";
   this.input.cVim = true;
+  this.statusBar = document.createElement("div");
+  this.statusBar.id = "cVim-status-bar";
+  this.statusBar.style[(this.onBottom) ? 'bottom' : 'top'] = "0";
   this.modeIdentifier = document.createElement("span");
   this.modeIdentifier.id = "cVim-command-bar-mode";
   this.modeIdentifier.cVim = true;
@@ -28,8 +31,10 @@ Command.setup = function() {
   this.bar.spellcheck = false;
   try {
     document.lastChild.appendChild(this.bar);
+    document.lastChild.appendChild(this.statusBar);
   } catch(e) {
     document.body.appendChild(this.bar);
+    document.lastChild.appendChild(this.statusBar);
   }
   if (!this.data) {
     this.data = document.createElement("div");
@@ -127,16 +132,16 @@ Command.hideData = function() {
 };
 
 Command.descriptions = [
-  ["tabopen ", "Open a link in a new tab"],
-  ["closetab", "Close the current tab"],
-  ["open ", "Open a link in the current tab"],
-  ["nohl", "Clears the search highlight"],
-  ["set ", "Configure Settings"],
+  ["tabopen ",   "Open a link in a new tab"],
+  ["closetab",   "Close the current tab"],
+  ["open ",      "Open a link in the current tab"],
+  ["nohl",       "Clears the search highlight"],
+  ["set ",       "Configure Settings"],
   ["bookmarks ", "Search through your bookmarks"],
-  ["history ", "Search through your browser history"],
-  ["duplicate", "Clone the current tab"],
-  ["chrome://", "Opens Chrome urls"],
-  ["settings", "Open the options page for this extension"]
+  ["history ",   "Search through your browser history"],
+  ["duplicate",  "Clone the current tab"],
+  ["chrome://",  "Opens Chrome urls"],
+  ["settings",   "Open the options page for this extension"]
 ];
 
 Command.complete = function(string, callback) {
@@ -181,46 +186,51 @@ Command.parse = function(value, pseudoReturn, repeats) {
         else if (/^set +/.test(value) && value !== "set") {
           var matchFound = false;
           value = value.replace(/^set +/, "").split(" ");
-          if (value.length !== 2) HUD.display("Two arguments required", 1);
+          if (value.length !== 2) Status.setMessage("Two arguments required", 1);
           for (var i = 0, l = Search.settings.length; i < l; ++i) {
             if (Search.settings[i] === value[0].trim()) {
               matchFound = true;
               break;
             }
           }
-          if (!matchFound) { HUD.display("Invalid option: " + value[0], 1); break; }
+          if (!matchFound) { Status.setMessage("Invalid option: " + value[0], 1); break; }
           function validBoolean(b) { return (/^([Tt]rue|[Ff]alse|0|1)$/.test(b)); }
           var isSet = /[Tt]rue|1/.test(value[1]);
           switch (value[0]) {
             case "regexsearch":
-              if (value[1] === undefined) { HUD.display("regexsearch: " + settings.useRegex, 3); break; }
-              if (!validBoolean(value[1])) HUD.display("Invalid value: " + value[1], 1);
+              if (value[1] === undefined) { Status.setMessage("regexsearch: " + settings.useRegex, 1); break; }
+              if (!validBoolean(value[1])) Status.setMessage("Invalid value: " + value[1], 1);
               else settings.useRegex = isSet;
               break;
             case "ignorecase":
-              if (value[1] === undefined) { HUD.display("ignorecase: " + settings.ignoreSearchCase, 3); break; }
-              if (!validBoolean(value[1])) HUD.display("Invalid value: " + value[1], 1);
+              if (value[1] === undefined) { Status.setMessage("ignorecase: " + settings.ignoreSearchCase, 3); break; }
+              if (!validBoolean(value[1])) Status.setMessage("Invalid value: " + value[1], 1);
               else settings.ignoreSearchCase = isSet;
               break;
             case "smoothscroll":
-              if (value[1] === undefined) { HUD.display("smoothscroll: " + Scroll.smoothScroll, 3); break; }
-              if (!validBoolean(value[1])) HUD.display("Invalid value: " + value[1], 1);
+              if (value[1] === undefined) { Status.setMessage("smoothscroll: " + Scroll.smoothScroll, 3); break; }
+              if (!validBoolean(value[1])) Status.setMessage("Invalid value: " + value[1], 1);
               else Scroll.smoothScroll = isSet;
               break;
             case "scrollstep":
-              if (value[1] === undefined) { HUD.display("scrollstep: " + Scroll.stepSize, 3); break; }
-              if (parseInt(value[1]) != value[1]) HUD.display("Invalid integer: " + value[1], 1);
+              if (value[1] === undefined) { Status.setMessage("scrollstep: " + Scroll.stepSize, 3); break; }
+              if (parseInt(value[1]) != value[1]) Status.setMessage("Invalid integer: " + value[1], 1);
               else Scroll.stepSize = parseInt(value[1]);
               break;
             case "searchlimit":
-              if (value[1] === undefined) { HUD.display("searchlimit: " + settings.searchLimit, 3); break; }
-              if (parseInt(value[1]) != value[1]) HUD.display("Invalid integer: " + value[1], 1);
+              if (value[1] === undefined) { Status.setMessage("searchlimit: " + settings.searchLimit, 3); break; }
+              if (parseInt(value[1]) != value[1]) Status.setMessage("Invalid integer: " + value[1], 1);
               else settings.searchLimit = parseInt(value[1]);
               break;
+            case "showhud":
+              if (value[1] === undefined) { Status.setMessage("showhud: " + !settings.disableHUD, 3); break; }
+              if (!validBoolean(value[1])) Status.setMessage("Invalid value: " + value[1], 1);
+              else settings.disableHUD = !isSet;
+              break;
             case "hintcharacters":
-              if (value[1] === undefined) { HUD.display("hintcharacters: " + Hints.hintCharacters, 3); break; }
+              if (value[1] === undefined) { Status.setMessage("hintcharacters: " + Hints.hintCharacters, 3); break; }
               value = value[1].split("").unique().join("");
-              if (value.length <= 1) HUD.display("Two unique hint characters are required", 1);
+              if (value.length <= 1) Status.setMessage("Two unique hint characters are required", 1);
               else Hints.hintCharacters = value;
               break;
           }
@@ -310,6 +320,7 @@ Command.show = function(search, value) {
     this.input.value = value;
     this.typed = value;
   }
+  if (Status.active) Status.hide();
   this.bar.style.display = "inline-block";
   setTimeout(function() {
     this.input.focus();
