@@ -60,7 +60,7 @@ Scroll.scroll = function(type, repeats) {
         Scroll.smoothScrollBy(0, repeats * this.stepSize);
         break;
       case "up":
-        Scroll.smoothScrollBy(0, repeats * -this.stepSize);
+        Scroll.smoothScrollBy(0, -repeats * this.stepSize);
         break;
       case "pageDown":
         Scroll.smoothScrollBy(0, repeats * window.innerHeight / 2);
@@ -88,16 +88,16 @@ Scroll.scroll = function(type, repeats) {
 
     switch (type) {
       case "down":
-        scrollBy(0, this.stepSize);
+        scrollBy(0, repeats * this.stepSize);
         break;
       case "up":
-        scrollBy(0, -1 * this.stepSize);
+        scrollBy(0, -repeats * this.stepSize);
         break;
       case "pageDown":
-        scrollBy(0, window.innerHeight / 2);
+        scrollBy(0, repeats * window.innerHeight / 2);
         break;
       case "pageUp":
-        scrollBy(0, window.innerHeight / -2);
+        scrollBy(0, -repeats * window.innerHeight / 2);
         break;
       case "top":
         scrollTo(0, 0);
@@ -106,10 +106,10 @@ Scroll.scroll = function(type, repeats) {
         scrollTo(0, document.body.offsetHeight);
         break;
       case "left":
-        scrollBy(-1 * this.stepSize, 0);
+        scrollBy(-repeats * this.stepSize, 0);
         break;
       case "right":
-        scrollBy(this.stepSize, 0);
+        scrollBy(repeats * this.stepSize, 0);
         break;
       default:
         break;
