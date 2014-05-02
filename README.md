@@ -5,6 +5,8 @@ chromium-vim
 
 ##Movement
 
+| Key  | Mapping                                |
+| ---- |:--------------------------------------:|
 | j, s | scroll down           (scrollDown)     |
 | k, w | scroll up             (scrollUp)       |
 | d    | scroll half-page down (scrollPageDown) |
