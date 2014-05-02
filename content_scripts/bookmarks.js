@@ -57,7 +57,14 @@ port.onMessage.addListener(function(response) {
     if (Command.bar.style.display !== "none") {
       Command.hideData();
       var val = Command.input.value.replace(/\S+\s+/, "");
+      var useRegex = true;
       Command.appendResults(response.buffers.map(function(e) { return ["buffer"].concat(e); }).filter(function(s) {
+        try {
+          var regexp = new RegExp(val, "i");
+        } catch (e) {
+          useRegex = false;
+        }
+        if (useRegex) return regexp.test(s[1]);
         return s[1].substring(0, val.length) === val;
       }));
     }
