@@ -78,15 +78,26 @@ function getMarks(callback) {
 }
 
 chrome.extension.onConnect.addListener(function(port) {
-  console.assert(port.name == "main");
+  console.assert(port.name === "main");
   port.onMessage.addListener(function(request, data) {
-    if (request.action == "getBookmarks") {
+    if (request.action === "getBookmarks") {
       getMarks(function(marks) {
         port.postMessage({bookmarks: marks});
       });
-    } else if (request.action == "searchHistory") {
+    } else if (request.action === "searchHistory") {
       History.retrieveSearchHistory(request.search, request.limit || 4, function(results) {
         port.postMessage({history: results});
+      });
+    } else if (request.action === "getBuffers") {
+      chrome.tabs.getSelected(function(initial) {
+        var windowId = initial.windowId
+        chrome.tabs.query({windowId: windowId}, function(tabs) {
+          var t = [];
+          for (var i = 0, l = tabs.length; i < l; ++i) {
+            t.push([i + ": " + tabs[i].title, tabs[i].url]);
+          }
+          port.postMessage({buffers: t});
+        });
       });
     }
   });
@@ -173,6 +184,23 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
     case "focusMainWindow":
       chrome.tabs.getSelected(null, function(tab) {
         chrome.tabs.sendMessage(tab.id, {action: "focus", repeats: request.repeats});
+      });
+      break;
+    case "getBuffers":
+      chrome.tabs.query({windowId: sender.tab.windowId}, function(tabs) {
+        var t = [];
+        for (var i = 0, l = tabs.length; i < l; ++i) {
+          t.push([i + ": " + tabs[i].title, tabs[i].url]);
+        }
+        chrome.tabs.sendMessage(sender.tab.id, {action: "showBuffers", buffers: t});
+      });
+      break;
+    case "selectTab":
+      chrome.tabs.query({windowId: sender.tab.windowId}, function(tabs) {
+        if (request.tabIndex < tabs.length)
+          chrome.tabs.query({windowId: sender.tab.windowId, index: parseInt(request.tabIndex)}, function(tab) {
+            chrome.tabs.update(tab[0].id, {active: true});
+          });
       });
       break;
     case "hideDownloadsShelf":

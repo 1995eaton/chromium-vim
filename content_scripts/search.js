@@ -105,6 +105,9 @@ Search.nextResult = function(reverse) {
     case "search": case "settings":
       Command.input.value = Command.input.value.match(/^\S+/)[0] + " " + Command.completionResults[this.index][1];
       break;
+    case "buffer":
+      Command.input.value = Command.input.value.match(/^\S+/)[0] + " " + Command.completionResults[this.index][1][0];
+      break;
     case "complete":
       if (Command.completionResults[this.index][1] !== undefined) {
         Command.input.value = Command.completionResults[this.index][1];

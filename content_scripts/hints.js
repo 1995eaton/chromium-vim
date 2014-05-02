@@ -84,6 +84,7 @@ Hints.handleHintFeedback = function(choice) {
         link.click();
       } else if (/^(button|checkbox)$/.test(link.getAttribute("role"))) {
         var ev;
+        link.focus();
         switch (link.getAttribute("aria-expanded")) {
           case "false":
             ev = new MouseEvent("mouseover");

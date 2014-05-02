@@ -132,13 +132,14 @@ Command.hideData = function() {
 };
 
 Command.descriptions = [
-  ["tabopen ",   "Open a link in a new tab"],
+  ["tabopen",   "Open a link in a new tab"],
+  ["buffers",   "Select from a list of current tabs"],
   ["closetab",   "Close the current tab"],
-  ["open ",      "Open a link in the current tab"],
+  ["open",      "Open a link in the current tab"],
   ["nohl",       "Clears the search highlight"],
-  ["set ",       "Configure Settings"],
-  ["bookmarks ", "Search through your bookmarks"],
-  ["history ",   "Search through your browser history"],
+  ["set",       "Configure Settings"],
+  ["bookmarks", "Search through your bookmarks"],
+  ["history",   "Search through your browser history"],
   ["duplicate",  "Clone the current tab"],
   ["chrome://",  "Opens Chrome urls"],
   ["settings",   "Open the options page for this extension"]
@@ -183,6 +184,8 @@ Command.parse = function(value, pseudoReturn, repeats) {
           chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value.replace(/^b(ook)?marks(\s+)?/, "")});
         else if (/^(to|tabopen|o|open)$/.test(value.replace(/ .*/, "")))
           chrome.runtime.sendMessage({action: ((/^t[oa]/.test(value.substring(0, 2))) ? "openLinkTab" : "openLink"), active: activeTab, url: value.replace(/^\S+( +)?/, "")});
+        else if (/^buffers +[0-9]+(\s+)?$/.test(value))
+          chrome.runtime.sendMessage({action: "selectTab", tabIndex: value.replace(/^.*([0-9]+).*$/, "$1")});
         else if (/^set +/.test(value) && value !== "set") {
           var matchFound = false;
           value = value.replace(/^set +/, "").split(" ");
@@ -266,6 +269,12 @@ Command.parse = function(value, pseudoReturn, repeats) {
           this.appendResults(matches);
         } else this.hideData();
       }.bind(this));
+      return;
+    }
+
+    if (/^buffers(\s+)/.test(this.input.value)) {
+      search = this.input.value.replace(/^\S+\s+/, "");
+      port.postMessage({action: "getBuffers"});
       return;
     }
 

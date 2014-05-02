@@ -53,5 +53,13 @@ port.onMessage.addListener(function(response) {
     Marks.history = matches;
   } else if (response.bookmarks) {
     Marks.parse(response.bookmarks);
+  } else if (response.buffers) {
+    if (Command.bar.style.display !== "none") {
+      Command.hideData();
+      var val = Command.input.value.replace(/\S+\s+/, "");
+      Command.appendResults(response.buffers.map(function(e) { return ["buffer"].concat(e); }).filter(function(s) {
+        return s[1].substring(0, val.length) === val;
+      }));
+    }
   }
 });
