@@ -434,7 +434,7 @@ Mappings.convertToAction = function(c, callback) {
     return false;
   if (Hints.active)
     return (c === ";" ? Hints.changeFocus() : Hints.handleHint(c));
-  if (/[0-9]/.test(c))
+  if (/[0-9]/.test(c) && !(c === "0" && Mappings.repeats === ""))
     return Mappings.repeats += c;
 
   Mappings.queue += c;
