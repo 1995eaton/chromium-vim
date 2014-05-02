@@ -80,11 +80,11 @@ Mappings.actions   = {
   },
   centerMatchH: function() {
     if (Command.type === "search" || Find.matches.length)
-      window.scrollBy(0, Find.matches[Find.index].getBoundingClientRect().top + Find.matches[Find.index].offsetHeight - 0.5 * document.documentElement.clientHeight);
+      window.scrollBy(0, Find.matches[Find.index].getBoundingClientRect().top + Find.matches[Find.index].offsetHeight - 0.5 * window.innerHeight);
   },
   centerMatchB: function() {
     if (Command.type === "search" || Find.matches.length)
-      window.scrollBy(0, Find.matches[Find.index].getBoundingClientRect().top + Find.matches[Find.index].offsetHeight - document.documentElement.clientHeight);
+      window.scrollBy(0, Find.matches[Find.index].getBoundingClientRect().top + Find.matches[Find.index].offsetHeight - window.innerHeight);
   },
   scrollDown: function(repeats) {
     Scroll.scroll("down", repeats);
@@ -424,7 +424,7 @@ Mappings.parseCustom = function(config) {
 
 Mappings.isValidMapping = function(c) {
   for (var key in this.defaults)
-    if (this.defaults[key].indexOf(c) >= 0) return true;
+    if (Array.isArray(this.defaults[key]) && this.defaults[key].indexOf(c) >= 0) return true;
 };
 
 Mappings.convertToAction = function(c, callback) {

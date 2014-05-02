@@ -23,12 +23,13 @@ Find.getSelectedTextNode = function() {
   return el.firstChild;
 };
 
-Find.search = function(reverse, repeats, enterHit) {
+Find.search = function(reverse, repeats) {
   if (Find.swap) reverse = !reverse;
   if (!this.matches.length) {
     HUD.display("No matches", 1);
     return;
   }
+  var oldIndex = this.index;
   if (this.index >= 0)
     this.matches[this.index].style.backgroundColor = "";
   if (reverse && repeats === 1 && this.index === 0) {
@@ -52,6 +53,7 @@ Find.search = function(reverse, repeats, enterHit) {
   var isLink = false;
   var orig = [document.body.scrollLeft, document.body.scrollTop];
   var br = this.matches[this.index].getBoundingClientRect();
+  var origTop = document.body.scrollTop;
   document.activeElement.blur();
   document.body.focus();
   var node = this.matches[this.index];
@@ -64,22 +66,14 @@ Find.search = function(reverse, repeats, enterHit) {
   }
   this.matches[this.index].style.backgroundColor = "#ff9632";
   HUD.display(this.index + 1 + " / " + this.matches.length);
-  var v = 0;
-  var h = 0;
-  var linkOffset = 0;
-  if (isLink) linkOffset = 25;
-  if (br.top < 0) {
-    v = br.top;
-  } else if (br.top + linkOffset + br.height > document.documentElement.clientHeight) {
-    v = br.top + linkOffset + br.height - document.documentElement.clientHeight;
+  if (br.top + br.height > window.innerHeight) {
+      if (isLink && !reverse) origTop += br.height;
+      window.scrollTo(0, origTop);
+      window.scrollBy(0, br.top + br.height - window.innerHeight);
+  } else if (br.top < 0) {
+      window.scrollTo(0, origTop);
+      window.scrollBy(0, br.top);
   }
-  if (br.left < 0) {
-    h = br.left;
-  } else if (br.left + br.width > document.documentElement.clientWidth) {
-    h = br.left + br.width - document.documentElement.clientWidth;
-  }
-  document.body.scrollTop = orig[1] + v;
-  document.body.scrollLeft = orig[0] + h;
 };
 
 Find.highlight = function(baseNode, match, setIndex, search, reverse, saveSearch) {

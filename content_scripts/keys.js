@@ -171,7 +171,7 @@ keyDown = function(e) {
             setTimeout(function() {
               Find.index = -1;
               Find.setIndex();
-              Find.search(false, 1, true);
+              Find.search(false, 1);
               Command.hide();
             }, 0);
           } else {
