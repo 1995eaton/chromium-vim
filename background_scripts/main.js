@@ -1,5 +1,12 @@
 var tabHistory = {};
 var activeTabs = {};
+var sessions   = {};
+
+chrome.storage.sync.get('sessions', function(s) {
+  if (s.sessions === undefined) {
+    chrome.storage.sync.set({sessions: {}});
+  } else sessions = s.sessions;
+});
 
 String.prototype.convertLink = function() {
   var url = this.trimLeft().trimRight();
@@ -102,6 +109,8 @@ chrome.extension.onConnect.addListener(function(port) {
           port.postMessage({buffers: t});
         });
       });
+    } else if (request.action === "getSessionNames") {
+      port.postMessage({sessions: Object.keys(sessions).map(function(e) { return [e, sessions[e].length.toString() + " tab" + (sessions[e].length === 1 ? "" : "s")]; } )});
     }
   });
 });
@@ -216,6 +225,30 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
       chrome.tabs.getSelected(null, function(tab) {
         chrome.tabs.sendMessage(tab.id, {action: "focus", repeats: request.repeats});
       });
+      break;
+    case "createSession":
+      sessions[request.name] = [];
+      chrome.tabs.query({windowId: sender.tab.windowId}, function(tabs) {
+        tabs.forEach(function(tab) {
+          sessions[request.name].push([tab.index, tab.url]);
+        });
+        chrome.storage.sync.set({sessions: sessions});
+      });
+      break;
+    case "deleteSession":
+      delete sessions[request.name];
+      chrome.storage.sync.set({sessions: sessions});
+      break;
+    case "openSession":
+      if (sessions.hasOwnProperty(request.name)) {
+        var tabs = sessions[request.name];
+        var firstTab = tabs.slice(0, 1)[0];
+        chrome.windows.create({url: firstTab[1]}, function(tabInfo) {
+          tabs.slice(1).forEach(function(tab) {
+            chrome.tabs.create({url: tab[1], windowId: tabInfo.tabs[0].windowId, index: tab[0]});
+          });
+        });
+      }
       break;
     case "openLast":
       if (Object.keys(tabHistory).length && tabHistory[sender.tab.windowId] !== undefined && tabHistory[sender.tab.windowId].length > 0) {

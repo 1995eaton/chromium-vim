@@ -88,6 +88,9 @@
 |:settings|open the settings page|
 |:nohl|clear the highlighted text from the last search|
 |:buffers (autocomplete)|change to a different tab|
+|:mksession|create a new session from the current tabs in the active window|
+|:delsession (autocomplete)|delete a saved session|
+|:session (autocomplete)|open the tabs from a saved session in a new window|
 
 #Tips
 

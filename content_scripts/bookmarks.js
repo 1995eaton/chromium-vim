@@ -68,5 +68,7 @@ port.onMessage.addListener(function(response) {
         return s[1].substring(0, val.length) === val;
       }));
     }
+  } else if (response.sessions) {
+    sessions = response.sessions;
   }
 });

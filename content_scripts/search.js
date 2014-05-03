@@ -102,7 +102,7 @@ Search.nextResult = function(reverse) {
     case "bookmark": case "history":
       Command.input.value = Command.input.value.match(/^\S+ /)[0] + Command.completionResults[this.index][2];
       break;
-    case "search": case "settings":
+    case "search": case "settings": case "session":
       Command.input.value = Command.input.value.match(/^\S+/)[0] + " " + Command.completionResults[this.index][1];
       break;
     case "buffer":

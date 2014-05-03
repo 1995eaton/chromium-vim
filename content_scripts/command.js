@@ -1,5 +1,5 @@
 var Command = {};
-var settings;
+var settings, sessions;
 
 Command.dataElements = [];
 Command.matches = [];
@@ -139,6 +139,9 @@ Command.descriptions = [
   ["open",      "Open a link in the current tab"],
   ["nohl",       "Clears the search highlight"],
   ["set",       "Configure Settings"],
+  ["mksession", "Create a saved session of current tabs"],
+  ["delsession", "Delete sessions"],
+  ["session",    "Open a saved session in a new window"],
   ["bookmarks", "Search through your bookmarks"],
   ["history",   "Search through your browser history"],
   ["duplicate",  "Clone the current tab"],
@@ -193,7 +196,39 @@ Command.parse = function(value, pseudoReturn, repeats) {
           chrome.runtime.sendMessage({action: "openLink", active: activeTab, url: value.replace(/^\S+( +)?/, "")});
         else if (/^buffers +[0-9]+(\s+)?$/.test(value))
           chrome.runtime.sendMessage({action: "selectTab", tabIndex: value.replace(/^.*([0-9]+).*$/, "$1")});
-        else if (/^set +/.test(value) && value !== "set") {
+        else if (/^delsession/.test(value)) {
+          value = value.replace(/^\S+(\s+)?/, "").trimAround();
+          if (value === "") {
+            Status.setMessage("Error: argument required", 1);
+            break;
+          }
+          if (sessions.indexOf(value) !== -1) sessions.splice(sessions.indexOf(value), 1);
+          value.split(" ").forEach(function(v) {
+            chrome.runtime.sendMessage({action: "deleteSession", name: v});
+          });
+          port.postMessage({action: "getSessionNames"});
+        } else if (/^mksession/.test(value)) {
+          value = value.replace(/^\S+(\s+)?/, "").trimAround();
+          if (value === "") {
+            Status.setMessage("Error: session name required", 1);
+            break;
+          } else if (/[^a-zA-Z0-9_-]/.test(value)) {
+            Status.setMessage("Error: only alphanumeric characters, dashes, and underscores are allowed", 1);
+            break;
+          }
+          if (sessions.indexOf(value) === -1) sessions.push(value);
+          chrome.runtime.sendMessage({action: "createSession", name: value});
+          port.postMessage({action: "getSessionNames"});
+        } else if (/^session/.test(value)) {
+          value = value.replace(/^\S+(\s+)?/, "").trimAround();
+          if (value === "") {
+            Status.setMessage("Error: session name required", 1);
+            break;
+          }
+          chrome.runtime.sendMessage({action: "openSession", name: value}, function() {
+            Status.setMessage("Error: session does not exist", 1);
+          });
+        } else if (/^set +/.test(value) && value !== "set") {
           var matchFound = false;
           value = value.replace(/^set +/, "").split(" ");
           if (value.length !== 2) Status.setMessage("Two arguments required", 1);
@@ -282,6 +317,28 @@ Command.parse = function(value, pseudoReturn, repeats) {
     if (/^buffers(\s+)/.test(this.input.value)) {
       search = this.input.value.replace(/^\S+\s+/, "");
       port.postMessage({action: "getBuffers"});
+      return;
+    }
+
+    if (/^(del)?session(\s+)/.test(this.input.value)) {
+      search = this.input.value.replace(/^\S+\s+/, "");
+      var _res = sessions.filter(function(e) {
+        var regexp;
+        var isValidRegex = true;
+        try {
+          regexp = new RegExp(search, "i");
+        } catch (ex) {
+          isValidRegex = false;
+        }
+        if (isValidRegex) {
+          return regexp.test(e[0]);
+        }
+        return e[0].substring(0, search.length) === search;
+      }).map(function(e) { return ["session"].concat(e); });
+      this.hideData();
+      if (_res.length > 0) {
+        this.appendResults(_res);
+      }
       return;
     }
 
@@ -438,6 +495,7 @@ Command.configureSettings = function(fetchOnly, s) {
 
 document.addEventListener("DOMContentLoaded", function() {
   port.postMessage({action: "getBookmarks"});
+  port.postMessage({action: "getSessionNames"});
   chrome.extension.onMessage.addListener(function(request) {
     if (request.action === "refreshSettings") {
       Command.configureSettings(true);
