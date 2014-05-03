@@ -129,9 +129,11 @@ Hints.handleHintFeedback = function(choice) {
             link.click();
             break;
         }
+      } else if (this.windowOpen) {
+        chrome.runtime.sendMessage({action: "openLinkWindow", focused: false, url: link.href, noconvert: true});
       } else if (!this.tabbed || link.getAttribute("onclick")) {
         link.click();
-      } else {
+      } else if (this.tabbed) {
         chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: link.href, noconvert: true});
       }
     }.bind(this), 0);
@@ -181,7 +183,7 @@ Hints.getLinks = function(type) {
   return valid;
 };
 
-Hints.create = function(tabbed, yank, image) {
+Hints.create = function(tabbed, yank, image, windowOpen) {
   var screen, links, linkNumber, main, frag, linkElement, isAreaNode, mapCoordinates, computedStyle, imgParent, c;
   links = this.getLinks(yank ? "yank" : (image ? "image" : undefined));
   if (links.length === 0) return false;
@@ -190,11 +192,13 @@ Hints.create = function(tabbed, yank, image) {
     if (yank)   return "(yank)";
     if (image)  return "(reverse image)";
     if (tabbed) return "(tabbed)";
+    if (windowOpen) return "(window)";
     return "";
   })());
   this.yank = yank;
   this.image = image;
   this.tabbed = tabbed;
+  this.windowOpen = windowOpen;
   screen = {
     top: document.body.scrollTop,
     bottom: document.body.scrollTop + window.innerHeight,

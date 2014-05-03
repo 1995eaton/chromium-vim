@@ -116,6 +116,9 @@ Mappings.actions   = {
   createTabbedHint: function() {
     setTimeout(Hints.create(true), 0);
   },
+  createHintWindow: function() {
+    window.setTimeout(Hints.create(false, false, false, true), 0);
+  },
   yankUrl: function() {
     setTimeout(Hints.create(true, true), 0);
   },
@@ -245,6 +248,7 @@ Mappings.defaults = {
   insertMode:           ["i"],
   reloadTab:            ["r"],
   createHint:           ["f"],
+  createHintWindow:     ["W"],
   pinTab:               ["gp"],
   moveTabRight:         [">"],
   moveTabLeft:          ["<"],
