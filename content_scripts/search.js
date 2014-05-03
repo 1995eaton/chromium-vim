@@ -105,6 +105,13 @@ Search.nextResult = function(reverse) {
     case "search": case "settings": case "session":
       Command.input.value = Command.input.value.match(/^\S+/)[0] + " " + Command.completionResults[this.index][1];
       break;
+    case "path":
+      if (Command.completionResults[this.index][2] !== "folder") {
+        Command.input.value = "bookmarks " + Command.completionResults[this.index][2];
+      } else {
+        Command.input.value = "bookmarks " + Command.completionResults[this.index][3] + Command.completionResults[this.index][1];
+      }
+      break;
     case "buffer":
       Command.input.value = Command.input.value.match(/^\S+/)[0] + " " + Command.completionResults[this.index][1][0];
       break;

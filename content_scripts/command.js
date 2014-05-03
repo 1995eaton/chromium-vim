@@ -113,7 +113,7 @@ Command.appendResults = function(data, extend, identifier, color) {
     var temp = document.createElement("div");
     temp.cVim = true;
     temp.className = "completion-item";
-    if (arrCount === 3) {
+    if (arrCount >= 3) {
       temp.innerHTML = ((identifier ? identifier.span({"color": color}) + ":&nbsp;" : "") + data[i][1]).span({}, "left") + data[i][2].span({}, "right");
     } else {
       temp.innerHTML = (identifier ? identifier.span({"color": color}) + "&nbsp;" : "") + data[i][1].span({}, "full");
@@ -125,6 +125,7 @@ Command.appendResults = function(data, extend, identifier, color) {
 };
 
 Command.hideData = function() {
+  this.dataElements.length = 0;
   if (this.data) {
     this.data.innerHTML = "";
     Search.index = null;
@@ -361,7 +362,11 @@ Command.parse = function(value, pseudoReturn, repeats) {
     }
 
     if (/^b(ook)?marks(\s+)/.test(this.input.value)) {
-      Marks.match(this.input.value.replace(/^\w+(\s+)?/, ""), function(response) {
+      search = this.input.value.replace(/\S+(\s+)?/, "");
+      if (search[0] === "/") {
+        return Marks.matchPath(search);
+      }
+      Marks.match(search, function(response) {
         if (response.length > 0) {
           this.appendResults(response);
         } else {

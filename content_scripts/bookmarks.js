@@ -33,6 +33,10 @@ Marks.match = function(string, callback) {
   callback(matches);
 };
 
+Marks.matchPath = function(path) {
+  port.postMessage({action: "getBookmarkPath", path: path});
+};
+
 port.onMessage.addListener(function(response) {
   if (response.history) {
     var matches = [];
@@ -70,5 +74,10 @@ port.onMessage.addListener(function(response) {
     }
   } else if (response.sessions) {
     sessions = response.sessions;
+  } else if (response.path) {
+    var _ret = response.path.map(function(e) { return ["path"].concat(e); });
+    if (_ret.length) {
+      Command.appendResults(_ret);
+    } else Command.hideData();
   }
 });

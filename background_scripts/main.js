@@ -87,6 +87,31 @@ function getMarks(callback) {
   });
 }
 
+function getPath(m, p, callback, initialPath) { // Browse bookmark folders
+  var _ret = [],
+      folder = null,
+      matchFound = false;
+  if (!initialPath) initialPath = p.replace(/\/[^\/]+$/, "/").replace(/\/+/g, "/");
+  if (typeof p !== "string" || p[0] !== "/") return false;
+  p = p.split(/\//).filter(function(e) { return e; });
+  m.forEach(function(item) {
+    if (item.title === p[0]) {
+      folder = item;
+    }
+    if (p[0] && item.title.substring(0, p[0].length).toLowerCase() === p[0].toLowerCase()) {
+      _ret.push([item.title, (item.url || "folder"), initialPath]);
+    }
+    if (p.length === 0) {
+      if (!matchFound) _ret = [];
+      matchFound = true;
+      _ret.push([item.title, (item.url || "folder"), initialPath]);
+    }
+  });
+  if (p.length === 0 || !folder) return callback(_ret);
+  p = p.slice(1);
+  getPath(folder.children, "/" + p.join("/"), callback, initialPath);
+}
+
 chrome.extension.onConnect.addListener(function(port) {
   console.assert(port.name === "main");
   port.onMessage.addListener(function(request, data) {
@@ -111,6 +136,12 @@ chrome.extension.onConnect.addListener(function(port) {
       });
     } else if (request.action === "getSessionNames") {
       port.postMessage({sessions: Object.keys(sessions).map(function(e) { return [e, sessions[e].length.toString() + " tab" + (sessions[e].length === 1 ? "" : "s")]; } )});
+    } else if (request.action ===  "getBookmarkPath") {
+      chrome.bookmarks.getTree(function(marks) {
+        getPath(marks[0].children, request.path, function(e) {
+          port.postMessage({path: e});
+        });
+      });
     }
   });
 });
