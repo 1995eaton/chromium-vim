@@ -64,9 +64,13 @@ Hints.handleHintFeedback = function(choice) {
     document.getElementById("cVim-link-container").style.display = "none";
     var link = this.linkHints[index];
     setTimeout(function() {
+      if (this.type === "multi") {
+        chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: link.href, noconvert: true});
+        return this.create("multi");
+      }
       if (linkHoverEnabled && shiftKey) {
         var e;
-        if (this.tabbed) {
+        if (this.type === "tabbed") {
           e = new Event("mouseover");
           link.dispatchEvent(e);
         } else {
@@ -76,9 +80,9 @@ Hints.handleHintFeedback = function(choice) {
         return this.hideHints(false);
       }
       var node = link.nodeName;
-      if (this.yank) {
+      if (this.type === "yank") {
         Clipboard.copy(link.href);
-      } else if (this.image) {
+      } else if (this.type === "image") {
         chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: "https://www.google.com/searchbyimage?image_url=" + link.src, noconvert: true});
       } else if (node === "BUTTON" || link.getAttribute("jsaction")) {
         link.click();
@@ -129,12 +133,14 @@ Hints.handleHintFeedback = function(choice) {
             link.click();
             break;
         }
-      } else if (this.windowOpen) {
+      } else if (this.type === "window") {
         chrome.runtime.sendMessage({action: "openLinkWindow", focused: false, url: link.href, noconvert: true});
-      } else if (!this.tabbed || link.getAttribute("onclick")) {
+      } else if (!this.type === "tabbed" || link.getAttribute("onclick")) {
         link.click();
-      } else if (this.tabbed) {
+      } else if (this.type === "tabbed") {
         chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: link.href, noconvert: true});
+      } else {
+        link.click();
       }
     }.bind(this), 0);
   }
@@ -154,12 +160,12 @@ Hints.handleHint = function(key) {
   }
 };
 
-Hints.getLinks = function(type) {
+Hints.getLinks = function() {
   var candidates, selection, item;
   var valid = [],
       isRedditUrl = /\.reddit\.com/.test(window.location.origin);
 
-  switch (type) {
+  switch (this.type) {
     case "yank":
       selection = "//a|//area[@href]";
       break;
@@ -183,22 +189,33 @@ Hints.getLinks = function(type) {
   return valid;
 };
 
-Hints.create = function(tabbed, yank, image, windowOpen) {
+Hints.create = function(type) {
   var screen, links, linkNumber, main, frag, linkElement, isAreaNode, mapCoordinates, computedStyle, imgParent, c;
-  links = this.getLinks(yank ? "yank" : (image ? "image" : undefined));
+  this.type = type;
+  links = this.getLinks();
   if (links.length === 0) return false;
   this.hideHints(true);
   HUD.display("Follow link " + (function() {
-    if (yank)   return "(yank)";
-    if (image)  return "(reverse image)";
-    if (tabbed) return "(tabbed)";
-    if (windowOpen) return "(window)";
-    return "";
+    switch (type) {
+      case "yank":
+        Hints.yank = true;
+        return "(yank)";
+      case "image":
+        Hints.image = true;
+        return "(reverse image)";
+      case "tabbed":
+        Hints.tabbed = true;
+        return "(tabbed)";
+      case "window":
+        Hints.windowOpen = true;
+        return "(window)";
+      case "multi":
+        Hints.multiHint = true;
+        return "(multi)";
+      default:
+        return "";
+    }
   })());
-  this.yank = yank;
-  this.image = image;
-  this.tabbed = tabbed;
-  this.windowOpen = windowOpen;
   screen = {
     top: document.body.scrollTop,
     bottom: document.body.scrollTop + window.innerHeight,
@@ -302,7 +319,7 @@ Hints.create = function(tabbed, yank, image, windowOpen) {
     frag.appendChild(this.linkArr[i]);
   }
   main.appendChild(frag);
-  if (linkHoverEnabled && tabbed) {
+  if (linkHoverEnabled && this.type === "tabbed") {
     window.setTimeout(function() {
       if (shiftKey)
         Hints.invertColors(true);

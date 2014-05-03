@@ -57,6 +57,9 @@ Mappings.actions   = {
   lastTab: function() {
     chrome.runtime.sendMessage({action: "lastTab"});
   },
+  lastClosedTab: function() {
+    chrome.runtime.sendMessage({action: "openLast"});
+  },
   moveTabRight: function(repeats) {
     chrome.runtime.sendMessage({action: "moveTabRight", repeats: repeats});
   },
@@ -70,7 +73,8 @@ Mappings.actions   = {
       }
     } else {
       window.setTimeout(function() {
-        Hints.create(true, false, true);
+        // Hints.create(true, false, true);
+        Hints.create("image");
       }, 0);
     }
   },
@@ -114,13 +118,16 @@ Mappings.actions   = {
     setTimeout(Hints.create(), 0);
   },
   createTabbedHint: function() {
-    setTimeout(Hints.create(true), 0);
+    setTimeout(Hints.create("tabbed"), 0);
+  },
+  createMultiHint: function() {
+    window.setTimeout(Hints.create("multi"), 0);
   },
   createHintWindow: function() {
-    window.setTimeout(Hints.create(false, false, false, true), 0);
+    window.setTimeout(Hints.create("window"), 0);
   },
   yankUrl: function() {
-    setTimeout(Hints.create(true, true), 0);
+    setTimeout(Hints.create("yank"), 0);
   },
   yankDocumentUrl: function() {
     Clipboard.copy(document.URL);
@@ -248,6 +255,7 @@ Mappings.defaults = {
   insertMode:           ["i"],
   reloadTab:            ["r"],
   createHint:           ["f"],
+  createMultiHint:      ["M"],
   createHintWindow:     ["W"],
   pinTab:               ["gp"],
   moveTabRight:         [">"],
@@ -257,6 +265,7 @@ Mappings.defaults = {
   goForward:            ["L", "D"],
   firstTab:             ["g0"],
   lastTab:              ["g$"],
+  lastClosedTab:        ["X"],
   hideDownloadsShelf:   ["gj", "gD"],
   createTabbedHint:     ["F"],
   goToInput:            ["gi"],
