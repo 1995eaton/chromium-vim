@@ -130,6 +130,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
         chrome.tabs.create({url: url, active: request.active, index: sender.tab.index + 1});
       }
       break;
+    case "openLinkWindow":
+      var url = request.url;
+      if (!request.noconvert) url = url.convertLink();
+      for (var i = 0; i < request.repeats; i++) {
+        chrome.windows.create({url: url, focused: request.active});
+      }
+      break;
     case "closeTab":
       chrome.tabs.remove(sender.tab.id);
       break;

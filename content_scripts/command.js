@@ -133,6 +133,7 @@ Command.hideData = function() {
 
 Command.descriptions = [
   ["tabopen",   "Open a link in a new tab"],
+  ["winopen",   "Open a link in a new window"],
   ["buffers",   "Select from a list of current tabs"],
   ["closetab",   "Close the current tab"],
   ["open",      "Open a link in the current tab"],
@@ -184,8 +185,12 @@ Command.parse = function(value, pseudoReturn, repeats) {
           chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value.replace(/^b(ook)?marks(\s+)?/, ""), noconvert: true});
         else if (/^history +/.test(value))
           chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value.replace(/^history +?/, ""), noconvert: true});
-        else if (/^(to|tabopen|o|open)$/.test(value.replace(/ .*/, "")))
-          chrome.runtime.sendMessage({action: ((/^t[oa]/.test(value.substring(0, 2))) ? "openLinkTab" : "openLink"), active: activeTab, url: value.replace(/^\S+( +)?/, "")});
+        else if (/^(winopen|wo)$/.test(value.replace(/ .*/, "")))
+          chrome.runtime.sendMessage({action: "openLinkWindow", focused: activeTab, url: value.replace(/^\S+( +)?/, "")});
+        else if (/^(to|tabopen)$/.test(value.replace(/ .*/, "")))
+          chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value.replace(/^\S+( +)?/, "")});
+        else if (/^(o|open)$/.test(value.replace(/ .*/, "")))
+          chrome.runtime.sendMessage({action: "openLink", active: activeTab, url: value.replace(/^\S+( +)?/, "")});
         else if (/^buffers +[0-9]+(\s+)?$/.test(value))
           chrome.runtime.sendMessage({action: "selectTab", tabIndex: value.replace(/^.*([0-9]+).*$/, "$1")});
         else if (/^set +/.test(value) && value !== "set") {
@@ -250,7 +255,7 @@ Command.parse = function(value, pseudoReturn, repeats) {
     Search.index = null;
     var search = this.input.value.replace(/^\S+ +/, "");
 
-    if (/^(t(ab)?)?o(pen)?(\s+)/.test(this.input.value)) {
+    if (/^(tabopen|to|open|o|wo|winopen)(\s+)/.test(this.input.value)) {
       if (search.trim() === "") return this.hideData();
       port.postMessage({action: "searchHistory", search: search, limit: 4});
       Search.fetchQuery(search, function(response) {
