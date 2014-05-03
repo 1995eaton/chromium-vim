@@ -15,6 +15,8 @@
 | **Link Hints**    |                                             |                     |
 | f             | open link in current tab                    | createHint          |
 | F             | open link in new tab                        | createTabbedHint    |
+| W             | open link in new window                     | createHintWindow    |
+| M             | open multiple links                         | createMultiHint     |
 | Y             | copy url from link to clipboard             | yankUrl             |
 | gr            | reverse image search (google images)        | reverseImage        |
 | ;             | change the link hint focus                  |                     |
@@ -91,4 +93,4 @@
 
  * You can specify whether you activate the tab (:tabopen, :bookmarks, :history, etc) by appending an ampersand (&) to the end of the url
  * Prepend a number to the command to repeat that command N times
- * Use the up/down arrows in command/find mode to navigate through previously executed commands/searches -- you can also use this to search for previously executed commands starting with a certain combination of letters (for example, entering "ta" in the command bar and pressing the up arrow will search command history for all matches beginning with "ta"|
+ * Use the up/down arrows in command/find mode to navigate through previously executed commands/searches -- you can also use this to search for previously executed commands starting with a certain combination of letters (for example, entering "ta" in the command bar and pressing the up arrow will search command history for all matches beginning with "ta"
