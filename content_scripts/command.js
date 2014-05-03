@@ -34,7 +34,7 @@ Command.setup = function() {
     document.lastChild.appendChild(this.statusBar);
   } catch(e) {
     document.body.appendChild(this.bar);
-    document.lastChild.appendChild(this.statusBar);
+    document.body.appendChild(this.statusBar);
   }
   if (!this.data) {
     this.data = document.createElement("div");
