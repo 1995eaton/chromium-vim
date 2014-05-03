@@ -179,11 +179,11 @@ Command.parse = function(value, pseudoReturn, repeats) {
         break;
       default:
         if (/^chrome:\/\/\S+$/.test(value))
-          chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value});
+          chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value, noconvert: true});
         else if (/^bookmarks +/.test(value) && value !== "bookmarks")
-          chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value.replace(/^b(ook)?marks(\s+)?/, "")});
+          chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value.replace(/^b(ook)?marks(\s+)?/, ""), noconvert: true});
         else if (/^history +/.test(value))
-          chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value.replace(/^history +?/, "")});
+          chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value.replace(/^history +?/, ""), noconvert: true});
         else if (/^(to|tabopen|o|open)$/.test(value.replace(/ .*/, "")))
           chrome.runtime.sendMessage({action: ((/^t[oa]/.test(value.substring(0, 2))) ? "openLinkTab" : "openLink"), active: activeTab, url: value.replace(/^\S+( +)?/, "")});
         else if (/^buffers +[0-9]+(\s+)?$/.test(value))
