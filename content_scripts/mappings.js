@@ -393,6 +393,10 @@ Mappings.insertCommand = function(modifier, callback) {
 Mappings.parseCustom = function(config) {
   config = config.split(/\n+|;+/).map(function(item) { return item.split(/ +/); });
   config.forEach(function(mapping) {
+    if (mapping.length && mapping[0].trimAround() === "unmapAll") {
+      for (var key in Mappings.defaults) Mappings.defaults[key] = [];
+      return Mappings.shortCuts = [];
+    }
     if (mapping.length === 1 || !/(un)?map/.test(mapping[0])) return false;
     if (mapping.shift() === "map") {
       if (mapping.length === 2 && Mappings.defaults.hasOwnProperty(mapping[1]))
