@@ -8,6 +8,7 @@ var settingsDefault = {
   searchLimit: 20,
   ignoreSearchCase: true,
   disableHUD: false,
+  disableAutofocus: false,
   disableInsertMappings: false,
   scrollStepSize: 75,
   blacklists: "",

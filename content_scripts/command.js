@@ -371,6 +371,18 @@ Command.init = function(enabled) {
       this.data.style[(!this.onBottom) ? 'bottom' : 'top'] = "";
       this.data.style[(this.onBottom) ? 'bottom' : 'top'] = "20px";
     }
+    if (settings.disableAutofocus) {
+      document.activeElement.blur();
+      var wait = window.setInterval(function() {
+        document.activeElement.blur(); // Kind of hackish, but seems necessary in some cases
+        if (document.readyState === "complete") {
+          window.setTimeout(function() {
+            document.activeElement.blur();
+          }, 25);
+          window.clearInterval(wait);
+        }
+      }, 5);
+    }
     Scroll.smoothScroll = settings.smoothScroll;
     Scroll.stepSize = parseInt(settings.scrollStepSize);
     if (settings.linkHintCharacters.split("").unique().length > 1) {
