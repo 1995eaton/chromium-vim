@@ -19,6 +19,9 @@
 | gr            | reverse image search (google images)        | reverseImage        |
 | ;             | change the link hint focus                  |                     |
 | **Miscellaneous** |                                             |                     |
+| :             | open command bar                            | openCommandBar      |
+| /             | open search bar                             | openSearchBar       |
+| ?             | open search bar (reverse search)            | openSearchBarReverse|
 | I             | search through browser history              | :history            |
 | i             | enter insert mode (escape to exit)          | insertMode            |
 | r             | reload the current tab         | reloadTab            |
