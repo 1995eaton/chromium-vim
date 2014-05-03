@@ -429,12 +429,12 @@ Command.init = function(enabled) {
       this.data.style[(this.onBottom) ? 'bottom' : 'top'] = "20px";
     }
     if (settings.disableAutofocus) {
-      document.activeElement.blur();
+      if (!commandMode) document.activeElement.blur();
       var wait = window.setInterval(function() {
-        document.activeElement.blur(); // Kind of hackish, but seems necessary in some cases
-        if (document.readyState === "complete") {
+        if (!commandMode) document.activeElement.blur();
+        if (document.readyState === "complete") { // Kind of hackish, but seems necessary in some cases
           window.setTimeout(function() {
-            document.activeElement.blur();
+            if (!commandMode) document.activeElement.blur();
           }, 25);
           window.clearInterval(wait);
         }
