@@ -20,10 +20,15 @@
 | ;             | change the link hint focus                  |                     |
 | **Miscellaneous** |                                             |                     |
 | I             | search through browser history              | :history            |
+| i             | enter insert mode (escape to exit)          | insertMode            |
+| r             | reload the current tab         | reloadTab            |
+| yy            | copy the url of the current page to the clipboard | yankDocumentUrl |
 | b             | search through bookmarks                    | :bookmarks          |
-| p             | open the clipboard selection                |                     |
-| P             | open the clipboard selection in a new tab   |                     |
+| p             | open the clipboard selection                | openPaste                    |
+| P             | open the clipboard selection in a new tab   | openPasteTab                    |
 | gj            | hide the download shelf                     | hideDownloadsShelf  |
+| gf            | cycle through iframes                       | nextFrame           |
+| gF            | go to the root frame                        | rootFrame           |
 | **Tab Navigation** |                                             |                     |
 | gt, K, R      | navigate to the next tab                    | nextTab             |
 | gT, J, E      | navigate to the previous tab                | previousTab         |
@@ -46,6 +51,7 @@
 | escape        | exit visual mode to caret mode/exit caret mode to normal mode |   |
 | v             | toggle between visual/caret mode            |                     |
 | h, j, k, l    | move the caret position/extend the visual selection |             |
+| y             | copys the current selection                 | |
 | n             | select the next search result               |                     |
 | N             | select the previous search result           |                     |
 | p             | open highlighted text in current tab        |                     |
