@@ -66,7 +66,7 @@ Mappings.actions   = {
   reverseImage: function() {
     if (document.body.childNodes.length === 1 && document.body.firstChild.nodeName === "IMG") {
       if (document.body.firstChild.src) {
-        return chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: "https://www.google.com/searchbyimage?image_url=" + document.body.firstChild.src});
+        return chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: "https://www.google.com/searchbyimage?image_url=" + document.body.firstChild.src, noconvert: true});
       }
     } else {
       window.setTimeout(function() {
