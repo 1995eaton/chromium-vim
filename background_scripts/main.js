@@ -5,13 +5,19 @@ var sessions   = {};
 chrome.storage.sync.get('sessions', function(s) {
   if (s.sessions === undefined) {
     chrome.storage.sync.set({sessions: {}});
-  } else sessions = s.sessions;
+  } else {
+    sessions = s.sessions;
+  }
 });
 
 String.prototype.convertLink = function() {
   var url = this.trimLeft().trimRight();
-  if (url.length === 0) return "chrome://newtab";
-  if (/^(chrome|chrome-extension|file):\/\/\S+$/.test(url)) return url;
+  if (url.length === 0) {
+    return 'chrome://newtab';
+  }
+  if (/^(chrome|chrome-extension|file):\/\/\S+$/.test(url)) {
+    return url;
+  }
   var pattern = new RegExp('^((https?|ftp):\\/\\/)?'+
   '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+
   '((\\d{1,3}\\.){3}\\d{1,3})|'+
@@ -19,9 +25,10 @@ String.prototype.convertLink = function() {
   '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+
   '(\\?[;&a-z\\d%_.~+=-]*)?'+
   '(\\#[-a-z\\d_]*)?$','i');
-  if (pattern.test(url))
-    return (/:\/\//.test(url) ? "" : "http://") + url;
-  return "https://www.google.com/search?q=" + url;
+  if (pattern.test(url)) {
+    return (/:\/\//.test(url) ? '' : 'http://') + url;
+  }
+  return 'https://www.google.com/search?q=' + url;
 };
 
 function getTab(sender, reverse, count, first, last) {
@@ -38,9 +45,9 @@ function getTab(sender, reverse, count, first, last) {
 
 var Clipboard = {
   createTextArea: function() {
-    var t = document.createElement("textarea");
-    t.style.position = "absolute";
-    t.style.left = "-100%";
+    var t = document.createElement('textarea');
+    t.style.position = 'absolute';
+    t.style.left = '-100%';
     return t;
   },
   copy: function(text) {
@@ -48,14 +55,14 @@ var Clipboard = {
     t.value = text;
     document.body.appendChild(t);
     t.select();
-    document.execCommand("Copy");
+    document.execCommand('Copy');
     document.body.removeChild(t);
   },
   paste: function(text) {
     var t = this.createTextArea();
     document.body.appendChild(t);
     t.focus();
-    document.execCommand("Paste");
+    document.execCommand('Paste');
     text = t.value;
     document.body.removeChild(t);
     return text;
@@ -65,16 +72,17 @@ var Clipboard = {
 var History = {
   searchResults: null,
   append: function(value, type) {
-    if (!localStorage[type] || localStorage[type] === "")
+    if (!localStorage[type] || localStorage[type] === '') {
       localStorage[type] = value;
-    else
-      localStorage[type] += "," + value;
+    } else {
+      localStorage[type] += ',' + value;
+    }
   },
   retrieve: function(type) {
     if (!localStorage[type]) {
-      localStorage[type] = "";
+      localStorage[type] = '';
     }
-    return [type, localStorage[type].split(",")];
+    return [type, localStorage[type].split(',')];
   },
   retrieveSearchHistory: function(search, limit, callback) {
     chrome.history.search({text: search, maxResults: limit}, function(results) {
@@ -105,7 +113,7 @@ function multiOpen(links) {
 }
 
 function getFolderLinks(path, callback) {
-  path = path.split("/").filter(function(e) { return e; });
+  path = path.split('/').filter(function(e) { return e; });
   chrome.bookmarks.getTree(function(tree) {
     var dir = tree[0];
     while (dir = containsFolder(path[0], dir)) {
@@ -125,53 +133,53 @@ function getPath(m, p, callback, initialPath) { // Browse bookmark folders
   var _ret = [],
       folder = null,
       matchFound = false;
-  if (!initialPath) initialPath = p.replace(/\/[^\/]+$/, "/").replace(/\/+/g, "/");
-  if (typeof p !== "string" || p[0] !== "/") return false;
+  if (!initialPath) initialPath = p.replace(/\/[^\/]+$/, '/').replace(/\/+/g, '/');
+  if (typeof p !== 'string' || p[0] !== '/') return false;
   p = p.split(/\//).filter(function(e) { return e; });
   m.forEach(function(item) {
     if (item.title === p[0]) {
       folder = item;
     }
     if (p[0] && item.title.substring(0, p[0].length).toLowerCase() === p[0].toLowerCase()) {
-      _ret.push([item.title, (item.url || "folder"), initialPath]);
+      _ret.push([item.title, (item.url || 'folder'), initialPath]);
     }
     if (p.length === 0) {
       if (!matchFound) _ret = [];
       matchFound = true;
-      _ret.push([item.title, (item.url || "folder"), initialPath]);
+      _ret.push([item.title, (item.url || 'folder'), initialPath]);
     }
   });
   if (p.length === 0 || !folder) return callback(_ret);
   p = p.slice(1);
-  getPath(folder.children, "/" + p.join("/"), callback, initialPath);
+  getPath(folder.children, '/' + p.join('/'), callback, initialPath);
 }
 
 chrome.extension.onConnect.addListener(function(port) {
-  console.assert(port.name === "main");
+  console.assert(port.name === 'main');
   port.onMessage.addListener(function(request, data) {
-    if (request.action === "getBookmarks") {
+    if (request.action === 'getBookmarks') {
       getMarks(function(marks) {
         port.postMessage({bookmarks: marks});
       });
-    } else if (request.action === "searchHistory") {
+    } else if (request.action === 'searchHistory') {
       History.retrieveSearchHistory(request.search, request.limit || 4, function(results) {
         port.postMessage({history: results});
       });
-    } else if (request.action === "getBuffers") {
+    } else if (request.action === 'getBuffers') {
       chrome.tabs.query({active: true, currentWindow: true}, function(initial) {
         initial = initial[0];
         var windowId = initial.windowId;
         chrome.tabs.query({windowId: windowId}, function(tabs) {
           var t = [];
           for (var i = 0, l = tabs.length; i < l; ++i) {
-            t.push([i + ": " + tabs[i].title, tabs[i].url]);
+            t.push([i + ': ' + tabs[i].title, tabs[i].url]);
           }
           port.postMessage({buffers: t});
         });
       });
-    } else if (request.action === "getSessionNames") {
-      port.postMessage({sessions: Object.keys(sessions).map(function(e) { return [e, sessions[e].length.toString() + " tab" + (sessions[e].length === 1 ? "" : "s")]; } )});
-    } else if (request.action ===  "getBookmarkPath") {
+    } else if (request.action === 'getSessionNames') {
+      port.postMessage({sessions: Object.keys(sessions).map(function(e) { return [e, sessions[e].length.toString() + ' tab' + (sessions[e].length === 1 ? '' : 's')]; } )});
+    } else if (request.action ===  'getBookmarkPath') {
       chrome.bookmarks.getTree(function(marks) {
         getPath(marks[0].children, request.path, function(e) {
           port.postMessage({path: e});
@@ -184,7 +192,7 @@ chrome.extension.onConnect.addListener(function(port) {
 chrome.commands.onCommand.addListener(function(command) {
   if (/^(next|previous)Tab$/.test(command)) {
     chrome.tabs.query({active: true, currentWindow: true}, function(e) {
-      return getTab({tab: e[0]}, false, (command === "nextTab" ? 1 : -1), false, false);
+      return getTab({tab: e[0]}, false, (command === 'nextTab' ? 1 : -1), false, false);
     });
   }
 });
@@ -211,84 +219,82 @@ chrome.tabs.onUpdated.addListener(function(tab) {
 });
 
 chrome.runtime.onMessage.addListener(function(request, sender, callback) {
-  if (request.action !== "focusMainWindow" && (!request.repeats || !/[0-9]([0-9]+)?/.test(request.repeats.toString()))) request.repeats = 1;
+  var url = request.url;
+  if (request.action !== 'focusMainWindow' && (!request.repeats || !/[0-9]([0-9]+)?/.test(request.repeats.toString()))) request.repeats = 1;
   switch (request.action) {
-    case "openLink":
-      var url = request.url;
+    case 'openLink':
       if (!request.noconvert) url = url.convertLink();
       chrome.tabs.update({url: url});
       break;
-    case "openLinkTab":
-      var url = request.url;
+    case 'openLinkTab':
       if (!request.noconvert) url = url.convertLink();
       for (var i = 0; i < request.repeats; i++) {
         chrome.tabs.create({url: url, active: request.active, index: sender.tab.index + 1});
       }
       break;
-    case "openLinkWindow":
-      var url = request.url;
+    case 'openLinkWindow':
       if (!request.noconvert) url = url.convertLink();
       for (var i = 0; i < request.repeats; i++) {
         chrome.windows.create({url: url, focused: request.active});
       }
       break;
-    case "closeTab":
+    case 'closeTab':
       chrome.tabs.remove(sender.tab.id);
       break;
-    case "reloadTab":
+    case 'reloadTab':
       chrome.tabs.reload({bypassCache: request.nocache});
       break;
-    case "newTab":
+    case 'newTab':
       for (var i = 0; i < request.repeats; i++) {
-        chrome.tabs.create({url: "https://google.com", index: sender.tab.index + 1});
+        chrome.tabs.create({url: 'https://google.com', index: sender.tab.index + 1});
       }
       break;
-    case "nextTab":
+    case 'nextTab':
       getTab(sender, false, request.repeats, false, false);
       break;
-    case "previousTab":
+    case 'previousTab':
       getTab(sender, true, request.repeats, false, false);
       break;
-    case "firstTab":
+    case 'firstTab':
       getTab(sender, false, false, true, false);
       break;
-    case "lastTab":
+    case 'lastTab':
       getTab(sender, false, false, false, true);
       break;
-    case "appendHistory":
+    case 'appendHistory':
       History.append(request.value, request.type);
       break;
-    case "retrieveHistory":
+    case 'retrieveHistory':
       callback(History.retrieve(request.type));
       break;
-    case "pinTab":
+    case 'pinTab':
       chrome.tabs.update({pinned: !sender.tab.pinned});
       break;
-    case "copy":
+    case 'copy':
       Clipboard.copy(request.text);
       break;
-    case "moveTabRight":
+    case 'moveTabRight':
       chrome.tabs.move(sender.tab.id, {index: sender.tab.index + request.repeats});
       break;
-    case "moveTabLeft":
+    case 'moveTabLeft':
       chrome.tabs.move(sender.tab.id, {index: (sender.tab.index - request.repeats <= -1) ? 0 : sender.tab.index - request.repeats});
       break;
-    case "openPasteTab":
+    case 'openPasteTab':
       var paste = Clipboard.paste();
       if (!paste) return;
       chrome.tabs.create({url: paste.convertLink(), index: sender.tab.index + 1});
       break;
-    case "openPaste":
+    case 'openPaste':
       var paste = Clipboard.paste();
       if (!paste) return;
       chrome.tabs.update({url: paste.convertLink()});
       break;
-    case "focusMainWindow":
+    case 'focusMainWindow':
       chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
-        chrome.tabs.sendMessage(tab[0].id, {action: "focus", repeats: request.repeats});
+        chrome.tabs.sendMessage(tab[0].id, {action: 'focus', repeats: request.repeats});
       });
       break;
-    case "createSession":
+    case 'createSession':
       sessions[request.name] = [];
       chrome.tabs.query({windowId: sender.tab.windowId}, function(tabs) {
         tabs.forEach(function(tab) {
@@ -297,20 +303,20 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
         chrome.storage.sync.set({sessions: sessions});
       });
       break;
-    case "openBookmarkFolder":
+    case 'openBookmarkFolder':
       getFolderLinks(request.path, function(e) {
         if (e.length > 5) {
-          chrome.tabs.sendMessage(sender.tab.id, {action: "confirm", message: "Open " + e.length + " tabs?"}, function(response) {
+          chrome.tabs.sendMessage(sender.tab.id, {action: 'confirm', message: 'Open ' + e.length + ' tabs?'}, function(response) {
             if (response) multiOpen(e);
           });
         } else multiOpen(e);
       });
       break;
-    case "deleteSession":
+    case 'deleteSession':
       delete sessions[request.name];
       chrome.storage.sync.set({sessions: sessions});
       break;
-    case "openSession":
+    case 'openSession':
       if (sessions.hasOwnProperty(request.name)) {
         var tabs = sessions[request.name];
         var firstTab = tabs.slice(0, 1)[0];
@@ -321,7 +327,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
         });
       }
       break;
-    case "openLast":
+    case 'openLast':
       if (Object.keys(tabHistory).length && tabHistory[sender.tab.windowId] !== undefined && tabHistory[sender.tab.windowId].length > 0) {
         var lastTab = tabHistory[sender.tab.windowId].pop();
         chrome.tabs.create({url: lastTab.url,
@@ -332,16 +338,16 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
                           });
       }
       break;
-    case "getBuffers":
+    case 'getBuffers':
       chrome.tabs.query({windowId: sender.tab.windowId}, function(tabs) {
         var t = [];
         for (var i = 0, l = tabs.length; i < l; ++i) {
-          t.push([i + ": " + tabs[i].title, tabs[i].url]);
+          t.push([i + ': ' + tabs[i].title, tabs[i].url]);
         }
-        chrome.tabs.sendMessage(sender.tab.id, {action: "showBuffers", buffers: t});
+        chrome.tabs.sendMessage(sender.tab.id, {action: 'showBuffers', buffers: t});
       });
       break;
-    case "selectTab":
+    case 'selectTab':
       chrome.tabs.query({windowId: sender.tab.windowId}, function(tabs) {
         if (request.tabIndex < tabs.length)
           chrome.tabs.query({windowId: sender.tab.windowId, index: parseInt(request.tabIndex)}, function(tab) {
@@ -349,7 +355,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
           });
       });
       break;
-    case "hideDownloadsShelf":
+    case 'hideDownloadsShelf':
       chrome.downloads.setShelfEnabled(false);
       chrome.downloads.setShelfEnabled(true);
       break;
