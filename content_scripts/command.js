@@ -162,9 +162,12 @@ Command.parse = function(value, pseudoReturn, repeats) {
 
   var activeTab = true;
   if (value) {
-    value     = value.replace(/&$/, "");
-    activeTab = false;
+    value = value.replace(/&$/, function() {
+      activeTab = false;
+      return "";
+    });
   }
+
   this.typed = this.input.value;
   this.history.index = {};
 
