@@ -257,32 +257,32 @@ Command.parse = function(value, pseudoReturn, repeats) {
               else settings.useRegex = isSet;
               break;
             case "ignorecase":
-              if (value[1] === undefined) { Status.setMessage("ignorecase: " + settings.ignoreSearchCase, 3); break; }
+              if (value[1] === undefined) { Status.setMessage("ignorecase: " + settings.ignoreSearchCase, 1); break; }
               if (value[1].isBoolean()) Status.setMessage("Invalid value: " + value[1], 1);
               else settings.ignoreSearchCase = isSet;
               break;
             case "smoothscroll":
-              if (value[1] === undefined) { Status.setMessage("smoothscroll: " + Scroll.smoothScroll, 3); break; }
+              if (value[1] === undefined) { Status.setMessage("smoothscroll: " + Scroll.smoothScroll, 1); break; }
               if (value[1].isBoolean()) Status.setMessage("Invalid value: " + value[1], 1);
               else Scroll.smoothScroll = isSet;
               break;
             case "scrollstep":
-              if (value[1] === undefined) { Status.setMessage("scrollstep: " + Scroll.stepSize, 3); break; }
+              if (value[1] === undefined) { Status.setMessage("scrollstep: " + Scroll.stepSize, 1); break; }
               if (parseInt(value[1]) != value[1]) Status.setMessage("Invalid integer: " + value[1], 1);
               else Scroll.stepSize = parseInt(value[1]);
               break;
             case "searchlimit":
-              if (value[1] === undefined) { Status.setMessage("searchlimit: " + settings.searchLimit, 3); break; }
+              if (value[1] === undefined) { Status.setMessage("searchlimit: " + settings.searchLimit, 1); break; }
               if (parseInt(value[1]) != value[1]) Status.setMessage("Invalid integer: " + value[1], 1);
               else settings.searchLimit = parseInt(value[1]);
               break;
             case "showhud":
-              if (value[1] === undefined) { Status.setMessage("showhud: " + !settings.disableHUD, 3); break; }
+              if (value[1] === undefined) { Status.setMessage("showhud: " + !settings.disableHUD, 1); break; }
               if (value[1].isBoolean()) Status.setMessage("Invalid value: " + value[1], 1);
               else settings.disableHUD = !isSet;
               break;
             case "hintcharacters":
-              if (value[1] === undefined) { Status.setMessage("hintcharacters: " + Hints.hintCharacters, 3); break; }
+              if (value[1] === undefined) { Status.setMessage("hintcharacters: " + Hints.hintCharacters, 1); break; }
               value = value[1].split("").unique().join("");
               if (value.length <= 1) Status.setMessage("Two unique hint characters are required", 1);
               else Hints.hintCharacters = value;

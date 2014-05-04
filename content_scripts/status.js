@@ -2,6 +2,7 @@ var Status = {};
 Status.defaultTimeout = 3;
 
 Status.setMessage = function(message, timeout) {
+  window.clearTimeout(this.delay);
   this.hide();
   if (timeout === undefined) {
     timeout = this.defaultTimeout;
@@ -9,7 +10,7 @@ Status.setMessage = function(message, timeout) {
   this.active = true;
   Command.statusBar.innerText = message;
   Command.statusBar.style.display = "inline-block";
-  window.setTimeout(function() {
+  this.delay = window.setTimeout(function() {
     if (Status.active === true) {
       Command.statusBar.style.display = "none";
       Status.active = false;
