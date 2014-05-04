@@ -14,7 +14,8 @@ String.prototype.convertLink = function() {
   if (/^(chrome|chrome-extension|file):\/\/\S+$/.test(url)) return url;
   var pattern = new RegExp('^((https?|ftp):\\/\\/)?'+
   '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+
-  '((\\d{1,3}\\.){3}\\d{1,3}))'+
+  '((\\d{1,3}\\.){3}\\d{1,3})|'+
+  'localhost)' +
   '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+
   '(\\?[;&a-z\\d%_.~+=-]*)?'+
   '(\\#[-a-z\\d_]*)?$','i');
