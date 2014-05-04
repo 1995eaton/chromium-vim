@@ -211,6 +211,10 @@ chrome.tabs.onUpdated.addListener(function(tab) {
   } catch (e) {} // Ignore tabs that have already been removed
 });
 
+chrome.webNavigation.onCommitted.addListener(function(info) {
+  chrome.tabs.sendMessage(info.tabId, {action: "setupPage"});
+});
+
 chrome.runtime.onMessage.addListener(function(request, sender, callback) {
   if (request.action !== "focusMainWindow" && (!request.repeats || !/[0-9]([0-9]+)?/.test(request.repeats.toString()))) request.repeats = 1;
   switch (request.action) {
