@@ -8,7 +8,14 @@ Hints.hintCharacters = "asdfgzxcvbqwert";
 Hints.hideHints = function(reset) {
   if (document.getElementById("cVim-link-container") !== null) {
     HUD.hide();
-    document.getElementById("cVim-link-container").parentNode.removeChild(document.getElementById("cVim-link-container"));
+    main = document.getElementById("cVim-link-container");
+    if (!settings.disableLinkAnimation) {
+      main.addEventListener("transitionend", function() {
+        var m = document.getElementById("cVim-link-container");
+        if (m !== null) m.parentNode.removeChild(m);
+      });
+      main.style.opacity = "0";
+    } else document.getElementById("cVim-link-container").parentNode.removeChild(document.getElementById("cVim-link-container"));
   }
   this.active = reset;
   this.currentString = "";
@@ -61,11 +68,12 @@ Hints.handleHintFeedback = function(choice) {
     }
   }
   if (linksFound === 1) {
-    document.getElementById("cVim-link-container").style.display = "none";
     var link = this.linkHints[index];
     setTimeout(function() {
       if (this.type === "multi") {
         chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: link.href, noconvert: true});
+        var m = document.getElementById("cVim-link-container");
+        if (m !== null) m.parentNode.removeChild(m);
         return this.create("multi");
       }
       if (linkHoverEnabled && shiftKey) {
@@ -140,6 +148,8 @@ Hints.handleHintFeedback = function(choice) {
       } else if (this.type === "tabbed") {
         chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: link.href, noconvert: true});
       } else {
+        var m = document.getElementById("cVim-link-container");
+        if (m !== null) m.parentNode.removeChild(m);
         link.click();
       }
     }.bind(this), 0);
@@ -224,6 +234,9 @@ Hints.create = function(type) {
   };
   linkNumber = 0;
   main = document.createElement("div");
+  if (!settings.disableLinkAnimation) {
+    main.style.opacity = "0";
+  }
   main.cVim = true;
   frag = document.createDocumentFragment();
 
@@ -319,6 +332,7 @@ Hints.create = function(type) {
     frag.appendChild(this.linkArr[i]);
   }
   main.appendChild(frag);
+  main.style.opacity = "1";
   if (linkHoverEnabled && this.type === "tabbed") {
     window.setTimeout(function() {
       if (shiftKey)

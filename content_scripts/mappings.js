@@ -73,7 +73,6 @@ Mappings.actions   = {
       }
     } else {
       window.setTimeout(function() {
-        // Hints.create(true, false, true);
         Hints.create("image");
       }, 0);
     }
@@ -115,19 +114,29 @@ Mappings.actions   = {
     Scroll.scroll("bottom");
   },
   createHint: function() {
-    setTimeout(Hints.create(), 0);
+    window.setTimeout(function() {
+      Hints.create()
+    }, 0);
   },
   createTabbedHint: function() {
-    setTimeout(Hints.create("tabbed"), 0);
+    window.setTimeout(function() {
+      Hints.create("tabbed")
+    }, 0);
   },
   createMultiHint: function() {
-    window.setTimeout(Hints.create("multi"), 0);
+    window.setTimeout(function() {
+      Hints.create("multi")
+    }, 0);
   },
   createHintWindow: function() {
-    window.setTimeout(Hints.create("window"), 0);
+    window.setTimeout(function() {
+      Hints.create("window")
+    }, 0);
   },
   yankUrl: function() {
-    setTimeout(Hints.create("yank"), 0);
+    window.setTimeout(function() {
+      Hints.create("yank")
+    }, 0);
   },
   yankDocumentUrl: function() {
     Clipboard.copy(document.URL);
