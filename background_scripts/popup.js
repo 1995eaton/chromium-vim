@@ -1,102 +1,128 @@
-var isEnabled = true;
-var isBlacklisted;
-var settings;
+var Settings;
+var Popup = {};
 var blacklists = "";
+Popup.active = true;
 
-function getSettings() {
+(function() {
   chrome.storage.sync.get("settings", function(s) {
-    settings = s.settings;
-    if (settings === undefined) return chrome.storage.sync.set({settings: settingsDefault});
+    Settings = s.settings;
+    if (Settings === undefined) return chrome.storage.sync.set({settings: settingsDefault});
     for (var key in settingsDefault) {
-      if (settings[key] === undefined) {
-        settings[key] = settingsDefault[key];
+      if (Settings[key] === undefined) {
+        Settings[key] = settingsDefault[key];
       }
     }
-    chrome.storage.sync.set({settings: settings});
-    blacklists = settings.blacklists.split("\n");
+    chrome.storage.sync.set({settings: Settings});
+    blacklists = Settings.blacklists.split("\n");
+    if (!Settings || !Settings.blacklists) {
+      Popup.isBlacklisted = false;
+    } else {
+      blacklists = Settings.blacklists.split("\n");
+    }
   });
-}
+})();
 
 function parseDomain(url) {
   return url.replace(/(\.([^\.]+))\/.*$/, "$1");
 }
-getSettings();
-if (!settings || !settings.blacklists) isBlacklisted = false;
-else {
-  blacklists = settings.blacklists.split("\n");
-}
+
+Popup.getAllTabs = function(callback) {
+  chrome.tabs.query({}, function(tabs) {
+    callback(tabs);
+  });
+};
+
+Popup.getBlacklisted = function() {
+  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    if (!tabs || !tabs.length) return false;
+    var url = parseDomain(tabs[0].url);
+    for (var i = 0; i < blacklists.length; i++) {
+      if (blacklists[i] === url) {
+        return this.isBlacklisted = true;
+      }
+    }
+    this.isBlacklisted = false;
+  }.bind(this));
+};
+
+Popup.getBlacklistedResponse = function(callback) {
+  callback(this.isBlacklisted);
+};
+
+Popup.getActiveTab = function(callback) {
+  chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
+    callback(tab[0]);
+  });
+};
+
+Popup.setIconDisabled = function() {
+  this.getActiveTab(function(tab) {
+    chrome.browserAction.setIcon({path: "icons/disabled.png", tabId: tab.id});
+  });
+};
+
+Popup.setIconEnabled = function() {
+  this.getActiveTab(function(tab) {
+    chrome.browserAction.setIcon({path: "icons/38.png", tabId: tab.id});
+  });
+};
+
+Popup.getActiveState = function(callback) {
+  callback(this.active);
+};
+
+Popup.toggleEnabled = function(callback, request) {
+  if (request.singleTab) {
+    this.getActiveTab(function(tab) {
+      chrome.tabs.sendMessage(tab.id, {action: "toggleEnabled", state: !request.blacklisted});
+    });
+    if (request.blacklisted) {
+      return this.setIconDisabled();
+    }
+    return this.setIconEnabled();
+  }
+  this.getAllTabs(function(tabs) {
+    this.active = !this.active;
+    if (!request.blacklisted) {
+      tabs.map(function(tab) { return tab.id; }).forEach(function(id) {
+        chrome.tabs.sendMessage(id, {action: "toggleEnabled", state: this.active});
+        if (this.active) {
+          chrome.browserAction.setIcon({path: "icons/38.png", tabId: id});
+        } else {
+          chrome.browserAction.setIcon({path: "icons/disabled.png", tabId: id});
+        }
+      }.bind(this));
+    }
+  }.bind(this));
+};
+
+Popup.toggleBlacklisted = function() {
+  this.getActiveTab(function(tab) {
+    var url = parseDomain(tab.url);
+    var foundMatch;
+    for (var i = 0; i < blacklists.length; ++i) {
+      if (blacklists[i].trim() === "") {
+        blacklists.splice(i, 1);
+        continue;
+      }
+      if (blacklists[i] === url) {
+        blacklists.splice(i, 1);
+        foundMatch = true;
+      }
+    }
+    if (!foundMatch) {
+      blacklists.push(url);
+    }
+    Settings.blacklists = blacklists.join("\n");
+    chrome.storage.sync.set({settings: Settings});
+    this.isBlacklisted = !this.isBlacklisted;
+  }.bind(this));
+};
 
 chrome.runtime.onMessage.addListener(function(request, sender, callback) {
-  if (request.action === "getBlacklisted") {
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-      if (!tabs || !tabs.length) return false;
-      var url = parseDomain(tabs[0].url);
-      for (var i = 0; i < blacklists.length; i++) {
-        if (blacklists[i] === url) {
-          return isBlacklisted = true;
-        }
-      }
-      isBlacklisted = false;
-    });
-  } else if (request.action === "getBlacklistedResponse") {
-    callback(isBlacklisted);
-  } else if (request.action === "setIconDisabled") {
-    chrome.browserAction.setIcon({path: "icons/disabled.png", tabId: sender.tab.id});
-  } else if (request.action === "setIconEnabled") {
-    chrome.browserAction.setIcon({path: "icons/38.png", tabId: sender.tab.id});
-  } else if (request.action === "getEnabled") {
-    chrome.tabs.sendMessage(tabs[0].id, {action: "toggleEnabled", state: isEnabled});
-  } else if (request.action === "getEnabledCallback") {
-    callback(isEnabled);
-  } else if (request.action === "toggleEnabled") {
-    if (request.singleTab) {
-      chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        if (!tabs || !tabs.length) return false;
-        chrome.tabs.sendMessage(tabs[0].id, {action: "toggleEnabled", state: !request.blacklisted});
-        if (!request.blacklisted) {
-          chrome.browserAction.setIcon({path: "icons/38.png", tabId: tabs[0].id});
-        } else {
-          chrome.browserAction.setIcon({path: "icons/disabled.png", tabId: tabs[0].id});
-        }
-      });
-    } else {
-      chrome.tabs.query({}, function(tabs) {
-        if (!tabs || !tabs.length) return false;
-        isEnabled = !isEnabled;
-        if (!request.blacklisted) {
-          for (var i = 0; i < tabs.length; i++) {
-            chrome.tabs.sendMessage(tabs[i].id, {action: "toggleEnabled", state: isEnabled});
-            if (isEnabled) {
-              chrome.browserAction.setIcon({path: "icons/38.png", tabId: tabs[i].id});
-            } else {
-              chrome.browserAction.setIcon({path: "icons/disabled.png", tabId: tabs[i].id});
-            }
-          }
-        }
-      });
-    }
-  } else if (request.action === "toggleBlacklisted") {
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-      if (!tabs || !tabs.length) return false;
-      var url;
-      url = parseDomain(tabs[0].url);
-      var foundMatch;
-      for (var i = 0; i < blacklists.length; i++) {
-        if (blacklists[i] === "") {
-          blacklists.splice(i, 1);
-          continue;
-        }
-        if (blacklists[i] === url) {
-          blacklists.splice(i, 1);
-          foundMatch = true;
-        }
-      }
-      if (!foundMatch) {
-        blacklists.push(url);
-      }
-      settings.blacklists = blacklists.join("\n");
-      chrome.storage.sync.set({settings: settings});
-      isBlacklisted = !isBlacklisted;
-    });
+  if (Popup.hasOwnProperty(request.action)) {
+    Popup[request.action](function(response) {
+      callback(response);
+    }, request);
   }
 });

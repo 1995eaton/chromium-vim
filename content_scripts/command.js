@@ -495,7 +495,7 @@ Command.configureSettings = function(fetchOnly, s) {
     settings.searchLimit = parseInt(settings.searchLimit);
     checkBlacklist(function(isBlacklisted) {
       if (isBlacklisted) return false;
-      chrome.runtime.sendMessage({action: "getEnabledCallback"}, function(response) {
+      chrome.runtime.sendMessage({action: "getActiveState"}, function(response) {
         if (!response) return false;
         return loadMain();
       });

@@ -14,7 +14,7 @@ setTimeout(function() {
   });
 }, 50);
 
-chrome.runtime.sendMessage({action: "getEnabledCallback"}, function (response) {
+chrome.runtime.sendMessage({action: "getActiveState"}, function (response) {
   isEnabled = response;
   if (isEnabled) {
     pause.innerText = "Disable cVim";
@@ -41,7 +41,7 @@ blacklist.onclick = function() {
     blacklist.innerText = "Disable cVim on this domain";
   }
   chrome.runtime.sendMessage({action: "toggleBlacklisted"});
-  if (isEnabled) {
+  // if (isEnabled) {
     chrome.runtime.sendMessage({action: "toggleEnabled", singleTab: true, blacklisted: isBlacklisted});
-  }
+  // }
 };
