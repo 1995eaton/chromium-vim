@@ -30,7 +30,7 @@ keyDown = function(e) {
   }
   if (!Object.prototype.hasOwnProperty("isVisible")) return false;
 
-  var isInput = !Object.prototype.hasOwnProperty("isInput") || document.activeElement.isInput() || insertMode || Mappings.actions.inputFocused;
+  var isInput = document.activeElement.isInput() || insertMode || Mappings.actions.inputFocused;
 
   var keyType = {
     arrow: (e.which >= 37 && e.which <= 40),
@@ -210,7 +210,7 @@ keyPress = function(e) {
     }
   } else {
     shiftKey = e.shiftKey;
-    if (!insertMode && (!Object.prototype.hasOwnProperty("isInput") || !document.activeElement.isInput())) {
+    if (!insertMode && !document.activeElement.isInput()) {
       e.stopPropagation();
       setTimeout(function() {
         if (!modifier) {

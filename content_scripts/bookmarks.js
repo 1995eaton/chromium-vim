@@ -4,7 +4,7 @@ Marks.bookmarks = [];
 
 Marks.currentBookmarks = [];
 
-if (!window.port) var port = chrome.extension.connect({name: "main"});
+var port = chrome.extension.connect({name: "main"});
 
 Marks.parse = function(marks) {
   marks.forEach(function(bookmark) {

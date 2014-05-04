@@ -438,21 +438,16 @@ Command.init = function(enabled) {
       this.data.style[(this.onBottom) ? 'bottom' : 'top'] = "20px";
     }
     if (settings.disableAutofocus) {
-      function unFocus() {
+      if (!commandMode) document.activeElement.blur();
+      var wait = window.setInterval(function() {
         if (!commandMode) document.activeElement.blur();
-        var wait = window.setInterval(function() {
-          if (!commandMode) document.activeElement.blur();
-          if (document.readyState === "complete") { // Kind of hackish, but seems necessary in some cases
-            window.setTimeout(function() {
-              if (!commandMode) document.activeElement.blur();
-            }, 25);
-            window.clearInterval(wait);
-          }
-        }, 5);
-      }
-      if (document.readyState !== "complete") {
-        document.addEventListener("DOMContentLoaded", unFocus, false);
-      } else unFocus();
+        if (document.readyState === "complete") { // Kind of hackish, but seems necessary in some cases
+          window.setTimeout(function() {
+            if (!commandMode) document.activeElement.blur();
+          }, 25);
+          window.clearInterval(wait);
+        }
+      }, 5);
     }
     Scroll.smoothScroll = settings.smoothScroll;
     Scroll.stepSize = parseInt(settings.scrollStepSize);
@@ -506,18 +501,19 @@ Command.configureSettings = function(fetchOnly, s) {
     });
   }
 };
-if (!window.port) var port = chrome.extension.connect({name: "main"});
-port.postMessage({action: "getBookmarks"});
-port.postMessage({action: "getSessionNames"});
-chrome.extension.onMessage.addListener(function(request, sender, callback) {
-  if (request.action === "refreshSettings") {
-    Command.configureSettings(true);
-  } else if (request.action === "sendSettings") {
-    Command.configureSettings(false, request.settings);
-  } else if (request.action === "confirm") {
-    var c = confirm(request.message);
-    callback(c);
-  } else if (request.action === "setupPage") {
-    Command.configureSettings(true);
-  }
-});
+
+document.addEventListener("DOMContentLoaded", function() {
+  port.postMessage({action: "getBookmarks"});
+  port.postMessage({action: "getSessionNames"});
+  chrome.extension.onMessage.addListener(function(request, sender, callback) {
+    if (request.action === "refreshSettings") {
+      Command.configureSettings(true);
+    } else if (request.action === "sendSettings") {
+      Command.configureSettings(false, request.settings);
+    } else if (request.action === "confirm") {
+      var c = confirm(request.message);
+      callback(c);
+    }
+  });
+  return Command.configureSettings(true);
+}, false);
