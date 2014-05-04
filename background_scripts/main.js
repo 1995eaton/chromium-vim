@@ -234,7 +234,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
       chrome.tabs.remove(sender.tab.id);
       break;
     case "reloadTab":
-      chrome.tabs.reload({});
+      chrome.tabs.reload({bypassCache: request.nocache});
       break;
     case "newTab":
       for (var i = 0; i < request.repeats; i++) {

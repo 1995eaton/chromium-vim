@@ -27,6 +27,7 @@
 | I                       | search through browser history                                  | :history               |
 | i                       | enter insert mode (escape to exit)                              | insertMode             |
 | r                       | reload the current tab                                          | reloadTab              |
+| gR                      | reload the current tab + local cache                            | reloadTabUncached      |
 | yy                      | copy the url of the current page to the clipboard               | yankDocumentUrl        |
 | b                       | search through bookmarks                                        | :bookmarks             |
 | p                       | open the clipboard selection                                    | openPaste              |
