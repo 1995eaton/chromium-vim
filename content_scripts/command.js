@@ -185,9 +185,13 @@ Command.parse = function(value, pseudoReturn, repeats) {
       default:
         if (/^chrome:\/\/\S+$/.test(value))
           chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value, noconvert: true});
-        else if (/^bookmarks +/.test(value) && value !== "bookmarks")
-          chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value.replace(/^b(ook)?marks(\s+)?/, ""), noconvert: true});
-        else if (/^history +/.test(value))
+        else if (/^bookmarks +/.test(value) && value !== "bookmarks") {
+          if (/^\S+\s+\//.test(value)) {
+            chrome.runtime.sendMessage({action: "openBookmarkFolder", active: activeTab, path: value.replace(/\S+\s+/, ""), noconvert: true});
+          } else {
+            chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value.replace(/^b(ook)?marks(\s+)?/, ""), noconvert: true});
+          }
+        } else if (/^history +/.test(value))
           chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value.replace(/^history +?/, ""), noconvert: true});
         else if (/^(winopen|wo)$/.test(value.replace(/ .*/, "")))
           chrome.runtime.sendMessage({action: "openLinkWindow", focused: activeTab, url: value.replace(/^\S+( +)?/, "")});
@@ -501,11 +505,14 @@ Command.configureSettings = function(fetchOnly, s) {
 document.addEventListener("DOMContentLoaded", function() {
   port.postMessage({action: "getBookmarks"});
   port.postMessage({action: "getSessionNames"});
-  chrome.extension.onMessage.addListener(function(request) {
+  chrome.extension.onMessage.addListener(function(request, sender, callback) {
     if (request.action === "refreshSettings") {
       Command.configureSettings(true);
     } else if (request.action === "sendSettings") {
       Command.configureSettings(false, request.settings);
+    } else if (request.action === "confirm") {
+      var c = confirm(request.message);
+      callback(c);
     }
   });
   return Command.configureSettings(true);

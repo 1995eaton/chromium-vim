@@ -87,6 +87,38 @@ function getMarks(callback) {
   });
 }
 
+function containsFolder(path, dir) {
+  dir = dir.children;
+  for (var i = 0, l = dir.length; i < l; ++i) {
+    if (path === dir[i].title) {
+      return dir[i];
+    }
+  }
+}
+
+function multiOpen(links) {
+  links.forEach(function(item) {
+    chrome.tabs.create({url: item, active: false});
+  });
+}
+
+function getFolderLinks(path, callback) {
+  path = path.split("/").filter(function(e) { return e; });
+  chrome.bookmarks.getTree(function(tree) {
+    var dir = tree[0];
+    while (dir = containsFolder(path[0], dir)) {
+      path = path.slice(1);
+      if (!path || !path.length) {
+        callback(dir.children.filter(function(e) {
+          return e.url;
+        }).map(function(e) {
+          return e.url;
+        }));
+      }
+    }
+  });
+}
+
 function getPath(m, p, callback, initialPath) { // Browse bookmark folders
   var _ret = [],
       folder = null,
@@ -125,7 +157,7 @@ chrome.extension.onConnect.addListener(function(port) {
       });
     } else if (request.action === "getBuffers") {
       chrome.tabs.getSelected(function(initial) {
-        var windowId = initial.windowId
+        var windowId = initial.windowId;
         chrome.tabs.query({windowId: windowId}, function(tabs) {
           var t = [];
           for (var i = 0, l = tabs.length; i < l; ++i) {
@@ -264,6 +296,15 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
           sessions[request.name].push([tab.index, tab.url]);
         });
         chrome.storage.sync.set({sessions: sessions});
+      });
+      break;
+    case "openBookmarkFolder":
+      getFolderLinks(request.path, function(e) {
+        if (e.length > 5) {
+          chrome.tabs.sendMessage(sender.tab.id, {action: "confirm", message: "Open " + e.length + " tabs?"}, function(response) {
+            if (response) multiOpen(e);
+          });
+        } else multiOpen(e);
       });
       break;
     case "deleteSession":
