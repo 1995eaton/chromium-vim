@@ -10,6 +10,7 @@ chrome.storage.sync.get('sessions', function(s) {
 
 String.prototype.convertLink = function() {
   var url = this.trimLeft().trimRight();
+  if (url.length === 0) return "chrome://newtab";
   if (/^(chrome|chrome-extension|file):\/\/\S+$/.test(url)) return url;
   var pattern = new RegExp('^((https?|ftp):\\/\\/)?'+
   '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+
