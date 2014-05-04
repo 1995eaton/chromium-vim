@@ -156,7 +156,8 @@ chrome.extension.onConnect.addListener(function(port) {
         port.postMessage({history: results});
       });
     } else if (request.action === "getBuffers") {
-      chrome.tabs.getSelected(function(initial) {
+      chrome.tabs.query({active: true, currentWindow: true}, function(initial) {
+        initial = initial[0];
         var windowId = initial.windowId;
         chrome.tabs.query({windowId: windowId}, function(tabs) {
           var t = [];
@@ -179,13 +180,9 @@ chrome.extension.onConnect.addListener(function(port) {
 });
 
 chrome.commands.onCommand.addListener(function(command) {
-  if (command === "nextTab") {
-    chrome.tabs.getSelected(function(e) {
-      return getTab({tab: e}, false, 1, false, false);
-    });
-  } else if (command === "previousTab") {
-    chrome.tabs.getSelected(function(e) {
-      return getTab({tab: e}, false, -1, false, false);
+  if (/^(next|previous)Tab$/.test(command)) {
+    chrome.tabs.query({active: true, currentWindow: true}, function(e) {
+      return getTab({tab: e[0]}, false, (command === "nextTab" ? 1 : -1), false, false);
     });
   }
 });
@@ -285,8 +282,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
       chrome.tabs.update({url: paste.convertLink()});
       break;
     case "focusMainWindow":
-      chrome.tabs.getSelected(null, function(tab) {
-        chrome.tabs.sendMessage(tab.id, {action: "focus", repeats: request.repeats});
+      chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
+        chrome.tabs.sendMessage(tab[0].id, {action: "focus", repeats: request.repeats});
       });
       break;
     case "createSession":
