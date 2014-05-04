@@ -1,0 +1,28 @@
+{
+    "esnext": true,
+    "bitwise": true,
+    "camelcase": true,
+    "curly": false,
+    "boss": true,
+    "eqeqeq": true,
+    "eqnull": true,
+    "immed": true,
+    "latedef": "nofunc",
+    "newcap": false,
+    "noarg": true,
+    "undef": false,
+    "strict": false,
+    "trailing": true,
+    "smarttabs": true,
+    "indent": 2,
+    "white": false,
+    "quotmark": "double",
+    "unused": true,
+    "laxbreak": true,
+    "globals"   : {
+        "chrome": true,
+        "console": true,
+        "document": true,
+        "localStorage": true
+    }
+}

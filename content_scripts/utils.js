@@ -34,5 +34,9 @@ String.prototype.span = function(attributes, className) {
   for (var key in attributes) {
     strat += key + ":" + attributes[key] + ";";
   }
-  return '<span ' + (className !== undefined ? 'class="' + className + '" ' : '') + 'style="' + strat + '">' + this + '</span>';
+  return "<span " + (className !== undefined ? "class=\"" + className + "\" " : "") + "style=\"" + strat + "\">" + this + "</span>";
+};
+
+String.prototype.isBoolean = function() {
+  return /^(true|false|0|1)$/i.test(this);
 };

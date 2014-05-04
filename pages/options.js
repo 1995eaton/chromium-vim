@@ -1,5 +1,5 @@
 var loadSettings, mouseDown, saveRelease, resetRelease, fetchSettings;
-var fade, save, save_clicked, reset_clicked, reset, linkHintCharacters, commandBarCSS, commandBarOnBottom, hoverDelay, settings, editor, mappingContainerFadeOut, usedPlaceholder, firstLoad;
+var fade, save, saveClicked, resetClicked, reset, linkHintCharacters, commandBarCSS, commandBarOnBottom, hoverDelay, settings, editor, mappingContainerFadeOut, usedPlaceholder, firstLoad;
 
 var placeholder = '<- Click here for command names\n\nCommands are prefixed by "map" and "unmap"\n\nExample:\n # unmap j\n # map j scrollDown\n\nCommands can also be mapped to command mode commands\n\nExample:\n # map v :tabopen http://www.google.com\n\nCommand mode commands followed by <CR> executes the command immediately (enter does not need to be pressed)\n # map v :tabopen http://www.google.com<CR>\n\nModifier keys may also be mapped (if not already used by Chrome or the operating system)\n\nExample:\n "<C-" => Control key\n # map <C-i> goToInput\n "<M-" => Meta key (Windows key / Command key [Mac])\n # map <M-i> goToInput\n "<A-" => Alt key\n # map <A-i> goToInput\n';
 
@@ -22,15 +22,15 @@ loadSettings = function () {
   document.getElementById("mappings").addEventListener("blur", onBlur, false);
 };
 
-resetRelease = function () {
-  if (reset_clicked) {
+resetRelease = function() {
+  if (resetClicked) {
     chrome.runtime.sendMessage({setDefault: true});
     fetchSettings();
   }
 };
 
-saveRelease = function (e) {
-  if (save_clicked) {
+saveRelease = function() {
+  if (saveClicked) {
     for (var key in settings) {
       if (typeof settings[key] === "boolean") {
         settings[key] = document.getElementById(key).checked;
@@ -59,12 +59,12 @@ fadeTransitionEnd = function(e) {
 };
 
 mouseDown = function (e) {
-  save_clicked = false;
-  reset_clicked = false;
+  saveClicked = false;
+  resetClicked = false;
   if (e.target.id === "save_button") {
-    save_clicked = true;
+    saveClicked = true;
   } else if (e.target.id === "reset_button") {
-    reset_clicked = true;
+    resetClicked = true;
   } else if (e.target.id === "clearHistory") {
     localStorage.search = "";
     localStorage.url    = "";
@@ -99,7 +99,8 @@ onFocus = function(e) {
     document.getElementById("mappings").value = placeholder;
   }
 };
-onBlur = function(e) {
+
+onBlur = function() {
   if (document.getElementById("mappings").value.trim() === "") {
     usedPlaceholder = true;
     document.getElementById("mappings").value = placeholder;

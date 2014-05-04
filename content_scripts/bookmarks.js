@@ -59,12 +59,13 @@ port.onMessage.addListener(function(response) {
     Marks.parse(response.bookmarks);
   } else if (response.buffers) {
     if (Command.bar.style.display !== "none") {
+      var regexp;
+      var val = Command.input.value.replace(/\S+\s+/, ""),
+          useRegex = true;
       Command.hideData();
-      var val = Command.input.value.replace(/\S+\s+/, "");
-      var useRegex = true;
       Command.appendResults(response.buffers.map(function(e) { return ["buffer"].concat(e); }).filter(function(s) {
         try {
-          var regexp = new RegExp(val, "i");
+          regexp = new RegExp(val, "i");
         } catch (e) {
           useRegex = false;
         }

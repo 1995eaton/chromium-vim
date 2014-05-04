@@ -29,7 +29,6 @@ Find.search = function(reverse, repeats) {
     HUD.display("No matches", 1);
     return;
   }
-  var oldIndex = this.index;
   if (this.index >= 0)
     this.matches[this.index].style.backgroundColor = "";
   if (reverse && repeats === 1 && this.index === 0) {
@@ -51,7 +50,6 @@ Find.search = function(reverse, repeats) {
     this.tries = 0;
   }
   var isLink = false;
-  var orig = [document.body.scrollLeft, document.body.scrollTop];
   var br = this.matches[this.index].getBoundingClientRect();
   var origTop = document.body.scrollTop;
   document.activeElement.blur();
@@ -67,20 +65,20 @@ Find.search = function(reverse, repeats) {
   this.matches[this.index].style.backgroundColor = "#ff9632";
   HUD.display(this.index + 1 + " / " + this.matches.length);
   if (br.top + br.height > window.innerHeight) {
-      if (isLink && !reverse) origTop += br.height;
-      window.scrollTo(0, origTop);
-      window.scrollBy(0, br.top + br.height - window.innerHeight);
+    if (isLink && !reverse) origTop += br.height;
+    window.scrollTo(0, origTop);
+    window.scrollBy(0, br.top + br.height - window.innerHeight);
   } else if (br.top < 0) {
-      window.scrollTo(0, origTop);
-      window.scrollBy(0, br.top);
+    window.scrollTo(0, origTop);
+    window.scrollBy(0, br.top);
   }
 };
 
 Find.highlight = function(baseNode, match, setIndex, search, reverse, saveSearch) {
+  var mode, node, matches, mark, mid, pass;
   var regexp = settings.useRegex;
   if (this.clearing) return;
   if (saveSearch !== undefined) this.lastSearch = match;
-  var mode;
   if (settings.ignoreSearchCase || /\/i$/.test(match)) {
     mode = "i";
     match = match.replace(/\/i$/, "");
@@ -99,9 +97,7 @@ Find.highlight = function(baseNode, match, setIndex, search, reverse, saveSearch
   }
   var walker = document.createTreeWalker(baseNode, NodeFilter.SHOW_TEXT, null, false);
   document.body.normalize();
-  var pass = false;
-  var node;
-  var names = [];
+  pass = false;
   while (node = walker.nextNode()) {
     var nName = node.parentNode.nodeName;
     if (nName !== "SCRIPT" && nName !== "STYLE" && nName !== "NOSCRIPT" && node.data.trim() !== "" && !node.parentNode.hasAttribute("cVim")) {
@@ -109,12 +105,12 @@ Find.highlight = function(baseNode, match, setIndex, search, reverse, saveSearch
       if (!pass) {
         if (matchPosition >= 0) {
           if (regexp) {
-            var matches = node.data.match(match);
+            matches = node.data.match(match);
             if (!matches.length || matches[0] === "")
               continue;
           }
-          var mark = document.createElement("mark");
-          var mid = node.splitText(matchPosition);
+          mark = document.createElement("mark");
+          mid = node.splitText(matchPosition);
           mid.splitText((regexp ? matches[0].length : match.length));
           mark.appendChild(mid.cloneNode(true));
           mid.parentNode.replaceChild(mark, mid);

@@ -1,11 +1,10 @@
 var isEnabled = true;
 var isBlacklisted;
-var currentDomain;
 var settings;
 var blacklists = "";
 
 function getSettings() {
-  chrome.storage.sync.get('settings', function(s) {
+  chrome.storage.sync.get("settings", function(s) {
     settings = s.settings;
     if (settings === undefined) return chrome.storage.sync.set({settings: settingsDefault});
     for (var key in settingsDefault) {

@@ -2,7 +2,7 @@ var HUD = {};
 HUD.visible = false;
 HUD.slideDuration = 40;
 
-HUD.transitionEvent = function(ev) {
+HUD.transitionEvent = function() {
   if (HUD.overflowValue) {
     document.body.style.overflowX = HUD.overflowValue;
   }

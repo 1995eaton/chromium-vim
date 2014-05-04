@@ -1,10 +1,5 @@
-var keyQueue, inputFocused, insertMode, commandMode, port, skipDefault, settings, fireKey, shiftKey;
-var inputElements = [];
-var inputIndex = 0;
+var insertMode, commandMode, settings, shiftKey;
 var modifier = "";
-var visualMode = false;
-var caretMode = false;
-var s;
 
 keyDown = function(e) {
 
@@ -61,7 +56,7 @@ keyDown = function(e) {
   }
 
   if (!settings.disableInsertMappings && document.activeElement.isInput() && !insertMode && !keyType.escape && modifier !== "") {
-    Mappings.insertCommand(modifier, function(ret) {
+    Mappings.insertCommand(modifier, function() {
       e.preventDefault();
       if (document.activeElement.id === "cVim-command-bar-input" && Command.type !== "search") Command.parse();
     });
@@ -100,12 +95,12 @@ keyDown = function(e) {
       Mappings.actions.inputElements[Mappings.actions.inputElementsIndex].focus();
     }
   } else if (keyType.escape) {
-      Mappings.actions.inputFocused = false;
-      if (Command.type === "search") {
-        Find.clear();
-        HUD.hide();
-      }
-      Command.hide();
+    Mappings.actions.inputFocused = false;
+    if (Command.type === "search") {
+      Find.clear();
+      HUD.hide();
+    }
+    Command.hide();
   } else if (Command.bar.style.display === "inline-block" && document.activeElement.hasOwnProperty("cVim") && document.activeElement.id === "cVim-command-bar-input") {
     switch (e.keyCode) {
       case 18: case 17: case 91: case 123: case 16: // Ignore non-character keys (CTRL, SHIFT, etc)
@@ -218,8 +213,6 @@ keyPress = function(e) {
           Mappings.convertToAction(String.fromCharCode(e.which));
         }
       }, 0);
-    } else {
-      var key = String.fromCharCode(modifier + e.which);
     }
   }
 };

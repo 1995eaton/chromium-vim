@@ -15,14 +15,14 @@ Command.setup = function() {
   this.bar = document.createElement("div");
   this.bar.id = "cVim-command-bar";
   this.bar.cVim = true;
-  this.bar.style[(this.onBottom) ? 'bottom' : 'top'] = "0";
+  this.bar.style[(this.onBottom) ? "bottom" : "top"] = "0";
   this.input = document.createElement("input");
   this.input.type = "text";
   this.input.id = "cVim-command-bar-input";
   this.input.cVim = true;
   this.statusBar = document.createElement("div");
   this.statusBar.id = "cVim-status-bar";
-  this.statusBar.style[(this.onBottom) ? 'bottom' : 'top'] = "0";
+  this.statusBar.style[(this.onBottom) ? "bottom" : "top"] = "0";
   this.modeIdentifier = document.createElement("span");
   this.modeIdentifier.id = "cVim-command-bar-mode";
   this.modeIdentifier.cVim = true;
@@ -40,7 +40,7 @@ Command.setup = function() {
     this.data = document.createElement("div");
     this.data.id = "cVim-command-bar-search-results";
     this.data.cVim = true;
-    this.data.style[(this.onBottom) ? 'bottom' : 'top'] = "20px";
+    this.data.style[(this.onBottom) ? "bottom" : "top"] = "20px";
     try {
       document.lastChild.appendChild(this.data);
     } catch(e) {
@@ -54,7 +54,7 @@ Command.history = {
   search: [],
   url: [],
   action: [],
-  cycle: function(type, reverse, search) {
+  cycle: function(type, reverse) {
     if (this[type].length === 0) return false;
     if (this.index[type] === this[type].length - 1 && !reverse) {
       return Command.input.value = Command.typed || "";
@@ -151,7 +151,6 @@ Command.descriptions = [
 ];
 
 Command.complete = function(string, callback) {
-  var matches = [];
   if (string === "")
     return Command.appendResults(this.descriptions.slice(0, settings.searchLimit).map(function(e){return["complete"].concat(e);}));
   callback(this.descriptions.filter(function(element) {
@@ -162,7 +161,10 @@ Command.complete = function(string, callback) {
 Command.parse = function(value, pseudoReturn, repeats) {
 
   var activeTab = true;
-  if (value) value = value.replace(/&$/, function(e) { activeTab = false; return ""; });
+  if (value) {
+    value     = value.replace(/&$/, "");
+    activeTab = false;
+  }
   this.typed = this.input.value;
   this.history.index = {};
 
@@ -244,22 +246,21 @@ Command.parse = function(value, pseudoReturn, repeats) {
             }
           }
           if (!matchFound) { Status.setMessage("Invalid option: " + value[0], 1); break; }
-          function validBoolean(b) { return (/^([Tt]rue|[Ff]alse|0|1)$/.test(b)); }
           var isSet = /[Tt]rue|1/.test(value[1]);
           switch (value[0]) {
             case "regexsearch":
               if (value[1] === undefined) { Status.setMessage("regexsearch: " + settings.useRegex, 1); break; }
-              if (!validBoolean(value[1])) Status.setMessage("Invalid value: " + value[1], 1);
+              if (value[1].isBoolean()) Status.setMessage("Invalid value: " + value[1], 1);
               else settings.useRegex = isSet;
               break;
             case "ignorecase":
               if (value[1] === undefined) { Status.setMessage("ignorecase: " + settings.ignoreSearchCase, 3); break; }
-              if (!validBoolean(value[1])) Status.setMessage("Invalid value: " + value[1], 1);
+              if (value[1].isBoolean()) Status.setMessage("Invalid value: " + value[1], 1);
               else settings.ignoreSearchCase = isSet;
               break;
             case "smoothscroll":
               if (value[1] === undefined) { Status.setMessage("smoothscroll: " + Scroll.smoothScroll, 3); break; }
-              if (!validBoolean(value[1])) Status.setMessage("Invalid value: " + value[1], 1);
+              if (value[1].isBoolean()) Status.setMessage("Invalid value: " + value[1], 1);
               else Scroll.smoothScroll = isSet;
               break;
             case "scrollstep":
@@ -274,7 +275,7 @@ Command.parse = function(value, pseudoReturn, repeats) {
               break;
             case "showhud":
               if (value[1] === undefined) { Status.setMessage("showhud: " + !settings.disableHUD, 3); break; }
-              if (!validBoolean(value[1])) Status.setMessage("Invalid value: " + value[1], 1);
+              if (value[1].isBoolean()) Status.setMessage("Invalid value: " + value[1], 1);
               else settings.disableHUD = !isSet;
               break;
             case "hintcharacters":
@@ -434,8 +435,8 @@ Command.init = function(enabled) {
     document.getElementsByTagName("head")[0].appendChild(this.css);
     this.onBottom = settings.commandBarOnBottom;
     if (this.data !== undefined) {
-      this.data.style[(!this.onBottom) ? 'bottom' : 'top'] = "";
-      this.data.style[(this.onBottom) ? 'bottom' : 'top'] = "20px";
+      this.data.style[(!this.onBottom) ? "bottom" : "top"] = "";
+      this.data.style[(this.onBottom) ? "bottom" : "top"] = "20px";
     }
     if (settings.disableAutofocus) {
       if (!commandMode) document.activeElement.blur();
@@ -469,29 +470,29 @@ Command.init = function(enabled) {
 };
 
 Command.configureSettings = function(fetchOnly, s) {
+  function checkBlacklist(callback) {
+    var blacklists = settings.blacklists.split("\n");
+    for (var i = 0, l = blacklists.length; i < l; i++) {
+      if (blacklists[i].trim() === "") continue;
+      if (document.URL.substring(0, blacklists[i].length) === blacklists[i] || blacklists[i].substring(0, document.URL.length) === document.URL) {
+        Command.blacklisted = true;
+        return callback(true);
+      }
+    }
+    Command.blacklisted = false;
+    return callback(false);
+  }
+  function loadMain() {
+    Command.loaded = true;
+    chrome.runtime.sendMessage({action: "setIconEnabled"});
+    Command.init(true);
+  }
   if (this.loaded) this.init(false);
   if (fetchOnly) {
     chrome.runtime.sendMessage({getSettings: true});
   } else {
     settings = s;
     settings.searchLimit = parseInt(settings.searchLimit);
-    function checkBlacklist(callback) {
-      var blacklists = settings.blacklists.split("\n");
-      for (var i = 0, l = blacklists.length; i < l; i++) {
-        if (blacklists[i].trim() === "") continue;
-        if (document.URL.substring(0, blacklists[i].length) === blacklists[i] || blacklists[i].substring(0, document.URL.length) === document.URL) {
-          Command.blacklisted = true;
-          return callback(true);
-        }
-      }
-      Command.blacklisted = false;
-      return callback(false);
-    }
-    function loadMain() {
-      Command.loaded = true;
-      chrome.runtime.sendMessage({action: "setIconEnabled"});
-      Command.init(true);
-    }
     checkBlacklist(function(isBlacklisted) {
       if (isBlacklisted) return false;
       chrome.runtime.sendMessage({action: "getEnabledCallback"}, function(response) {
