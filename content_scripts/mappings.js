@@ -469,7 +469,6 @@ Mappings.isValidMapping = function(c) {
   for (var key in this.defaults)
     if (Array.isArray(this.defaults[key]) && this.defaults[key].indexOf(c) >= 0) return true;
 };
-
 Mappings.convertToAction = function(c, callback) {
   var addOne = false;
 
@@ -485,18 +484,22 @@ Mappings.convertToAction = function(c, callback) {
     if (!this.isValidQueue()) {
       Mappings.queue = "";
       Mappings.repeats = "";
-      break;
+      Mappings.validMatch = false;
+      return false;
     }
+
+    Mappings.validMatch = true;
     for (var i = 0, l = this.defaults[key].length; i < l; i++) {
       if (Mappings.queue === this.defaults[key][i]) {
+        Mappings.validMatch = false;
         if (/^0?$/.test(Mappings.repeats)) addOne = true;
         if (key === "shortCuts")
           Mappings.actions[key](Mappings.queue, (addOne ? 1 : parseInt(Mappings.repeats)));
         else Mappings.actions[key]((addOne ? 1 : parseInt(Mappings.repeats)));
         Mappings.queue = "";
         Mappings.repeats = "";
-        return (callback ? callback() : true);
       }
     }
   }
+  return true;
 };

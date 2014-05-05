@@ -1,6 +1,24 @@
 var insertMode, commandMode, settings, shiftKey;
 var modifier = "";
 
+keyPress = function(e) {
+  if (Visual.caretModeActive || Visual.visualModeActive) {
+    if (e.which !== 123) {
+      e.preventDefault();
+      e.stopPropagation();
+      return Visual.action(String.fromCharCode(e.which));
+    }
+  } else {
+    shiftKey = e.shiftKey;
+    if (!insertMode && !document.activeElement.isInput()) {
+      if (Mappings.convertToAction(String.fromCharCode(e.which))) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }
+  }
+};
+
 keyDown = function(e) {
 
   if (Visual.caretModeActive || Visual.visualModeActive) {
@@ -46,14 +64,16 @@ keyDown = function(e) {
       modifier = "<" + modifier + (e.shiftKey? String.fromCharCode(e.which) : String.fromCharCode(e.which).toLowerCase()) + ">";
   }
 
-  if (!isInput && e.which > 40 && e.which !== 91 && e.which !== 123) {
-    e.stopPropagation();
-    if (!commandMode && modifier !== "") {
-      Mappings.convertToAction(modifier, function() {
-        e.preventDefault();
-      });
+  if (!isInput && e.which > 40 && e.which !== 91 && e.which !== 123 && e.which !== 191) {
+    var s = String.fromCharCode(e.which);
+    if (!e.shiftKey) s = s.toLowerCase();
+    if ((Mappings.queue.length && Mappings.validMatch) || Mappings.isValidMapping(s)) {
+      e.stopPropagation();
     }
-  }
+    if (!commandMode && modifier !== "" && Mappings.convertToAction(modifier)) {
+      e.preventDefault();
+    }
+  } else if (!insertMode || Hints.active) e.stopPropagation();
 
   if (!settings.disableInsertMappings && document.activeElement.isInput() && !insertMode && !keyType.escape && modifier !== "") {
     Mappings.insertCommand(modifier, function() {
@@ -61,6 +81,7 @@ keyDown = function(e) {
       if (document.activeElement.id === "cVim-command-bar-input" && Command.type !== "search") Command.complete(Command.input.value);
     });
   } else if (Hints.active) {
+    e.stopPropagation();
     if (e.which === 18) {
       Hints.changeFocus();
     } else if (keyType.escape || (e.which <= 40 && e.which !== 17)) {
@@ -200,35 +221,11 @@ keyDown = function(e) {
   }
 };
 
-
-keyPress = function(e) {
-  if (Visual.caretModeActive || Visual.visualModeActive) {
-    if (e.which !== 123) {
-      e.preventDefault();
-      e.stopPropagation();
-      return Visual.action(String.fromCharCode(e.which));
-    }
-  } else {
-    shiftKey = e.shiftKey;
-    if (!insertMode && !document.activeElement.isInput()) {
-      e.stopPropagation();
-      setTimeout(function() {
-        if (!modifier) {
-          e.preventDefault();
-          Mappings.convertToAction(String.fromCharCode(e.which));
-        }
-      }, 0);
-    }
-  }
-};
-
-
 var Mouse = {};
 mouseMove = function(e) {
   Mouse.x = e.pageX;
   Mouse.y = e.pageY;
 };
-
 
 keyUp = function(e) {
   if (linkHoverEnabled && e.which === 16 && Hints.active) {
