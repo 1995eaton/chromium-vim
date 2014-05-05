@@ -3,6 +3,7 @@ var Mappings = {};
 Mappings.repeats   = "";
 Mappings.queue     = "";
 Mappings.arrowKeys = ["<Left>", "<Up>", "<Right>", "<Down>"];
+Mappings.siteSpecificBlacklists = "";
 
 Mappings.actions   = {
 
@@ -419,6 +420,7 @@ Mappings.insertCommand = function(modifier, callback) {
 };
 
 Mappings.parseCustom = function(config) {
+  config += this.siteSpecificBlacklists;
   config = config.split(/\n+|;+/).map(function(item) { return item.split(/ +/); });
   config.forEach(function(mapping) {
     var key;

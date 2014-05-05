@@ -471,14 +471,20 @@ Command.init = function(enabled) {
 Command.configureSettings = function(fetchOnly, s) {
   function checkBlacklist(callback) {
     var blacklists = settings.blacklists.split("\n");
+    Command.blacklisted = false;
     for (var i = 0, l = blacklists.length; i < l; i++) {
       if (blacklists[i].trim() === "") continue;
-      if (document.URL.substring(0, blacklists[i].length) === blacklists[i] || blacklists[i].substring(0, document.URL.length) === document.URL) {
+      var blacklist = blacklists[i].split(/\s+/);
+      var url = blacklist[0];
+      if (document.URL.substring(0, url.length) === url || url.substring(0, document.URL.length) === document.URL) {
+        if (blacklist.length > 1) {
+          Mappings.siteSpecificBlacklists += blacklist.slice(1).map(function(e) { return "\nunmap " + e; }).join("");
+          return callback(false);
+        }
         Command.blacklisted = true;
         return callback(true);
       }
     }
-    Command.blacklisted = false;
     return callback(false);
   }
   function loadMain() {
