@@ -51,7 +51,7 @@ port.onMessage.addListener(function(response) {
     }
     if (Command.historyMode) {
       if (matches.length > 0) {
-        Command.appendResults(matches, false, "History", "#0080d6");
+        Command.appendResults(matches, false);
       } else Command.hideData();
     }
     Marks.history = matches;

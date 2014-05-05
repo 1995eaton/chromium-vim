@@ -38,6 +38,7 @@
     "history",
     "bookmarks",
     "storage",
+    "sessions",
     "downloads",
     "downloads.shelf",
     "clipboardRead",
@@ -48,6 +49,7 @@
     "scripts": [
       "background_scripts/main.js",
       "background_scripts/options.js",
+      "background_scripts/sessions.js",
       "background_scripts/popup.js"
     ]
   },

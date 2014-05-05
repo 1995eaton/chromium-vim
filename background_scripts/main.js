@@ -1,5 +1,3 @@
-var tabHistory = {};
-var activeTabs = {};
 var sessions   = {};
 
 chrome.storage.sync.get('sessions', function(s) {
@@ -11,6 +9,7 @@ chrome.storage.sync.get('sessions', function(s) {
 String.prototype.convertLink = function() {
   var url = this.trimLeft().trimRight();
   if (url.length === 0) return "chrome://newtab";
+  if (/^\//.test(url)) url = "file://" + url;
   if (/^(chrome|chrome-extension|file):\/\/\S+$/.test(url)) return url;
   var pattern = new RegExp('^((https?|ftp):\\/\\/)?'+
   '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+
@@ -189,27 +188,6 @@ chrome.commands.onCommand.addListener(function(command) {
   }
 });
 
-chrome.tabs.onRemoved.addListener(function(id) {
-  for (var key in activeTabs) {
-    if (activeTabs[key].hasOwnProperty(id)) {
-      if (tabHistory[activeTabs[key][id].windowId] === undefined) tabHistory[activeTabs[key][id].windowId] = [];
-      tabHistory[activeTabs[key][id].windowId].push(activeTabs[key][id]);
-      delete activeTabs[key][id];
-      break;
-    }
-  }
-});
-
-chrome.tabs.onUpdated.addListener(function(tab) {
-  try {
-    chrome.tabs.get(tab, function(updatedTab) {
-      if (activeTabs[updatedTab.windowId] === undefined)
-        activeTabs[updatedTab.windowId] = {};
-      activeTabs[updatedTab.windowId][updatedTab.id] = updatedTab;
-    });
-  } catch (e) {} // Ignore tabs that have already been removed
-});
-
 chrome.runtime.onMessage.addListener(function(request, sender, callback) {
   if (request.action !== "focusMainWindow" && (!request.repeats || !/[0-9]([0-9]+)?/.test(request.repeats.toString()))) request.repeats = 1;
   switch (request.action) {
@@ -322,14 +300,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
       }
       break;
     case "openLast":
-      if (Object.keys(tabHistory).length && tabHistory[sender.tab.windowId] !== undefined && tabHistory[sender.tab.windowId].length > 0) {
-        var lastTab = tabHistory[sender.tab.windowId].pop();
-        chrome.tabs.create({url: lastTab.url,
-                            active: true,
-                            index: lastTab.index,
-                            pinned: lastTab.pinned,
-                            selected: lastTab.selected,
-                          });
+      if (Sessions.nativeSessions) {
+        Sessions.nativeStepBack();
+      } else {
+        Sessions.stepBack(sender);
       }
       break;
     case "getBuffers":

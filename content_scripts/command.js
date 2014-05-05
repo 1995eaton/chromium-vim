@@ -300,7 +300,13 @@ Command.parse = function(value, pseudoReturn, repeats) {
     var search = this.input.value.replace(/^\S+ +/, "");
 
     if (/^(tabopen|to|open|o|wo|winopen)(\s+)/.test(this.input.value)) {
-      if (search.trim() === "") return this.hideData();
+      if (search.trim().length < 2) return this.hideData();
+      if (search[0] === "/" || /:\/\//.test(search)) {
+        port.postMessage({action: "searchHistory", search: search, limit: settings.searchLimit});
+        if (Marks.history) this.appendResults(Marks.history, false, "History", "#0080d6");
+        Marks.history = [];
+        return;
+      }
       port.postMessage({action: "searchHistory", search: search, limit: 4});
       Search.fetchQuery(search, function(response) {
         if (this.bar.style.display === "inline-block") {
