@@ -112,14 +112,13 @@ keyDown = function(e) {
         } else if (Command.type === "search") {
           Find.clear();
           setTimeout(function() {
-            if (Command.input.value !== "") {
+            if (Command.input.value !== "" && Command.input.value.length > 2) {
               Find.highlight(document.body, Command.input.value);
             } else {
               HUD.hide();
             }
           }, 0);
         } else if (Command.input.value !== "") {
-          // Search.index = null;
           setTimeout(function() {
             Command.parse();
           }, 0);
@@ -185,7 +184,9 @@ keyDown = function(e) {
             if (Command.type === "search" && Command.input.value !== Find.lastSearch) {
               if (Command.input.value !== "") {
                 Find.clear();
-                Find.highlight(document.body, Command.input.value);
+                if (Command.input.value.length > 2) {
+                  Find.highlight(document.body, Command.input.value);
+                }
               }
             }
           }, 2);

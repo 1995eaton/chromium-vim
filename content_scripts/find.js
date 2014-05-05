@@ -75,7 +75,7 @@ Find.search = function(reverse, repeats) {
 };
 
 Find.highlight = function(baseNode, match, setIndex, search, reverse, saveSearch) {
-  var mode, node, matches, mark, mid, pass;
+  var mode, node, matches, mark, mid, pass, data;
   var regexp = settings.useRegex;
   if (this.clearing) return;
   if (saveSearch !== undefined) this.lastSearch = match;
@@ -101,11 +101,16 @@ Find.highlight = function(baseNode, match, setIndex, search, reverse, saveSearch
   while (node = walker.nextNode()) {
     var nName = node.parentNode.nodeName;
     if (nName !== "SCRIPT" && nName !== "STYLE" && nName !== "NOSCRIPT" && node.data.trim() !== "" && !node.parentNode.hasAttribute("cVim")) {
-      var matchPosition = (regexp ? node.data.search(match) : node.data.indexOf(match));
+      if (settings.diacriticInsensitiveSearch) {
+        data = node.data.removeDiacritics();
+      } else {
+        data = node.data;
+      }
+      var matchPosition = (regexp ? data.search(match) : node.data.indexOf(match));
       if (!pass) {
         if (matchPosition >= 0) {
           if (regexp) {
-            matches = node.data.match(match);
+            matches = data.match(match);
             if (!matches.length || matches[0] === "")
               continue;
           }

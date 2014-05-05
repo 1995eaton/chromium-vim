@@ -40,3 +40,20 @@ String.prototype.span = function(attributes, className) {
 String.prototype.isBoolean = function() {
   return /^(true|false|0|1)$/i.test(this);
 };
+
+// Stolen from https://gist.github.com/alisterlf/3490957
+String.prototype.removeDiacritics = function() {
+  var strAccents = this.split("");
+  var strAccentsOut = [];
+  var strAccentsLen = strAccents.length;
+  var accents = "ÀÁÂÃÄÅàáâãäåÒÓÔÕÕÖØòóôõöøÈÉÊËèéêëðÇçÐÌÍÎÏìíîïÙÚÛÜùúûüÑñŠšŸÿýŽž";
+  var accentsOut = "AAAAAAaaaaaaOOOOOOOooooooEEEEeeeeeCcDIIIIiiiiUUUUuuuuNnSsYyyZz";
+  for (var y = 0; y < strAccentsLen; y++) {
+    if (accents.indexOf(strAccents[y]) !== -1) {
+      strAccentsOut[y] = accentsOut.substr(accents.indexOf(strAccents[y]), 1);
+    } else
+      strAccentsOut[y] = strAccents[y];
+  }
+  strAccentsOut = strAccentsOut.join("");
+  return strAccentsOut;
+};

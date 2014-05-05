@@ -9,6 +9,7 @@ var settingsDefault = {
   ignoreSearchCase: true,
   disableHUD: false,
   disableLinkAnimation: false,
+  diacriticInsensitiveSearch: true,
   disableAutofocus: false,
   disableInsertMappings: false,
   scrollStepSize: 75,
