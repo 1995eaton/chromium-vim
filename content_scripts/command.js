@@ -133,32 +133,128 @@ Command.hideData = function() {
 };
 
 Command.descriptions = [
-  ["tabopen",   "Open a link in a new tab"],
-  ["winopen",   "Open a link in a new window"],
-  ["buffers",   "Select from a list of current tabs"],
+  ["tabopen",    "Open a link in a new tab"],
+  ["winopen",    "Open a link in a new window"],
+  ["buffers",    "Select from a list of current tabs"],
   ["closetab",   "Close the current tab"],
-  ["open",      "Open a link in the current tab"],
+  ["open",       "Open a link in the current tab"],
   ["nohl",       "Clears the search highlight"],
-  ["set",       "Configure Settings"],
-  ["mksession", "Create a saved session of current tabs"],
+  ["set",        "Configure Settings"],
+  ["mksession",  "Create a saved session of current tabs"],
   ["delsession", "Delete sessions"],
   ["session",    "Open a saved session in a new window"],
-  ["bookmarks", "Search through your bookmarks"],
-  ["history",   "Search through your browser history"],
+  ["bookmarks",  "Search through your bookmarks"],
+  ["history",    "Search through your browser history"],
   ["duplicate",  "Clone the current tab"],
   ["chrome://",  "Opens Chrome urls"],
   ["settings",   "Open the options page for this extension"]
 ];
 
-Command.complete = function(string, callback) {
-  if (string === "")
+Command.complete = function(value) {
+  Search.index = null;
+  this.typed = this.input.value;
+  var search = value.replace(/^(chrome:\/\/|\S+ +)/, "");
+
+  if (/^(tabopen|to|open|o|wo|winopen)(\s+)/.test(value)) {
+    if (search.trim().length < 2) return this.hideData();
+    if (search[0] === "/" || /:\/\//.test(search)) {
+      port.postMessage({action: "searchHistory", search: search, limit: settings.searchLimit});
+      if (Marks.history) this.appendResults(Marks.history, false, "History", "#0080d6");
+      Marks.history = [];
+      return;
+    }
+    port.postMessage({action: "searchHistory", search: search, limit: 4});
+    Search.fetchQuery(search, function(response) {
+      if (this.bar.style.display === "inline-block") {
+        this.typed = value;
+        this.hideData();
+        this.appendResults(response, false);
+        if (Marks.history) this.appendResults(Marks.history, true, "History", "#0080d6");
+      }
+    }.bind(this));
+    return;
+  }
+
+  if (/^chrome:\/\//.test(value)) {
+    Search.chromeMatch(search, function(matches) {
+      if (matches.length) {
+        this.appendResults(matches);
+      } else this.hideData();
+    }.bind(this));
+    return;
+  }
+
+  if (/^buffers(\s+)/.test(value)) {
+    search = value.replace(/^\S+\s+/, "");
+    port.postMessage({action: "getBuffers"});
+    return;
+  }
+
+  if (/^(del)?session(\s+)/.test(value)) {
+    var _res = sessions.filter(function(e) {
+      var regexp;
+      var isValidRegex = true;
+      try {
+        regexp = new RegExp(search, "i");
+      } catch (ex) {
+        isValidRegex = false;
+      }
+      if (isValidRegex) {
+        return regexp.test(e[0]);
+      }
+      return e[0].substring(0, search.length) === search;
+    }).map(function(e) { return ["session"].concat(e); });
+    this.hideData();
+    if (_res.length > 0) {
+      this.appendResults(_res);
+    }
+    return;
+  }
+
+  if (/^set(\s+)/.test(value)) {
+    Search.settingsMatch(search, function(matches) {
+      if (matches.length) {
+        this.appendResults(matches);
+      } else this.hideData();
+    }.bind(this));
+    return;
+  }
+
+  if (/^hist(ory)?(\s+)/.test(value)) {
+    if (search.trim() === "") return this.hideData();
+    this.historyMode = true;
+    port.postMessage({action: "searchHistory", search: search, limit: settings.searchLimit});
+    return;
+  }
+
+  if (/^b(ook)?marks(\s+)/.test(value)) {
+    if (search[0] === "/") {
+      return Marks.matchPath(search);
+    }
+    Marks.match(search, function(response) {
+      if (response.length > 0) {
+        this.appendResults(response);
+      } else {
+        this.hideData();
+      }
+    }.bind(this));
+    return;
+  }
+
+  if (value === "") {
     return Command.appendResults(this.descriptions.slice(0, settings.searchLimit).map(function(e){return["complete"].concat(e);}));
-  callback(this.descriptions.filter(function(element) {
-    return string === element[0].slice(0, string.length);
-  }).map(function(e){return["complete"].concat(e);}));
+  }
+
+  var data = this.descriptions.filter(function(element) {
+    return value === element[0].slice(0, value.length);
+  }).map(function(e){return["complete"].concat(e);});
+
+  if (data.length) {
+    this.appendResults(data);
+  } else this.hideData();
 };
 
-Command.parse = function(value, pseudoReturn, repeats) {
+Command.execute = function(value, repeats) {
 
   var activeTab = true;
   if (value) {
@@ -168,235 +264,130 @@ Command.parse = function(value, pseudoReturn, repeats) {
     });
   }
 
-  this.typed = this.input.value;
   this.history.index = {};
 
-  if (pseudoReturn || this.enterHit) {
-    value = value.trimAround();
-    switch (value) {
-      case "nohl":
-        Find.clear();
-        HUD.hide();
-        break;
-      case "duplicate":
-        chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: document.URL, repeats: repeats});
-        break;
-      case "settings":
-        chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: chrome.extension.getURL("/pages/options.html"), repeats: repeats});
-        break;
-      case "cl": case "closetab":
-        chrome.runtime.sendMessage({action: "closeTab", repeats: repeats});
-        break;
-      default:
-        if (/^chrome:\/\/\S+$/.test(value))
-          chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value, noconvert: true});
-        else if (/^bookmarks +/.test(value) && value !== "bookmarks") {
-          if (/^\S+\s+\//.test(value)) {
-            chrome.runtime.sendMessage({action: "openBookmarkFolder", active: activeTab, path: value.replace(/\S+\s+/, ""), noconvert: true});
-          } else {
-            chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value.replace(/^b(ook)?marks(\s+)?/, ""), noconvert: true});
-          }
-        } else if (/^history +/.test(value))
-          chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value.replace(/^history +?/, ""), noconvert: true});
-        else if (/^(winopen|wo)$/.test(value.replace(/ .*/, "")))
-          chrome.runtime.sendMessage({action: "openLinkWindow", focused: activeTab, url: value.replace(/^\S+( +)?/, "")});
-        else if (/^(to|tabopen)$/.test(value.replace(/ .*/, "")))
-          chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value.replace(/^\S+( +)?/, "")});
-        else if (/^(o|open)$/.test(value.replace(/ .*/, "")))
-          chrome.runtime.sendMessage({action: "openLink", active: activeTab, url: value.replace(/^\S+( +)?/, "")});
-        else if (/^buffers +[0-9]+(\s+)?$/.test(value))
-          chrome.runtime.sendMessage({action: "selectTab", tabIndex: value.replace(/^.*([0-9]+).*$/, "$1")});
-        else if (/^delsession/.test(value)) {
-          value = value.replace(/^\S+(\s+)?/, "").trimAround();
-          if (value === "") {
-            Status.setMessage("Error: argument required", 1);
-            break;
-          }
-          if (sessions.indexOf(value) !== -1) sessions.splice(sessions.indexOf(value), 1);
-          value.split(" ").forEach(function(v) {
-            chrome.runtime.sendMessage({action: "deleteSession", name: v});
-          });
-          port.postMessage({action: "getSessionNames"});
-        } else if (/^mksession/.test(value)) {
-          value = value.replace(/^\S+(\s+)?/, "").trimAround();
-          if (value === "") {
-            Status.setMessage("Error: session name required", 1);
-            break;
-          } else if (/[^a-zA-Z0-9_-]/.test(value)) {
-            Status.setMessage("Error: only alphanumeric characters, dashes, and underscores are allowed", 1);
-            break;
-          }
-          if (sessions.indexOf(value) === -1) sessions.push(value);
-          chrome.runtime.sendMessage({action: "createSession", name: value});
-          port.postMessage({action: "getSessionNames"});
-        } else if (/^session/.test(value)) {
-          value = value.replace(/^\S+(\s+)?/, "").trimAround();
-          if (value === "") {
-            Status.setMessage("Error: session name required", 1);
-            break;
-          }
-          chrome.runtime.sendMessage({action: "openSession", name: value}, function() {
-            Status.setMessage("Error: session does not exist", 1);
-          });
-        } else if (/^set +/.test(value) && value !== "set") {
-          var matchFound = false;
-          value = value.replace(/^set +/, "").split(" ");
-          if (value.length !== 2) Status.setMessage("Two arguments required", 1);
-          for (var i = 0, l = Search.settings.length; i < l; ++i) {
-            if (Search.settings[i] === value[0].trim()) {
-              matchFound = true;
-              break;
-            }
-          }
-          if (!matchFound) { Status.setMessage("Invalid option: " + value[0], 1); break; }
-          var isSet = /[Tt]rue|1/.test(value[1]);
-          switch (value[0]) {
-            case "regexsearch":
-              if (value[1] === undefined) { Status.setMessage("regexsearch: " + settings.useRegex, 1); break; }
-              if (value[1].isBoolean()) Status.setMessage("Invalid value: " + value[1], 1);
-              else settings.useRegex = isSet;
-              break;
-            case "ignorecase":
-              if (value[1] === undefined) { Status.setMessage("ignorecase: " + settings.ignoreSearchCase, 1); break; }
-              if (value[1].isBoolean()) Status.setMessage("Invalid value: " + value[1], 1);
-              else settings.ignoreSearchCase = isSet;
-              break;
-            case "smoothscroll":
-              if (value[1] === undefined) { Status.setMessage("smoothscroll: " + Scroll.smoothScroll, 1); break; }
-              if (value[1].isBoolean()) Status.setMessage("Invalid value: " + value[1], 1);
-              else Scroll.smoothScroll = isSet;
-              break;
-            case "scrollstep":
-              if (value[1] === undefined) { Status.setMessage("scrollstep: " + Scroll.stepSize, 1); break; }
-              if (parseInt(value[1]) != value[1]) Status.setMessage("Invalid integer: " + value[1], 1);
-              else Scroll.stepSize = parseInt(value[1]);
-              break;
-            case "searchlimit":
-              if (value[1] === undefined) { Status.setMessage("searchlimit: " + settings.searchLimit, 1); break; }
-              if (parseInt(value[1]) != value[1]) Status.setMessage("Invalid integer: " + value[1], 1);
-              else settings.searchLimit = parseInt(value[1]);
-              break;
-            case "showhud":
-              if (value[1] === undefined) { Status.setMessage("showhud: " + !settings.disableHUD, 1); break; }
-              if (value[1].isBoolean()) Status.setMessage("Invalid value: " + value[1], 1);
-              else settings.disableHUD = !isSet;
-              break;
-            case "hintcharacters":
-              if (value[1] === undefined) { Status.setMessage("hintcharacters: " + Hints.hintCharacters, 1); break; }
-              value = value[1].split("").unique().join("");
-              if (value.length <= 1) Status.setMessage("Two unique hint characters are required", 1);
-              else Hints.hintCharacters = value;
-              break;
-          }
-        }
-        break;
-    }
-    this.hideData();
-    this.hide();
-  } else if (!this.enterHit) {
-
-    Search.searchHistory = [];
-    Search.index = null;
-    var search = this.input.value.replace(/^\S+ +/, "");
-
-    if (/^(tabopen|to|open|o|wo|winopen)(\s+)/.test(this.input.value)) {
-      if (search.trim().length < 2) return this.hideData();
-      if (search[0] === "/" || /:\/\//.test(search)) {
-        port.postMessage({action: "searchHistory", search: search, limit: settings.searchLimit});
-        if (Marks.history) this.appendResults(Marks.history, false, "History", "#0080d6");
-        Marks.history = [];
-        return;
-      }
-      port.postMessage({action: "searchHistory", search: search, limit: 4});
-      Search.fetchQuery(search, function(response) {
-        if (this.bar.style.display === "inline-block") {
-          this.typed = this.input.value;
-          this.hideData();
-          this.appendResults(response, false);
-          if (Marks.history) this.appendResults(Marks.history, true, "History", "#0080d6");
-        }
-      }.bind(this));
-      return;
-    }
-
-    if (/^chrome:\/\//.test(this.input.value)) {
-      search = this.input.value.slice(9);
-      Search.chromeMatch(search, function(matches) {
-        if (matches.length) {
-          this.appendResults(matches);
-        } else this.hideData();
-      }.bind(this));
-      return;
-    }
-
-    if (/^buffers(\s+)/.test(this.input.value)) {
-      search = this.input.value.replace(/^\S+\s+/, "");
-      port.postMessage({action: "getBuffers"});
-      return;
-    }
-
-    if (/^(del)?session(\s+)/.test(this.input.value)) {
-      search = this.input.value.replace(/^\S+\s+/, "");
-      var _res = sessions.filter(function(e) {
-        var regexp;
-        var isValidRegex = true;
-        try {
-          regexp = new RegExp(search, "i");
-        } catch (ex) {
-          isValidRegex = false;
-        }
-        if (isValidRegex) {
-          return regexp.test(e[0]);
-        }
-        return e[0].substring(0, search.length) === search;
-      }).map(function(e) { return ["session"].concat(e); });
-      this.hideData();
-      if (_res.length > 0) {
-        this.appendResults(_res);
-      }
-      return;
-    }
-
-    if (/^set(\s+)/.test(this.input.value)) {
-      search = this.input.value.slice(9);
-      var input = this.input.value.split(" ")[1];
-      Search.settingsMatch(input, function(matches) {
-        if (matches.length) {
-          this.appendResults(matches);
-        } else this.hideData();
-      }.bind(this));
-      return;
-    }
-
-    if (/^hist(ory)?(\s+)/.test(this.input.value)) {
-      if (search.trim() === "") return this.hideData();
-      this.historyMode = true;
-      port.postMessage({action: "searchHistory", search: search, limit: settings.searchLimit});
-      return;
-    }
-
-    if (/^b(ook)?marks(\s+)/.test(this.input.value)) {
-      search = this.input.value.replace(/\S+(\s+)?/, "");
-      if (search[0] === "/") {
-        return Marks.matchPath(search);
-      }
-      Marks.match(search, function(response) {
-        if (response.length > 0) {
-          this.appendResults(response);
+  value = value.trimAround();
+  switch (value) {
+    case "nohl":
+      Find.clear();
+      HUD.hide();
+      break;
+    case "duplicate":
+      chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: document.URL, repeats: repeats});
+      break;
+    case "settings":
+      chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: chrome.extension.getURL("/pages/options.html"), repeats: repeats});
+      break;
+    case "cl":
+    case "closetab":
+      chrome.runtime.sendMessage({action: "closeTab", repeats: repeats});
+      break;
+    default:
+      if (/^chrome:\/\/\S+$/.test(value))
+        chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value, noconvert: true});
+      else if (/^bookmarks +/.test(value) && value !== "bookmarks") {
+        if (/^\S+\s+\//.test(value)) {
+          chrome.runtime.sendMessage({action: "openBookmarkFolder", active: activeTab, path: value.replace(/\S+\s+/, ""), noconvert: true});
         } else {
-          this.hideData();
+          chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value.replace(/^b(ook)?marks(\s+)?/, ""), noconvert: true});
         }
-      }.bind(this));
-      return;
-    }
-
-    this.complete(this.input.value, function(data) {
-      if (data.length) {
-        this.appendResults(data);
-      } else this.hideData();
-    }.bind(this));
-
+      } else if (/^history +/.test(value))
+        chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value.replace(/^history +?/, ""), noconvert: true});
+      else if (/^(winopen|wo)$/.test(value.replace(/ .*/, "")))
+        chrome.runtime.sendMessage({action: "openLinkWindow", focused: activeTab, url: value.replace(/^\S+( +)?/, "")});
+      else if (/^(to|tabopen)$/.test(value.replace(/ .*/, "")))
+        chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value.replace(/^\S+( +)?/, "")});
+      else if (/^(o|open)$/.test(value.replace(/ .*/, "")))
+        chrome.runtime.sendMessage({action: "openLink", active: activeTab, url: value.replace(/^\S+( +)?/, "")});
+      else if (/^buffers +[0-9]+(\s+)?$/.test(value))
+        chrome.runtime.sendMessage({action: "selectTab", tabIndex: value.replace(/^.*([0-9]+).*$/, "$1")});
+      else if (/^delsession/.test(value)) {
+        value = value.replace(/^\S+(\s+)?/, "").trimAround();
+        if (value === "") {
+          Status.setMessage("Error: argument required", 1);
+          break;
+        }
+        if (sessions.indexOf(value) !== -1) sessions.splice(sessions.indexOf(value), 1);
+        value.split(" ").forEach(function(v) {
+          chrome.runtime.sendMessage({action: "deleteSession", name: v});
+        });
+        port.postMessage({action: "getSessionNames"});
+      } else if (/^mksession/.test(value)) {
+        value = value.replace(/^\S+(\s+)?/, "").trimAround();
+        if (value === "") {
+          Status.setMessage("Error: session name required", 1);
+          break;
+        } else if (/[^a-zA-Z0-9_-]/.test(value)) {
+          Status.setMessage("Error: only alphanumeric characters, dashes, and underscores are allowed", 1);
+          break;
+        }
+        if (sessions.indexOf(value) === -1) sessions.push(value);
+        chrome.runtime.sendMessage({action: "createSession", name: value});
+        port.postMessage({action: "getSessionNames"});
+      } else if (/^session/.test(value)) {
+        value = value.replace(/^\S+(\s+)?/, "").trimAround();
+        if (value === "") {
+          Status.setMessage("Error: session name required", 1);
+          break;
+        }
+        chrome.runtime.sendMessage({action: "openSession", name: value}, function() {
+          Status.setMessage("Error: session does not exist", 1);
+        });
+      } else if (/^set +/.test(value) && value !== "set") {
+        var matchFound = false;
+        value = value.replace(/^set +/, "").split(" ");
+        if (value.length !== 2) Status.setMessage("Two arguments required", 1);
+        for (var i = 0, l = Search.settings.length; i < l; ++i) {
+          if (Search.settings[i] === value[0].trim()) {
+            matchFound = true;
+            break;
+          }
+        }
+        if (!matchFound) { Status.setMessage("Invalid option: " + value[0], 1); break; }
+        var isSet = /[Tt]rue|1/.test(value[1]);
+        switch (value[0]) {
+          case "regexsearch":
+            if (value[1] === undefined) { Status.setMessage("regexsearch: " + settings.useRegex, 1); break; }
+            if (value[1].isBoolean()) Status.setMessage("Invalid value: " + value[1], 1);
+            else settings.useRegex = isSet;
+            break;
+          case "ignorecase":
+            if (value[1] === undefined) { Status.setMessage("ignorecase: " + settings.ignoreSearchCase, 1); break; }
+            if (value[1].isBoolean()) Status.setMessage("Invalid value: " + value[1], 1);
+            else settings.ignoreSearchCase = isSet;
+            break;
+          case "smoothscroll":
+            if (value[1] === undefined) { Status.setMessage("smoothscroll: " + Scroll.smoothScroll, 1); break; }
+            if (value[1].isBoolean()) Status.setMessage("Invalid value: " + value[1], 1);
+            else Scroll.smoothScroll = isSet;
+            break;
+          case "scrollstep":
+            if (value[1] === undefined) { Status.setMessage("scrollstep: " + Scroll.stepSize, 1); break; }
+            if (!/^[0-9]+$/.test(value[1])) Status.setMessage("Invalid integer: " + value[1], 1);
+            else Scroll.stepSize = parseInt(value[1]);
+            break;
+          case "searchlimit":
+            if (value[1] === undefined) { Status.setMessage("searchlimit: " + settings.searchLimit, 1); break; }
+            if (!/^[0-9]+$/.test(value[1])) Status.setMessage("Invalid integer: " + value[1], 1);
+            else settings.searchLimit = parseInt(value[1]);
+            break;
+          case "showhud":
+            if (value[1] === undefined) { Status.setMessage("showhud: " + !settings.disableHUD, 1); break; }
+            if (value[1].isBoolean()) Status.setMessage("Invalid value: " + value[1], 1);
+            else settings.disableHUD = !isSet;
+            break;
+          case "hintcharacters":
+            if (value[1] === undefined) { Status.setMessage("hintcharacters: " + Hints.hintCharacters, 1); break; }
+            value = value[1].split("").unique().join("");
+            if (value.length <= 1) Status.setMessage("Two unique hint characters are required", 1);
+            else Hints.hintCharacters = value;
+            break;
+        }
+      }
+      break;
   }
+  this.hideData();
+  this.hide();
 };
 
 Command.show = function(search, value) {
@@ -428,7 +419,6 @@ Command.hide = function() {
   this.historyMode = false;
   commandMode = false;
   Search.index = null;
-  Search.searchHistory = [];
   this.enterHit = false;
   this.history.index = {};
   this.typed = "";

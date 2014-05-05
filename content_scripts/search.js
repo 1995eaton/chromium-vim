@@ -1,12 +1,11 @@
 var Search = {};
 
 Search.index = null;
-Search.searchHistory = [];
 
 Search.chromeUrls = ["accessibility", "appcache-internals", "apps", "blob-internals", "bookmarks", "cache", "chrome", "chrome-urls", "components", "crashes", "credits", "devices", "dns", "downloads", "extensions", "flags", "flash", "gcm-internals", "gpu", "help", "histograms", "history", "indexeddb-internals", "inspect", "invalidations", "ipc", "linux-proxy-config", "media-internals", "memory", "memory-internals", "nacl", "net-internals", "newtab", "omnibox", "plugins", "policy", "predictors", "print", "profiler", "quota-internals", "sandbox", "serviceworker-internals", "settings", "signin-internals", "stats", "sync-internals", "system", "terms", "tracing", "translate-internals", "user-actions", "version", "view-http-cache", "webrtc-internals", "webrtc-logs", "crash", "kill", "hang", "shorthang", "gpuclean", "gpucrash", "gpuhang", "ppapiflashcrash", "ppapiflashhang", "quit", "restart"];
+
 Search.chromeMatch = function(string, callback) {
   if (string.trim() === "") return callback(Search.chromeUrls.slice(0, settings.searchLimit).map(function(e){return["chrome",e];}));
-  var matches = [];
   callback(this.chromeUrls.filter(function(element) {
     return (string === element.substring(0, string.length));
   }).map(function(e){return["chrome",e];}));
@@ -16,7 +15,6 @@ Search.settings = ["smoothscroll", "scrollstep", "searchlimit", "regexsearch", "
 
 Search.settingsMatch = function(string, callback) {
   if (string.trim() === "") return callback(Search.settings.slice(0, settings.searchLimit).map(function(e){return["settings",e];}));
-  var matches = [];
   callback(this.settings.filter(function(element) {
     return (string === element.substring(0, string.length));
   }).map(function(e){return["settings",e];}));
@@ -99,10 +97,13 @@ Search.nextResult = function(reverse) {
     case "chrome":
       Command.input.value = "chrome://" + Command.completionResults[this.index][1];
       break;
-    case "bookmark": case "history":
+    case "bookmark":
+    case "history":
       Command.input.value = Command.input.value.match(/^\S+ /)[0] + Command.completionResults[this.index][2];
       break;
-    case "search": case "settings": case "session":
+    case "search":
+    case "settings":
+    case "session":
       Command.input.value = Command.input.value.match(/^\S+/)[0] + " " + Command.completionResults[this.index][1];
       break;
     case "path":

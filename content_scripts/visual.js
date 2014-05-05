@@ -128,12 +128,14 @@ Visual.action = function(key) {
     case "G":
       this.selection.modify(movementType, "forward", "documentboundary");
       break;
-    case "n": case "N":
+    case "n":
+    case "N":
       if (key === "N") Mappings.actions.previousSearchResult(1);
       else Mappings.actions.nextSearchResult(1);
       this.focusSearchResult();
       break;
-    case "p": case "P":
+    case "p":
+    case "P":
       Clipboard.copy(this.selection.toString());
       Clipboard.paste(key === "P");
       this.exit();

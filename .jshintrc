@@ -10,6 +10,7 @@
     "latedef": "nofunc",
     "newcap": false,
     "noarg": true,
+    "loopfunc": true,
     "undef": false,
     "strict": false,
     "trailing": true,

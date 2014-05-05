@@ -78,15 +78,15 @@ Mappings.actions   = {
     }
   },
   centerMatchT: function() {
-    if (Command.type === "search" || Find.matches.length)
+    if (Find.matches.length && Find.matches[Find.index])
       window.scrollBy(0, Find.matches[Find.index].getBoundingClientRect().top);
   },
   centerMatchH: function() {
-    if (Command.type === "search" || Find.matches.length)
+    if (Find.matches.length && Find.matches[Find.index])
       window.scrollBy(0, Find.matches[Find.index].getBoundingClientRect().top + Find.matches[Find.index].offsetHeight - 0.5 * window.innerHeight);
   },
   centerMatchB: function() {
-    if (Command.type === "search" || Find.matches.length)
+    if (Find.matches.length && Find.matches[Find.index])
       window.scrollBy(0, Find.matches[Find.index].getBoundingClientRect().top + Find.matches[Find.index].offsetHeight - window.innerHeight);
   },
   scrollDown: function(repeats) {
@@ -115,27 +115,27 @@ Mappings.actions   = {
   },
   createHint: function() {
     window.setTimeout(function() {
-      Hints.create()
+      Hints.create();
     }, 0);
   },
   createTabbedHint: function() {
     window.setTimeout(function() {
-      Hints.create("tabbed")
+      Hints.create("tabbed");
     }, 0);
   },
   createMultiHint: function() {
     window.setTimeout(function() {
-      Hints.create("multi")
+      Hints.create("multi");
     }, 0);
   },
   createHintWindow: function() {
     window.setTimeout(function() {
-      Hints.create("window")
+      Hints.create("window");
     }, 0);
   },
   yankUrl: function() {
     window.setTimeout(function() {
-      Hints.create("yank")
+      Hints.create("yank");
     }, 0);
   },
   yankDocumentUrl: function() {
@@ -185,8 +185,9 @@ Mappings.actions   = {
   },
   goToInput: function(repeats) {
     this.inputElements = [];
-    var allInput = document.querySelectorAll("input,textarea");
-    for (var i = 0, l = allInput.length; i < l; i++) {
+    var allInput = document.querySelectorAll("input,textarea"),
+        i;
+    for (i = 0, l = allInput.length; i < l; i++) {
       if (allInput[i].isInput() && allInput[i].isVisible() && allInput[i].id !== "cVim-command-bar-input") {
         this.inputElements.push(allInput[i]);
       }
@@ -194,7 +195,7 @@ Mappings.actions   = {
     if (this.inputElements.length === 0) return false;
     this.inputElementsIndex = repeats % this.inputElements.length - 1;
     if (this.inputElementsIndex < 0) this.inputElementsIndex = 0;
-    for (var i = 0, l = this.inputElements.length; i < l; i++) {
+    for (i = 0, l = this.inputElements.length; i < l; i++) {
       var br = this.inputElements[i].getBoundingClientRect();
       if (br.top + br.height >= 0 && br.left + br.width >= 0 && br.right - br.width <= document.documentElement.clientWidth && br.top < document.documentElement.clientHeight) {
         this.inputElementsIndex = i;
@@ -212,8 +213,8 @@ Mappings.actions   = {
         commandMode = true;
         Command.show(false, Mappings.shortCuts[i][1].replace(/^:/, "").replace(/<cr>(\s+)?$/i, ""));
         if (/<cr>(\s+)?$/i.test(Mappings.shortCuts[i][1]))
-          Command.parse(Command.input.value, true, repeats);
-        else Command.parse(Command.input.value, false, repeats);
+          Command.execute(Command.input.value, repeats);
+        else Command.complete(Command.input.value);
         break;
       }
     }
@@ -319,7 +320,7 @@ Mappings.insertDefaults = {
   backwardWord:      ["<C-h>"]
 };
 
-Mappings.isValidQueue = function(c) {
+Mappings.isValidQueue = function() {
   for (var key in this.defaults)
     for (var i = 0, l = this.defaults[key].length; i < l; i++)
       if (this.defaults[key][i].substring(0, Mappings.queue.length) === Mappings.queue)
@@ -401,7 +402,8 @@ Mappings.getInsertFunction = function(modifier, callback) {
     if (typeof this.insertDefaults[key] !== "object") continue;
     this.insertDefaults[key].forEach(function(item) {
       if (!validMapping && modifier === item) {
-        validMapping = true; callback(key);
+        validMapping = true;
+        callback(key);
       }
     });
     if (validMapping) break;
@@ -419,29 +421,38 @@ Mappings.insertCommand = function(modifier, callback) {
 Mappings.parseCustom = function(config) {
   config = config.split(/\n+|;+/).map(function(item) { return item.split(/ +/); });
   config.forEach(function(mapping) {
+    var key;
     if (mapping.length && mapping[0].trimAround() === "unmapAll") {
-      for (var key in Mappings.defaults) Mappings.defaults[key] = [];
+      for (key in Mappings.defaults) {
+        Mappings.defaults[key] = [];
+      }
       return Mappings.shortCuts = [];
     }
     if (mapping.length === 1 || !/(un)?map/.test(mapping[0])) return false;
     if (mapping.shift() === "map") {
-      if (mapping.length === 2 && Mappings.defaults.hasOwnProperty(mapping[1]))
+      if (mapping.length === 2 && Mappings.defaults.hasOwnProperty(mapping[1])) {
         return Mappings.defaults[mapping[1]].push(mapping[0]);
-      else if (mapping[1][0] === ":")
+      }
+      if (mapping[1][0] === ":") {
         return Mappings.shortCuts.push([mapping[0], mapping.slice(1).join(" ")]);
-    } else if (mapping.length === 1)
-      for (var key in Mappings.defaults) {
+      }
+    }
+    if (mapping.length === 1) {
+      for (key in Mappings.defaults) {
         if (Array.isArray(Mappings.defaults[key])) {
           var index = 0;
           while (index !== -1) {
             index = Mappings.defaults[key].indexOf(mapping[0]);
-            if (index !== -1) Mappings.defaults[key].splice(index, 1);
+            if (index !== -1) {
+              Mappings.defaults[key].splice(index, 1);
+            }
           }
         }
       }
       Mappings.shortCuts = Mappings.shortCuts.filter(function(item) {
         return item[0] !== mapping[0];
       });
+    }
   });
   Mappings.shortCuts = Mappings.shortCuts.map(function(item) {
     item[1] = item[1].replace(/@%/, document.URL);
@@ -469,8 +480,9 @@ Mappings.convertToAction = function(c, callback) {
 
   Mappings.queue += c;
   for (var key in this.defaults) {
-    if (!this.isValidQueue(c)) {
-      Mappings.queue = ""; Mappings.repeats = "";
+    if (!this.isValidQueue()) {
+      Mappings.queue = "";
+      Mappings.repeats = "";
       break;
     }
     for (var i = 0, l = this.defaults[key].length; i < l; i++) {
@@ -479,7 +491,8 @@ Mappings.convertToAction = function(c, callback) {
         if (key === "shortCuts")
           Mappings.actions[key](Mappings.queue, (addOne ? 1 : parseInt(Mappings.repeats)));
         else Mappings.actions[key]((addOne ? 1 : parseInt(Mappings.repeats)));
-        Mappings.queue = ""; Mappings.repeats = "";
+        Mappings.queue = "";
+        Mappings.repeats = "";
         return (callback ? callback() : true);
       }
     }

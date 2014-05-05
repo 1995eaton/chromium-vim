@@ -58,7 +58,7 @@ keyDown = function(e) {
   if (!settings.disableInsertMappings && document.activeElement.isInput() && !insertMode && !keyType.escape && modifier !== "") {
     Mappings.insertCommand(modifier, function() {
       e.preventDefault();
-      if (document.activeElement.id === "cVim-command-bar-input" && Command.type !== "search") Command.parse();
+      if (document.activeElement.id === "cVim-command-bar-input" && Command.type !== "search") Command.complete(Command.input.value);
     });
   } else if (Hints.active) {
     if (e.which === 18) {
@@ -103,7 +103,11 @@ keyDown = function(e) {
     Command.hide();
   } else if (Command.bar.style.display === "inline-block" && document.activeElement.hasOwnProperty("cVim") && document.activeElement.id === "cVim-command-bar-input") {
     switch (e.keyCode) {
-      case 18: case 17: case 91: case 123: case 16: // Ignore non-character keys (CTRL, SHIFT, etc)
+      case 18: // Ignore non-character keys (CTRL, SHIFT, etc)
+      case 17:
+      case 91:
+      case 123:
+      case 16:
         break;
       case 8: // Backspace
         if (Command.input.value === "") {
@@ -120,7 +124,7 @@ keyDown = function(e) {
           }, 0);
         } else if (Command.input.value !== "") {
           setTimeout(function() {
-            Command.parse();
+            Command.complete(Command.input.value);
           }, 0);
         }
         break;
@@ -169,7 +173,7 @@ keyDown = function(e) {
               Command.hide();
             }, 0);
           } else {
-            Command.parse(Command.input.value);
+            Command.execute(Command.input.value);
           }
         }
         break;
@@ -177,7 +181,7 @@ keyDown = function(e) {
         Command.history.reset = true;
         if (Command.type === "action") {
           setTimeout(function() {
-            Command.parse();
+            Command.complete(Command.input.value);
           }, 0);
         } else {
           setTimeout(function() {
@@ -243,6 +247,7 @@ function addListeners() {
   document.addEventListener("keydown", keyDown, true);
   document.addEventListener("mousemove", mouseMove, true);
 }
+
 function removeListeners() {
   document.removeEventListener("keypress", keyPress, true);
   document.removeEventListener("keyup", keyUp, true);
