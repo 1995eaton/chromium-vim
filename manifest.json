@@ -48,6 +48,7 @@
     "persistant": false,
     "scripts": [
       "background_scripts/main.js",
+      "background_scripts/actions.js",
       "background_scripts/options.js",
       "background_scripts/sessions.js",
       "background_scripts/popup.js"
