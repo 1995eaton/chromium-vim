@@ -503,6 +503,8 @@ document.addEventListener("DOMContentLoaded", function() {
     } else if (request.action === "confirm") {
       var c = confirm(request.message);
       callback(c);
+    } else if (request.action === "cancelAllWebRequests") {
+      window.stop();
     }
   });
   return Command.configureSettings(true);

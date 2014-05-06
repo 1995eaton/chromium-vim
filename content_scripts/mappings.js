@@ -21,6 +21,12 @@ Mappings.actions   = {
       Visual.scrollIntoView();
     }
   },
+  cancelWebRequest: function() {
+    window.stop();
+  },
+  cancelAllWebRequests: function() {
+    chrome.runtime.sendMessage({action: "cancelAllWebRequests"});
+  },
   percentScroll: function(repeats) {
     if (Mappings.repeats === "0" || Mappings.repeats === "") repeats = 0;
     document.body.scrollTop = (document.body.scrollHeight - document.documentElement.clientHeight) * repeats / 100;
@@ -276,6 +282,8 @@ Mappings.defaults = {
   reverseImage:         ["gr"],
   goForward:            ["L", "D"],
   firstTab:             ["g0"],
+  cancelWebRequest:     ["q"],
+  cancelAllWebRequests: ["Q"],
   lastTab:              ["g$"],
   lastClosedTab:        ["X"],
   hideDownloadsShelf:   ["gj", "gD"],

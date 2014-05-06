@@ -251,6 +251,14 @@ actions.selectTab = function() {
   });
 };
 
+actions.cancelAllWebRequests = function() {
+  chrome.tabs.query({currentWindow: true}, function(tabs) {
+    tabs.forEach(function(tab) {
+      chrome.tabs.sendMessage(tab.id, {action: "cancelAllWebRequests"});
+    });
+  });
+};
+
 actions.hideDownloadsShelf = function() {
   chrome.downloads.setShelfEnabled(false);
   chrome.downloads.setShelfEnabled(true);
