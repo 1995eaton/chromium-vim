@@ -74,16 +74,6 @@ Hints.handleHintFeedback = function() {
         if (main !== null) main.parentNode.removeChild(main);
         return this.create("multi");
       }
-      if (linkHoverEnabled && shiftKey) {
-        if (this.type === "tabbed") {
-          ev = new Event("mouseover");
-          link.dispatchEvent(e);
-        } else {
-          ev = new Event("mouseout");
-        }
-        link.dispatchEvent(e);
-        return this.hideHints(false);
-      }
       var node = link.nodeName;
       if (this.type === "yank") {
         Clipboard.copy(link.href);
@@ -338,10 +328,4 @@ Hints.create = function(type) {
   }
   main.appendChild(frag);
   main.style.opacity = "1";
-  if (linkHoverEnabled && this.type === "tabbed") {
-    window.setTimeout(function() {
-      if (shiftKey)
-        Hints.invertColors(true);
-    }, 250);
-  }
 };

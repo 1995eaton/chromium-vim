@@ -54,7 +54,7 @@ Search.fetchQuery = function(query, callback) {
 Search.nextResult = function(reverse) {
 
   if (!Command.dataElements.length) {
-    return;
+    return Command.complete("");
   }
 
   if (this.index === null) {

@@ -223,21 +223,18 @@ Mappings.actions   = {
   openSearchBar: function() {
     Command.hide();
     commandMode = true;
-    Command.enterHit = false;
     Find.swap = false;
     return Command.show("/");
   },
   openSearchBarReverse: function() {
     Command.hide();
     commandMode = true;
-    Command.enterHit = false;
     Find.swap = true;
     return Command.show("?");
   },
   openCommandBar: function() {
     Command.hide();
     commandMode = true;
-    Command.enterHit = false;
     return Command.show(false);
   }
 };
@@ -472,7 +469,7 @@ Mappings.isValidMapping = function(c) {
 Mappings.convertToAction = function(c, callback) {
   var addOne = false;
 
-  if (!c)
+  if (!c || c === "<Space>")
     return false;
   if (Hints.active)
     return (c === ";" ? Hints.changeFocus() : Hints.handleHint(c));

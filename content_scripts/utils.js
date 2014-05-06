@@ -57,3 +57,7 @@ String.prototype.removeDiacritics = function() {
   strAccentsOut = strAccentsOut.join("");
   return strAccentsOut;
 };
+
+Number.prototype.mod = function(n) {
+  return ((this % n) + n) % n;
+};

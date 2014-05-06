@@ -266,7 +266,6 @@ Command.execute = function(value, repeats) {
 
   this.history.index = {};
 
-  value = value.trimAround();
   switch (value) {
     case "nohl":
       Find.clear();
@@ -376,6 +375,7 @@ Command.execute = function(value, repeats) {
 
 Command.show = function(search, value) {
   this.type = "";
+  this.active = true;
   if (search) {
     this.type = "search";
     this.modeIdentifier.innerHTML = search;
@@ -401,9 +401,9 @@ Command.hide = function() {
   this.bar.style.display = "none";
   this.input.value = "";
   this.historyMode = false;
+  this.active = false;
   commandMode = false;
   Search.index = null;
-  this.enterHit = false;
   this.history.index = {};
   this.typed = "";
   this.dataElements = [];

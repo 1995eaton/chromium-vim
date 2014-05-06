@@ -1,33 +1,106 @@
-var insertMode, commandMode, settings, shiftKey;
-var modifier = "";
+var addListeners, removeListeners;
+var insertMode, commandMode, settings;
 
-keyPress = function(e) {
-  if (Visual.caretModeActive || Visual.visualModeActive) {
-    if (e.which !== 123) {
-      e.preventDefault();
-      e.stopPropagation();
-      return Visual.action(String.fromCharCode(e.which));
+var numberMap = ")!@#$%^&*(";
+var keyMap = {
+  8:   "BS",
+  9:   "Tab",
+  13:  "Enter",
+  27:  "Esc",
+  32:  "Space",
+  37:  "Left",
+  38:  "Up",
+  39:  "Right",
+  40:  "Down",
+  186: [";", ":"],
+  189: ["-", "_"],
+  187: ["=", "+"],
+  191: ["/", "?"],
+  192: ["`", "~"],
+  219: ["[", "{"],
+  221: ["]", "}"]
+};
+
+fromKeyCode = function(e) {
+  var keyCode  = e.which;
+  var shiftKey = e.shiftKey;
+  var convertedKey;
+
+  if (keyMap.hasOwnProperty(keyCode.toString())) {
+    convertedKey = keyMap[keyCode.toString()];
+    if (Array.isArray(convertedKey)) {
+      if (!e.ctrlKey && !e.altKey && !e.metaKey) {
+        convertedKey = convertedKey[(shiftKey ? 1 : 0)];
+      } else convertedKey = convertedKey[0];
+    } else {
+      if (shiftKey) convertedKey = "S-" + convertedKey;
     }
   } else {
-    shiftKey = e.shiftKey;
-    if (!insertMode && !document.activeElement.isInput()) {
-      if (Mappings.convertToAction(String.fromCharCode(e.which))) {
-        e.preventDefault();
-        e.stopPropagation();
+    if (keyCode >= 48 && keyCode <= 57) {
+      if (shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
+        convertedKey = numberMap[keyCode - 48];
+      } else {
+        convertedKey = String.fromCharCode(keyCode);
       }
+    } else {
+      convertedKey = String.fromCharCode(keyCode);
+      if (!shiftKey)
+        convertedKey = String.fromCharCode(keyCode).toLowerCase();
     }
   }
+
+  var modifier = "";
+  if (e.ctrlKey) modifier += "-C";
+  if (e.altKey)  modifier += "-A";
+  if (e.metaKey) modifier += "-M";
+
+  if (modifier) {
+    modifier = modifier.replace(/^-/, "");
+    convertedKey = "<" + modifier + "-" +
+      ((shiftKey && !keyMap.hasOwnProperty(keyCode)) ?
+      "S-" : "") +
+      (!keyMap.hasOwnProperty(keyCode) ? convertedKey.toLowerCase() : convertedKey) + ">";
+  }
+
+  if (/^S-/.test(convertedKey) || (!modifier && keyCode <= 40 && keyMap.hasOwnProperty(keyCode))) convertedKey = "<" + convertedKey + ">";
+  return convertedKey;
 };
 
 keyDown = function(e) {
 
+  if (e.which === 18 && Hints.active) {
+    return Hints.changeFocus();
+  }
+  if (e.which === 17 || e.which === 16 || e.which === 91 || e.which === 123) {
+    return false;
+  }
+
+  var asciiKey = fromKeyCode(e);
+  var validMapping = Mappings.isValidMapping(asciiKey);
+  var keyType = {
+    arrow: /^<(Left|Right|Up|Down)>$/.test(asciiKey),
+    modifier: /^<[ACM]/.test(asciiKey),
+    escape: /^<(Esc|C-\[)>$/.test(asciiKey),
+  };
+
+  if (!commandMode && Mappings.actions.inputFocused && e.which === 9) {
+    if (!document.activeElement.isInput() || !Mappings.actions.inputElements.length) {
+      return Mappings.actions.inputFocused = false;
+    }
+    e.preventDefault();
+    e.stopPropagation();
+    Mappings.actions.inputElementsIndex = ((e.shiftKey ? -1 : 1) + Mappings.actions.inputElementsIndex).mod(Mappings.actions.inputElements.length);
+    Mappings.actions.inputElements[Mappings.actions.inputElementsIndex].focus();
+    return;
+  }
+
   if (Visual.caretModeActive || Visual.visualModeActive) {
+    e.stopPropagation();
+    Visual.selection = document.getSelection();
     if (e.which === 8) {
       e.preventDefault();
     }
-    e.stopPropagation();
-    Visual.selection = document.getSelection();
-    if (e.which === 27 || (e.ctrlKey && e.which === 219)) {
+    if (keyType.escape) {
       if (Visual.visualModeActive === false) {
         return Visual.exit();
       }
@@ -35,61 +108,48 @@ keyDown = function(e) {
       HUD.setMessage(" -- CARET -- ");
       Visual.collapse();
     }
-    return;
+    return Visual.action(asciiKey.replace(/^<BS>$/, "h").replace(/^<Space>$/, "l"));
+  } else {
+
+    if (!insertMode && !document.activeElement.isInput()) {
+      if (Mappings.convertToAction(asciiKey)) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }
+
   }
 
-  if (e.which === 16) {
-    return ((Hints.active && linkHoverEnabled) ? Hints.invertColors(true) : false);
+  if (!Object.prototype.hasOwnProperty("isVisible")) {
+    return false;
   }
-  if (!Object.prototype.hasOwnProperty("isVisible")) return false;
 
-  var isInput = document.activeElement.isInput() || insertMode || Mappings.actions.inputFocused;
-
-  var keyType = {
-    arrow: (e.which >= 37 && e.which <= 40),
-    modifier: (e.altKey || e.ctrlKey || e.metaKey),
-    escape: (e.which === 27 && !this.modifier) || (e.which === 219 && e.ctrlKey)
-  };
-
-  modifier = "";
-
-  if (keyType.modifier) {
-    if (e.ctrlKey)
-      modifier += "C-";
-    if (e.metaKey)
-      modifier += "M-";
-    if (e.altKey)
-      modifier += "A-";
-    if (modifier.length > 0)
-      modifier = "<" + modifier + (e.shiftKey? String.fromCharCode(e.which) : String.fromCharCode(e.which).toLowerCase()) + ">";
-  }
+  var isInput = (document.activeElement.isInput() ||
+                 insertMode ||
+                 Mappings.actions.inputFocused);
 
   if (!isInput && e.which > 40 && e.which !== 91 && e.which !== 123 && e.which !== 191) {
-    var s = String.fromCharCode(e.which);
-    if (!e.shiftKey) s = s.toLowerCase();
-    if ((Mappings.queue.length && Mappings.validMatch) || Mappings.isValidMapping(s)) {
+    if ((Mappings.queue.length && Mappings.validMatch) || validMapping) {
       e.stopPropagation();
     }
-    if (!commandMode && modifier !== "" && Mappings.convertToAction(modifier)) {
+    if (!commandMode && asciiKey !== "" && validMapping) {
       e.preventDefault();
     }
-  } else if (!insertMode || Hints.active) e.stopPropagation();
-
-  if (settings.insertmappings && document.activeElement.isInput() && !insertMode && !keyType.escape && modifier !== "") {
-    Mappings.insertCommand(modifier, function() {
-      e.preventDefault();
-      if (document.activeElement.id === "cVim-command-bar-input" && Command.type !== "search") Command.complete(Command.input.value);
-    });
-  } else if (Hints.active) {
+  } else if (!insertMode || Hints.active) {
     e.stopPropagation();
-    if (e.which === 18) {
-      Hints.changeFocus();
-    } else if (keyType.escape || (e.which <= 40 && e.which !== 17)) {
+  }
+
+  if (settings.insertmappings && document.activeElement.isInput() && !insertMode && !keyType.escape && asciiKey !== "") {
+    Mappings.insertCommand(asciiKey, function() {
       e.preventDefault();
-      e.stopPropagation();
-      Hints.hideHints();
-      return true;
-    }
+      if (document.activeElement.id === "cVim-command-bar-input" && Command.type !== "search") {
+        Command.complete(Command.input.value);
+      }
+    });
+  } else if (Hints.active && (keyType.escape || e.which <= 40)) {
+    e.stopPropagation();
+    e.preventDefault();
+    return Hints.hideHints();
   } else if (!commandMode) {
     if (keyType.escape || (!isInput && (e.which === 32 || e.which === 13))) {
       if (insertMode && !document.activeElement.isInput()) {
@@ -106,14 +166,9 @@ keyDown = function(e) {
         Mappings.repeats  = "";
       }
       if (isInput) document.activeElement.blur();
-    } else if (!isInput && keyType.arrow && Mappings.isValidMapping(Mappings.arrowKeys[e.which - 37])) {
+    } else if (!isInput && keyType.arrow && validMapping) {
       e.preventDefault();
-      Mappings.convertToAction(Mappings.arrowKeys[e.which - 37]);
-    } else if (Mappings.actions.inputFocused && e.keyCode === 9) { // Tab
-      if (!document.activeElement.isInput() || !Mappings.actions.inputElements.length) return Mappings.actions.inputFocused = false;
-      e.preventDefault();
-      Mappings.actions.inputElementsIndex = ((((e.shiftKey ? -1 : 1) + Mappings.actions.inputElementsIndex) % Mappings.actions.inputElements.length) + Mappings.actions.inputElements.length) % Mappings.actions.inputElements.length;
-      Mappings.actions.inputElements[Mappings.actions.inputElementsIndex].focus();
+      Mappings.convertToAction(asciiKey);
     }
   } else if (keyType.escape) {
     Mappings.actions.inputFocused = false;
@@ -122,19 +177,19 @@ keyDown = function(e) {
       HUD.hide();
     }
     Command.hide();
-  } else if (Command.bar.style.display === "inline-block" && document.activeElement.hasOwnProperty("cVim") && document.activeElement.id === "cVim-command-bar-input") {
-    switch (e.keyCode) {
-      case 18: // Ignore non-character keys (CTRL, SHIFT, etc)
-      case 17:
-      case 91:
-      case 123:
-      case 16:
-        break;
-      case 8: // Backspace
-        if (Command.input.value === "") {
-          e.preventDefault();
+  }
+
+  if (commandMode && document.activeElement.id === "cVim-command-bar-input") {
+
+    switch (asciiKey) {
+
+      case "<BS>": // Backspace (Vim style)
+        if (Command.input.value.length === 0) {
           Command.hide();
-        } else if (Command.type === "search") {
+          e.preventDefault();
+          break;
+        }
+        if (Command.type === "search") {
           Find.clear();
           setTimeout(function() {
             if (Command.input.value !== "" && Command.input.value.length > 2) {
@@ -143,61 +198,54 @@ keyDown = function(e) {
               HUD.hide();
             }
           }, 0);
-        } else if (Command.input.value !== "") {
+        } else {
           setTimeout(function() {
             Command.complete(Command.input.value);
           }, 0);
         }
         break;
-      case 9: // Tab
-        if (!document.activeElement.isInput()) {
-          Mappings.actions.inputFocused = false;
+
+      case "<Tab>":
+      case "<S-Tab>":
+        if (Command.type === "action") {
+          e.preventDefault();
+          Search.nextResult(e.shiftKey);
+        }
+        break;
+
+      case "<Up>":
+      case "<Down>":
+        e.preventDefault();
+        Command.history.cycle(Command.type, (asciiKey === "<Up>"));
+        break;
+
+      case "<Enter>":
+      case "<C-Enter>":
+        if (!/^(action|search)$/.test(Command.type)) {
           break;
         }
         e.preventDefault();
-        if (document.activeElement.hasOwnProperty("cVim")) {
-          if (Command.type === "action") {
-            if (Command.dataElements.length) {
-              Search.nextResult(e.shiftKey);
-            } else if (Command.input.value === "") {
-              Command.complete("");
-            }
+        if (!(Command.history[Command.type].length > 0 && Command.history[Command.type].slice(-1)[0] === Command.input.value)) {
+          Command.history[Command.type].push(Command.input.value);
+          chrome.runtime.sendMessage({action: "appendHistory", value: Command.input.value, type: Command.type});
+        }
+        document.activeElement.blur();
+        if (Command.type === "search") {
+          if (Command.input.value !== "" && (Command.input.value !== Find.lastSearch || Find.matches.length === 0)) {
+            Find.clear();
+            Find.highlight(document.body, Command.input.value, false, false, false, true);
           }
+          setTimeout(function() {
+            Find.index = -1;
+            Find.setIndex();
+            Find.search(false, 1);
+            Command.hide();
+          }, 0);
+        } else {
+          Command.execute(Command.input.value + (e.ctrlKey ? "&" : ""), 1);
         }
         break;
-      case 38: // Up
-        e.preventDefault();
-        Command.history.cycle(Command.type, true);
-        break;
-      case 40: // Down
-        Command.history.cycle(Command.type, false);
-        break;
-      case 13: // Enter
-        Command.enterHit = true;
-        if (Command.type === "action" || Command.type === "search") {
-          Command.input.value = Command.input.value.trimAround();
-          if (Command.input.value.trim() !== "" && !(Command.history[Command.type].length > 0 && Command.history[Command.type].slice(-1)[0] === Command.input.value)) {
-            Command.history[Command.type].push(Command.input.value);
-            chrome.runtime.sendMessage({action: "appendHistory", value: Command.input.value, type: Command.type});
-          }
-          e.preventDefault();
-          document.activeElement.blur();
-          if (Command.type === "search") {
-            if (Command.input.value !== "" && (Command.input.value !== Find.lastSearch || Find.matches.length === 0)) {
-              Find.clear();
-              Find.highlight(document.body, Command.input.value, false, false, false, true);
-            }
-            setTimeout(function() {
-              Find.index = -1;
-              Find.setIndex();
-              Find.search(false, 1);
-              Command.hide();
-            }, 0);
-          } else {
-            Command.execute(Command.input.value);
-          }
-        }
-        break;
+
       default:
         Command.history.reset = true;
         if (Command.type === "action") {
@@ -218,7 +266,9 @@ keyDown = function(e) {
         }
         break;
     }
+
   }
+
 };
 
 var Mouse = {};
@@ -228,38 +278,40 @@ mouseMove = function(e) {
 };
 
 keyUp = function(e) {
-  if (linkHoverEnabled && e.which === 16 && Hints.active) {
-    shiftKey = false;
-    Hints.invertColors(false);
-  }
   if (!insertMode) {
     e.stopPropagation();
     e.preventDefault();
   }
 };
 
-function addListeners() {
+keyPress = function(e) {
+  if (Visual.caretModeActive || Visual.visualModeActive) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+};
+
+addListeners = function() {
   document.addEventListener("keypress", keyPress, true);
   document.addEventListener("keyup", keyUp, true);
   document.addEventListener("keydown", keyDown, true);
   document.addEventListener("mousemove", mouseMove, true);
-}
+};
 
-function removeListeners() {
+removeListeners = function() {
   document.removeEventListener("keypress", keyPress, true);
   document.removeEventListener("keyup", keyUp, true);
   document.removeEventListener("keydown", keyDown, true);
   document.removeEventListener("mousemove", mouseMove, true);
-}
+};
 
 chrome.extension.onMessage.addListener(function(request, callback) {
-  if (request.action === "toggleEnabled") {
-    if (request.state === true) {
-      Command.init(true);
-    } else {
-      Command.init(false);
-    }
-  } else if (request.action === "getBlacklistStatus") {
-    callback(Command.blacklisted);
+  switch (request.action) {
+    case "toggleEnabled":
+      Command.init(request.state);
+      break;
+    case "getBlacklistStatus":
+      callback(Command.blacklisted);
+      break;
   }
 });
