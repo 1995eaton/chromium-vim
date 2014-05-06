@@ -75,7 +75,7 @@ keyDown = function(e) {
     }
   } else if (!insertMode || Hints.active) e.stopPropagation();
 
-  if (!settings.disableInsertMappings && document.activeElement.isInput() && !insertMode && !keyType.escape && modifier !== "") {
+  if (settings.insertmappings && document.activeElement.isInput() && !insertMode && !keyType.escape && modifier !== "") {
     Mappings.insertCommand(modifier, function() {
       e.preventDefault();
       if (document.activeElement.id === "cVim-command-bar-input" && Command.type !== "search") Command.complete(Command.input.value);

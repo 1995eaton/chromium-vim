@@ -421,7 +421,7 @@ Mappings.insertCommand = function(modifier, callback) {
 
 Mappings.parseCustom = function(config) {
   config += this.siteSpecificBlacklists;
-  config = config.split(/\n+|;+/).map(function(item) { return item.split(/ +/); });
+  config = config.split(/\n+|;+/).map(function(item) { return item.replace(/(\s+)?".*/, "").split(/ +/); });
   config.forEach(function(mapping) {
     var key;
     if (mapping.length && mapping[0].trimAround() === "unmapAll") {

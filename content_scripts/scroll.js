@@ -1,8 +1,5 @@
 var Scroll = {};
 
-Scroll.stepSize = 75;
-Scroll.smoothScroll = true;
-
 var ease = {
   outSine: function(t, b, c, d) {
     return c * Math.sin(t/d * (Math.PI/2)) + b;
@@ -53,14 +50,14 @@ Scroll.smoothScrollBy = function(x, y) {
 
 Scroll.scroll = function(type, repeats) {
 
-  if (Scroll.smoothScroll) {
+  if (settings.smoothscroll) {
 
     switch (type) {
       case "down":
-        Scroll.smoothScrollBy(0, repeats * this.stepSize);
+        Scroll.smoothScrollBy(0, repeats * settings.scrollstep);
         break;
       case "up":
-        Scroll.smoothScrollBy(0, -repeats * this.stepSize);
+        Scroll.smoothScrollBy(0, -repeats * settings.scrollstep);
         break;
       case "pageDown":
         Scroll.smoothScrollBy(0, repeats * window.innerHeight / 2);
@@ -75,10 +72,10 @@ Scroll.scroll = function(type, repeats) {
         Scroll.smoothScrollBy(0, document.body.scrollHeight - document.body.scrollTop - window.innerHeight + 10);
         break;
       case "left":
-        Scroll.smoothScrollBy(repeats * -this.stepSize / 2, 0);
+        Scroll.smoothScrollBy(repeats * -settings.scrollstep / 2, 0);
         break;
       case "right":
-        Scroll.smoothScrollBy(repeats * this.stepSize / 2, 0);
+        Scroll.smoothScrollBy(repeats * settings.scrollstep / 2, 0);
         break;
       default:
         break;
@@ -88,10 +85,10 @@ Scroll.scroll = function(type, repeats) {
 
     switch (type) {
       case "down":
-        scrollBy(0, repeats * this.stepSize);
+        scrollBy(0, repeats * settings.scrollstep);
         break;
       case "up":
-        scrollBy(0, -repeats * this.stepSize);
+        scrollBy(0, -repeats * settings.scrollstep);
         break;
       case "pageDown":
         scrollBy(0, repeats * window.innerHeight / 2);
@@ -106,10 +103,10 @@ Scroll.scroll = function(type, repeats) {
         scrollTo(0, document.body.offsetHeight);
         break;
       case "left":
-        scrollBy(-repeats * this.stepSize, 0);
+        scrollBy(-repeats * settings.scrollstep, 0);
         break;
       case "right":
-        scrollBy(repeats * this.stepSize, 0);
+        scrollBy(repeats * settings.scrollstep, 0);
         break;
       default:
         break;

@@ -76,10 +76,10 @@ Find.search = function(reverse, repeats) {
 
 Find.highlight = function(baseNode, match, setIndex, search, reverse, saveSearch) {
   var mode, node, matches, mark, mid, pass, data;
-  var regexp = settings.useRegex;
+  var regexp = settings.regexp;
   if (this.clearing) return;
   if (saveSearch !== undefined) this.lastSearch = match;
-  if (settings.ignoreSearchCase || /\/i$/.test(match)) {
+  if (settings.ignorecase || /\/i$/.test(match)) {
     mode = "i";
     match = match.replace(/\/i$/, "");
   } else {
@@ -101,7 +101,7 @@ Find.highlight = function(baseNode, match, setIndex, search, reverse, saveSearch
   while (node = walker.nextNode()) {
     var nName = node.parentNode.nodeName;
     if (nName !== "SCRIPT" && nName !== "STYLE" && nName !== "NOSCRIPT" && node.data.trim() !== "" && !node.parentNode.hasAttribute("cVim")) {
-      if (settings.diacriticInsensitiveSearch) {
+      if (settings.ignorediacritics) {
         data = node.data.removeDiacritics();
       } else {
         data = node.data;

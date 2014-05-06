@@ -14,7 +14,7 @@ Marks.parse = function(marks) {
 };
 
 Marks.match = function(string, callback) {
-  if (string.trim() === "") return callback(this.bookmarks.slice(0, settings.searchLimit));
+  if (string.trim() === "") return callback(this.bookmarks.slice(0, settings.searchlimit));
   var regexp;
   var matches = [];
   for (var i = 0, l = this.bookmarks.length; i < l; ++i) {
@@ -28,7 +28,7 @@ Marks.match = function(string, callback) {
         matches.push(this.bookmarks[i]);
       }
     }
-    if (matches.length > settings.searchLimit) break;
+    if (matches.length > settings.searchlimit) break;
   }
   callback(matches);
 };

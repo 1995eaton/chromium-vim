@@ -1,6 +1,7 @@
 var sessions   = {};
+var Clipboard, History;
 
-chrome.storage.sync.get('sessions', function(s) {
+chrome.storage.sync.get("sessions", function(s) {
   if (s.sessions === undefined) {
     chrome.storage.sync.set({sessions: {}});
   } else sessions = s.sessions;
@@ -11,13 +12,13 @@ String.prototype.convertLink = function() {
   if (url.length === 0) return "chrome://newtab";
   if (/^\//.test(url)) url = "file://" + url;
   if (/^(chrome|chrome-extension|file):\/\/\S+$/.test(url)) return url;
-  var pattern = new RegExp('^((https?|ftp):\\/\\/)?'+
-  '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+
-  '((\\d{1,3}\\.){3}\\d{1,3})|'+
-  'localhost)' +
-  '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+
-  '(\\?[;&a-z\\d%_.~+=-]*)?'+
-  '(\\#[-a-z\\d_]*)?$','i');
+  var pattern = new RegExp("^((https?|ftp):\\/\\/)?"+
+  "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|"+
+  "((\\d{1,3}\\.){3}\\d{1,3})|"+
+  "localhost)" +
+  "(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*"+
+  "(\\?[;&a-z\\d%_.~+=-]*)?"+
+  "(\\#[-a-z\\d_]*)?$","i");
   if (pattern.test(url))
     return (/:\/\//.test(url) ? "" : "http://") + url;
   return "https://www.google.com/search?q=" + url;
@@ -35,7 +36,7 @@ function getTab(sender, reverse, count, first, last) {
   });
 }
 
-var Clipboard = {
+Clipboard = {
   createTextArea: function() {
     var t = document.createElement("textarea");
     t.style.position = "absolute";
@@ -61,7 +62,7 @@ var Clipboard = {
   }
 };
 
-var History = {
+History = {
   searchResults: null,
   append: function(value, type) {
     if (!localStorage[type] || localStorage[type] === "")

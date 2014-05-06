@@ -1,142 +1,162 @@
-var loadSettings, mouseDown, saveRelease, resetRelease, fetchSettings;
-var fade, save, saveClicked, resetClicked, reset, linkHintCharacters, commandBarCSS, commandBarOnBottom, hoverDelay, settings, editor, mappingContainerFadeOut, usedPlaceholder, firstLoad;
+var storageMethod = "local";
+var log;
+var Settings = {};
+log = console.log.bind(console);
 
-var placeholder = '<- Click here for command names\n\nCommands are prefixed by "map" and "unmap"\n\nExample:\n # unmap j\n # map j scrollDown\n\nCommands can also be mapped to command mode commands\n\nExample:\n # map v :tabopen http://www.google.com\n\nCommand mode commands followed by <CR> executes the command immediately (enter does not need to be pressed)\n # map v :tabopen http://www.google.com<CR>\n\nModifier keys may also be mapped (if not already used by Chrome or the operating system)\n\nExample:\n "<C-" => Control key\n # map <C-i> goToInput\n "<M-" => Meta key (Windows key / Command key [Mac])\n # map <M-i> goToInput\n "<A-" => Alt key\n # map <A-i> goToInput\n';
-
-loadSettings = function () {
-  for (var key in settings) {
-    if (typeof settings[key] === "boolean") {
-      document.getElementById(key).checked = settings[key];
-    } else {
-      document.getElementById(key).value = settings[key];
-    }
-  }
-  if (editor) {
-    editor.setValue(settings.commandBarCSS);
-  }
-  if (document.getElementById("mappings").value.trim() === "") {
-    usedPlaceholder = true;
-    document.getElementById("mappings").value = placeholder;
-  }
-  document.getElementById("mappings").addEventListener("focus", onFocus, false);
-  document.getElementById("mappings").addEventListener("blur", onBlur, false);
+String.prototype.trimAround = function() {
+  return this.replace(/^(\s+)?(.*\S)?(\s+)?$/g, "$2");
 };
 
-resetRelease = function() {
-  if (resetClicked) {
-    chrome.runtime.sendMessage({setDefault: true});
-    fetchSettings();
-  }
+Settings.getrc = function() {
+  var a = this.rcEl.value.split(/\n|;/).filter(function(e) {
+    return e.trim() && /^(\s+)?set\s+\S.*$/.test(e);
+  }).map(function(e) {
+    return e.trimAround().replace(/(\s+)?".*/, "").replace(/(\s+)?=(\s+)?/, "=").split(/\s+/).slice(1);
+  });
+  return a;
 };
 
-saveRelease = function() {
-  if (saveClicked) {
-    for (var key in settings) {
-      if (typeof settings[key] === "boolean") {
-        settings[key] = document.getElementById(key).checked;
-      } else if (key === "commandBarCSS") {
-        settings[key] = editor.getValue();
-      } else if (key === "mappings" && usedPlaceholder) {
-        settings[key] = "";
-      } else {
-        settings[key] = document.getElementById(key).value;
+Settings.parserc = function(values) {
+  var config, isEnabled;
+  var sValues = Object.keys(this.settings).map(function(e) { return e.toLowerCase(); });
+  for (var i = 0, l = values.length; i < l; ++i) {
+    config = values[i];
+    if (config.length !== 1) continue;
+    config = config[0];
+    if (!/=/.test(config)) {
+      isEnabled = true;
+      if (sValues.indexOf(config) === -1) {
+        config = config.replace(/^no/, "");
+        isEnabled = false;
+        if (sValues.indexOf(config) === -1) {
+          continue;
+        }
+      }
+      this.settings[config] = isEnabled;
+    } else if (/=/.test(config)) {
+      config = config.split("=");
+      if (config.length === 2) {
+        if (sValues.indexOf(config[0]) === -1) {
+          continue;
+        }
+        this.settings[config[0]] = config[1];
       }
     }
-    chrome.storage.sync.set({settings: settings});
+  }
+};
+
+Settings.loadrc = function () {
+  Settings.rcEl.value = this.settings.mappings;
+  if (Settings.cssEl) {
+    Settings.cssEl.setValue(this.settings.commandBarCSS);
+  }
+  document.getElementById("blacklists").value = this.settings.blacklists;
+  this.settings = this.defaultSettings;
+  Settings.parserc(Settings.getrc());
+};
+
+Settings.resetRelease = function() {
+  if (this.resetClicked) {
+    chrome.runtime.sendMessage({setDefault: true});
+    this.getSettings();
+  }
+};
+
+Settings.saveRelease = function() {
+  this.getSettings();
+  this.getDefaultSettings();
+  if (this.saveClicked) {
+    Settings.parserc(Settings.getrc());
+    this.settings.commandBarCSS = this.cssEl.getValue();
+    this.settings.blacklists = document.getElementById("blacklists").value;
+    this.settings.mappings = Settings.rcEl.value;
+    chrome.storage[storageMethod].set({settings: this.settings});
     chrome.runtime.sendMessage({reloadSettings: true});
-    save.innerText = "Saved";
+    this.saveButton.innerText = "Saved";
     setTimeout(function () {
-      save.innerText = "Save";
-    }, 3000);
+      this.saveButton.innerText = "Save";
+    }.bind(this), 3000);
   }
+  window.setTimeout(function() { // No clue why I have to do this twice...
+    this.getSettings();
+    this.getDefaultSettings();
+    Settings.parserc(Settings.getrc());
+    this.settings.commandBarCSS = this.cssEl.getValue();
+    this.settings.blacklists = document.getElementById("blacklists").value;
+    this.settings.mappings = Settings.rcEl.value;
+    chrome.storage[storageMethod].set({settings: this.settings});
+    chrome.runtime.sendMessage({reloadSettings: true});
+  }.bind(this), 100);
 };
 
-fadeTransitionEnd = function(e) {
-  if (e.target.id === "mappingContainer" && e.propertyName === "opacity" && mappingContainerFadeOut) {
-    mappingContainerFadeOut = false;
-    mappingContainer.style.display = "none";
+Settings.onMouseDown = function(ev) {
+  this.saveClicked = false;
+  this.resetClicked = false;
+  switch (ev.target.id) {
+    case "save_button":
+      this.saveClicked = true;
+      break;
+    case "reset_button":
+      this.resetClicked = true;
+      break;
+    case "clearHistory":
+      localStorage.search = "";
+      localStorage.url    = "";
+      localStorage.action = "";
+      break;
   }
+  this.saveButton.innerText = "Save";
 };
 
-mouseDown = function (e) {
-  saveClicked = false;
-  resetClicked = false;
-  if (e.target.id === "save_button") {
-    saveClicked = true;
-  } else if (e.target.id === "reset_button") {
-    resetClicked = true;
-  } else if (e.target.id === "clearHistory") {
-    localStorage.search = "";
-    localStorage.url    = "";
-    localStorage.action = "";
-  } else if (e.target.id === "close") {
-    mappingContainer.style.opacity = "0";
-    mappingContainerFadeOut = true;
-  }
-  save.innerText = "Save";
-};
-
-fetchSettings = function () {
+Settings.getSettings = function() {
   chrome.runtime.sendMessage({getSettings: true});
 };
 
-editMode = function (e) {
-  if (editor) {
+Settings.getDefaultSettings = function() {
+  chrome.runtime.sendMessage({getDefaults: true});
+};
+
+Settings.editMode = function (e) {
+  if (this.cssEl) {
     if (e.target.value === "Vim") {
-      editor.setOption("keyMap", "vim");
+      this.cssEl.setOption("keyMap", "vim");
     } else {
-      editor.setOption("keyMap", "default");
+      this.cssEl.setOption("keyMap", "default");
     }
   }
 };
 
-onFocus = function(e) {
-  if (e.target.id === "mappings" && usedPlaceholder) {
-    document.getElementById("mappings").value = "";
-    usedPlaceholder = true;
-  } else if (e.target.id !== "mappings" && document.getElementById("mappings").value.trim() === "") {
-    usedPlaceholder = true;
-    document.getElementById("mappings").value = placeholder;
-  }
-};
+Settings.init = function() {
 
-onBlur = function() {
-  if (document.getElementById("mappings").value.trim() === "") {
-    usedPlaceholder = true;
-    document.getElementById("mappings").value = placeholder;
-  } else {
-    usedPlaceholder = false;
-  }
-};
-
-document.addEventListener("DOMContentLoaded", function () {
-  firstLoad = true;
   document.body.spellcheck = false;
-  save = document.getElementById("save_button");
-  reset = document.getElementById("reset_button");
-  smoothScroll = document.getElementById("smoothScroll");
-  mappingContainer = document.getElementById("mappingContainer");
-  linkHintCharacters = document.getElementById("linkHintCharacters");
-  commandBarOnBottom = document.getElementById("commandBarOnBottom");
-  commandBarCSS = document.getElementById("commandBarCSS");
-  dropDown = document.getElementById("edit_mode");
-  fetchSettings(function () {
-    editor = CodeMirror.fromTextArea(document.getElementById("commandBarCSS"), {lineNumbers: true});
-  });
-  document.addEventListener("mousedown", mouseDown, false);
-  document.addEventListener("transitionend", fadeTransitionEnd, false);
-  dropDown.addEventListener("change", editMode, false);
-  save.addEventListener("mouseup", saveRelease, false);
-  reset.addEventListener("mouseup", resetRelease, false);
-});
+  this.initialLoad = true;
+
+  this.saveButton = document.getElementById("save_button");
+  this.resetButton = document.getElementById("reset_button");
+  this.rcEl = document.getElementById("mappings");
+  this.editModeEl = document.getElementById("edit_mode");
+
+  this.getSettings();
+  this.getDefaultSettings();
+
+  document.addEventListener("mousedown", this.onMouseDown.bind(this), false);
+  this.editModeEl.addEventListener("change", this.editMode.bind(this), false);
+  this.saveButton.addEventListener("mouseup", this.saveRelease.bind(this), false);
+  this.resetButton.addEventListener("mouseup", this.resetRelease.bind(this), false);
+
+};
+
+document.addEventListener("DOMContentLoaded", Settings.init.bind(Settings));
 
 chrome.extension.onMessage.addListener(function(request) {
   if (request.action === "sendSettings") {
-    settings = request.settings;
-    if (firstLoad) {
-      editor = CodeMirror.fromTextArea(document.getElementById("commandBarCSS"), {lineNumbers: true});
-      firstLoad = false;
+    Settings.settings = request.settings;
+    if (Settings.initialLoad) {
+      Settings.cssEl = CodeMirror.fromTextArea(document.getElementById("commandBarCSS"), {lineNumbers: true});
+      Settings.initialLoad = false;
     }
-    loadSettings();
+    Settings.loadrc();
+  } else if (request.action === "sendDefaultSettings") {
+    Settings.defaultSettings = request.settings;
   }
 });

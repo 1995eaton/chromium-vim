@@ -3,13 +3,11 @@ var Hints = {};
 
 var linkHoverEnabled = false;
 
-Hints.hintCharacters = "asdfgzxcvbqwert";
-
 Hints.hideHints = function(reset) {
   if (document.getElementById("cVim-link-container") !== null) {
     HUD.hide();
     main = document.getElementById("cVim-link-container");
-    if (!settings.disableLinkAnimation) {
+    if (settings.linkanimations) {
       main.addEventListener("transitionend", function() {
         var m = document.getElementById("cVim-link-container");
         if (m !== null) m.parentNode.removeChild(m);
@@ -164,7 +162,7 @@ Hints.handleHintFeedback = function() {
 
 
 Hints.handleHint = function(key) {
-  if (this.hintCharacters.split("").indexOf(key.toLowerCase()) > -1) {
+  if (settings.hintcharacters.split("").indexOf(key.toLowerCase()) > -1) {
     this.currentString += key.toLowerCase();
     this.handleHintFeedback(this.currentString);
   } else {
@@ -215,22 +213,6 @@ Hints.create = function(type) {
     right: document.body.scrollLeft + window.innerWidth
   };
   linkNumber = 0;
-  main = document.createElement("div");
-  if (!settings.disableLinkAnimation) {
-    main.style.opacity = "0";
-  }
-  main.cVim = true;
-  frag = document.createDocumentFragment();
-
-  main.id = "cVim-link-container";
-  main.top = document.body.scrollTop + "px";
-  main.left = document.body.scrollLeft + "px";
-
-  try {
-    document.lastChild.appendChild(main);
-  } catch(e) {
-    document.body.appendChild(main);
-  }
 
   c = 0;
   links.forEach(function(l) {
@@ -283,7 +265,27 @@ Hints.create = function(type) {
     c += 1;
   }.bind(this));
 
-  if (this.linkArr.length === 0) return this.hideHints(false);
+  if (this.linkArr.length === 0) {
+    return this.hideHints();
+  }
+
+  main = document.createElement("div");
+  if (settings.linkanimations) {
+    main.style.opacity = "0";
+  }
+  main.cVim = true;
+  frag = document.createDocumentFragment();
+
+  main.id = "cVim-link-container";
+  main.top = document.body.scrollTop + "px";
+  main.left = document.body.scrollLeft + "px";
+
+  try {
+    document.lastChild.appendChild(main);
+  } catch(e) {
+    document.body.appendChild(main);
+  }
+
   HUD.display("Follow link " + (function() {
     switch (type) {
       case "yank":
@@ -306,17 +308,17 @@ Hints.create = function(type) {
     }
   })());
 
-  var lim = Math.ceil(Math.log(this.linkArr.length) / Math.log(this.hintCharacters.length));
-  var rlim = Math.floor((Math.pow(this.hintCharacters.length, lim) - this.linkArr.length) / this.hintCharacters.length);
+  var lim = Math.ceil(Math.log(this.linkArr.length) / Math.log(settings.hintcharacters.length));
+  var rlim = Math.floor((Math.pow(settings.hintcharacters.length, lim) - this.linkArr.length) / settings.hintcharacters.length);
   if (lim === 0) lim = 1;
 
   function genHint(n, x) { // All credit goes to Vimium for this great way of generating link hints
     var l, len, r;
     l = [];
-    len = Hints.hintCharacters.length;
+    len = settings.hintcharacters.length;
     for (var i = 0; i < x; i++) {
       r = n % len;
-      l.unshift(Hints.hintCharacters[r]);
+      l.unshift(settings.hintcharacters[r]);
       n -= r;
       n /= Math.floor(len);
       if (n < 0) break;
@@ -327,7 +329,7 @@ Hints.create = function(type) {
     this.linkArr[i].innerText = genHint(i, lim - 1);
     this.permutations.push(genHint(i, lim - 1));
   }
-  for (i = rlim * this.hintCharacters.length, e = i + this.linkArr.length - rlim; i < e; ++i) {
+  for (i = rlim * settings.hintcharacters.length, e = i + this.linkArr.length - rlim; i < e; ++i) {
     this.permutations.push(genHint(i, lim));
   }
   for (i = this.linkArr.length - 1; i >= 0; --i) {

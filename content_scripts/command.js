@@ -158,7 +158,7 @@ Command.complete = function(value) {
   if (/^(tabopen|to|open|o|wo|winopen)(\s+)/.test(value)) {
     if (search.trim().length < 2) return this.hideData();
     if (search[0] === "/" || /:\/\//.test(search)) {
-      port.postMessage({action: "searchHistory", search: search, limit: settings.searchLimit});
+      port.postMessage({action: "searchHistory", search: search, limit: settings.searchlimit});
       if (Marks.history) this.appendResults(Marks.history, false, "History", "#0080d6");
       Marks.history = [];
       return;
@@ -223,7 +223,7 @@ Command.complete = function(value) {
   if (/^hist(ory)?(\s+)/.test(value)) {
     if (search.trim() === "") return this.hideData();
     this.historyMode = true;
-    port.postMessage({action: "searchHistory", search: search, limit: settings.searchLimit});
+    port.postMessage({action: "searchHistory", search: search, limit: settings.searchlimit});
     return;
   }
 
@@ -242,7 +242,7 @@ Command.complete = function(value) {
   }
 
   if (value === "") {
-    return Command.appendResults(this.descriptions.slice(0, settings.searchLimit).map(function(e){return["complete"].concat(e);}));
+    return Command.appendResults(this.descriptions.slice(0, settings.searchlimit).map(function(e){return["complete"].concat(e);}));
   }
 
   var data = this.descriptions.filter(function(element) {
@@ -334,57 +334,41 @@ Command.execute = function(value, repeats) {
           Status.setMessage("Error: session does not exist", 1);
         });
       } else if (/^set +/.test(value) && value !== "set") {
-        var matchFound = false;
-        value = value.replace(/^set +/, "").split(" ");
-        if (value.length !== 2) Status.setMessage("Two arguments required", 1);
-        for (var i = 0, l = Search.settings.length; i < l; ++i) {
-          if (Search.settings[i] === value[0].trim()) {
-            matchFound = true;
-            break;
+        value = value.replace(/^set +/, "").split(/[ =]+/);
+        var isSet;
+        var isQuery = /\?$/.test(value[0]);
+        value[0] = value[0].replace(/\?$/, "");
+        if (!settings.hasOwnProperty(value[0].replace(/^no/, ""))) {
+          Status.setMessage("Unknown option: " + value[0], 1);
+        } else if (isQuery) {
+          Status.setMessage(value + ": " + settings[value[0]], 1);
+        } else {
+          isSet = !/^no/.test(value[0]);
+          value[0] = value[0].replace(/^no|\?$/g, "");
+          if (value.length === 1 && (settings[value] === true || settings[value] === false)) {
+            if (value[0] === "hud" && !isSet) {
+              HUD.hide(true);
+            }
+            settings[value[0]] = isSet;
+          } else if (value.length === 2) {
+            switch (value[0]) {
+              case "scrollstep":
+                if (!/^[0-9]+$/.test(value[1])) Status.setMessage("Invalid integer: '" + (value[1] || "") + "'", 1);
+                else settings.scrollstep = parseInt(value[1]);
+                break;
+              case "searchlimit":
+                if (!/^[0-9]+$/.test(value[1])) Status.setMessage("Invalid integer: " + value, 1);
+                else settings.searchlimit = parseInt(value[1]);
+                break;
+              case "hintcharacters":
+                value = value[1].split("").unique().join("");
+                if (value.length <= 1) Status.setMessage("Two unique hint characters are required", 1);
+                else settings.hintcharacters = value;
+                break;
+            }
           }
         }
-        if (!matchFound) { Status.setMessage("Invalid option: " + value[0], 1); break; }
-        var isSet = /[Tt]rue|1/.test(value[1]);
-        switch (value[0]) {
-          case "regexsearch":
-            if (value[1] === undefined) { Status.setMessage("regexsearch: " + settings.useRegex, 1); break; }
-            if (value[1].isBoolean()) Status.setMessage("Invalid value: " + value[1], 1);
-            else settings.useRegex = isSet;
-            break;
-          case "ignorecase":
-            if (value[1] === undefined) { Status.setMessage("ignorecase: " + settings.ignoreSearchCase, 1); break; }
-            if (value[1].isBoolean()) Status.setMessage("Invalid value: " + value[1], 1);
-            else settings.ignoreSearchCase = isSet;
-            break;
-          case "smoothscroll":
-            if (value[1] === undefined) { Status.setMessage("smoothscroll: " + Scroll.smoothScroll, 1); break; }
-            if (value[1].isBoolean()) Status.setMessage("Invalid value: " + value[1], 1);
-            else Scroll.smoothScroll = isSet;
-            break;
-          case "scrollstep":
-            if (value[1] === undefined) { Status.setMessage("scrollstep: " + Scroll.stepSize, 1); break; }
-            if (!/^[0-9]+$/.test(value[1])) Status.setMessage("Invalid integer: " + value[1], 1);
-            else Scroll.stepSize = parseInt(value[1]);
-            break;
-          case "searchlimit":
-            if (value[1] === undefined) { Status.setMessage("searchlimit: " + settings.searchLimit, 1); break; }
-            if (!/^[0-9]+$/.test(value[1])) Status.setMessage("Invalid integer: " + value[1], 1);
-            else settings.searchLimit = parseInt(value[1]);
-            break;
-          case "showhud":
-            if (value[1] === undefined) { Status.setMessage("showhud: " + !settings.disableHUD, 1); break; }
-            if (value[1].isBoolean()) Status.setMessage("Invalid value: " + value[1], 1);
-            else settings.disableHUD = !isSet;
-            break;
-          case "hintcharacters":
-            if (value[1] === undefined) { Status.setMessage("hintcharacters: " + Hints.hintCharacters, 1); break; }
-            value = value[1].split("").unique().join("");
-            if (value.length <= 1) Status.setMessage("Two unique hint characters are required", 1);
-            else Hints.hintCharacters = value;
-            break;
-        }
       }
-      break;
   }
   this.hideData();
   this.hide();
@@ -432,12 +416,12 @@ Command.init = function(enabled) {
     this.css = document.createElement("style");
     this.css.innerText = settings.commandBarCSS;
     document.getElementsByTagName("head")[0].appendChild(this.css);
-    this.onBottom = settings.commandBarOnBottom;
+    this.onBottom = settings.barposition === "bottom";
     if (this.data !== undefined) {
       this.data.style[(!this.onBottom) ? "bottom" : "top"] = "";
       this.data.style[(this.onBottom) ? "bottom" : "top"] = "20px";
     }
-    if (settings.disableAutofocus) {
+    if (!settings.autofocus) {
       if (!commandMode) document.activeElement.blur();
       var wait = window.setInterval(function() {
         if (!commandMode) document.activeElement.blur();
@@ -449,10 +433,10 @@ Command.init = function(enabled) {
         }
       }, 5);
     }
-    Scroll.smoothScroll = settings.smoothScroll;
-    Scroll.stepSize = parseInt(settings.scrollStepSize);
-    if (settings.linkHintCharacters.split("").unique().length > 1) {
-      Hints.hintCharacters = settings.linkHintCharacters.split("").unique().join("");
+    Scroll.smoothScroll = settings.smoothscroll;
+    Scroll.stepSize = parseInt(settings.scrollstep);
+    if (settings.hintcharacters.split("").unique().length > 1) {
+      settings.hintcharacters = settings.hintcharacters.split("").unique().join("");
     }
     this.setup();
     addListeners();
@@ -497,7 +481,7 @@ Command.configureSettings = function(fetchOnly, s) {
     chrome.runtime.sendMessage({getSettings: true});
   } else {
     settings = s;
-    settings.searchLimit = parseInt(settings.searchLimit);
+    settings.searchlimit = parseInt(settings.searchlimit);
     checkBlacklist(function(isBlacklisted) {
       if (isBlacklisted) return false;
       chrome.runtime.sendMessage({action: "getActiveState"}, function(response) {

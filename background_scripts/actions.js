@@ -16,6 +16,8 @@ function callAction(action, config) {
     url = request.url.convertLink();
   } else if (request.url) {
     url = request.url;
+  } else {
+    url = "chrome://newtab";
   }
   for (var i = 0; i < request.repeats; i++) {
     actions[action]();

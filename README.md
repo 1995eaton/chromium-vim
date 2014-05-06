@@ -1,3 +1,56 @@
+#cVimrc
+
+###Mappings
+ * Mappings are defined with the following structure: ```map <KEY> <MAPPING_NAME>```
+ * Control, meta, and alt can be used also:
+```viml
+<C-u> "Ctrl + u
+<M-u> "Meta + u
+<A-u> "Alt  + u
+```
+ * It is also possible to unmap default bindings with ```unmap <KEY>```
+ * To unmap all default keybindings, use ```unmapAll```
+
+###Settings
+
+ * Boolean cVimrc settings are enabled with the command ```'set' + <SETTING_NAME>``` and disabled with<br>
+   the command ```'set' + no<SETTING_NAME>``` (for example, ```set regexp``` and ```set noregexp```)
+ * Other settings are defined with ```=``` used as a separator (for example, ```set hintcharacters=abc```)
+
+|setting|type|description|default|
+|-------|----|------------|----------:|
+|searchlimit|integer|set the amount of results displayed in the command bar|20|
+|scrollstep|integer|set the amount of pixels scrolled when using the scrollUp and scrollDown commands|75|
+|hud|boolean|show the heads-up-display|true|
+|regexp|boolean|use regexp in find mode|true|
+|ignorecase|boolean|ignore search case in find mode|true|
+|ignorediacritics|boolean|convert diacritical characters to their English equivalents|true|
+|autofocus|boolean|allows websites to automatically focus an input box when they are first loaded|true|
+|insertmappings|boolean|use insert mappings to navigate the cursor in text boxes (see bindings below)|true|
+|smoothscroll|boolean|use smooth scrolling|true|
+|hintcharacters|string (alphanumeric)|set the default characters to be used in link hint mode|"asdfgqwertzxcvb"|
+|barposition|string <br>["top", "bottom"]|set the default position of the command bar|"top"|
+
+###Example configuration
+```viml
+" Settings
+set searchlimit=30
+set scrollstep=70
+set nosmoothscroll
+set nohud
+set noautofocus
+set barposition=bottom
+
+" Mappings
+unmap j
+map j scrollUp
+
+map <C-u> rootFrame
+map <M-h> previousTab
+map <C-d> scrollPageDown
+map <C-e> scrollPageUp
+```
+
 #Keybindings
 
 | Movement                |                                                                 | Mapping name           |

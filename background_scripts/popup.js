@@ -1,18 +1,19 @@
 var Settings;
+var storageMethod = "local";
 var Popup = {};
 var blacklists = "";
 Popup.active = true;
 
 (function() {
-  chrome.storage.sync.get("settings", function(s) {
+  chrome.storage[storageMethod].get("settings", function(s) {
     Settings = s.settings;
-    if (Settings === undefined) return chrome.storage.sync.set({settings: settingsDefault});
+    if (Settings === undefined) return chrome.storage[storageMethod].set({settings: settingsDefault});
     for (var key in settingsDefault) {
       if (Settings[key] === undefined) {
         Settings[key] = settingsDefault[key];
       }
     }
-    chrome.storage.sync.set({settings: Settings});
+    chrome.storage[storageMethod].set({settings: Settings});
     blacklists = Settings.blacklists.split("\n");
     if (!Settings || !Settings.blacklists) {
       Popup.isBlacklisted = false;
@@ -114,7 +115,7 @@ Popup.toggleBlacklisted = function() {
       blacklists.push(url);
     }
     Settings.blacklists = blacklists.join("\n");
-    chrome.storage.sync.set({settings: Settings});
+    chrome.storage[storageMethod].set({settings: Settings});
     this.isBlacklisted = !this.isBlacklisted;
   }.bind(this));
 };

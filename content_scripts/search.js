@@ -5,19 +5,23 @@ Search.index = null;
 Search.chromeUrls = ["accessibility", "appcache-internals", "apps", "blob-internals", "bookmarks", "cache", "chrome", "chrome-urls", "components", "crashes", "credits", "devices", "dns", "downloads", "extensions", "flags", "flash", "gcm-internals", "gpu", "help", "histograms", "history", "indexeddb-internals", "inspect", "invalidations", "ipc", "linux-proxy-config", "media-internals", "memory", "memory-internals", "nacl", "net-internals", "newtab", "omnibox", "plugins", "policy", "predictors", "print", "profiler", "quota-internals", "sandbox", "serviceworker-internals", "settings", "signin-internals", "stats", "sync-internals", "system", "terms", "tracing", "translate-internals", "user-actions", "version", "view-http-cache", "webrtc-internals", "webrtc-logs", "crash", "kill", "hang", "shorthang", "gpuclean", "gpucrash", "gpuhang", "ppapiflashcrash", "ppapiflashhang", "quit", "restart"];
 
 Search.chromeMatch = function(string, callback) {
-  if (string.trim() === "") return callback(Search.chromeUrls.slice(0, settings.searchLimit).map(function(e){return["chrome",e];}));
+  if (string.trim() === "") return callback(Search.chromeUrls.slice(0, settings.searchlimit).map(function(e){return["chrome",e];}));
   callback(this.chromeUrls.filter(function(element) {
     return (string === element.substring(0, string.length));
   }).map(function(e){return["chrome",e];}));
 };
 
-Search.settings = ["smoothscroll", "scrollstep", "searchlimit", "regexsearch", "ignorecase", "hintcharacters", "showhud"];
+Search.settings = ["|smoothscroll", "scrollstep", "searchlimit", "|regexp", "|ignorecase", "hintcharacters", "|hud"];
 
 Search.settingsMatch = function(string, callback) {
-  if (string.trim() === "") return callback(Search.settings.slice(0, settings.searchLimit).map(function(e){return["settings",e];}));
+  if (string.trim() === "") return callback(Search.settings.slice(0, settings.searchlimit).map(function(e){return["settings",e.replace(/^\|/, "")];}));
   callback(this.settings.filter(function(element) {
-    return (string === element.substring(0, string.length));
-  }).map(function(e){return["settings",e];}));
+    var isBoolean;
+    if (/^\|/.test(element)) {
+      isBoolean = true;
+    }
+    return (string.replace(/^\S+\s+/, "") === element.replace(/^\|/, "").substring(0, string.length) || (isBoolean && string === "no" + element.substring(1, string.length - 1)));
+  }).map(function(e){return["settings",e.replace(/^\|/, "")];}));
 };
 
 Search.fetchQuery = function(query, callback) {
@@ -102,9 +106,12 @@ Search.nextResult = function(reverse) {
       Command.input.value = Command.input.value.match(/^\S+ /)[0] + Command.completionResults[this.index][2];
       break;
     case "search":
-    case "settings":
     case "session":
       Command.input.value = Command.input.value.match(/^\S+/)[0] + " " + Command.completionResults[this.index][1];
+      break;
+    case "settings":
+      var command = Command.input.value.split(/\s+/);
+      Command.input.value = command[0] + " " + (/^no/.test(command[1]) ? "no" : "") + Command.completionResults[this.index][1];
       break;
     case "path":
       if (Command.completionResults[this.index][2] !== "folder") {
