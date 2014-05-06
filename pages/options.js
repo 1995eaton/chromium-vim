@@ -1,4 +1,4 @@
-var storageMethod = "local";
+var storageMethod = "sync";
 var log;
 var Settings = {};
 log = console.log.bind(console);
@@ -63,16 +63,16 @@ Settings.resetRelease = function() {
 };
 
 Settings.saveRelease = function() {
-  this.getSettings();
-  this.getDefaultSettings();
   if (this.saveClicked) {
+    this.getSettings();
+    this.getDefaultSettings();
     Settings.parserc(Settings.getrc());
     this.settings.commandBarCSS = this.cssEl.getValue();
     this.settings.blacklists = document.getElementById("blacklists").value;
     this.settings.mappings = Settings.rcEl.value;
+    this.saveButton.innerText = "Saved";
     chrome.storage[storageMethod].set({settings: this.settings});
     chrome.runtime.sendMessage({reloadSettings: true});
-    this.saveButton.innerText = "Saved";
     setTimeout(function () {
       this.saveButton.innerText = "Save";
     }.bind(this), 3000);

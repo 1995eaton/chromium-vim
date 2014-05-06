@@ -1,5 +1,5 @@
 var Settings;
-var storageMethod = "local";
+var storageMethod = "sync";
 var Popup = {};
 var blacklists = "";
 Popup.active = true;
@@ -13,8 +13,6 @@ Popup.active = true;
         Settings[key] = settingsDefault[key];
       }
     }
-    chrome.storage[storageMethod].set({settings: Settings});
-    blacklists = Settings.blacklists.split("\n");
     if (!Settings || !Settings.blacklists) {
       Popup.isBlacklisted = false;
     } else {

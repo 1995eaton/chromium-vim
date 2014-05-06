@@ -1,5 +1,4 @@
-chrome.storage.sync.QUOTA_BYTES_PER_ITEM = 32768;
-var storageMethod = "local";
+var storageMethod = "sync";
 Object.prototype.flatten = function() {
 	var _ret = {};
 	for (var key in this) {
@@ -56,7 +55,6 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
             settings[key] = compressed[key];
           }
         }
-        chrome.storage[storageMethod].set({settings: settings});
       }
       chrome.tabs.sendMessage(sender.tab.id, {action: "sendSettings", settings: settings});
     });
