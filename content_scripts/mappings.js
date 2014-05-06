@@ -212,7 +212,9 @@ Mappings.actions   = {
     this.inputFocused = true;
     this.inputElements[this.inputElementsIndex].focus();
     document.activeElement.select();
-    document.getSelection().collapseToEnd();
+    if (!document.activeElement.getAttribute("readonly")) {
+      document.getSelection().collapseToEnd();
+    }
   },
   shortCuts: function(s, repeats) {
     for (var i = 0, l = Mappings.shortCuts.length; i < l; i++) {

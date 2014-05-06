@@ -91,6 +91,9 @@ keyDown = function(e) {
     e.stopPropagation();
     Mappings.actions.inputElementsIndex = ((e.shiftKey ? -1 : 1) + Mappings.actions.inputElementsIndex).mod(Mappings.actions.inputElements.length);
     Mappings.actions.inputElements[Mappings.actions.inputElementsIndex].focus();
+    if (Mappings.actions.inputElements[Mappings.actions.inputElementsIndex].getAttribute("readonly")) {
+      Mappings.actions.inputElements[Mappings.actions.inputElementsIndex].select();
+    }
     return;
   }
 

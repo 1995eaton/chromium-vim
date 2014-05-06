@@ -106,20 +106,15 @@ Hints.handleHintFeedback = function() {
       } else if (node === "SELECT") {
         ev = new MouseEvent("mousedown");
         link.dispatchEvent(ev);
-      } else if (node === "TEXTAREA") {
+      } else if (node === "TEXTAREA" || (node === "INPUT" && /^(text|password|email|search)$/i.test(link.type))) {
         setTimeout(function() {
           link.focus();
+          if (link.getAttribute("readonly")) {
+            link.select();
+          }
         }.bind(this), 0);
       } else if (node === "INPUT") {
         switch (link.type) {
-          case "text":
-          case "password":
-          case "email":
-          case "search":
-            setTimeout(function() {
-              link.focus();
-            }.bind(this), 0);
-            break;
           case "radio":
           case "submit":
             link.click();
