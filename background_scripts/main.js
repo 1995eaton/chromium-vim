@@ -170,7 +170,7 @@ chrome.extension.onConnect.addListener(function(port) {
         });
       });
     } else if (request.action === "getSessionNames") {
-      port.postMessage({sessions: Object.keys(sessions).map(function(e) { return [e, sessions[e].length.toString() + " tab" + (sessions[e].length === 1 ? "" : "s")]; } )});
+      port.postMessage({sessions: Object.keys(sessions).map(function(e) { return [e, Object.keys(sessions[e]).length.toString() + " tab" + (Object.keys(sessions[e]).length === 1 ? "" : "s")]; } )});
     } else if (request.action ===  "getBookmarkPath") {
       chrome.bookmarks.getTree(function(marks) {
         getPath(marks[0].children, request.path, function(e) {

@@ -330,7 +330,7 @@ Command.execute = function(value, repeats) {
           Status.setMessage("Error: session name required", 1);
           break;
         }
-        chrome.runtime.sendMessage({action: "openSession", name: value}, function() {
+        chrome.runtime.sendMessage({action: "openSession", name: value, sameWindow: !activeTab}, function() {
           Status.setMessage("Error: session does not exist", 1);
         });
       } else if (/^set +/.test(value) && value !== "set") {

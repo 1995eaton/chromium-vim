@@ -16,6 +16,7 @@ HUD.hide = function(ignoreSetting) {
     if (!settings.hud || this.element === undefined) return false;
     if (Find.matches.length) return HUD.display(Find.index + 1 + " / " + Find.matches.length);
   }
+  if (!this.element) return false;
   this.element.addEventListener("transitionend", this.transitionEvent, true);
   var width = this.element.offsetWidth;
   this.element.style.right = -width + "px";
