@@ -1,4 +1,3 @@
-var storageMethod = "sync";
 var log;
 var Settings = {};
 log = console.log.bind(console);
@@ -51,42 +50,27 @@ Settings.loadrc = function () {
     Settings.cssEl.setValue(this.settings.commandBarCSS);
   }
   document.getElementById("blacklists").value = this.settings.blacklists;
-  this.settings = this.defaultSettings;
   Settings.parserc(Settings.getrc());
 };
 
 Settings.resetRelease = function() {
   if (this.resetClicked) {
-    chrome.runtime.sendMessage({setDefault: true});
-    this.getSettings();
+    chrome.runtime.sendMessage({getDefaults: true});
   }
 };
 
 Settings.saveRelease = function() {
   if (this.saveClicked) {
-    this.getSettings();
-    this.getDefaultSettings();
-    Settings.parserc(Settings.getrc());
     this.settings.commandBarCSS = this.cssEl.getValue();
     this.settings.blacklists = document.getElementById("blacklists").value;
     this.settings.mappings = Settings.rcEl.value;
     this.saveButton.value = "Saved";
-    chrome.storage[storageMethod].set({settings: this.settings});
-    chrome.runtime.sendMessage({reloadSettings: true});
+    Settings.parserc(Settings.getrc());
+    chrome.runtime.sendMessage({saveSettings: true, settings: Settings.settings, sendSettings: true});
     setTimeout(function () {
       this.saveButton.value = "Save";
     }.bind(this), 3000);
   }
-  window.setTimeout(function() { // No clue why I have to do this twice...
-    this.getSettings();
-    this.getDefaultSettings();
-    Settings.parserc(Settings.getrc());
-    this.settings.commandBarCSS = this.cssEl.getValue();
-    this.settings.blacklists = document.getElementById("blacklists").value;
-    this.settings.mappings = Settings.rcEl.value;
-    chrome.storage[storageMethod].set({settings: this.settings});
-    chrome.runtime.sendMessage({reloadSettings: true});
-  }.bind(this), 100);
 };
 
 Settings.onMouseDown = function(ev) {
@@ -106,14 +90,6 @@ Settings.onMouseDown = function(ev) {
       break;
   }
   this.saveButton.value = "Save";
-};
-
-Settings.getSettings = function() {
-  chrome.runtime.sendMessage({getSettings: true});
-};
-
-Settings.getDefaultSettings = function() {
-  chrome.runtime.sendMessage({getDefaults: true});
 };
 
 Settings.editMode = function (e) {
@@ -136,8 +112,7 @@ Settings.init = function() {
   this.rcEl = document.getElementById("mappings");
   this.editModeEl = document.getElementById("edit_mode");
 
-  this.getSettings();
-  this.getDefaultSettings();
+  chrome.runtime.sendMessage({getSettings: true});
 
   document.addEventListener("mousedown", this.onMouseDown.bind(this), false);
   this.editModeEl.addEventListener("change", this.editMode.bind(this), false);
@@ -156,7 +131,5 @@ chrome.extension.onMessage.addListener(function(request) {
       Settings.initialLoad = false;
     }
     Settings.loadrc();
-  } else if (request.action === "sendDefaultSettings") {
-    Settings.defaultSettings = request.settings;
   }
 });

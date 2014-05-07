@@ -452,7 +452,7 @@ Command.init = function(enabled) {
   }
 };
 
-Command.configureSettings = function(fetchOnly, s) {
+Command.configureSettings = function(s) {
   function checkBlacklist(callback) {
     var blacklists = settings.blacklists.split("\n");
     Command.blacklisted = false;
@@ -477,19 +477,15 @@ Command.configureSettings = function(fetchOnly, s) {
     Command.init(true);
   }
   if (this.loaded) this.init(false);
-  if (fetchOnly) {
-    chrome.runtime.sendMessage({getSettings: true});
-  } else {
-    settings = s;
-    settings.searchlimit = parseInt(settings.searchlimit);
-    checkBlacklist(function(isBlacklisted) {
-      if (isBlacklisted) return false;
-      chrome.runtime.sendMessage({action: "getActiveState"}, function(response) {
-        if (!response) return false;
-        return loadMain();
-      });
+  settings = s;
+  settings.searchlimit = parseInt(settings.searchlimit);
+  checkBlacklist(function(isBlacklisted) {
+    if (isBlacklisted) return false;
+    chrome.runtime.sendMessage({action: "getActiveState"}, function(response) {
+      if (!response) return false;
+      return loadMain();
     });
-  }
+  });
 };
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -499,7 +495,7 @@ document.addEventListener("DOMContentLoaded", function() {
     if (request.action === "refreshSettings") {
       Command.configureSettings(true);
     } else if (request.action === "sendSettings") {
-      Command.configureSettings(false, request.settings);
+      Command.configureSettings(request.settings);
     } else if (request.action === "confirm") {
       var c = confirm(request.message);
       callback(c);
@@ -507,5 +503,5 @@ document.addEventListener("DOMContentLoaded", function() {
       window.stop();
     }
   });
-  return Command.configureSettings(true);
+  chrome.runtime.sendMessage({getSettings: true});
 }, false);

@@ -1,25 +1,5 @@
-var Settings;
-var storageMethod = "sync";
 var Popup = {};
-var blacklists = "";
 Popup.active = true;
-
-(function() {
-  chrome.storage[storageMethod].get("settings", function(s) {
-    Settings = s.settings;
-    if (Settings === undefined) return chrome.storage[storageMethod].set({settings: settingsDefault});
-    for (var key in settingsDefault) {
-      if (Settings[key] === undefined) {
-        Settings[key] = settingsDefault[key];
-      }
-    }
-    if (!Settings || !Settings.blacklists) {
-      Popup.isBlacklisted = false;
-    } else {
-      blacklists = Settings.blacklists.split("\n");
-    }
-  });
-})();
 
 function parseDomain(url) {
   return url.replace(/(\.([^\.]+))\/.*$/, "$1");
@@ -31,17 +11,18 @@ Popup.getAllTabs = function(callback) {
   });
 };
 
-Popup.getBlacklisted = function() {
-  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    if (!tabs || !tabs.length) return false;
-    var url = parseDomain(tabs[0].url);
-    for (var i = 0; i < blacklists.length; i++) {
-      if (blacklists[i] === url) {
-        return this.isBlacklisted = true;
+Popup.getBlacklisted = function(callback) {
+  var blacklists = Settings.blacklists.split("\n").filter(function(e) {
+    return e;
+  });
+  this.getActiveTab(function(tab) {
+    var url = parseDomain(tab.url);
+    for (var i = 0, l = blacklists.length; i < l; ++i) {
+      if (blacklists[i].substring(0, url.length) === url) {
+        callback(true);
       }
     }
-    this.isBlacklisted = false;
-  }.bind(this));
+  });
 };
 
 Popup.getBlacklistedResponse = function(callback) {
@@ -60,25 +41,29 @@ Popup.setIconDisabled = function() {
   });
 };
 
-Popup.setIconEnabled = function() {
+Popup.setIconEnabled = function(obj) {
+  if (obj.sender) {
+    return chrome.browserAction.setIcon({path: "icons/38.png", tabId: obj.sender.tab.id});
+  }
   this.getActiveTab(function(tab) {
     chrome.browserAction.setIcon({path: "icons/38.png", tabId: tab.id});
   });
 };
 
-Popup.getActiveState = function(callback) {
-  callback(this.active);
+Popup.getActiveState = function(obj) {
+  obj.callback(this.active);
 };
 
-Popup.toggleEnabled = function(callback, request) {
+Popup.toggleEnabled = function(obj) {
+  var request = obj.request;
   if (request.singleTab) {
     this.getActiveTab(function(tab) {
       chrome.tabs.sendMessage(tab.id, {action: "toggleEnabled", state: !request.blacklisted});
     });
     if (request.blacklisted) {
-      return this.setIconDisabled();
+      return this.setIconDisabled({});
     }
-    return this.setIconEnabled();
+    return this.setIconEnabled({});
   }
   this.getAllTabs(function(tabs) {
     this.active = !this.active;
@@ -96,15 +81,14 @@ Popup.toggleEnabled = function(callback, request) {
 };
 
 Popup.toggleBlacklisted = function() {
+  var blacklists = Settings.blacklists.split("\n").filter(function(e) {
+    return e;
+  });
   this.getActiveTab(function(tab) {
     var url = parseDomain(tab.url);
-    var foundMatch;
-    for (var i = 0; i < blacklists.length; ++i) {
-      if (blacklists[i].trim() === "") {
-        blacklists.splice(i, 1);
-        continue;
-      }
-      if (blacklists[i] === url) {
+    var foundMatch = false;
+    for (var i = 0, l = blacklists.length; i < l; ++i) {
+      if (blacklists[i].substring(0, url.length) === url) {
         blacklists.splice(i, 1);
         foundMatch = true;
       }
@@ -113,15 +97,18 @@ Popup.toggleBlacklisted = function() {
       blacklists.push(url);
     }
     Settings.blacklists = blacklists.join("\n");
-    chrome.storage[storageMethod].set({settings: Settings});
-    this.isBlacklisted = !this.isBlacklisted;
-  }.bind(this));
+    Options.saveSettings(Settings);
+  });
 };
 
 chrome.runtime.onMessage.addListener(function(request, sender, callback) {
   if (Popup.hasOwnProperty(request.action)) {
-    Popup[request.action](function(response) {
-      callback(response);
-    }, request);
+    Popup[request.action]({
+      callback: function(response) {
+        callback(response);
+      },
+      request: request,
+      sender: sender
+    });
   }
 });

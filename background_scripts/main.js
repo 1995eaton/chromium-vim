@@ -1,5 +1,5 @@
 var sessions   = {};
-var Clipboard, History;
+var Clipboard, History, Settings;
 
 chrome.storage.sync.get("sessions", function(s) {
   if (s.sessions === undefined) {
@@ -176,6 +176,10 @@ chrome.extension.onConnect.addListener(function(port) {
         getPath(marks[0].children, request.path, function(e) {
           port.postMessage({path: e});
         });
+      });
+    } else if (request.action === "getBlacklisted") {
+      Popup.getBlacklisted(function() {
+        port.postMessage({});
       });
     }
   });

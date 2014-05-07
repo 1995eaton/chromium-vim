@@ -115,6 +115,7 @@ keyDown = function(e) {
   } else {
 
     if (!insertMode && !document.activeElement.isInput()) {
+      if (Hints.active) e.stopPropagation();
       if (Mappings.convertToAction(asciiKey)) {
         e.preventDefault();
         e.stopPropagation();
@@ -138,8 +139,6 @@ keyDown = function(e) {
     if (!commandMode && asciiKey !== "" && validMapping) {
       e.preventDefault();
     }
-  } else if (!insertMode || Hints.active) {
-    e.stopPropagation();
   }
 
   if (settings.insertmappings && document.activeElement.isInput() && !insertMode && !keyType.escape && asciiKey !== "") {

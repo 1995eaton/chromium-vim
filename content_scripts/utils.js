@@ -8,11 +8,11 @@ Object.prototype.isInput = function() {
 
 Object.prototype.isVisible = function() {
   return (
-      (this.offsetParent &&
-      !this.disabled &&
-      this.getAttribute("type") !== "hidden" &&
-      getComputedStyle(this).visibility !== "hidden" &&
-      this.getAttribute("display") !== "none")
+       (this.offsetParent &&
+       !this.disabled &&
+       this.getAttribute("type") !== "hidden" &&
+       getComputedStyle(this).visibility !== "hidden" &&
+       this.getAttribute("display") !== "none")
   );
 };
 

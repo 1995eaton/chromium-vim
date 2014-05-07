@@ -35,11 +35,17 @@ actions.openLink = function() {
 };
 
 actions.openLinkTab = function() {
-  chrome.tabs.create({
-    url: url,
-    active: request.active,
-    index: sender.tab.index + 1
-  });
+  if (!sender.tab) {
+    chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
+      chrome.tabs.create({url: url, active: request.active, index: tab[0].index + 1});
+    });
+  } else {
+    chrome.tabs.create({
+      url: url,
+      active: request.active,
+      index: sender.tab.index + 1
+    });
+  }
 };
 
 actions.openLinkWindow = function() {

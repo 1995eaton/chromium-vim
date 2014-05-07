@@ -80,6 +80,7 @@ Hints.handleHintFeedback = function() {
       } else if (this.type === "image") {
         chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: "https://www.google.com/searchbyimage?image_url=" + link.src, noconvert: true});
       } else if (node === "BUTTON" || link.getAttribute("jsaction")) {
+        link.focus();
         link.click();
       } else if (/^(button|checkbox)$/.test(link.getAttribute("role"))) {
         link.focus();

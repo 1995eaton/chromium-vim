@@ -1,4 +1,7 @@
-var storageMethod = "sync";
+var storageMethod = "sync",
+    Settings = {},
+    Options = {};
+
 Object.prototype.flatten = function() {
 	var _ret = {};
 	for (var key in this) {
@@ -42,31 +45,62 @@ var settingsDefault = {
   },
 };
 
+Options.compressedDefaults = settingsDefault.flatten();
+
+chrome.storage.onChanged.addListener(function(changes) {
+  if (changes.settings) {
+    Settings = changes.settings.newValue;
+  } else {
+    Settings = Options.compressedDefaults;
+  }
+});
+
+Options.refreshSettings = function(callback) {
+  for (var key in this.compressedDefaults) {
+    if (Settings[key] === undefined) {
+      Settings[key] = this.compressedDefaults[key];
+    }
+  }
+  if (callback) {
+    callback(Settings);
+  }
+};
+
+Options.saveSettings = function(settings, sendSettings) {
+  Settings = settings;
+  this.refreshSettings(function(data) {
+    chrome.storage[storageMethod].set({settings: Settings});
+    if (sendSettings) {
+      Options.sendSettings();
+    }
+  });
+};
+
+Options.sendSettings = function() {
+  chrome.tabs.query({}, function(tabs) {
+    for (var i = 0; i < tabs.length; ++i) {
+      chrome.tabs.sendMessage(tabs[i].id, {action: "refreshSettings"});
+    }
+  });
+};
+
+(function() {
+  chrome.storage.sync.get("settings", function(data) {
+    if (data.settings) {
+      Settings = data.settings.flatten();
+    }
+    Options.refreshSettings();
+  });
+})();
+
 chrome.runtime.onMessage.addListener(function (request, sender) {
   if (request.getSettings) {
-    chrome.storage[storageMethod].get("settings", function(settings) {
-      if (!settings.settings) {
-        chrome.storage[storageMethod].set({settings: settingsDefault.flatten()});
-      } else {
-        settings = settings.settings;
-        var compressed = settingsDefault.flatten();
-        for (var key in compressed) {
-          if (settings[key] === undefined) {
-            settings[key] = compressed[key];
-          }
-        }
-      }
-      chrome.tabs.sendMessage(sender.tab.id, {action: "sendSettings", settings: settings});
+    Options.refreshSettings(function(data) {
+      chrome.tabs.sendMessage(sender.tab.id, {action: "sendSettings", settings: Settings});
     });
+  } else if (request.saveSettings) {
+    Options.saveSettings(request.settings, request.sendSettings);
   } else if (request.getDefaults) {
-    chrome.tabs.sendMessage(sender.tab.id, {action: "sendDefaultSettings", settings: settingsDefault.flatten()});
-  } else if (request.setDefault) {
-    chrome.storage[storageMethod].set({"settings": settingsDefault});
-  } else if (request.reloadSettings) {
-    chrome.tabs.query({}, function(tabs) {
-      for (var i = 0; i < tabs.length; ++i) {
-        chrome.tabs.sendMessage(tabs[i].id, {action: "refreshSettings"});
-      }
-    });
+    chrome.tabs.sendMessage(sender.tab.id, {action: "sendSettings", settings: Options.compressedDefaults});
   }
 });
