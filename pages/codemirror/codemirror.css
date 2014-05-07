@@ -1,29 +1,35 @@
-/* BASICS */
-
 .CodeMirror {
-  /* Set height, width, borders, and global font properties here */
   font-family: monospace;
-  height: 300px;
+  position: absolute;
+  padding: 0;
+  margin: 0;
+  opacity: 0.8;
+  transition: opacity 0.5s;
+  height: 700px;
+  font-size: 10pt;
 }
+
 .CodeMirror-scroll {
-  /* Set scrolling behaviour here */
   overflow: auto;
 }
 
-/* PADDING */
+.CodeMirror:hover {
+  opacity: 1;
+}
+.CodeMirror-focused {
+  opacity: 1;
+}
 
 .CodeMirror-lines {
-  padding: 4px 0; /* Vertical padding around content */
+  padding: 8px 0; /* Vertical padding around content */
 }
 .CodeMirror pre {
-  padding: 0 4px; /* Horizontal padding of content */
+  padding: 0 8px; /* Horizontal padding of content */
 }
 
 .CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {
   background-color: white; /* The little square between H and V scrollbars */
 }
-
-/* GUTTER */
 
 .CodeMirror-gutters {
   border-right: 1px solid #ddd;
@@ -173,9 +179,6 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   padding-bottom: 30px;
   margin-bottom: -32px;
   display: inline-block;
-  /* Hack to make IE7 behave */
-  *zoom:1;
-  *display:inline;
 }
 .CodeMirror-gutter-elt {
   position: absolute;
@@ -253,11 +256,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   background: rgba(255, 255, 0, .4);
 }
 
-/* IE7 hack to prevent it from returning funny offsetTops on the spans */
-.CodeMirror span { *vertical-align: text-bottom; }
-
 @media print {
-  /* Hide the cursor when printing */
   .CodeMirror div.CodeMirror-cursor {
     visibility: hidden;
   }

@@ -7,48 +7,36 @@
   <link rel="stylesheet" href="codemirror/codemirror.css">
 </head>
 <body>
-<div id="background_main"></div>
 <div id="container_main">
-  <div id="container_title">cVim Options &ndash; <a href="mappings.html" target="_blank">Help</a></div>
+  <div id="container_title"><span>cVim Options &ndash; <a href="mappings.html" target="_blank">Help</a></span>
+    <div id="save_container">
+      <input id="save_button" value="Save" type="button">
+      <input id="reset_button" value="Reset" type="button">
+    </div>
+  </div>
   <div id="settings">
     <table>
       <tr>
-        <td>
-          <span class="setting">Clear the command bar history</span>
-          <span class="value">
-            <input id="clearHistory" value="Clear" type="button">
-          </span>
-        </td>
+        <td class="left">Clear the command bar history</td>
+        <td class="right"><input id="clearHistory" value="Clear" type="button"></td>
       </tr>
       <tr>
-        <td>
-          <span class="setting">cVimrc <a href="mappings.html" target="_blank" class="mapping-help" style="font-size: 10pt; font-weight: bold">?</a></span>
-          <textarea id="mappings"></textarea>
+        <td class="left">
+          cVimrc <a href="mappings.html" target="_blank" class="mapping-help" style="font-size: 10pt; font-weight: bold">?</a>
         </td>
+        <td class="right"><textarea id="mappings"></textarea></td>
       </tr>
       <tr>
-        <td>
-          <span class="setting">Blacklisted Domains</span>
-          <textarea id="blacklists" placeholder="e.g. http://reddit.com"></textarea>
-        </td>
+        <td class="left">Blacklisted Domains</td>
+        <td class="right"><textarea id="blacklists" placeholder="e.g. http://reddit.com"></textarea></td>
       </tr>
       <tr>
-        <td>
-          <span class="setting">CSS
-            <select id="edit_mode">
-              <option disabled>Mode</option>
-              <option>Normal</option>
-              <option>Vim</option>
-            </select>
-          </span>
-          <textarea id="commandBarCSS" name="css"></textarea>
+        <td class="left">CSS
+          <select id="edit_mode"><option disabled>Mode</option><option>Normal</option><option>Vim</option></select>
         </td>
+        <td class="right"><textarea id="commandBarCSS" name="css"></textarea></td>
       </tr>
     </table>
-  </div>
-  <div id="save_container">
-    <button id="save_button">Save</button>
-    <button id="reset_button">Reset</button>
   </div>
 </div>
 </body>

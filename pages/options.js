@@ -70,11 +70,11 @@ Settings.saveRelease = function() {
     this.settings.commandBarCSS = this.cssEl.getValue();
     this.settings.blacklists = document.getElementById("blacklists").value;
     this.settings.mappings = Settings.rcEl.value;
-    this.saveButton.innerText = "Saved";
+    this.saveButton.value = "Saved";
     chrome.storage[storageMethod].set({settings: this.settings});
     chrome.runtime.sendMessage({reloadSettings: true});
     setTimeout(function () {
-      this.saveButton.innerText = "Save";
+      this.saveButton.value = "Save";
     }.bind(this), 3000);
   }
   window.setTimeout(function() { // No clue why I have to do this twice...
@@ -105,7 +105,7 @@ Settings.onMouseDown = function(ev) {
       localStorage.action = "";
       break;
   }
-  this.saveButton.innerText = "Save";
+  this.saveButton.value = "Save";
 };
 
 Settings.getSettings = function() {

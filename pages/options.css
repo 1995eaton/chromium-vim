@@ -1,75 +1,82 @@
-body {
+html, body {
   font-family: Helvetica, Helvetica Neue, Helvetica, Sans, Arial;
   -webkit-font-smoothing: antialiased;
   font-size: 14pt;
+  background-color: #333;
+  overflow-x: auto;
+  min-width: 800px;
 }
 
-#background_main {
-  position: fixed;
-  min-width: 825px;
-  max-width: 1000px;
-  width: 75%;
-  height: 100%; top: 0;
-  left: 0; right: 0;
-  background-color: #fff;
-  box-shadow: 0 0 15px rgba(0,0,0,0.5);
-  margin: 0 auto;
-}
+* { box-sizing: inline-block; }
 
 #container_main {
-  min-width: 825px;
-  max-width: 1000px;
   position: absolute;
-  width: 75%;
+  width: 100%;
   height: 100%; top: 0;
-  left: 0; right: 0;
-  box-shadow: 0 0 15px rgba(0,0,0,0.5);
-  margin: 0 auto;
+  left: 0;
 }
 
 #container_title {
-  height: 100px; top: 0;
+  height: 50px; top: 0;
   width: 100%; left: 0;
   text-align: center;
-  padding-top: 35px;
+  /* padding-top: 5px; */
+  line-height: 50px;
+  display: inline-block;
+  vertical-align: middle;
+  box-sizing: border-box;
+  color: #eee;
   font-size: 24pt;
-  text-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+  background-color: #333;
 }
 
 td {
-  padding: 5px;
-  padding-right: 10px;
-  height: 30px;
-  max-width: 800px;
-  line-height: 30px;
+  padding: 0;
+  margin: 0;
+  position: relative;
 }
 
 tr:nth-child(odd) {
-  background-color:#eee;
+  background-color:#ccc;
+}
+tr:nth-child(odd) .left {
+  background-color:#333;
+}
+tr:nth-child(even) .left {
+  background-color:#2c2c2c;
 }
 
-tr:nth-child(even) {
-  background-color:#fff;
+tr .right {
+  background-color: #444;
+  border-bottom: 1px solid #ccc;
+}
+
+.left {
+  width: 20%;
+  top: 0;
+  color: #eee;
+  background-color: #333;
+  text-align: center;
+}
+
+.right {
+  width: 100%;
 }
 
 table {
   width: 100%;
-  margin-bottom: 40px;
+  table-layout: fixed;
+  border-collapse: collapse;
+  border-spacing: 0 0;
 }
 
 #settings {
   position: absolute;
-  top: 100px;
-  height: calc(100% - 110px);
-  padding-top: 10px;
-  left: -2px;
-  width: calc(100% + 4px);
 }
 
 #edit_mode {
   font-size: 8pt;
-  position: absolute;
-  background-color: rgba(0,0,0,0);
+  background-color: #eee;
   border: none;
   outline-style: none;
 }
@@ -77,33 +84,65 @@ table {
 #cssSetting {
   position: absolute;
 }
-.value {
-  float: right;
+
+
+select {
+  display: block;
+  margin: 0 auto;
 }
 
-.CodeMirror {
-  position: absolute;
-  max-height: 300px;
-  height: 100%;
-  padding: 0;
-  margin: 0;
-  float: right;
-  border: 1px solid #ccc;
-  width: 90%;
-  transition: width 0.1s ease-out;
-  font-size: 10pt;
-}
-.CodeMirror-focused {
+#mappings {
   width: 100%;
+  max-width: 100%;
+  height: 200px;
+  resize: none;
 }
 
-.setting {
-  position: absolute;
+#save_container {
+  float: right;
+  line-height: 37px;
+  margin-right: 15px;
+  box-sizing: border-box;
+  text-align: center;
+  z-index: 999;
 }
 
-.CodeMirror-scroll {
-  overflow-y: hidden;
-  overflow-x: auto;
+#save_button, #reset_button {
+  width: 50px;
+  font-size: 10pt;
+  opacity: 0.8;
+  margin-right: -8px;
+  border: 1px solid #777;
+  border-radius: 2px;
+  height: 35px;
+  background-color: #fff;
+}
+
+#save_button:hover, #reset_button:hover {
+  opacity: 1;
+}
+
+#blacklists {
+  width: 100%;
+  resize: vertical;
+}
+
+a {
+  color: #bbb;
+  transition: color 0.3s;
+}
+
+a:hover {
+  color: darkcyan;
+}
+
+#clearHistory {
+  border: 1px solid #777;
+  border-radius: 2px;
+  margin: 5px;
+  height: 25px;
+  background-color: #fff;
+  margin-left: 10px;
 }
 
 input {
@@ -113,134 +152,20 @@ input {
 textarea, input {
   opacity: 0.8;
   color: #444;
-  transition: opacity 2s;
-  outline-style: none;
-}
-
-textarea:hover, input:hover {
-  opacity: 1;
-}
-
-textarea:focus, input:focus {
-  color: #000;
-}
-
-#linkHintCharacters {
-  width: 100%;
-}
-
-#mappings {
-  float: right;
-  width: 80%;
-  height: 200px;
-  resize: none;
-}
-
-#save_container {
-  position: fixed;
-  left: 0; top: 0;
-  transition: opacity 0.2s ease-in-out;
-  box-sizing: border-box;
-  background-color: rgba(0,0,0,0.4);
   height: 100%;
-  text-align: center;
-  z-index: 999;
-}
-
-#save_button, #reset_button {
-  width: 60px;
-  margin: 5px;
-  font-size: 12pt;
-  display: block;
-  outline-style: none;
-  box-sizing: border-box;
-  transition: box-shadow 0.2s ease-out;
   border: none;
-}
-
-#save_button:hover, #reset_button:hover {
-  box-shadow: 0 0 5px #000;
-}
-
-#save_button:active, #reset_button:active {
-  box-shadow: 0 0 20px #000;
-}
-
-#mappingContainer {
-  position: fixed;
-  overflow: auto;
-  z-index: 23948;
-  box-sizing: border-box;
-  padding: 5px;
-  left: 0; right: 0;
-  top: 0;
-  height: 100%;
-  transition: opacity 0.2s ease-out;
-  margin: 0 auto;
-  background-color: #fff;
-  box-shadow: 0 0 5px rgba(0,0,0,0.9);
-}
-
-#mappingContainer h2 {
-  font-weight: 100;
-  text-align: center;
-}
-
-#mappingContainer #close {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 18px;
-  height: 20px;
-  background-color: #555;
-  cursor: pointer;
-  -webkit-user-select: none;
-  text-align: center;
-  color: #fff
-}
-
-#mappingContainer hr {
-  background-color: #bbb;
-  padding: 0;
-  margin-top: -15px;
+  transition: opacity 0.5s;
   outline-style: none;
-  border: 0;
-  height: 1px;
+  padding: 0;
+  padding-left: 2px;
+  margin: 0;
+  box-sizing: border-box;
+}
+textarea {
+  display: block;
+  box-sizing: border-box;
 }
 
-#mappingContainer table {
-  table-layout: fixed;
-  margin-bottom: 5px;
-  border-collapse: collapse;
-  border: 1px solid #bbb;
-}
-
-#mappingContainer .single-column {
-  table-layout: auto;
-}
-
-#mappingContainer td {
-  font-size: 11pt;
-  width: 50%;
-  height: 10px !important;
-  line-height: 1 !important;
-}
-
-#mappingContainer th {
-  text-align: left;
-  font-weight: 100;
-}
-
-#mappingContainer .single-column td {
-  width: 100%;
-}
-
-#mappingContainer td:nth-child(odd) {
-  border-right: 1px solid #aaa;
-}
-
-#blacklists {
-  float: right;
-  width: 80%;
-  resize: vertical;
+textarea:hover, input:hover, textarea:focus, input:focus {
+  opacity: 1;
 }
