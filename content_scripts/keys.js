@@ -25,7 +25,9 @@ fromKeyCode = function(e) {
   var keyCode  = e.which;
   var shiftKey = e.shiftKey;
   var convertedKey;
-
+  if (/^F[0-9]+$/.test(e.keyIdentifier)) {
+    return "<" + e.keyIdentifier + ">";
+  }
   if (keyMap.hasOwnProperty(keyCode.toString())) {
     convertedKey = keyMap[keyCode.toString()];
     if (Array.isArray(convertedKey)) {
@@ -82,6 +84,7 @@ keyDown = function(e) {
     modifier: /^<[ACM]/.test(asciiKey),
     escape: /^<(Esc|C-\[)>$/.test(asciiKey),
   };
+
 
   if (!commandMode && Mappings.actions.inputFocused && e.which === 9) {
     if (!document.activeElement.isInput() || !Mappings.actions.inputElements.length) {
