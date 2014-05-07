@@ -79,7 +79,7 @@ Options.saveSettings = function(settings, sendSettings) {
 Options.sendSettings = function() {
   chrome.tabs.query({}, function(tabs) {
     for (var i = 0; i < tabs.length; ++i) {
-      chrome.tabs.sendMessage(tabs[i].id, {action: "refreshSettings"});
+      chrome.tabs.sendMessage(tabs[i].id, {action: "sendSettings", settings: Settings});
     }
   });
 };

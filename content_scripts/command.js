@@ -412,6 +412,8 @@ Command.hide = function() {
 
 Command.init = function(enabled) {
   if (enabled) {
+    Mappings.defaults = Mappings.defaultsClone.clone();
+    Mappings.shortCuts = Mappings.shortCutsClone.clone();
     Mappings.parseCustom(settings.mappings);
     this.css = document.createElement("style");
     this.css.innerText = settings.commandBarCSS;
@@ -492,9 +494,7 @@ document.addEventListener("DOMContentLoaded", function() {
   port.postMessage({action: "getBookmarks"});
   port.postMessage({action: "getSessionNames"});
   chrome.extension.onMessage.addListener(function(request, sender, callback) {
-    if (request.action === "refreshSettings") {
-      Command.configureSettings(true);
-    } else if (request.action === "sendSettings") {
+    if (request.action === "sendSettings") {
       Command.configureSettings(request.settings);
     } else if (request.action === "confirm") {
       var c = confirm(request.message);

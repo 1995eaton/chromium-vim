@@ -2,7 +2,6 @@ var Mappings = {};
 
 Mappings.repeats   = "";
 Mappings.queue     = "";
-Mappings.arrowKeys = ["<Left>", "<Up>", "<Right>", "<Down>"];
 Mappings.siteSpecificBlacklists = "";
 
 Mappings.actions   = {
@@ -314,6 +313,8 @@ Mappings.defaults = {
   openCommandBar:       [":"],
   shortCuts:            []
 };
+Mappings.defaultsClone = Mappings.defaults.clone();
+Mappings.shortCutsClone = Mappings.shortCuts.clone();
 
 Mappings.insertDefaults = {
   deleteWord:        ["<C-y>"],

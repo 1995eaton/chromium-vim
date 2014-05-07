@@ -61,3 +61,11 @@ String.prototype.removeDiacritics = function() {
 Number.prototype.mod = function(n) {
   return ((this % n) + n) % n;
 };
+
+Object.prototype.clone = function() {
+  var old = history.state;
+  history.replaceState(this);
+  var clone = history.state;
+  history.replaceState(old);
+  return clone;
+};
