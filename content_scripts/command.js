@@ -159,7 +159,11 @@ Command.complete = function(value) {
     if (search.trim().length < 2) return this.hideData();
     if (search[0] === "/" || /:\/\//.test(search)) {
       port.postMessage({action: "searchHistory", search: search, limit: settings.searchlimit});
-      if (Marks.history) this.appendResults(Marks.history, false, "History", "#0080d6");
+      if (Marks.history && Marks.history.length) {
+        this.appendResults(Marks.history, false, "History", "#0080d6");
+      } else {
+        this.hideData();
+      }
       Marks.history = [];
       return;
     }
@@ -169,7 +173,9 @@ Command.complete = function(value) {
         this.typed = value;
         this.hideData();
         this.appendResults(response, false);
-        if (Marks.history) this.appendResults(Marks.history, true, "History", "#0080d6");
+        if (Marks.history) {
+          this.appendResults(Marks.history, true, "History", "#0080d6");
+        }
       }
     }.bind(this));
     return;
@@ -241,17 +247,16 @@ Command.complete = function(value) {
     return;
   }
 
-  if (value === "") {
-    return Command.appendResults(this.descriptions.slice(0, settings.searchlimit).map(function(e){return["complete"].concat(e);}));
-  }
-
   var data = this.descriptions.filter(function(element) {
     return value === element[0].slice(0, value.length);
   }).map(function(e){return["complete"].concat(e);});
 
   if (data.length) {
     this.appendResults(data);
-  } else this.hideData();
+  } else {
+    this.hideData();
+    log(data);
+  }
 };
 
 Command.execute = function(value, repeats) {
