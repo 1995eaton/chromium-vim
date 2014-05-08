@@ -3,6 +3,27 @@ var Hints = {};
 
 var linkHoverEnabled = false;
 
+Hints.matchPatterns = function(forward) {
+  var pattern = new RegExp("^" + (forward ? settings.nextmatchpattern : settings.previousmatchpattern) + "$", "gi");
+  var treeWalker = document.createTreeWalker(document.body, 4, null, false);
+  var node;
+  while (node = treeWalker.nextNode()) {
+    var nodeName = node.nodeName;
+    if (/script|style|noscript/i.test(nodeName)) {
+      continue;
+    }
+    var nodeText = node.data.trim();
+    if (pattern.test(nodeText)) {
+      var parentNode = node.parentNode;
+      log(parentNode);
+      if (/A|BUTTON/.test(parentNode.nodeName) || parentNode.getAttribute("jsaction") || parentNode.getAttribute("onclick")) {
+        node.parentNode.click();
+        break;
+      }
+    }
+  }
+};
+
 Hints.hideHints = function(reset) {
   if (document.getElementById("cVim-link-container") !== null) {
     HUD.hide();
@@ -169,7 +190,7 @@ Hints.getLinks = function() {
       selection = "//img";
       break;
     default:
-      selection = "//a|//area[@href]|//*[not(@aria-disabled='true') and (@onclick or @role='button' or @role='checkbox' or @tabindex or @aria-haspopup or @data-cmd or @jsaction)]|//button|//select|//textarea|//input";
+      selection = "//a|//div[@class='fc-panel']|//area[@href]|//*[not(@aria-disabled='true') and (@onclick or @role='button' or @role='checkbox' or @tabindex or @aria-haspopup or @data-cmd or @jsaction)]|//button|//select|//textarea|//input";
       break;
   }
   candidates = document.evaluate(selection, document.body, null, 6, null);

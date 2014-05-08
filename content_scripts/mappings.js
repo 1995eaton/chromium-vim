@@ -20,6 +20,12 @@ Mappings.actions   = {
       Visual.scrollIntoView();
     }
   },
+  nextMatchPattern: function() {
+    Hints.matchPatterns(true);
+  },
+  previousMatchPattern: function() {
+    Hints.matchPatterns(false);
+  },
   cancelWebRequest: function() {
     window.stop();
   },
@@ -275,6 +281,8 @@ Mappings.defaults = {
   reloadTabUncached:    ["gR"],
   createHint:           ["f"],
   createMultiHint:      ["M"],
+  nextMatchPattern:     ["]]"],
+  previousMatchPattern: ["[["],
   createHintWindow:     ["W"],
   pinTab:               ["gp"],
   moveTabRight:         [">"],

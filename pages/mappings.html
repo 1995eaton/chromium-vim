@@ -111,6 +111,18 @@ the command <code>'set' + no&lt;SETTING_NAME&gt;</code> (for example, <code>set 
 <td align="right">true</td>
 </tr>
 <tr>
+<td>previousmatchpattern</td>
+<td>string (regexp)</td>
+<td>the pattern looked for when navigating a page's back button</td>
+<td align="right">((?!last)(prev(ious)?|back|«|less|&lt;|‹| )+)</td>
+</tr>
+<tr>
+<td>nextmatchpattern</td>
+<td>string (regexp)</td>
+<td>the pattern looked for when navigation a page's next button</td>
+<td align="right">((?!first)(next|more|&gt;|›|»|forward| )+)</td>
+</tr>
+<tr>
 <td>hintcharacters</td>
 <td>string (alphanumeric)</td>
 <td>set the default characters to be used in link hint mode</td>
@@ -373,6 +385,16 @@ map <span class="p">&lt;</span>C<span class="p">-</span><span class="k">e</span>
 <td>&gt;</td>
 <td align="left">move current tab right</td>
 <td align="left">moveTabRight</td>
+</tr>
+<tr>
+<td>]]</td>
+<td align="left">click the "next" link on the page (see nextmatchpattern above)</td>
+<td align="left">nextMatchPattern</td>
+</tr>
+<tr>
+<td>[[</td>
+<td align="left">click the "back" link on the page (see previousmatchpattern above)</td>
+<td align="left">previousMatchPattern</td>
 </tr>
 <tr>
 <td>gp</td>

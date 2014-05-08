@@ -15,9 +15,18 @@ Settings.getrc = function() {
   return a;
 };
 
+Settings.ignore = ["commandBarCSS", "mappings", "blacklists"];
+
 Settings.parserc = function(values) {
   var config, isEnabled;
-  var sValues = Object.keys(this.settings).map(function(e) { return e.toLowerCase(); });
+  var sValues = Object.keys(this.settings).map(function(e) { return e.toLowerCase(); }).filter(function(e) {
+    return !/commandBarCSS|mappings|blacklists/i.test(e);
+  });
+  for (var key in this.defaultSettings) {
+    if (!/commandBarCSS|mappings|blacklists/i.test(key)) {
+      this.settings[key] = this.defaultSettings[key];
+    }
+  }
   for (var i = 0, l = values.length; i < l; ++i) {
     config = values[i];
     if (config.length !== 1) continue;
@@ -113,6 +122,7 @@ Settings.init = function() {
   this.editModeEl = document.getElementById("edit_mode");
 
   chrome.runtime.sendMessage({getSettings: true});
+  chrome.runtime.sendMessage({getDefaults: true});
 
   document.addEventListener("mousedown", this.onMouseDown.bind(this), false);
   this.editModeEl.addEventListener("change", this.editMode.bind(this), false);
@@ -131,5 +141,7 @@ chrome.extension.onMessage.addListener(function(request) {
       Settings.initialLoad = false;
     }
     Settings.loadrc();
+  } else if (request.action === "sendDefaultSettings") {
+    Settings.defaultSettings = request.settings;
   }
 });
