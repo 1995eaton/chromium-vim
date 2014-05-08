@@ -508,5 +508,5 @@ document.addEventListener("DOMContentLoaded", function() {
       window.stop();
     }
   });
-  chrome.runtime.sendMessage({getSettings: true});
+  chrome.runtime.sendMessage({action: "getSettings"});
 }, false);

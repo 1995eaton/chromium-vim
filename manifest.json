@@ -66,6 +66,7 @@
              "content_scripts/mappings.js",
              "content_scripts/find.js",
              "content_scripts/status.js",
+             "content_scripts/messenger.js",
              "content_scripts/hud.js",
              "content_scripts/visual.js",
              "content_scripts/command.js",

@@ -64,7 +64,7 @@ Settings.loadrc = function () {
 
 Settings.resetRelease = function() {
   if (this.resetClicked) {
-    chrome.runtime.sendMessage({getSettings: true, reset: true});
+    chrome.runtime.sendMessage({action: "getSettings", reset: true});
   }
 };
 
@@ -75,7 +75,7 @@ Settings.saveRelease = function() {
     this.settings.mappings = Settings.rcEl.value;
     this.saveButton.value = "Saved";
     Settings.parserc(Settings.getrc());
-    chrome.runtime.sendMessage({saveSettings: true, settings: Settings.settings, sendSettings: true});
+    chrome.runtime.sendMessage({action: "saveSettings", settings: Settings.settings, sendSettings: true});
     setTimeout(function () {
       this.saveButton.value = "Save";
     }.bind(this), 3000);
@@ -121,8 +121,8 @@ Settings.init = function() {
   this.rcEl = document.getElementById("mappings");
   this.editModeEl = document.getElementById("edit_mode");
 
-  chrome.runtime.sendMessage({getSettings: true});
-  chrome.runtime.sendMessage({getDefaults: true});
+  chrome.runtime.sendMessage({action: "getSettings"});
+  chrome.runtime.sendMessage({action: "getDefaults"});
 
   document.addEventListener("mousedown", this.onMouseDown.bind(this), false);
   this.editModeEl.addEventListener("change", this.editMode.bind(this), false);

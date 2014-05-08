@@ -19,14 +19,14 @@ function callAction(action, config) {
   } else {
     url = "chrome://newtab";
   }
-  for (var i = 0; i < request.repeats; i++) {
-    actions[action]();
-  }
+  actions[action]();
 }
 
 function isRepeat(request) {
   return request.action === "focusMainWindow" || (request.repeats && /[0-9]([0-9]+)?/.test(request.repeats.toString()));
 }
+
+// Normal extension connections
 
 actions.openLink = function() {
   chrome.tabs.update({
@@ -56,7 +56,15 @@ actions.openLinkWindow = function() {
 };
 
 actions.closeTab = function() {
-  chrome.tabs.remove(sender.tab.id);
+  chrome.tabs.query({currentWindow: true}, function(tabs) {
+    var sortedIds = tabs.map(function(e) { return e.id; });
+    var base = sender.tab.index;
+    if (request.repeats > sortedIds.length - base) {
+      base -= request.repeats - (sortedIds.length - base);
+    }
+    if (base < 0) base = 0;
+    chrome.tabs.remove(sortedIds.slice(base, base + request.repeats));
+  });
 };
 
 actions.reloadTab = function() {
@@ -122,11 +130,13 @@ actions.openPasteTab = function() {
   var paste = Clipboard.paste();
   if (!paste) return;
   paste = paste.split("\n");
-  for (var i = 0, l = paste.length; i < l; ++i) {
-    chrome.tabs.create({
-      url: paste[i].convertLink(),
-      index: sender.tab.index + 1
-    });
+  for (var i = 0; i < request.repeats; ++i) {
+    for (var j = 0, l = paste.length; j < l; ++j) {
+      chrome.tabs.create({
+        url: paste[j].convertLink(),
+        index: sender.tab.index + 1
+      });
+    }
   }
 };
 
@@ -166,15 +176,15 @@ actions.createSession = function() {
 };
 
 actions.openBookmarkFolder = function() {
-  getFolderLinks(request.path, function(e) {
+  Bookmarks.getFolderLinks(request.path, function(e) {
     if (e.length > 5) {
       chrome.tabs.sendMessage(sender.tab.id, {
         action: "confirm",
         message: "Open " + e.length + " tabs?"
       }, function(response) {
-        if (response) multiOpen(e);
+        if (response) Links.multiOpen(e);
       });
-    } else multiOpen(e);
+    } else Links.multiOpen(e);
   });
 };
 
@@ -272,4 +282,50 @@ actions.cancelAllWebRequests = function() {
 actions.hideDownloadsShelf = function() {
   chrome.downloads.setShelfEnabled(false);
   chrome.downloads.setShelfEnabled(true);
+};
+
+// Port actions
+
+actions.getBookmarks = function() {
+  Bookmarks.getMarks(function(marks) {
+    callback({type: "bookmarks", bookmarks: marks});
+  });
+};
+
+actions.searchHistory = function() {
+  History.retrieveSearchHistory(request.search, request.limit || 4, function(results) {
+    callback({type: "history", history: results});
+  });
+};
+
+actions.getBuffers = function() {
+  chrome.tabs.query({active: true, currentWindow: true}, function(initial) {
+    initial = initial[0];
+    var windowId = initial.windowId;
+    chrome.tabs.query({windowId: windowId}, function(tabs) {
+      var t = [];
+      for (var i = 0, l = tabs.length; i < l; ++i) {
+        t.push([i + ": " + tabs[i].title, tabs[i].url]);
+      }
+      callback({type: "buffers", buffers: t});
+    });
+  });
+};
+
+actions.getSessionNames = function() {
+  callback({type: "sessions", sessions: Object.keys(sessions).map(function(e) { return [e, Object.keys(sessions[e]).length.toString() + " tab" + (Object.keys(sessions[e]).length === 1 ? "" : "s")]; } )});
+};
+
+actions.getBookmarkPath = function() {
+  chrome.bookmarks.getTree(function(marks) {
+    Bookmarks.getPath(marks[0].children, request.path, function(e) {
+      callback({type: "bookmarkPath", path: e});
+    });
+  });
+};
+
+actions.getBlacklisted = function() {
+  Popup.getBlacklisted(function() {
+    callback({});
+  });
 };

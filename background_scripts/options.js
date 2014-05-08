@@ -68,11 +68,11 @@ Options.refreshSettings = function(callback) {
   }
 };
 
-Options.saveSettings = function(settings, sendSettings) {
-  Settings = settings;
+Options.saveSettings = function(request) {
+  Settings = request.settings;
   this.refreshSettings(function(data) {
     chrome.storage[storageMethod].set({settings: Settings});
-    if (sendSettings) {
+    if (request.sendSettings) {
       Options.sendSettings();
     }
   });
@@ -86,6 +86,21 @@ Options.sendSettings = function() {
   });
 };
 
+Options.getSettings = function(request, sender) {
+  this.refreshSettings(function(data) {
+    chrome.tabs.sendMessage(sender.tab.id, {action: "sendSettings", settings: (request.reset ? Options.compressedDefaults : Settings)});
+  });
+};
+
+Options.setDefaults = function() {
+  Settings = this.compressedDefaults;
+  this.saveSettings(Settings);
+};
+
+Options.getDefaults = function(request, sender) {
+  chrome.tabs.sendMessage(sender.tab.id, {action: "sendDefaultSettings", settings: Options.compressedDefaults});
+};
+
 (function() {
   chrome.storage.sync.get("settings", function(data) {
     if (data.settings) {
@@ -96,16 +111,7 @@ Options.sendSettings = function() {
 })();
 
 chrome.runtime.onMessage.addListener(function (request, sender) {
-  if (request.getSettings) {
-    Options.refreshSettings(function(data) {
-      chrome.tabs.sendMessage(sender.tab.id, {action: "sendSettings", settings: (request.reset ? Options.compressedDefaults : Settings)});
-    });
-  } else if (request.saveSettings) {
-    Options.saveSettings(request.settings, request.sendSettings);
-  } else if (request.setDefaults) {
-    Settings = Options.compressedDefaults;
-    Options.saveSettings(Settings);
-  } else if (request.getDefaults) {
-    chrome.tabs.sendMessage(sender.tab.id, {action: "sendDefaultSettings", settings: Options.compressedDefaults});
+  if (Options.hasOwnProperty(request.action)) {
+    Options[request.action](request, sender);
   }
 });

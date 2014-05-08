@@ -166,8 +166,10 @@ Mappings.actions   = {
   openPaste: function() {
     Clipboard.paste(false);
   },
-  openPasteTab: function() {
-    Clipboard.paste(true);
+  openPasteTab: function(repeats) {
+    for (var i = 0; i < repeats; ++i) {
+      Clipboard.paste(true);
+    }
   },
   insertMode: function() {
     HUD.display(" -- INSERT -- ");
