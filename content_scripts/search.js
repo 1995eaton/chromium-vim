@@ -11,7 +11,7 @@ Search.chromeMatch = function(string, callback) {
   }).map(function(e){return["chrome",e];}));
 };
 
-Search.settings = ["|smoothscroll", "scrollstep", "searchlimit", "|regexp", "|ignorecase", "hintcharacters", "|hud"];
+Search.settings = ["|smoothscroll", "scrollstep", "searchlimit", "|regexp", "|ignorecase", "hintcharacters", "|linkanimations", "|hud"];
 
 Search.settingsMatch = function(string, callback) {
   if (string.trim() === "") return callback(Search.settings.slice(0, settings.searchlimit).map(function(e){return["settings",e.replace(/^\|/, "")];}));
