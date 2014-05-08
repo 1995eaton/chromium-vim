@@ -505,6 +505,7 @@ Command.configureSettings = function(s) {
 
 document.addEventListener("DOMContentLoaded", function() {
   port.postMessage({action: "getBookmarks"});
+  port.postMessage({action: "getQuickMarks"});
   port.postMessage({action: "getSessionNames"});
   chrome.extension.onMessage.addListener(function(request, sender, callback) {
     if (request.action === "sendSettings") {
@@ -514,6 +515,8 @@ document.addEventListener("DOMContentLoaded", function() {
       callback(c);
     } else if (request.action === "cancelAllWebRequests") {
       window.stop();
+    } else if (request.action === "updateMarks") {
+      Marks.quickMarks = request.marks;
     }
   });
   chrome.runtime.sendMessage({action: "getSettings"});

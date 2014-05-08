@@ -1,6 +1,23 @@
 var Marks = {};
-Marks.bookmarks = [];
+Marks.bookmarks        = [];
+Marks.quickMarks       = {};
 Marks.currentBookmarks = [];
+
+Marks.addQuickMark = function(ch) {
+  this.quickMarks[ch] = document.URL;
+  chrome.runtime.sendMessage({action: "updateMarks", marks: this.quickMarks});
+};
+
+Marks.openQuickMark = function(ch, tabbed, repeats) {
+  if (!this.quickMarks.hasOwnProperty(ch)) {
+    return Status.setMessage("Error: mark not set", 1);
+  }
+  if (tabbed) {
+    chrome.runtime.sendMessage({action: "openLinkTab", url: this.quickMarks[ch], repeats: repeats});
+  } else {
+    chrome.runtime.sendMessage({action: "openLink", url: this.quickMarks[ch]});
+  }
+};
 
 Marks.parse = function(marks) {
   marks.forEach(function(bookmark) {

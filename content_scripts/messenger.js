@@ -46,6 +46,9 @@ port.onMessage.addListener(function(response) {
     case "sessions":
       sessions = response.sessions;
       break;
+    case "quickMarks":
+      Marks.quickMarks = response.marks;
+      break;
     case "bookmarkPath":
       var _ret = response.path.map(function(e) { return ["path"].concat(e); });
       if (_ret.length) {

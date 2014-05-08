@@ -1,5 +1,7 @@
 var sessions   = {};
-var Clipboard, History, Bookmarks, Links;
+var Clipboard, History, Bookmarks, Links, Quickmarks;
+
+Quickmarks = {};
 
 chrome.storage.sync.get("sessions", function(s) {
   if (s.sessions === undefined) {

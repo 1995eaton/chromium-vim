@@ -300,6 +300,17 @@ actions.hideDownloadsShelf = function() {
   chrome.downloads.setShelfEnabled(true);
 };
 
+actions.updateMarks = function() {
+  Quickmarks = request.marks;
+  chrome.tabs.query({currentWindow: true}, function(tabs) {
+    for (var i = 0, l = tabs.length; i < l; ++i) {
+      if (tabs[i].id !== sender.tab.id) {
+        chrome.tabs.sendMessage(tabs[i].id, {action: "updateMarks", marks: request.marks});
+      }
+    }
+  });
+};
+
 // Port actions
 
 actions.getBookmarks = function() {
@@ -312,6 +323,10 @@ actions.searchHistory = function() {
   History.retrieveSearchHistory(request.search, request.limit || 4, function(results) {
     callback({type: "history", history: results});
   });
+};
+
+actions.getQuickMarks = function() {
+  callback({type: "quickMarks", marks: Quickmarks});
 };
 
 actions.getBuffers = function() {

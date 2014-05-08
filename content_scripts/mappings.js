@@ -174,6 +174,15 @@ Mappings.actions   = {
       Clipboard.paste(true);
     }
   },
+  addQuickMark: function(repeats, queue) {
+    Marks.addQuickMark(queue.slice(-1));
+  },
+  openQuickMark: function(repeats, queue) {
+    Marks.openQuickMark(queue.slice(-1), false);
+  },
+  openQuickMarkTabbed: function(repeats, queue) {
+    Marks.openQuickMark(queue.slice(-1), true, repeats);
+  },
   insertMode: function() {
     HUD.display(" -- INSERT -- ");
     insertMode = true;
@@ -277,8 +286,6 @@ Mappings.shortCuts = [
   ["b",  ":bookmarks "],
   ["t",  ":tabopen "],
   ["I",  ":history "],
-  ["go", ":duplicate&<cr>"],
-  ["gO", ":duplicate<cr>"],
   ["T",  ":tabopen @%"],
   ["B",  ":buffers "],
   ["gd", ":chrome://downloads<cr>"],
@@ -311,6 +318,9 @@ Mappings.defaults = {
   multiReverseImage:    ["mr"],
   goForward:            ["L", "D"],
   firstTab:             ["g0"],
+  addQuickMark:         ["M*"],
+  openQuickMark:        ["go*"],
+  openQuickMarkTabbed:  ["gn*"],
   cancelWebRequest:     ["q"],
   cancelAllWebRequests: ["Q"],
   lastTab:              ["g$"],
@@ -357,13 +367,6 @@ Mappings.insertDefaults = {
   backwardChar:      ["<C-b>"],
   forwardWord:       ["<C-l>"],
   backwardWord:      ["<C-h>"]
-};
-
-Mappings.isValidQueue = function() {
-  for (var key in this.defaults)
-    for (var i = 0, l = this.defaults[key].length; i < l; i++)
-      if (this.defaults[key][i].substring(0, Mappings.queue.length) === Mappings.queue)
-        return true;
 };
 
 Mappings.insertFunctions = {
@@ -520,6 +523,18 @@ Mappings.executeSequence = function(c, r) {
   }
 };
 
+Mappings.isValidQueue = function(wildCard) {
+  var wild, key, i;
+  for (key in this.defaults) {
+    for (i = 0, l = this.defaults[key].length; i < l; i++) {
+      wild = this.defaults[key][i].replace(/\*$/, wildCard);
+      if (wild.substring(0, Mappings.queue.length) === Mappings.queue) {
+        return true;
+      }
+    }
+  }
+};
+
 Mappings.isValidMapping = function(c) {
   for (var key in this.defaults)
     if (Array.isArray(this.defaults[key]) && this.defaults[key].indexOf(c) >= 0) return true;
@@ -532,12 +547,12 @@ Mappings.convertToAction = function(c) {
     return false;
   if (Hints.active)
     return (c === ";" ? Hints.changeFocus() : Hints.handleHint(c));
-  if (/^[0-9]$/.test(c) && !(c === "0" && Mappings.repeats === ""))
+  if (/^[0-9]$/.test(c) && !(c === "0" && Mappings.repeats === "") && Mappings.queue.length === 0)
     return Mappings.repeats += c;
 
   Mappings.queue += c;
   for (var key in this.defaults) {
-    if (!this.isValidQueue()) {
+    if (!this.isValidQueue(c)) {
       Mappings.queue = "";
       Mappings.repeats = "";
       Mappings.validMatch = false;
@@ -546,12 +561,12 @@ Mappings.convertToAction = function(c) {
 
     Mappings.validMatch = true;
     for (var i = 0, l = this.defaults[key].length; i < l; i++) {
-      if (Mappings.queue === this.defaults[key][i]) {
+      if (Mappings.queue === this.defaults[key][i].replace(/\*$/, c)) {
         Mappings.validMatch = false;
         if (/^0?$/.test(Mappings.repeats)) addOne = true;
         if (key === "shortCuts")
           Mappings.actions[key](Mappings.queue, (addOne ? 1 : parseInt(Mappings.repeats)));
-        else Mappings.actions[key]((addOne ? 1 : parseInt(Mappings.repeats)));
+        else Mappings.actions[key]((addOne ? 1 : parseInt(Mappings.repeats)), Mappings.queue);
         Mappings.queue = "";
         Mappings.repeats = "";
       }
