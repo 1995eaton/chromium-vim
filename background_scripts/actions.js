@@ -37,22 +37,28 @@ actions.openLink = function() {
 actions.openLinkTab = function() {
   if (!sender.tab) {
     chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
-      chrome.tabs.create({url: url, active: request.active, index: tab[0].index + 1});
+      for (var i = 0; i < request.repeats; ++i) {
+        chrome.tabs.create({url: url, active: request.active, index: tab[0].index + 1});
+      }
     });
   } else {
-    chrome.tabs.create({
-      url: url,
-      active: request.active,
-      index: sender.tab.index + 1
-    });
+    for (var i = 0; i < request.repeats; ++i) {
+      chrome.tabs.create({
+        url: url,
+        active: request.active,
+        index: sender.tab.index + 1
+      });
+    }
   }
 };
 
 actions.openLinkWindow = function() {
-  chrome.windows.create({
-    url: url,
-    focused: request.active
-  });
+  for (var i = 0; i < request.repeats; ++i) {
+    chrome.windows.create({
+      url: url,
+      focused: request.active
+    });
+  }
 };
 
 actions.closeTab = function() {

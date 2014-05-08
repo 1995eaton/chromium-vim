@@ -237,10 +237,14 @@ Mappings.actions   = {
     for (var i = 0, l = Mappings.shortCuts.length; i < l; i++) {
       if (s === Mappings.shortCuts[i][0]) {
         commandMode = true;
-        Command.show(false, Mappings.shortCuts[i][1].replace(/^:/, "").replace(/<cr>(\s+)?$/i, ""));
-        if (/<cr>(\s+)?$/i.test(Mappings.shortCuts[i][1]))
-          Command.execute(Command.input.value, repeats);
-        else Command.complete(Command.input.value);
+        window.setTimeout(function() {
+          Command.show(false, Mappings.shortCuts[i][1].replace(/^:/, "").replace(/<cr>(\s+)?$/i, ""));
+          this.queue = "";
+          this.repeats = "";
+          if (/<cr>(\s+)?$/i.test(Mappings.shortCuts[i][1])) {
+            Command.execute(Command.input.value, repeats);
+          } else Command.complete(Command.input.value);
+        }, 0);
         break;
       }
     }
@@ -495,11 +499,29 @@ Mappings.parseCustom = function(config) {
   });
 };
 
+Mappings.executeSequence = function(c, r) {
+  if (!c.length) return;
+  if (/^[0-9]+/.test(c)) {
+    r = c.match(/^[0-9]+/)[0];
+    c = c.replace(/^[0-9]+/, "");
+    this.repeats = r;
+    if (!c.length) return;
+  }
+  var com = c[0];
+  this.queue += com;
+  this.queue = this.queue.slice(0, -1);
+  this.convertToAction(com);
+  if (!commandMode && !document.activeElement.isInput()) {
+    Mappings.executeSequence(c.substring(1), r);
+  }
+};
+
 Mappings.isValidMapping = function(c) {
   for (var key in this.defaults)
     if (Array.isArray(this.defaults[key]) && this.defaults[key].indexOf(c) >= 0) return true;
 };
-Mappings.convertToAction = function(c, callback) {
+
+Mappings.convertToAction = function(c) {
   var addOne = false;
 
   if (!c || c === "<Space>")

@@ -142,6 +142,7 @@ Command.descriptions = [
   ["set",        "Configure Settings"],
   ["mksession",  "Create a saved session of current tabs"],
   ["delsession", "Delete sessions"],
+  ["execute",    "Execute a sequence of keys"],
   ["session",    "Open a saved session in a new window"],
   ["bookmarks",  "Search through your bookmarks"],
   ["history",    "Search through your browser history"],
@@ -255,7 +256,6 @@ Command.complete = function(value) {
     this.appendResults(data);
   } else {
     this.hideData();
-    log(data);
   }
 };
 
@@ -298,14 +298,22 @@ Command.execute = function(value, repeats) {
       } else if (/^history +/.test(value))
         chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value.replace(/^history +?/, ""), noconvert: true});
       else if (/^(winopen|wo)$/.test(value.replace(/ .*/, "")))
-        chrome.runtime.sendMessage({action: "openLinkWindow", focused: activeTab, url: value.replace(/^\S+( +)?/, "")});
+        chrome.runtime.sendMessage({action: "openLinkWindow", focused: activeTab, url: value.replace(/^\S+( +)?/, ""), repeats: repeats});
       else if (/^(to|tabopen)$/.test(value.replace(/ .*/, "")))
-        chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value.replace(/^\S+( +)?/, "")});
+        chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value.replace(/^\S+( +)?/, ""), repeats: repeats});
       else if (/^(o|open)$/.test(value.replace(/ .*/, "")))
         chrome.runtime.sendMessage({action: "openLink", active: activeTab, url: value.replace(/^\S+( +)?/, "")});
       else if (/^buffers +[0-9]+(\s+)?$/.test(value))
         chrome.runtime.sendMessage({action: "selectTab", tabIndex: value.replace(/^.*([0-9]+).*$/, "$1")});
-      else if (/^delsession/.test(value)) {
+      else if (/^execute +/.test(value)) {
+        var command = value.replace(/^\S+/, "").trim();
+        realKeys = "";
+        repeats = "";
+        Command.hideData();
+        Command.hide();
+        Mappings.executeSequence(command);
+        return;
+      } else if (/^delsession/.test(value)) {
         value = value.replace(/^\S+(\s+)?/, "").trimAround();
         if (value === "") {
           Status.setMessage("Error: argument required", 1);
