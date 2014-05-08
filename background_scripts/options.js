@@ -98,10 +98,13 @@ Options.sendSettings = function() {
 chrome.runtime.onMessage.addListener(function (request, sender) {
   if (request.getSettings) {
     Options.refreshSettings(function(data) {
-      chrome.tabs.sendMessage(sender.tab.id, {action: "sendSettings", settings: Settings});
+      chrome.tabs.sendMessage(sender.tab.id, {action: "sendSettings", settings: (request.reset ? Options.compressedDefaults : Settings)});
     });
   } else if (request.saveSettings) {
     Options.saveSettings(request.settings, request.sendSettings);
+  } else if (request.setDefaults) {
+    Settings = Options.compressedDefaults;
+    Options.saveSettings(Settings);
   } else if (request.getDefaults) {
     chrome.tabs.sendMessage(sender.tab.id, {action: "sendDefaultSettings", settings: Options.compressedDefaults});
   }

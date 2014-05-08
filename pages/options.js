@@ -64,7 +64,7 @@ Settings.loadrc = function () {
 
 Settings.resetRelease = function() {
   if (this.resetClicked) {
-    chrome.runtime.sendMessage({getDefaults: true});
+    chrome.runtime.sendMessage({getSettings: true, reset: true});
   }
 };
 
