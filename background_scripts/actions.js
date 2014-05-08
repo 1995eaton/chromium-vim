@@ -120,6 +120,16 @@ actions.copy = function() {
   Clipboard.copy(request.text);
 };
 
+actions.goToTab = function() {
+  chrome.tabs.query({currentWindow: true}, function(tabs) {
+    if (request.index < tabs.length) {
+      chrome.tabs.update(tabs[request.index].id, {active: true});
+    } else {
+      chrome.tabs.update(tabs.slice(-1)[0].id, {active: true});
+    }
+  });
+};
+
 actions.moveTabRight = function() {
   chrome.tabs.move(sender.tab.id, {
     index: sender.tab.index + request.repeats

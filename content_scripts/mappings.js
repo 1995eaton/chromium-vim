@@ -36,6 +36,9 @@ Mappings.actions   = {
     if (Mappings.repeats === "0" || Mappings.repeats === "") repeats = 0;
     document.body.scrollTop = (document.body.scrollHeight - document.documentElement.clientHeight) * repeats / 100;
   },
+  goToTab: function(repeats) {
+    chrome.runtime.sendMessage({action: "goToTab", index: repeats - 1});
+  },
   hideDownloadsShelf: function() {
     chrome.runtime.sendMessage({action: "hideDownloadsShelf"});
   },
@@ -318,7 +321,8 @@ Mappings.defaults = {
   nextTab:              ["K", "R", "gt"],
   nextFrame:            ["gf"],
   rootFrame:            ["gF"],
-  percentScroll:        ["%"],
+  percentScroll:        ["g%"],
+  goToTab:              ["%"],
   centerMatchT:         ["zt"],
   centerMatchB:         ["zb"],
   centerMatchH:         ["zz"],

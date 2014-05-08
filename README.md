@@ -83,6 +83,7 @@ map <C-e> scrollPageUp
 | /                       | open search bar                                                    | openSearchBar          | 
 | ?                       | open search bar (reverse search)                                   | openSearchBarReverse   | 
 | I                       | search through browser history                                     | :history               | 
+| <N>g%                   | scroll <N> percent down the page                                   | percentScroll          |
 | i                       | enter insert mode (escape to exit)                                 | insertMode             | 
 | r                       | reload the current tab                                             | reloadTab              | 
 | gR                      | reload the current tab + local cache                               | reloadTabUncached      | 
@@ -99,6 +100,7 @@ map <C-e> scrollPageUp
 | x                       | close the current tab                                              | closeTab               | 
 | t                       | :tabopen                                                           | :tabopen               | 
 | T                       | :tabopen &lt;CURRENT URL&gt;                                       |                        | 
+| <N>%                    | switch to tab <N>                                                  | goToTab                |
 | H, S                    | go back                                                            | goBack                 | 
 | L, D                    | go forward                                                         | goForward              | 
 | B                       | change to another tab                                              | :buffers               | 
@@ -136,23 +138,24 @@ map <C-e> scrollPageUp
 
 #Command Mode
 
-| Command                                     | Description                                                       |
-| ------------------------------------------- | ----------------------------------------------------------------- |
-| :tabopen (autocomplete)                     | open a new tab with the typed/completed url/google search         |
-| :open (autocomplete)                        | open the typed/completed url/google search                        |
-| :history (autocomplete)                     | search through browser history                                    |
-| :bookmarks (autocomplete)                   | search through bookmarks                                          |
-| :bookmarks /&lt;folder&gt; (autocomplete)   | browse bookmarks by folder/open all bookmarks from folder         |
-| :set (autocomplete)                         | temporarily change a cVim setting                                 |
-| :chrome:// (autocomplete)                   | open a chrome:// url                                              |
-| :closetab                                   | close the current tab                                             |
-| :duplicate                                  | duplicate the current tab                                         |
-| :settings                                   | open the settings page                                            |
-| :nohl                                       | clear the highlighted text from the last search                   |
-| :buffers (autocomplete)                     | change to a different tab                                         |
-| :mksession                                  | create a new session from the current tabs in the active window   |
-| :delsession (autocomplete)                  | delete a saved session                                            |
-| :session (autocomplete)                     | open the tabs from a saved session in a new window                |
+| Command                                     | Description                                                               | 
+| ------------------------------------------- | -----------------------------------------------------------------------   | 
+| :tabopen (autocomplete)                     | open a new tab with the typed/completed url/google search                 | 
+| :open (autocomplete)                        | open the typed/completed url/google search                                | 
+| :history (autocomplete)                     | search through browser history                                            | 
+| :bookmarks (autocomplete)                   | search through bookmarks                                                  | 
+| :bookmarks /&lt;folder&gt; (autocomplete)   | browse bookmarks by folder/open all bookmarks from folder                 | 
+| :set (autocomplete)                         | temporarily change a cVim setting                                         | 
+| :chrome:// (autocomplete)                   | open a chrome:// url                                                      | 
+| :closetab                                   | close the current tab                                                     | 
+| :duplicate                                  | duplicate the current tab                                                 | 
+| :settings                                   | open the settings page                                                    | 
+| :nohl                                       | clear the highlighted text from the last search                           | 
+| :execute                                    | execute a sequence of keys (Useful for mappings. For example, "map j 2j") | 
+| :buffers (autocomplete)                     | change to a different tab                                                 | 
+| :mksession                                  | create a new session from the current tabs in the active window           | 
+| :delsession (autocomplete)                  | delete a saved session                                                    | 
+| :session (autocomplete)                     | open the tabs from a saved session in a new window                        | 
 
 #Tips
 
