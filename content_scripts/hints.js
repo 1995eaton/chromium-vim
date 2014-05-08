@@ -15,10 +15,12 @@ Hints.matchPatterns = function(forward) {
     var nodeText = node.data.trim();
     if (pattern.test(nodeText)) {
       var parentNode = node.parentNode;
-      log(parentNode);
       if (/A|BUTTON/.test(parentNode.nodeName) || parentNode.getAttribute("jsaction") || parentNode.getAttribute("onclick")) {
-        node.parentNode.click();
-        break;
+        var computedStyle = getComputedStyle(parentNode);
+        if (computedStyle.opacity !== "0" && computedStyle.visibility === "visible" && computedStyle.display !== "none") {
+          node.parentNode.click();
+          break;
+        }
       }
     }
   }
