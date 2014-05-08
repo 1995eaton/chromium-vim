@@ -72,7 +72,8 @@ map <C-e> scrollPageUp
 | f                       | open link in current tab                                           | createHint             | 
 | F                       | open link in new tab                                               | createTabbedHint       | 
 | W                       | open link in new window                                            | createHintWindow       | 
-| M                       | open multiple links                                                | createMultiHint        | 
+| mf                      | open multiple links                                                | createMultiHint        | 
+| mr                      | reverse image search multiple links                                | multiReverseImage      |
 | my                      | yank multiple links (open the list of links with P)                | multiYankUrl           |
 | Y                       | copy url from link to clipboard                                    | yankUrl                | 
 | gr                      | reverse image search (google images)                               | reverseImage           | 

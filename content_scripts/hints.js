@@ -77,19 +77,16 @@ Hints.dispatchAction = function(link) {
   switch (this.type) {
     case "multi":
       chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: link.href, noconvert: true});
-      this.removeContainer();
-      return this.create("multi", true);
+      break;
     case "tabbed":
       chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: link.href, noconvert: true});
       break;
     case "yank":
-      Clipboard.copy(link.href);
-      break;
     case "multiyank":
-      Clipboard.copy(link.href, true);
-      this.removeContainer();
-      return this.create("multiyank", true);
+      Clipboard.copy(link.href, this.multi);
+      break;
     case "image":
+    case "multiimage":
       chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: "https://www.google.com/searchbyimage?image_url=" + link.src, noconvert: true});
       break;
     case "window":
@@ -114,7 +111,12 @@ Hints.dispatchAction = function(link) {
       link.simulateClick();
       break;
   }
-  this.hideHints(false);
+  if (this.multi) {
+    this.removeContainer();
+    this.create(this.type, true);
+  } else {
+    this.hideHints(false);
+  }
 };
 
 Hints.handleHintFeedback = function() {
@@ -170,6 +172,7 @@ Hints.getLinks = function() {
       selection = "//a|//area[@href]";
       break;
     case "image":
+    case "multiimage":
       selection = "//img";
       break;
     default:
@@ -206,6 +209,11 @@ Hints.create = function(type, multi) {
   var screen, links, linkNumber, main, frag, linkElement, isAreaNode, mapCoordinates, computedStyle, imgParent, c, i;
   this.type = type;
   links = this.getLinks();
+  if (type && type.indexOf("multi") !== -1) {
+    this.multi = true;
+  } else {
+    this.multi = false;
+  }
   if (links.length === 0) {
     return false;
   }

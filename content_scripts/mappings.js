@@ -89,6 +89,11 @@ Mappings.actions   = {
       }, 0);
     }
   },
+  multiReverseImage: function() {
+    window.setTimeout(function() {
+      Hints.create("multiimage");
+    }, 0);
+  },
   centerMatchT: function() {
     if (Find.matches.length && Find.matches[Find.index])
       window.scrollBy(0, Find.matches[Find.index].getBoundingClientRect().top);
@@ -285,7 +290,7 @@ Mappings.defaults = {
   reloadTab:            ["r"],
   reloadTabUncached:    ["gR"],
   createHint:           ["f"],
-  createMultiHint:      ["M"],
+  createMultiHint:      ["mf"],
   nextMatchPattern:     ["]]"],
   previousMatchPattern: ["[["],
   createHintWindow:     ["W"],
@@ -294,6 +299,7 @@ Mappings.defaults = {
   moveTabLeft:          ["<"],
   goBack:               ["H", "S"],
   reverseImage:         ["gr"],
+  multiReverseImage:    ["mr"],
   goForward:            ["L", "D"],
   firstTab:             ["g0"],
   cancelWebRequest:     ["q"],
