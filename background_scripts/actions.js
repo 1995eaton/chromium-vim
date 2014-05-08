@@ -121,15 +121,19 @@ actions.moveTabLeft = function() {
 actions.openPasteTab = function() {
   var paste = Clipboard.paste();
   if (!paste) return;
-  chrome.tabs.create({
-    url: paste.convertLink(),
-    index: sender.tab.index + 1
-  });
+  paste = paste.split("\n");
+  for (var i = 0, l = paste.length; i < l; ++i) {
+    chrome.tabs.create({
+      url: paste[i].convertLink(),
+      index: sender.tab.index + 1
+    });
+  }
 };
 
 actions.openPaste = function() {
   var paste = Clipboard.paste();
   if (!paste) return;
+  paste = paste.split("\n")[0];
   chrome.tabs.update({
     url: paste.convertLink()
   });

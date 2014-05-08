@@ -150,6 +150,11 @@ Mappings.actions   = {
       Hints.create("yank");
     }, 0);
   },
+  multiYankUrl: function() {
+    window.setTimeout(function() {
+      Hints.create("multiyank");
+    }, 0);
+  },
   yankDocumentUrl: function() {
     Clipboard.copy(document.URL);
   },
@@ -309,6 +314,7 @@ Mappings.defaults = {
   goToRootUrl:          ["gU"],
   goUpUrl:              ["gu"],
   yankUrl:              ["Y"],
+  multiYankUrl:         ["my"],
   yankDocumentUrl:      ["yy"],
   openPaste:            ["p"],
   toggleVisualMode:     ["v"],

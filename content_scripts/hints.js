@@ -26,9 +26,11 @@ Hints.matchPatterns = function(forward) {
   }
 };
 
-Hints.hideHints = function(reset) {
+Hints.hideHints = function(reset, multi) {
   if (document.getElementById("cVim-link-container") !== null) {
-    HUD.hide();
+    if (!multi) {
+      HUD.hide();
+    }
     main = document.getElementById("cVim-link-container");
     if (settings.linkanimations) {
       main.addEventListener("transitionend", function() {
@@ -95,11 +97,16 @@ Hints.handleHintFeedback = function() {
         chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: link.href, noconvert: true});
         main = document.getElementById("cVim-link-container");
         if (main !== null) main.parentNode.removeChild(main);
-        return this.create("multi");
+        return this.create("multi", true);
       }
       var node = link.nodeName;
       if (this.type === "yank") {
         Clipboard.copy(link.href);
+      } else if (this.type === "multiyank") {
+        Clipboard.copy(link.href, true);
+        main = document.getElementById("cVim-link-container");
+        if (main !== null) main.parentNode.removeChild(main);
+        return this.create("multiyank", true);
       } else if (this.type === "image") {
         chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: "https://www.google.com/searchbyimage?image_url=" + link.src, noconvert: true});
       } else if (node === "BUTTON" || link.getAttribute("jsaction")) {
@@ -186,6 +193,7 @@ Hints.getLinks = function() {
 
   switch (this.type) {
     case "yank":
+    case "multiyank":
       selection = "//a|//area[@href]";
       break;
     case "image":
@@ -207,14 +215,14 @@ Hints.getLinks = function() {
   return valid;
 };
 
-Hints.create = function(type) {
+Hints.create = function(type, multi) {
   var screen, links, linkNumber, main, frag, linkElement, isAreaNode, mapCoordinates, computedStyle, imgParent, c, i;
   this.type = type;
   links = this.getLinks();
   if (links.length === 0) {
     return false;
   }
-  this.hideHints(true);
+  this.hideHints(true, multi);
   screen = {
     top: document.body.scrollTop,
     bottom: document.body.scrollTop + window.innerHeight,
@@ -294,28 +302,33 @@ Hints.create = function(type) {
   } catch(e) {
     document.body.appendChild(main);
   }
-
-  HUD.display("Follow link " + (function() {
-    switch (type) {
-      case "yank":
-        Hints.yank = true;
-        return "(yank)";
-      case "image":
-        Hints.image = true;
-        return "(reverse image)";
-      case "tabbed":
-        Hints.tabbed = true;
-        return "(tabbed)";
-      case "window":
-        Hints.windowOpen = true;
-        return "(window)";
-      case "multi":
-        Hints.multiHint = true;
-        return "(multi)";
-      default:
-        return "";
-    }
-  })());
+  
+  if (!multi) {
+    HUD.display("Follow link " + (function() {
+      switch (type) {
+        case "yank":
+          Hints.yank = true;
+          return "(yank)";
+        case "multiyank":
+          Hints.multiyank = true;
+          return "(multi-yank)";
+        case "image":
+          Hints.image = true;
+          return "(reverse image)";
+        case "tabbed":
+          Hints.tabbed = true;
+          return "(tabbed)";
+        case "window":
+          Hints.windowOpen = true;
+          return "(window)";
+        case "multi":
+          Hints.multiHint = true;
+          return "(multi)";
+        default:
+          return "";
+      }
+    })());
+  }
 
   var lim = Math.ceil(Math.log(this.linkArr.length) / Math.log(settings.hintcharacters.length));
   var rlim = Math.floor((Math.pow(settings.hintcharacters.length, lim) - this.linkArr.length) / settings.hintcharacters.length);
