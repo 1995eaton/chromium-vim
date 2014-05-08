@@ -69,3 +69,11 @@ Object.prototype.clone = function() {
   history.replaceState(old);
   return clone;
 };
+
+Object.prototype.simulateClick = function() {
+  ["mouseover", "mousedown", "mouseup", "click"].forEach(function(event) {
+    var mev = document.createEvent("MouseEvents");
+    mev.initMouseEvent(event, true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+    this.dispatchEvent(mev);
+  }.bind(this));
+};

@@ -1,7 +1,6 @@
-var log = console.log.bind(console);
+var log;
+log = console.log.bind(console);
 var Hints = {};
-
-var linkHoverEnabled = false;
 
 Hints.matchPatterns = function(forward) {
   var pattern = new RegExp("^" + (forward ? settings.nextmatchpattern : settings.previousmatchpattern) + "$", "gi");
@@ -66,119 +65,93 @@ Hints.invertColors = function(invert) {
   }
 };
 
-Hints.handleHintFeedback = function() {
-  var linksFound = 0;
-  var index;
-  for (var i = 0; i < this.permutations.length; i++) {
-    if (this.currentString === this.permutations[i].substring(0, this.currentString.length)) {
-      if (this.linkArr[i].children.length) {
-        this.linkArr[i].replaceChild(this.linkArr[i].firstChild.firstChild, this.linkArr[i].firstChild);
-        this.linkArr[i].normalize();
-      }
-      var span = document.createElement("span");
-      span.cVim = true;
-      span.className = "cVim-link-hint_match";
-      this.linkArr[i].firstChild.splitText(this.currentString.length);
-      span.appendChild(this.linkArr[i].firstChild.cloneNode(true));
-      this.linkArr[i].replaceChild(span, this.linkArr[i].firstChild);
-      index = i.toString();
-      linksFound++;
-    } else {
-      if (this.linkArr[i].parentNode) {
-        this.linkArr[i].style.opacity = "0";
-      }
-    }
+Hints.removeContainer = function() {
+  var hintContainer = document.getElementById("cVim-link-container");
+  if (hintContainer !== null) {
+    hintContainer.parentNode.removeChild(hintContainer);
   }
-  if (linksFound === 1) {
-    var link = this.linkHints[index];
-    setTimeout(function() {
-      var ev, main;
-      if (this.type === "multi") {
-        chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: link.href, noconvert: true});
-        main = document.getElementById("cVim-link-container");
-        if (main !== null) main.parentNode.removeChild(main);
-        return this.create("multi", true);
-      }
-      var node = link.nodeName;
-      if (this.type === "yank") {
-        Clipboard.copy(link.href);
-      } else if (this.type === "multiyank") {
-        Clipboard.copy(link.href, true);
-        main = document.getElementById("cVim-link-container");
-        if (main !== null) main.parentNode.removeChild(main);
-        return this.create("multiyank", true);
-      } else if (this.type === "image") {
-        chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: "https://www.google.com/searchbyimage?image_url=" + link.src, noconvert: true});
-      } else if (node === "BUTTON" || link.getAttribute("jsaction")) {
-        link.focus();
-        link.click();
-      } else if (/^(button|checkbox)$/.test(link.getAttribute("role"))) {
-        link.focus();
-        switch (link.getAttribute("aria-expanded")) {
-          case "false":
-            ev = new MouseEvent("mouseover");
-            link.dispatchEvent(ev);
-            if (link.getAttribute("aria-expanded") === "false") {
-              ev = new MouseEvent("mousedown");
-              link.dispatchEvent(ev);
-            }
-            break;
-          case "true":
-            ev = new MouseEvent("mouseover");
-            link.dispatchEvent(ev);
-            if (link.getAttribute("aria-expanded") === "false") break;
-            ev = new MouseEvent("mousedown");
-            link.dispatchEvent(ev);
-            break;
-          default:
-            link.click();
-            break;
-        }
-      } else if (node === "SELECT") {
-        ev = new MouseEvent("mousedown");
-        link.dispatchEvent(ev);
-      } else if (node === "TEXTAREA" || (node === "INPUT" && /^(text|password|email|search)$/i.test(link.type))) {
+};
+
+Hints.dispatchAction = function(link) {
+  var node = link.nodeName;
+  switch (this.type) {
+    case "multi":
+      chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: link.href, noconvert: true});
+      this.removeContainer();
+      return this.create("multi", true);
+    case "tabbed":
+      chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: link.href, noconvert: true});
+      break;
+    case "yank":
+      Clipboard.copy(link.href);
+      break;
+    case "multiyank":
+      Clipboard.copy(link.href, true);
+      this.removeContainer();
+      return this.create("multiyank", true);
+    case "image":
+      chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: "https://www.google.com/searchbyimage?image_url=" + link.src, noconvert: true});
+      break;
+    case "window":
+      chrome.runtime.sendMessage({action: "openLinkWindow", focused: false, url: link.href, noconvert: true});
+      break;
+    default:
+      if (node === "TEXTAREA" || (node === "INPUT" && /^(text|password|email|search)$/i.test(link.type))) {
         setTimeout(function() {
           link.focus();
           if (link.getAttribute("readonly")) {
             link.select();
           }
         }.bind(this), 0);
-      } else if (node === "INPUT") {
-        switch (link.type) {
-          case "radio":
-          case "submit":
-            link.click();
-            break;
-          case "checkbox":
-            link.checked = !link.checked;
-            break;
-          default:
-            link.click();
-            break;
-        }
-      } else if (this.type === "window") {
-        chrome.runtime.sendMessage({action: "openLinkWindow", focused: false, url: link.href, noconvert: true});
-      } else if (this.type !== "tabbed" && link.getAttribute("onclick") !== null) {
-        link.click();
-      } else if (this.type === "tabbed") {
-        chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: link.href, noconvert: true});
-      } else {
-        main = document.getElementById("cVim-link-container");
-        if (main !== null) main.parentNode.removeChild(main);
-        link.click();
+        break;
       }
-    }.bind(this), 0);
+      if (node === "INPUT" || /button|select/i.test(node) || /^(button|checkbox)$/.test(link.getAttribute("role")) || link.getAttribute("jsaction") || link.getAttribute("onclick")) {
+        window.setTimeout(function() {
+          link.simulateClick();
+        }, 0);
+        break;
+      }
+      link.simulateClick();
+      break;
   }
-  if (linksFound < 2) {
+  this.hideHints(false);
+};
+
+Hints.handleHintFeedback = function() {
+  var linksFound = 0,
+      index;
+
+  for (var i = 0; i < this.permutations.length; i++) {
+    if (this.permutations[i].indexOf(this.currentString) === 0) {
+      if (this.linkArr[i].children.length) {
+        this.linkArr[i].replaceChild(this.linkArr[i].firstChild.firstChild, this.linkArr[i].firstChild);
+        this.linkArr[i].normalize();
+      }
+      var span = document.createElement("span");
+      span.setAttribute("cVim", true);
+      span.className = "cVim-link-hint_match";
+      this.linkArr[i].firstChild.splitText(this.currentString.length);
+      span.appendChild(this.linkArr[i].firstChild.cloneNode(true));
+      this.linkArr[i].replaceChild(span, this.linkArr[i].firstChild);
+      index = i.toString();
+      linksFound++;
+    } else if (this.linkArr[i].parentNode) {
+      this.linkArr[i].style.opacity = "0";
+    }
+  }
+  
+  if (linksFound === 0) {
     this.hideHints(false);
+  }
+  if (linksFound === 1) {
+    this.dispatchAction(this.linkHints[index]);
   }
 
 };
 
 
 Hints.handleHint = function(key) {
-  if (settings.hintcharacters.split("").indexOf(key.toLowerCase()) > -1) {
+  if (settings.hintcharacters.split("").indexOf(key.toLowerCase()) !== -1) {
     this.currentString += key.toLowerCase();
     this.handleHintFeedback(this.currentString);
   } else {
@@ -188,7 +161,7 @@ Hints.handleHint = function(key) {
 
 Hints.getLinks = function() {
   var candidates, selection, item;
-  var valid = [],
+  var validLinks = [],
       isRedditUrl = /\.reddit\.com/.test(window.location.origin);
 
   switch (this.type) {
@@ -208,11 +181,25 @@ Hints.getLinks = function() {
     item = candidates.snapshotItem(i);
     if (isRedditUrl && (/click_thing/.test(item.getAttribute("onclick")) || (document.body.classList.contains("listing-chooser-collapsed") && item.offsetParent && (item.offsetParent.classList.contains("listing-chooser") || item.offsetParent.offsetParent && item.offsetParent.offsetParent.classList.contains("listing-chooser"))))) continue;
     if (!item.hasOwnProperty("cVim")) {
-      valid.push(item);
+      validLinks.push(item);
     }
 
   }
-  return valid;
+  return validLinks;
+};
+
+Hints.generateHintString = function(n, x) {
+  var l, len, r;
+  l = [];
+  len = settings.hintcharacters.length;
+  for (var i = 0; i < x; i++) {
+    r = n % len;
+    l.unshift(settings.hintcharacters[r]);
+    n -= r;
+    n /= Math.floor(len);
+    if (n < 0) break;
+  }
+  return l.join("");
 };
 
 Hints.create = function(type, multi) {
@@ -303,7 +290,7 @@ Hints.create = function(type, multi) {
     document.body.appendChild(main);
   }
   
-  if (!multi) {
+  if (!multi && settings.hud) {
     HUD.display("Follow link " + (function() {
       switch (type) {
         case "yank":
@@ -330,34 +317,23 @@ Hints.create = function(type, multi) {
     })());
   }
 
-  var lim = Math.ceil(Math.log(this.linkArr.length) / Math.log(settings.hintcharacters.length));
+  var lim = Math.ceil(Math.log(this.linkArr.length) / Math.log(settings.hintcharacters.length)) || 1;
   var rlim = Math.floor((Math.pow(settings.hintcharacters.length, lim) - this.linkArr.length) / settings.hintcharacters.length);
-  if (lim === 0) lim = 1;
 
-  function genHint(n, x) { // All credit goes to Vimium for this great way of generating link hints
-    var l, len, r;
-    l = [];
-    len = settings.hintcharacters.length;
-    for (var i = 0; i < x; i++) {
-      r = n % len;
-      l.unshift(settings.hintcharacters[r]);
-      n -= r;
-      n /= Math.floor(len);
-      if (n < 0) break;
-    }
-    return l.join("");
-  }
   for (i = 0; i < rlim; ++i) {
-    this.linkArr[i].innerText = genHint(i, lim - 1);
-    this.permutations.push(genHint(i, lim - 1));
+    this.linkArr[i].innerText = this.generateHintString(i, lim - 1);
+    this.permutations.push(this.generateHintString(i, lim - 1));
   }
+
   for (i = rlim * settings.hintcharacters.length, e = i + this.linkArr.length - rlim; i < e; ++i) {
-    this.permutations.push(genHint(i, lim));
+    this.permutations.push(this.generateHintString(i, lim));
   }
+
   for (i = this.linkArr.length - 1; i >= 0; --i) {
     this.linkArr[i].innerText = this.permutations[i];
     frag.appendChild(this.linkArr[i]);
   }
+
   main.appendChild(frag);
   main.style.opacity = "1";
 };
