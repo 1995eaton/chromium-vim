@@ -16,6 +16,9 @@ port.onMessage.addListener(function(response) {
           }
         }
       }
+      matches = matches.sort(function(a, b) {
+        return a[2].length - b[2].length;
+      });
       if (Command.historyMode) {
         if (matches.length > 0) {
           Command.appendResults(matches, false);

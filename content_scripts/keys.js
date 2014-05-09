@@ -155,7 +155,9 @@ keyDown = function(e) {
     Mappings.insertCommand(asciiKey, function() {
       e.preventDefault();
       if (document.activeElement.id === "cVim-command-bar-input" && Command.type !== "search") {
-        Command.complete(Command.input.value);
+        window.setTimeout(function() {
+          Command.complete(Command.input.value);
+        }, 0);
       }
     });
   } else if (Hints.active && (keyType.escape || e.which <= 40) && !(settings.typelinkhints && e.which === 32)) {

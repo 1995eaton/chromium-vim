@@ -158,28 +158,33 @@ Command.complete = function(value) {
   var search = value.replace(/^(chrome:\/\/|\S+ +)/, "");
 
   if (/^(tabopen|to|open|o|wo|winopen)(\s+)/.test(value)) {
-    if (search.trim().length < 2) return this.hideData();
-    if (search[0] === "/" || /:\/\//.test(search)) {
-      port.postMessage({action: "searchHistory", search: search, limit: settings.searchlimit});
-      if (Marks.history && Marks.history.length) {
-        this.appendResults(Marks.history, false, "History", "#0080d6");
-      } else {
-        this.hideData();
+    search = search.split(/ +/).filter(function(e) {
+      return e;
+    });
+    if (search.length < 2) {
+      var matches = [];
+      if (Complete.engines.indexOf(search[0]) !== -1) {
+        return this.hideData();
       }
-      Marks.history = [];
-      return;
-    }
-    port.postMessage({action: "searchHistory", search: search, limit: 4});
-    Search.fetchQuery(search, function(response) {
-      if (this.bar.style.display === "inline-block") {
-        this.typed = value;
-        this.hideData();
-        this.appendResults(response, false);
-        if (Marks.history) {
-          this.appendResults(Marks.history, true, "History", "#0080d6");
+      for (var i = 0, l = Complete.engines.length; i < l; ++i) {
+        if (!search[0] || Complete.engines[i].indexOf(search[0]) === 0) {
+          matches.push(["engines", Complete.engines[i], Complete.requestUrls[Complete.engines[i]]]);
         }
       }
-    }.bind(this));
+      if (matches.length) {
+        return this.appendResults(matches, false);
+      }
+      this.historyMode = true;
+      return port.postMessage({action: "searchHistory", search: value.replace(/^\S+\s+/, ""), limit: settings.searchlimit});
+    }
+    if (Complete.engines.indexOf(search[0]) !== -1) {
+      Complete[search[0]](search.slice(1), function(response) {
+        if (!response.length) {
+          return this.hideData();
+        }
+        this.appendResults(response, false);
+      }.bind(this));
+    }
     return;
   }
 
@@ -296,15 +301,15 @@ Command.execute = function(value, repeats) {
         } else {
           chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value.replace(/^b(ook)?marks(\s+)?/, ""), noconvert: true});
         }
-      } else if (/^history +/.test(value))
-        chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value.replace(/^history +?/, ""), noconvert: true});
-      else if (/^(winopen|wo)$/.test(value.replace(/ .*/, "")))
-        chrome.runtime.sendMessage({action: "openLinkWindow", focused: activeTab, url: value.replace(/^\S+( +)?/, ""), repeats: repeats});
-      else if (/^(to|tabopen)$/.test(value.replace(/ .*/, "")))
-        chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value.replace(/^\S+( +)?/, ""), repeats: repeats});
-      else if (/^(o|open)$/.test(value.replace(/ .*/, "")))
-        chrome.runtime.sendMessage({action: "openLink", active: activeTab, url: value.replace(/^\S+( +)?/, "")});
-      else if (/^buffers +[0-9]+(\s+)?$/.test(value))
+      } else if (/^history +/.test(value)) {
+        chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: Complete.convertToLink(value), noconvert: true});
+      } else if (/^(winopen|wo)$/.test(value.replace(/ .*/, ""))) {
+        chrome.runtime.sendMessage({action: "openLinkWindow", focused: activeTab, url: Complete.convertToLink(value), repeats: repeats, noconvert: true});
+      } else if (/^(to|tabopen)$/.test(value.replace(/ .*/, ""))) {
+        chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: Complete.convertToLink(value), repeats: repeats, noconvert: true});
+      } else if (/^(o|open)$/.test(value.replace(/ .*/, ""))) {
+        chrome.runtime.sendMessage({action: "openLink", active: activeTab, url: Complete.convertToLink(value), noconvert: true});
+      } else if (/^buffers +[0-9]+(\s+)?$/.test(value))
         chrome.runtime.sendMessage({action: "selectTab", tabIndex: value.replace(/^.*([0-9]+).*$/, "$1")});
       else if (/^execute +/.test(value)) {
         var command = value.replace(/^\S+/, "").trim();

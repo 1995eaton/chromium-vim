@@ -24,33 +24,6 @@ Search.settingsMatch = function(string, callback) {
   }).map(function(e){return["settings",e.replace(/^\|/, "")];}));
 };
 
-Search.fetchQuery = function(query, callback) {
-  Search.current = query;
-  if (Search.delay) return false;
-  Search.delay = true;
-  var api = "https://suggestqueries.google.com/complete/search?client=firefox&q=";
-  var lastQuery = query;
-  setTimeout(function() {
-    Search.delay = false;
-    if (lastQuery !== Search.current) {
-      Search.fetchQuery(query, callback);
-    }
-  }, 50);
-  var xhr = new XMLHttpRequest();
-  xhr.open("GET", api + query);
-  xhr.onreadystatechange = function() {
-    var matches = [];
-    if (xhr.readyState === 4 && xhr.status === 200) {
-      var data = JSON.parse(xhr.responseText)[1];
-      for (var i = 0, l = data.length; i < l; ++i) {
-        matches.push(["search", data[i]]);
-      }
-      callback(matches);
-    }
-  };
-  xhr.send();
-};
-
 Search.nextResult = function(reverse) {
 
   if (!Command.dataElements.length) {
@@ -108,7 +81,17 @@ Search.nextResult = function(reverse) {
     case "history":
       Command.input.value = Command.input.value.match(/^\S+ /)[0] + Command.completionResults[this.index][2];
       break;
+    case "engines":
+      Command.input.value = Command.input.value.match(/^\S+ /)[0] + Command.completionResults[this.index][1];
+      break;
     case "search":
+      var value = Command.input.value.split(/\s+/).filter(function(e) { return e; });
+      if (Command.completionResults[this.index].length === 3) {
+        Command.input.value = value[0] + " " + Command.completionResults[this.index][2];
+      } else {
+        Command.input.value = value.slice(0, 2).join(" ") + " " + Command.completionResults[this.index][1];
+      }
+      break;
     case "session":
       Command.input.value = Command.input.value.match(/^\S+/)[0] + " " + Command.completionResults[this.index][1];
       break;
