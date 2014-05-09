@@ -153,7 +153,7 @@ keyDown = function(e) {
         Command.complete(Command.input.value);
       }
     });
-  } else if (Hints.active && (keyType.escape || e.which <= 40)) {
+  } else if (Hints.active && (keyType.escape || e.which <= 40) && !(settings.typelinkhints && e.which === 32)) {
     e.stopPropagation();
     e.preventDefault();
     return Hints.hideHints();

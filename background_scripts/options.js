@@ -32,6 +32,8 @@ var settingsDefault = {
     linkanimations: true,
     ignorecase: true,
     ignorediacritics: true,
+    numerichints: false,
+    typelinkhints: false,
     autofocus: true,
     insertmappings: true,
     smoothscroll: true,

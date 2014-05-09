@@ -542,13 +542,35 @@ Mappings.isValidMapping = function(c) {
 
 Mappings.convertToAction = function(c) {
   var addOne = false;
-
-  if (!c || c === "<Space>")
+  if (!c || c.trim() === "") {
     return false;
-  if (Hints.active)
+  }
+  if (Hints.active) {
+    if (settings.numerichints && c === "<Enter>") {
+      if (Hints.numericMatch) {
+        return Hints.dispatchAction(Hints.numericMatch);
+      }
+      return Hints.hideHints(false);
+    }
+    if (settings.typelinkhints) {
+      if (c === ";") {
+        Hints.changeFocus();
+      } else {
+        Hints.handleHint(c.replace("<Space>", " "));
+      }
+      return true;
+    }
+    if (c === "<Space>") {
+      return false;
+    }
     return (c === ";" ? Hints.changeFocus() : Hints.handleHint(c));
-  if (/^[0-9]$/.test(c) && !(c === "0" && Mappings.repeats === "") && Mappings.queue.length === 0)
+  }
+  if (!c || c === "<Space>") {
+    return false;
+  }
+  if (/^[0-9]$/.test(c) && !(c === "0" && Mappings.repeats === "") && Mappings.queue.length === 0) {
     return Mappings.repeats += c;
+  }
 
   Mappings.queue += c;
   for (var key in this.defaults) {

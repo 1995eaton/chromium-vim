@@ -26,6 +26,8 @@
 | ignorecase           | boolean                      | ignore search case in find mode                                                   | true                                                                     |
 | ignorediacritics     | boolean                      | convert diacritical characters to their English equivalents                       | true                                                                     |
 | linkanimations       | boolean                      | show fade effect when link hints open and close                                   | true                                                                     |
+| numerichints         | boolean                      | use numbers for link hints instead of a set of characters                         | false                                                                    |
+| typelinkhints        | boolean                      | (numerichints required) type text in the link to narrow down numeric hints        | false                                                                    |
 | autofocus            | boolean                      | allows websites to automatically focus an input box when they are first loaded    | true                                                                     |
 | insertmappings       | boolean                      | use insert mappings to navigate the cursor in text boxes (see bindings below)     | true                                                                     |
 | smoothscroll         | boolean                      | use smooth scrolling                                                              | true                                                                     |
