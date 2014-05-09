@@ -4,18 +4,34 @@ Marks.quickMarks       = {};
 Marks.currentBookmarks = [];
 
 Marks.addQuickMark = function(ch) {
-  this.quickMarks[ch] = document.URL;
+  if (this.quickMarks[ch] === undefined) {
+    Status.setMessage("New QuickMark \"" + ch + "\" added", 1);
+    this.quickMarks[ch] = [document.URL];
+  } else if (this.quickMarks[ch].indexOf(document.URL) === -1) {
+    Status.setMessage("Current URL added to QuickMark \"" + ch + "\"", 1);
+    this.quickMarks[ch].push(document.URL);
+  } else {
+    this.quickMarks[ch].splice(this.quickMarks[ch].indexOf(document.URL));
+    if (this.quickMarks[ch].length === 0) {
+      Status.setMessage("Quickmark \"" + ch + "\" removed", 1);
+      delete this.quickMarks[ch];
+    } else {
+      Status.setMessage("Current URL removed from existing QuickMark \"" + ch + "\"", 1);
+    }
+  }
   chrome.runtime.sendMessage({action: "updateMarks", marks: this.quickMarks});
 };
 
-Marks.openQuickMark = function(ch, tabbed, repeats) {
+Marks.openQuickMark = function(ch, tabbed) {
   if (!this.quickMarks.hasOwnProperty(ch)) {
     return Status.setMessage("Error: mark not set", 1);
   }
   if (tabbed) {
-    chrome.runtime.sendMessage({action: "openLinkTab", url: this.quickMarks[ch], repeats: repeats});
+    for (var i = 0, l = this.quickMarks[ch].length; i < l; ++i) {
+      chrome.runtime.sendMessage({action: "openLinkTab", url: this.quickMarks[ch][i]});
+    }
   } else {
-    chrome.runtime.sendMessage({action: "openLink", url: this.quickMarks[ch]});
+    chrome.runtime.sendMessage({action: "openLink", url: this.quickMarks[ch][0]});
   }
 };
 
