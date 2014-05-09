@@ -19,7 +19,7 @@ String.prototype.validURL = function() {
 
 var Complete = {};
 
-Complete.engines = ["google", "wikipedia", "duckduckgo", "yahoo", "bing", "imdb"];
+Complete.engines = ["google", "wikipedia", "imdb", "amazon", "duckduckgo", "yahoo", "bing"];
 
 Complete.requestUrls = {
   wikipedia:  "https://en.wikipedia.org/wiki/",
@@ -27,7 +27,8 @@ Complete.requestUrls = {
   duckduckgo: "https://duckduckgo.com/?q=",
   yahoo:      "https://search.yahoo.com/search?p=",
   bing:       "https://www.bing.com/search?q=",
-  imdb:       "http://www.imdb.com/find?s=all&q="
+  imdb:       "http://www.imdb.com/find?s=all&q=",
+  amazon:     "http://www.amazon.com/s/?field-keywords="
 };
 
 Complete.parseQuery = {
@@ -44,7 +45,8 @@ Complete.apis = {
   google:    "https://suggestqueries.google.com/complete/search?client=firefox&q=",
   yahoo:     "https://search.yahoo.com/sugg/gossip/gossip-us-ura/?output=sd1&appid=search.yahoo.com&nresults=10&command=",
   bing:      "http://api.bing.com/osjson.aspx?query=",
-  imdb:      "http://sg.media-imdb.com/suggests/"
+  imdb:      "http://sg.media-imdb.com/suggests/",
+  amazon:    "http://completion.amazon.com/search/complete?method=completion&search-alias=aps&client=amazon-search-ui&mkt=1&q="
 };
 
 Complete.convertToLink = function(input) {
@@ -94,6 +96,14 @@ Complete.wikipedia = function(query, callback) {
 
 Complete.google = function(query, callback) {
   this.xhr(this.apis.google + query, function(response) {
+    callback(response[1].map(function(e) {
+      return ["search"].concat(e);
+    }));
+  });
+};
+
+Complete.amazon = function(query, callback) {
+  this.xhr(this.apis.amazon + query, function(response) {
     callback(response[1].map(function(e) {
       return ["search"].concat(e);
     }));
