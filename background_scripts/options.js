@@ -6,7 +6,7 @@ Object.prototype.flatten = function() {
 	var _ret = {};
 	for (var key in this) {
 		if (this.hasOwnProperty(key)) {
-      if (typeof this[key] === "object" && !Array.isArray(this[key])) {
+      if (key !== "qmarks" && typeof this[key] === "object" && !Array.isArray(this[key])) {
         var _rec = this[key].flatten();
         for (var subKey in _rec) {
           if (!_rec.hasOwnProperty(subKey)) continue;
@@ -24,7 +24,10 @@ Object.prototype.flatten = function() {
 var settingsDefault = {
   positiveIntegers: {
     searchlimit: 20,
-    scrollstep: 75,
+    scrollstep: 75
+  },
+  objects: {
+    qmarks: {}
   },
   booleans: {
     hud: true,

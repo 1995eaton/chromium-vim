@@ -22,16 +22,28 @@ Marks.addQuickMark = function(ch) {
   chrome.runtime.sendMessage({action: "updateMarks", marks: this.quickMarks});
 };
 
-Marks.openQuickMark = function(ch, tabbed) {
+Marks.openQuickMark = function(ch, tabbed, repeats) {
   if (!this.quickMarks.hasOwnProperty(ch)) {
     return Status.setMessage("Error: mark not set", 1);
   }
   if (tabbed) {
-    for (var i = 0, l = this.quickMarks[ch].length; i < l; ++i) {
-      chrome.runtime.sendMessage({action: "openLinkTab", url: this.quickMarks[ch][i]});
+    if (repeats !== 1) {
+      if (this.quickMarks[ch][repeats - 1]) {
+        chrome.runtime.sendMessage({action: "openLinkTab", url: this.quickMarks[ch][repeats - 1]});
+      } else {
+        chrome.runtime.sendMessage({action: "openLinkTab", url: this.quickMarks[ch][0]});
+      }
+    } else {
+      for (var i = 0, l = this.quickMarks[ch].length; i < l; ++i) {
+        chrome.runtime.sendMessage({action: "openLinkTab", url: this.quickMarks[ch][i]});
+      }
     }
   } else {
-    chrome.runtime.sendMessage({action: "openLink", url: this.quickMarks[ch][0]});
+    if (this.quickMarks[ch][repeats - 1]) {
+      chrome.runtime.sendMessage({action: "openLink", url: this.quickMarks[ch][repeats - 1]});
+    } else {
+      chrome.runtime.sendMessage({action: "openLink", url: this.quickMarks[ch][0]});
+    }
   }
 };
 

@@ -17,11 +17,27 @@ Settings.getrc = function() {
 
 Settings.ignore = ["commandBarCSS", "mappings", "blacklists"];
 
+Settings.parseQmark = function(string) { // TODO: Modularize this and the parserc function
+  if (string.indexOf("=") === -1) {
+    return false;
+  }
+  var values = string.split("=");
+  if (values.length !== 2 || values[0].length !== 1) {
+    return false;
+  }
+  values[1] = values[1].split(",");
+  if (!this.settings.qmarks) {
+    this.settings.qmarks = {};
+  }
+  this.settings.qmarks[values[0]] = values[1];
+};
+
 Settings.parserc = function(values) {
   var config, isEnabled;
   var sValues = Object.keys(this.settings).map(function(e) { return e.toLowerCase(); }).filter(function(e) {
     return Settings.ignore.indexOf(e) === -1;
   });
+  this.settings.qmarks = {};
   for (var key in this.defaultSettings) {
     if (this.ignore.indexOf(key) === -1) {
       this.settings[key] = this.defaultSettings[key];
@@ -29,7 +45,12 @@ Settings.parserc = function(values) {
   }
   for (var i = 0, l = values.length; i < l; ++i) {
     config = values[i];
-    if (config.length !== 1) continue;
+    if (config.length !== 1) {
+      if (config.length === 2 && config[0] === "qmark") {
+        this.parseQmark(config[1]);
+      }
+      continue;
+    }
     config = config[0];
     if (!/=/.test(config)) {
       isEnabled = true;

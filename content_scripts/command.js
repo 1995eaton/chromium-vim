@@ -388,7 +388,7 @@ Command.execute = function(value, repeats) {
         if (value.length !== 2) {
           Status.setMessage("Error: two arguments are required", 1);
         } else if (value[0].length !== 1) {
-          Status.setMessage("Error: QuickMarks can only be one character long", 1);
+          Status.setMessage("Error: argument must be an ASCI letter or digit", 1);
         } else {
           if (Marks.quickMarks.hasOwnProperty(value[0])) {
             if (Marks.quickMarks[value[0]].indexOf(value[1]) !== -1) {
@@ -456,6 +456,19 @@ Command.init = function(enabled) {
   if (enabled) {
     Mappings.defaults = Mappings.defaultsClone.clone();
     Mappings.shortCuts = Mappings.shortCutsClone.clone();
+    if (typeof settings.qmarks === "object") {
+      for (var key in settings.qmarks) {
+        if (Array.isArray(Marks.quickMarks[key])) {
+          for (var i = 0; i < settings.qmarks[key].length; ++i) {
+            if (Marks.quickMarks[key].indexOf(settings.qmarks[key][i]) === -1) {
+              Marks.quickMarks[key].push(settings.qmarks[key][i]);
+            }
+          }
+        } else {
+          Marks.quickMarks[key] = settings.qmarks[key];
+        }
+      }
+    }
     Mappings.parseCustom(settings.mappings);
     this.css = document.createElement("style");
     this.css.innerText = settings.commandBarCSS;

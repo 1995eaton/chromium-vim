@@ -178,7 +178,7 @@ Mappings.actions   = {
     Marks.addQuickMark(queue.slice(-1));
   },
   openQuickMark: function(repeats, queue) {
-    Marks.openQuickMark(queue.slice(-1), false);
+    Marks.openQuickMark(queue.slice(-1), false, repeats);
   },
   openQuickMarkTabbed: function(repeats, queue) {
     Marks.openQuickMark(queue.slice(-1), true, repeats);
