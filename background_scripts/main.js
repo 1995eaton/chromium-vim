@@ -111,7 +111,7 @@ Bookmarks = {
     path = path.split("/").filter(function(e) { return e; });
     chrome.bookmarks.getTree(function(tree) {
       var dir = tree[0];
-      while (dir = containsFolder(path[0], dir)) {
+      while (dir = Bookmarks.containsFolder(path[0], dir)) {
         path = path.slice(1);
         if (!path || !path.length) {
           callback(dir.children.filter(function(e) {
