@@ -20,10 +20,10 @@ Settings.ignore = ["commandBarCSS", "mappings", "blacklists"];
 Settings.parserc = function(values) {
   var config, isEnabled;
   var sValues = Object.keys(this.settings).map(function(e) { return e.toLowerCase(); }).filter(function(e) {
-    return !/commandBarCSS|mappings|blacklists/i.test(e);
+    return Settings.ignore.indexOf(e) === -1;
   });
   for (var key in this.defaultSettings) {
-    if (!/commandBarCSS|mappings|blacklists/i.test(key)) {
+    if (this.ignore.indexOf(key) === -1) {
       this.settings[key] = this.defaultSettings[key];
     }
   }
