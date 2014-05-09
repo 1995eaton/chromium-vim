@@ -190,6 +190,7 @@ keyDown = function(e) {
       Find.clear();
       HUD.hide();
     }
+    Command.hideData();
     Command.hide();
   }
 

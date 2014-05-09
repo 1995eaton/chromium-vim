@@ -22,8 +22,8 @@ var Complete = {};
 Complete.engines = ["google", "wikipedia", "duckduckgo", "yahoo", "bing", "imdb"];
 
 Complete.requestUrls = {
-  wikipedia: "https://en.wikipedia.org/wiki/",
-  google:    "https://www.google.com/search?q=",
+  wikipedia:  "https://en.wikipedia.org/wiki/",
+  google:     "https://www.google.com/search?q=",
   duckduckgo: "https://duckduckgo.com/?q=",
   yahoo:      "https://search.yahoo.com/search?p=",
   bing:       "https://www.bing.com/search?q=",
@@ -40,11 +40,11 @@ Complete.parseQuery = {
 };
 
 Complete.apis = {
-  wikipedia: "http://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=",
+  wikipedia: "https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=",
   google:    "https://suggestqueries.google.com/complete/search?client=firefox&q=",
   yahoo:     "https://search.yahoo.com/sugg/gossip/gossip-us-ura/?output=sd1&appid=search.yahoo.com&nresults=10&command=",
   bing:      "http://api.bing.com/osjson.aspx?query=",
-  imdb:       "http://sg.media-imdb.com/suggests/"
+  imdb:      "http://sg.media-imdb.com/suggests/"
 };
 
 Complete.convertToLink = function(input) {
