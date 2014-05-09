@@ -281,6 +281,7 @@ Mappings.actions   = {
 };
 
 Mappings.shortCuts = [
+  ["a",  ":tabopen google "],
   ["o",  ":open "],
   ["O",  ":open @%"],
   ["b",  ":bookmarks "],

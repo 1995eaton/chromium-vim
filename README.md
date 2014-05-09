@@ -86,6 +86,7 @@ map <C-e> scrollPageUp
 | go&lt;*&gt;             | open quickmark &lt;*&gt; in the current tab                        | openQuickMark          |
 | &lt;N&gt;gn&gt;         | open quickmark &lt;*&gt; in a new tab &lt;N&gt; times              | openQuickMarkTabbed    |
 | **Miscellaneous**       |                                                                    |                        |
+| a                       | alias to ":tabopen google "                                        | :tabopen google        |
 | :                       | open command bar                                                   | openCommandBar         |
 | /                       | open search bar                                                    | openSearchBar          |
 | ?                       | open search bar (reverse search)                                   | openSearchBarReverse   |
