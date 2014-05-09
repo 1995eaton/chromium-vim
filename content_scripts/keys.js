@@ -62,7 +62,7 @@ fromKeyCode = function(e) {
     modifier = modifier.replace(/^-/, "");
     convertedKey = "<" + modifier + "-" +
       ((shiftKey && !keyMap.hasOwnProperty(keyCode)) ?
-      "S-" : "") +
+       "S-" : "") +
       (!keyMap.hasOwnProperty(keyCode) ? convertedKey.toLowerCase() : convertedKey) + ">";
   }
 
@@ -78,6 +78,9 @@ keyDown = function(e) {
   if (e.which === 17 || e.which === 16 || e.which === 91 || e.which === 123) {
     return false;
   }
+  if (document.activeElement.id === "cVim-command-bar-input") {
+    e.stopPropagation();
+  }
 
   var asciiKey = fromKeyCode(e);
   var validMapping = Mappings.isValidMapping(asciiKey);
@@ -87,7 +90,9 @@ keyDown = function(e) {
     escape: /^<(Esc|C-\[)>$/.test(asciiKey),
   };
 
-
+  if (keyType.escape && document.activeElement.isInput()) {
+    document.activeElement.blur();
+  }
   if (!commandMode && Mappings.actions.inputFocused && e.which === 9) {
     if (!document.activeElement.isInput() || !Mappings.actions.inputElements.length) {
       return Mappings.actions.inputFocused = false;
@@ -134,8 +139,8 @@ keyDown = function(e) {
   }
 
   var isInput = (document.activeElement.isInput() ||
-                 insertMode ||
-                 Mappings.actions.inputFocused);
+      insertMode ||
+      Mappings.actions.inputFocused);
 
   if (!isInput && e.which > 40 && e.which !== 91 && e.which !== 123 && e.which !== 191) {
     if ((Mappings.queue.length && Mappings.validMatch) || validMapping) {
@@ -285,7 +290,7 @@ mouseMove = function(e) {
 };
 
 keyUp = function(e) {
-  if (!insertMode) {
+  if (document.activeElement.id === "cVim-command-bar-input" || (!insertMode && Mappings.queue.length && Mappings.validMatch)) {
     e.stopPropagation();
     e.preventDefault();
   }

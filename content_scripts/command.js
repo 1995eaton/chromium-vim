@@ -142,6 +142,7 @@ Command.descriptions = [
   ["set",        "Configure Settings"],
   ["mksession",  "Create a saved session of current tabs"],
   ["delsession", "Delete sessions"],
+  ["qmark",      "Add QuickMarks"],
   ["execute",    "Execute a sequence of keys"],
   ["session",    "Open a saved session in a new window"],
   ["bookmarks",  "Search through your bookmarks"],
@@ -380,6 +381,34 @@ Command.execute = function(value, repeats) {
             }
           }
         }
+      } else if (/^qmark\s+/.test(value)) {
+        value = value.replace(/\S+\s+/, "").split(/\s+/).filter(function(e) {
+          return e.trim();
+        });
+        if (value.length !== 2) {
+          Status.setMessage("Error: two arguments are required", 1);
+        } else if (value[0].length !== 1) {
+          Status.setMessage("Error: QuickMarks can only be one character long", 1);
+        } else {
+          if (Marks.quickMarks.hasOwnProperty(value[0])) {
+            if (Marks.quickMarks[value[0]].indexOf(value[1]) !== -1) {
+              Marks.quickMarks[value[0]].splice(Marks.quickMarks[value[0]].indexOf(value[1]), 1);
+              if (Marks.quickMarks[value[0]].length === 0) {
+                Status.setMessage("QuickMark \"" + value[0] + "\" removed", 1);
+                delete Marks.quickMarks[value[0]];
+              } else {
+                Status.setMessage("URL removed from existing QuickMark \"" + value[0] + "\"", 1);
+              }
+            } else {
+              Status.setMessage("URL added to existing QuickMark \"" + value[0] + "\"", 1);
+              Marks.quickMarks[value[0]].push(value[1]);
+            }
+          } else {
+            Status.setMessage("New QuickMark \"" + value[0] + "\" added", 1);
+            Marks.quickMarks[value[0]] = [value[1]];
+          }
+        }
+        chrome.runtime.sendMessage({action: "updateMarks", marks: Marks.quickMarks});
       }
   }
   this.hideData();
