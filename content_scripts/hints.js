@@ -55,21 +55,6 @@ Hints.changeFocus = function() {
   }
 };
 
-Hints.invertColors = function(invert) {
-  var gradient = ["#969696", "#d7d7d7"];
-  var border = "rgba(0,0,0,0.5)";
-  var linkHints = document.getElementsByClassName("cVim-link-hint");
-  var currentBackground = (invert ? "linear-gradient(to top, " + gradient[0] + " 50%, " + gradient[1] + " 100%)" :
-                           "linear-gradient(to top, #262626 50%, #474747 100%)");
-  var currentColor = (invert ? "#333" : "#ccc");
-  var currentBorderColor = (invert ? border : "rgba(255,255,255,0.5)");
-  for (var i = 0; i < linkHints.length; ++i) {
-    linkHints[i].style.background = currentBackground;
-    linkHints[i].style.color = currentColor;
-    linkHints[i].style.borderColor = currentBorderColor;
-  }
-};
-
 Hints.removeContainer = function() {
   var hintContainer = document.getElementById("cVim-link-container");
   if (hintContainer !== null) {
@@ -153,12 +138,11 @@ Hints.handleHintFeedback = function() {
     Hints.numericMatch = null;
     this.currentString = this.currentString.toLowerCase();
     string = this.currentString;
-    containsNumber = /\d/.test(string);
+    containsNumber = /\d+$/.test(string);
     if (containsNumber) {
-      stringNum = this.currentString.match(/[0-9]+/)[0];
+      stringNum = this.currentString.match(/[0-9]+$/)[0];
     }
-    if ((!string) || (!settings.typelinkhints && /\D/.test(string.slice(-1))) ||
-        (settings.typelinkhints  && /\d+\D/.test(string))) {
+    if ((!string) || (!settings.typelinkhints && /\D/.test(string.slice(-1)))) {
       return this.hideHints(false);
     }
     for (i = 0, l = this.linkArr.length; i < l; ++i) {
@@ -171,7 +155,7 @@ Hints.handleHintFeedback = function() {
       if (settings.typelinkhints) {
         if (containsNumber && this.linkArr[i][0].innerText.indexOf(stringNum) === 0) {
           validMatch = true;
-        } else if (!containsNumber && this.linkArr[i][2].toLowerCase().indexOf(string) !== -1) {
+        } else if (!containsNumber && this.linkArr[i][2].toLowerCase().indexOf(string.replace(/.*\d/g, "")) !== -1) {
           validMatch = true;
         }
       } else if (this.linkArr[i][0].innerText.indexOf(string) === 0) {
@@ -280,7 +264,6 @@ Hints.generateHintString = function(n, x) {
 
 Hints.create = function(type, multi) {
   var screen, links, linkNumber, main, frag, linkElement, isAreaNode, mapCoordinates, computedStyle, imgParent, c, i;
-  nu = false;
   this.type = type;
   links = this.getLinks();
   if (type && type.indexOf("multi") !== -1) {
