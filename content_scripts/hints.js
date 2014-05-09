@@ -68,9 +68,6 @@ Hints.dispatchAction = function(link) {
     case "multi":
       chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: link.href, noconvert: true});
       break;
-    case "tabbed":
-      chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: link.href, noconvert: true});
-      break;
     case "yank":
     case "multiyank":
       Clipboard.copy(link.href, this.multi);
@@ -98,7 +95,11 @@ Hints.dispatchAction = function(link) {
         }, 0);
         break;
       }
-      link.simulateClick();
+      if (this.type === "tabbed") {
+        chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: link.href, noconvert: true});
+      } else {
+        link.simulateClick();
+      }
       break;
   }
   if (this.multi) {
