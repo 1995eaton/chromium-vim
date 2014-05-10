@@ -46,6 +46,7 @@
     "storage",
     "sessions",
     "downloads",
+    "webNavigation",
     "downloads.shelf",
     "clipboardRead",
     "clipboardWrite"

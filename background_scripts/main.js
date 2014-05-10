@@ -186,3 +186,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
   requestAction("extension", request, sender, callback);
 });
 
+chrome.webNavigation.onCommitted.addListener(function(info) {
+  chrome.tabs.sendMessage(info.tabId, {action: "initialLoad"});
+});

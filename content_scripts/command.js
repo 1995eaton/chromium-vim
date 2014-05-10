@@ -501,16 +501,23 @@ Command.init = function(enabled) {
       this.data.style[(this.onBottom) ? "bottom" : "top"] = "20px";
     }
     if (!settings.autofocus) {
-      if (!commandMode) document.activeElement.blur();
-      var wait = window.setInterval(function() {
-        if (!commandMode) document.activeElement.blur();
-        if (document.readyState === "complete") { // Kind of hackish, but seems necessary in some cases
-          window.setTimeout(function() {
-            if (!commandMode) document.activeElement.blur();
-          }, 25);
-          window.clearInterval(wait);
+      var manualFocus = false;
+      var initialFocus = window.setInterval(function() {
+        if (/input|textarea/i.test(document.activeElement.nodeName) && !manualFocus) {
+          document.activeElement.blur();
+        }
+        if (manualFocus) {
+          window.clearInterval(initialFocus);
         }
       }, 5);
+      var initialKeyDown = document.addEventListener("keydown", function() {
+        manualFocus = true;
+        document.removeEventListener("keydown", initialKeyDown, true);
+      }, true);
+      var initialMouseDown = document.addEventListener("mousedown", function() {
+        manualFocus = true;
+        document.removeEventListener("mousedown", initialMouseDown, true);
+      }, true);
     }
     Scroll.smoothScroll = settings.smoothscroll;
     Scroll.stepSize = parseInt(settings.scrollstep);
@@ -567,29 +574,33 @@ Command.configureSettings = function(s) {
   });
 };
 
+port.postMessage({action: "getBookmarks"});
+port.postMessage({action: "getQuickMarks"});
+port.postMessage({action: "getSessionNames"});
 document.addEventListener("DOMContentLoaded", function() {
-  port.postMessage({action: "getBookmarks"});
-  port.postMessage({action: "getQuickMarks"});
-  port.postMessage({action: "getSessionNames"});
-  chrome.extension.onMessage.addListener(function(request, sender, callback) {
-    if (request.action === "sendSettings") {
-      Command.configureSettings(request.settings);
-    } else if (request.action === "confirm") {
-      var c = confirm(request.message);
-      callback(c);
-    } else if (request.action === "cancelAllWebRequests") {
-      window.stop();
-    } else if (request.action === "updateMarks") {
-      Marks.quickMarks = request.marks;
-    } else if (request.action === "nextCompletionResult") {
-      if (settings.cncpcompletion && Command.type === "action" && commandMode && document.activeElement.id === "cVim-command-bar-input") {
-        Search.nextResult();
-      } else {
-        if (window.self === window.top) {
-          callback(true);
-        }
+  console.log("cVim: DOMContentLoaded has fired");
+});
+console.log("cVim: initial script has loaded");
+chrome.extension.onMessage.addListener(function(request, sender, callback) {
+  if (request.action === "sendSettings") {
+    Command.configureSettings(request.settings);
+  } else if (request.action === "initialLoad") {
+    console.log("cVim: webNavigation loaded");
+    chrome.runtime.sendMessage({action: "getSettings"});
+  } else if (request.action === "confirm") {
+    var c = confirm(request.message);
+    callback(c);
+  } else if (request.action === "cancelAllWebRequests") {
+    window.stop();
+  } else if (request.action === "updateMarks") {
+    Marks.quickMarks = request.marks;
+  } else if (request.action === "nextCompletionResult") {
+    if (settings.cncpcompletion && Command.type === "action" && commandMode && document.activeElement.id === "cVim-command-bar-input") {
+      Search.nextResult();
+    } else {
+      if (window.self === window.top) {
+        callback(true);
       }
     }
-  });
-  chrome.runtime.sendMessage({action: "getSettings"});
-}, false);
+  }
+});
