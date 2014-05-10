@@ -7,7 +7,7 @@ String.prototype.trimAround = function() {
 };
 
 Settings.getrc = function() {
-  var a = this.rcEl.value.split(/\n|;/).filter(function(e) {
+  var a = this.rcEl.value.split(/\n/).filter(function(e) {
     return e.trim() && /^(\s+)?set\s+\S.*$/.test(e);
   }).map(function(e) {
     return e.trimAround().replace(/(\s+)?".*/, "").replace(/(\s+)?=(\s+)?/, "=").split(/\s+/).slice(1);
