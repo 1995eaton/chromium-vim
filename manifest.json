@@ -23,7 +23,7 @@
          }
       },
       "nextCompletionResult": {
-        "description": "Map <C-n> test",
+        "description": "Let Chrome use <C-n> for cncpcompletion setting (see Help file)",
         "suggested_key": {
           "default": "Ctrl+N"
         }
