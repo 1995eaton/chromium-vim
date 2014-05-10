@@ -137,7 +137,10 @@ Complete.imdb = function(query, callback) {
     if (this.readyState === 4 && this.status === 200 && document.activeElement.id === "cVim-command-bar-input" && commandMode) {
       var _ret = JSON.parse(xhr.responseText.replace(/^[^\(]+\(|\)$/g, ""));
       callback(_ret.d.map(function(e) {
-        var _url = "http://www.imdb.com/" + (/Act(or|ress)/.test(e.s) ? "name" : "title") + "/" + e.id;
+        if (/:\/\//.test(e.id)) {
+          return ["search", e.l, e.id];
+        }
+        var _url = "http://www.imdb.com/" + (e.id.indexOf("nm") === 0 ? "name" : "title") + "/" + e.id;
         if (e.q) {
           return ["search", e.l + " - " + e.q + ", " + e.s + " (" + e.y + ")", _url];
         }
