@@ -4,6 +4,23 @@ var log;
 log = console.log.bind(console);
 Settings.ignore = ["commandBarCSS", "mappings", "blacklists"];
 
+function convertOldSetting(s) {
+  if (/(\s+)?let/.test(s)) {
+    return s;
+  }
+  if (s.indexOf("qmark") !== -1) {
+    s = s.split(/\s+|,|=/).filter(function(e) { return e.trim(); });
+    return "let " + s.slice(1, 3).join(" ") + " = " + "[\"" + s.slice(3).join("\", \"") + "\"]";
+  }
+  if (/=/.test(s)) {
+    s = s.replace(/set/, "let");
+    if (!/"|'/.test(s) && !/^[0-9]+$/.test(s.replace(/.*= /, "").trim())) {
+      s = s.replace(/=(\s+)?([^\s]+)/, "=$1\"$2\"");
+    }
+  }
+  return s;
+}
+
 Config.getLines = function(config) {
   return config.split(/(\s+)?\n+(\s+)?/).filter(function(e) {
     return e !== undefined && e.trim();
@@ -46,7 +63,8 @@ Config.parse = function(config) {
   var lines = this.getLines(config);
   this._ret = {};
   for (var i = 0, l = lines.length; i < l; ++i) {
-    var line = this.parseLine(lines[i]);
+    var line = convertOldSetting(lines[i]); // Used in transition from set <x> = <y> to let <x> = <y>
+    line = this.parseLine(line);
     var arg = line.shift();
     if (!Array.isArray(line)) {
       continue;
