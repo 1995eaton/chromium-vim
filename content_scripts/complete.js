@@ -19,11 +19,12 @@ String.prototype.validURL = function() {
 
 var Complete = {};
 
-Complete.engines = ["google", "wikipedia", "imdb", "amazon", "duckduckgo", "yahoo", "bing"];
+Complete.engines = ["google", "wikipedia", "imdb", "amazon", "google-image", "duckduckgo", "yahoo", "bing"];
 
 Complete.requestUrls = {
   wikipedia:  "https://en.wikipedia.org/wiki/",
   google:     "https://www.google.com/search?q=",
+  "google-image": "https://www.google.com/search?site=imghp&tbm=isch&source=hp&q=",
   duckduckgo: "https://duckduckgo.com/?q=",
   yahoo:      "https://search.yahoo.com/search?p=",
   bing:       "https://www.bing.com/search?q=",
@@ -41,12 +42,13 @@ Complete.parseQuery = {
 };
 
 Complete.apis = {
-  wikipedia: "https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=",
-  google:    "https://suggestqueries.google.com/complete/search?client=firefox&q=",
-  yahoo:     "https://search.yahoo.com/sugg/gossip/gossip-us-ura/?output=sd1&appid=search.yahoo.com&nresults=10&command=",
-  bing:      "http://api.bing.com/osjson.aspx?query=",
-  imdb:      "http://sg.media-imdb.com/suggests/",
-  amazon:    "http://completion.amazon.com/search/complete?method=completion&search-alias=aps&client=amazon-search-ui&mkt=1&q="
+  wikipedia:   "https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=",
+  google:      "https://suggestqueries.google.com/complete/search?client=firefox&q=",
+  "google-image": "http://www.google.com/complete/search?client=img&hl=en&gs_rn=43&gs_ri=img&ds=i&cp=1&gs_id=8&q=",
+  yahoo:       "https://search.yahoo.com/sugg/gossip/gossip-us-ura/?output=sd1&appid=search.yahoo.com&nresults=10&command=",
+  bing:        "http://api.bing.com/osjson.aspx?query=",
+  imdb:        "http://sg.media-imdb.com/suggests/",
+  amazon:      "http://completion.amazon.com/search/complete?method=completion&search-alias=aps&client=amazon-search-ui&mkt=1&q="
 };
 
 Complete.convertToLink = function(input) {
@@ -100,6 +102,19 @@ Complete.google = function(query, callback) {
       return ["search"].concat(e);
     }));
   });
+};
+
+Complete["google-image"] = function(query, callback) {
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", this.apis["google-image"] + query);
+  xhr.onreadystatechange = function() {
+    if (this.readyState === 4 && this.status === 200 && document.activeElement.id === "cVim-command-bar-input" && commandMode) {
+      callback(JSON.parse(this.responseText.replace(/^[^\(]+\(|\)$/g, ""))[1].map(function(e) {
+        return ["search", e[0].replace(/<[^>]+>/g, "")];
+      }));
+    }
+  };
+  xhr.send();
 };
 
 Complete.amazon = function(query, callback) {
