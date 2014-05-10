@@ -585,7 +585,9 @@ document.addEventListener("DOMContentLoaded", function() {
       if (settings.cncpcompletion && Command.type === "action" && commandMode && document.activeElement.id === "cVim-command-bar-input") {
         Search.nextResult();
       } else {
-        chrome.runtime.sendMessage({action: "openLinkWindow", url: undefined});
+        if (window.self === window.top) {
+          callback(true);
+        }
       }
     }
   });
