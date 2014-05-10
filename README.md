@@ -63,10 +63,12 @@ map <C-e> scrollPageUp
 | ----------------------- | :----------------------------------------------------------------- | :--------------------- |
 | j, s                    | scroll down                                                        | scrollDown             |
 | k, w                    | scroll up                                                          | scrollUp               |
+| h                       | scroll left                                                        | scrollLeft             |
+| l                       | scroll right                                                       | scrollRight            |
 | d                       | scroll half-page down                                              | scrollPageDown         |
 | u, e                    | scroll half-page up                                                | scrollPageUp           |
-| l                       | scroll right                                                       | scrollRight            |
-| h                       | scroll left                                                        | scrollLeft             |
+| gg                      | scroll top the top of the page                                     | scrollToTop            |
+| G                       | scroll to the bottom of the page                                   | scrollToBottom         |
 | gi                      | go to first input box                                              | goToInput              |
 | zz                      | center page to current search match (middle)                       | centerMatchH           |
 | zt                      | center page to current search match (top)                          | centerMatchT           |
