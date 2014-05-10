@@ -503,8 +503,10 @@ Command.init = function(enabled) {
     if (!settings.autofocus) {
       var manualFocus = false;
       var initialFocus = window.setInterval(function() {
-        if (/input|textarea/i.test(document.activeElement.nodeName) && !manualFocus) {
-          document.activeElement.blur();
+        if (document.activeElement) {
+          if (/input|textarea/i.test(document.activeElement.nodeName) && !manualFocus) {
+            document.activeElement.blur();
+          }
         }
         if (manualFocus) {
           window.clearInterval(initialFocus);
@@ -577,16 +579,11 @@ Command.configureSettings = function(s) {
 port.postMessage({action: "getBookmarks"});
 port.postMessage({action: "getQuickMarks"});
 port.postMessage({action: "getSessionNames"});
-document.addEventListener("DOMContentLoaded", function() {
-  console.log("cVim: DOMContentLoaded has fired");
-});
-console.log("cVim: initial script has loaded");
+chrome.runtime.sendMessage({action: "getSettings"});
+
 chrome.extension.onMessage.addListener(function(request, sender, callback) {
   if (request.action === "sendSettings") {
     Command.configureSettings(request.settings);
-  } else if (request.action === "initialLoad") {
-    console.log("cVim: webNavigation loaded");
-    chrome.runtime.sendMessage({action: "getSettings"});
   } else if (request.action === "confirm") {
     var c = confirm(request.message);
     callback(c);
@@ -604,3 +601,4 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
     }
   }
 });
+
