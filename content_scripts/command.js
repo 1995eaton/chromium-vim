@@ -161,13 +161,13 @@ Command.complete = function(value) {
     search = search.split(/ +/).filter(function(e) {
       return e;
     });
-    if (search.length < 2) {
+    if (search.length < 2 || Complete.engines.indexOf(search[0]) === -1) {
       var matches = [];
       if (Complete.engines.indexOf(search[0]) !== -1) {
         return this.hideData();
       }
       for (var i = 0, l = Complete.engines.length; i < l; ++i) {
-        if (!search[0] || Complete.engines[i].indexOf(search[0]) === 0) {
+        if (!search[0] || Complete.engines[i].indexOf(search.join(" ")) === 0) {
           matches.push(["engines", Complete.engines[i], Complete.requestUrls[Complete.engines[i]]]);
         }
       }
