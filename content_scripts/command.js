@@ -579,8 +579,6 @@ Command.configureSettings = function(s) {
 port.postMessage({action: "getBookmarks"});
 port.postMessage({action: "getQuickMarks"});
 port.postMessage({action: "getSessionNames"});
-chrome.runtime.sendMessage({action: "getSettings"});
-
 chrome.extension.onMessage.addListener(function(request, sender, callback) {
   if (request.action === "sendSettings") {
     Command.configureSettings(request.settings);
@@ -600,5 +598,8 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
       }
     }
   }
+});
+document.addEventListener("DOMContentLoaded", function() {
+  chrome.runtime.sendMessage({action: "getSettings"});
 });
 

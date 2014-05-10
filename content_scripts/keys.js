@@ -305,7 +305,7 @@ mouseMove = function(e) {
 };
 
 keyUp = function(e) {
-  if (document.activeElement && document.activeElement.id === "cVim-command-bar-input" || (!insertMode && Mappings.queue.length && Mappings.validMatch)) {
+  if (document.activeElement.id === "cVim-command-bar-input" || (!insertMode && Mappings.queue.length && Mappings.validMatch)) {
     e.stopPropagation();
     e.preventDefault();
   }
