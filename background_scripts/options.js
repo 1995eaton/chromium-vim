@@ -36,6 +36,7 @@ var settingsDefault = {
     ignorecase: true,
     ignorediacritics: true,
     numerichints: false,
+    cncpcompletion: false,
     typelinkhints: false,
     autofocus: true,
     insertmappings: true,

@@ -151,7 +151,7 @@ keyDown = function(e) {
     }
   }
 
-  if (settings.insertmappings && document.activeElement.isInput() && !insertMode && !keyType.escape && asciiKey !== "") {
+  if (settings.insertmappings && document.activeElement.isInput() && !insertMode && !keyType.escape && asciiKey !== "" && !(settings.cncpcompletion && asciiKey === "<C-p>" && document.activeElement.id === "cVim-command-bar-input")) {
     Mappings.insertCommand(asciiKey, function() {
       e.preventDefault();
       if (document.activeElement.id === "cVim-command-bar-input" && Command.type !== "search") {
@@ -221,10 +221,22 @@ keyDown = function(e) {
         break;
 
       case "<Tab>":
+        if (Command.type === "action") {
+          e.preventDefault();
+          Mappings.actions.nextCompletionResult();
+        }
+        break;
       case "<S-Tab>":
         if (Command.type === "action") {
           e.preventDefault();
-          Search.nextResult(e.shiftKey);
+          Mappings.actions.previousCompletionResult();
+        }
+        break;
+
+      case "<C-p>":
+        if (Command.type === "action" && settings.cncpcompletion) {
+          e.preventDefault();
+          Mappings.actions.previousCompletionResult();
         }
         break;
 

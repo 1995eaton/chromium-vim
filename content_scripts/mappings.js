@@ -174,6 +174,16 @@ Mappings.actions   = {
       Clipboard.paste(true);
     }
   },
+  nextCompletionResult: function() {
+    if (commandMode && document.activeElement.id === "cVim-command-bar-input" && Command.type === "action") {
+      Search.nextResult(false);
+    }
+  },
+  previousCompletionResult: function() {
+    if (commandMode && document.activeElement.id === "cVim-command-bar-input" && Command.type === "action") {
+      Search.nextResult(true);
+    }
+  },
   addQuickMark: function(repeats, queue) {
     Marks.addQuickMark(queue.slice(-1));
   },

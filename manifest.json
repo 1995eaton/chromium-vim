@@ -21,6 +21,12 @@
          "suggested_key": {
             "default": "Ctrl+J"
          }
+      },
+      "nextCompletionResult": {
+        "description": "Map <C-n> test",
+        "suggested_key": {
+          "default": "Ctrl+N"
+        }
       }
    },
   "browser_action": {

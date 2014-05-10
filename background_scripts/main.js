@@ -173,6 +173,10 @@ chrome.commands.onCommand.addListener(function(command) {
     chrome.tabs.query({active: true, currentWindow: true}, function(e) {
       return getTab({tab: e[0]}, false, (command === "nextTab" ? 1 : -1), false, false);
     });
+  } else if (command === "nextCompletionResult") {
+    chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
+      chrome.tabs.sendMessage(tab[0].id, {action: "nextCompletionResult"});
+    });
   }
 });
 

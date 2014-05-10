@@ -568,6 +568,12 @@ document.addEventListener("DOMContentLoaded", function() {
       window.stop();
     } else if (request.action === "updateMarks") {
       Marks.quickMarks = request.marks;
+    } else if (request.action === "nextCompletionResult") {
+      if (settings.cncpcompletion && Command.type === "action" && commandMode && document.activeElement.id === "cVim-command-bar-input") {
+        Search.nextResult();
+      } else {
+        chrome.runtime.sendMessage({action: "openLinkWindow", url: undefined});
+      }
     }
   });
   chrome.runtime.sendMessage({action: "getSettings"});
