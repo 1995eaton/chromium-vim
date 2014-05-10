@@ -79,7 +79,7 @@ Complete.xhr = function(url, callback) {
   var xhr = new XMLHttpRequest();
   xhr.open("GET", url);
   xhr.onreadystatechange = function() {
-    if (this.readyState === 4 && this.status === 200) {
+    if (this.readyState === 4 && this.status === 200 && document.activeElement.id === "cVim-command-bar-input" && commandMode) {
       callback(JSON.parse(this.responseText));
     }
   };
@@ -134,7 +134,7 @@ Complete.imdb = function(query, callback) {
   var xhr = new XMLHttpRequest();
   xhr.open("GET", this.apis.imdb + query[0][0] + "/" + query.join("_") + ".json");
   xhr.onreadystatechange = function() {
-    if (xhr.readyState === 4 && xhr.status === 200) {
+    if (this.readyState === 4 && this.status === 200 && document.activeElement.id === "cVim-command-bar-input" && commandMode) {
       var _ret = JSON.parse(xhr.responseText.replace(/^[^\(]+\(|\)$/g, ""));
       callback(_ret.d.map(function(e) {
         var _url = "http://www.imdb.com/" + (/Act(or|ress)/.test(e.s) ? "name" : "title") + "/" + e.id;

@@ -102,28 +102,26 @@ Command.history = {
 };
 
 Command.appendResults = function(data, extend, identifier, color) {
-  window.setTimeout(function() {
-    if (!data.length || document.activeElement.id !== "cVim-command-bar-input" || !commandMode) return false;
-    if (!extend || !Array.isArray(this.completionResults)) {
-      this.dataElements = [];
-      this.completionResults = data;
-      this.data.innerHTML = "";
-    } else this.completionResults = this.completionResults.concat(data);
-    var arrCount = data[0].length;
-    for (var i = 0, l = data.length; i < l; ++i) {
-      var temp = document.createElement("div");
-      temp.cVim = true;
-      temp.className = "completion-item";
-      if (arrCount >= 3) {
-        temp.innerHTML = ((identifier ? identifier.span({"color": color}) + ":&nbsp;" : "") + data[i][1]).span({}, "left") + data[i][2].span({}, "right");
-      } else {
-        temp.innerHTML = (identifier ? identifier.span({"color": color}) + "&nbsp;" : "") + data[i][1].span({}, "full");
-      }
-      this.dataElements.push(temp);
-      this.data.appendChild(temp);
+  if (!data.length) return false;
+  if (!extend || !Array.isArray(this.completionResults)) {
+    this.dataElements = [];
+    this.completionResults = data;
+    this.data.innerHTML = "";
+  } else this.completionResults = this.completionResults.concat(data);
+  var arrCount = data[0].length;
+  for (var i = 0, l = data.length; i < l; ++i) {
+    var temp = document.createElement("div");
+    temp.cVim = true;
+    temp.className = "completion-item";
+    if (arrCount >= 3) {
+      temp.innerHTML = ((identifier ? identifier.span({"color": color}) + ":&nbsp;" : "") + data[i][1]).span({}, "left") + data[i][2].span({}, "right");
+    } else {
+      temp.innerHTML = (identifier ? identifier.span({"color": color}) + "&nbsp;" : "") + data[i][1].span({}, "full");
     }
-    this.data.style.display = "block";
-  }.bind(this), 0);
+    this.dataElements.push(temp);
+    this.data.appendChild(temp);
+  }
+  this.data.style.display = "block";
 };
 
 Command.hideData = function() {
