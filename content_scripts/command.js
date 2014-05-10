@@ -149,6 +149,7 @@ Command.descriptions = [
   ["history",    "Search through your browser history"],
   ["duplicate",  "Clone the current tab"],
   ["chrome://",  "Opens Chrome urls"],
+  ["help",       "Shows the help page"],
   ["settings",   "Open the options page for this extension"]
 ];
 
@@ -291,6 +292,9 @@ Command.execute = function(value, repeats) {
       break;
     case "settings":
       chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: chrome.extension.getURL("/pages/options.html"), repeats: repeats});
+      break;
+    case "help":
+      chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: chrome.extension.getURL("/pages/mappings.html")});
       break;
     case "cl":
     case "closetab":
