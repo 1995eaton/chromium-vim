@@ -97,7 +97,7 @@ Popup.toggleBlacklisted = function() {
       blacklists.push(url);
     }
     Settings.blacklists = blacklists.join("\n");
-    Options.saveSettings(Settings);
+    Options.saveSettings({settings: Settings});
   });
 };
 
