@@ -1,76 +1,87 @@
-var log;
 var Settings = {};
+var Config = {};
+var log;
 log = console.log.bind(console);
-
-String.prototype.trimAround = function() {
-  return this.replace(/^(\s+)?(.*\S)?(\s+)?$/g, "$2");
-};
-
-Settings.getrc = function() {
-  var a = this.rcEl.value.split(/\n/).filter(function(e) {
-    return e.trim() && /^(\s+)?set\s+\S.*$/.test(e);
-  }).map(function(e) {
-    return e.trimAround().replace(/(\s+)?".*/, "").replace(/(\s+)?=(\s+)?/, "=").split(/\s+/).slice(1);
-  });
-  return a;
-};
-
 Settings.ignore = ["commandBarCSS", "mappings", "blacklists"];
 
-Settings.parseQmark = function(string) { // TODO: Modularize this and the parserc function
-  if (string.indexOf("=") === -1) {
-    return false;
-  }
-  var values = string.split("=");
-  if (values.length !== 2 || values[0].length !== 1) {
-    return false;
-  }
-  values[1] = values[1].split(",");
-  if (!this.settings.qmarks) {
-    this.settings.qmarks = {};
-  }
-  this.settings.qmarks[values[0]] = values[1];
+Config.getLines = function(config) {
+  return config.split(/(\s+)?\n+(\s+)?/).filter(function(e) {
+    return e !== undefined && e.trim();
+  });
 };
 
-Settings.parserc = function(values) {
-  var config, isEnabled;
-  var sValues = Object.keys(this.settings).map(function(e) { return e.toLowerCase(); }).filter(function(e) {
-    return Settings.ignore.indexOf(e) === -1;
-  });
-  this.settings.qmarks = {};
-  for (var key in this.defaultSettings) {
-    if (this.ignore.indexOf(key) === -1) {
-      this.settings[key] = this.defaultSettings[key];
+Config.parseLine = function(line) {
+  line = line.replace(/, /, ",").replace(/(^[^=]+)=/, "$1 ").split(/\s+/);
+  return line;
+};
+
+Config.set = function(params) {
+  if (params.length !== 1) {
+    return false;
+  }
+  if (/^no/.test(params)) {
+    this._ret[params[0].replace(/^no/, "")] = false;
+  } else {
+    this._ret[params[0]] = true;
+  }
+};
+
+Config.let = function(params) {
+  if (params.length === 2) {
+    if (!/^[a-zA-Z_]+$/.test(params[0])) {
+      return false;
+    }
+    this._ret[params[0]] = params[1].replace(/^"|"$/g, "");
+  } else if (params.length === 3) {
+    this._ret[params[0]] = {};
+    if (params[2][0] === "[") {
+      this._ret[params[0]][params[1]] = JSON.parse(params[2]);
+    } else if (/'|"/.test(params[2][0])) {
+      this._ret[params[0]][params[1]] = params[2];
     }
   }
-  for (var i = 0, l = values.length; i < l; ++i) {
-    config = values[i];
-    if (config.length !== 1) {
-      if (config.length === 2 && config[0] === "qmark") {
-        this.parseQmark(config[1]);
-      }
+};
+
+Config.parse = function(config) {
+  var lines = this.getLines(config);
+  this._ret = {};
+  for (var i = 0, l = lines.length; i < l; ++i) {
+    var line = this.parseLine(lines[i]);
+    var arg = line.shift();
+    if (!Array.isArray(line)) {
       continue;
     }
-    config = config[0];
-    if (!/=/.test(config)) {
-      isEnabled = true;
-      if (sValues.indexOf(config) === -1) {
-        config = config.replace(/^no/, "");
-        isEnabled = false;
-        if (sValues.indexOf(config) === -1) {
-          continue;
+    if (this.hasOwnProperty(arg)) {
+      this[arg](line);
+    }
+  }
+  return this._ret;
+};
+
+Settings.applyConfig = function(config, callback) {
+  var key;
+  for (key in this.defaultSettings) {
+    this.settings[key] = this.defaultSettings[key];
+  }
+  for (key in config) {
+    if (this.ignore.indexOf(key) === -1 && this.defaultSettings.hasOwnProperty(key) !== -1) {
+      if (typeof config[key] === "object") {
+        if (!Array.isArray(config[key]) && /^(qmark|searchengine)$/.test(key)) {
+          this.settings[key + "s"] = {};
+          for (var key2 in config[key]) {
+            if (typeof config[key][key2] === "string") {
+              config[key][key2] = config[key][key2].replace(/^["']|["']$/g, "");
+            }
+            this.settings[key + "s"][key2] = config[key][key2];
+          }
         }
-      }
-      this.settings[config] = isEnabled;
-    } else if (/=/.test(config)) {
-      config = config.split("=");
-      if (config.length === 2) {
-        if (sValues.indexOf(config[0]) === -1) {
-          continue;
-        }
-        this.settings[config[0]] = config[1];
+      } else {
+        this.settings[key] = config[key];
       }
     }
+  }
+  if (callback) {
+    callback();
   }
 };
 
@@ -80,7 +91,6 @@ Settings.loadrc = function () {
     Settings.cssEl.setValue(this.settings.commandBarCSS);
   }
   document.getElementById("blacklists").value = this.settings.blacklists;
-  Settings.parserc(Settings.getrc());
 };
 
 Settings.resetRelease = function() {
@@ -91,15 +101,16 @@ Settings.resetRelease = function() {
 
 Settings.saveRelease = function() {
   if (this.saveClicked) {
-    this.settings.commandBarCSS = this.cssEl.getValue();
-    this.settings.blacklists = document.getElementById("blacklists").value;
-    this.settings.mappings = Settings.rcEl.value;
-    this.saveButton.value = "Saved";
-    Settings.parserc(Settings.getrc());
-    chrome.runtime.sendMessage({action: "saveSettings", settings: Settings.settings, sendSettings: true});
-    setTimeout(function () {
-      this.saveButton.value = "Save";
-    }.bind(this), 3000);
+    this.applyConfig(Config.parse(this.rcEl.value), function() {
+      this.settings.commandBarCSS = this.cssEl.getValue();
+      this.settings.blacklists = document.getElementById("blacklists").value;
+      this.settings.mappings = Settings.rcEl.value;
+      this.saveButton.value = "Saved";
+      chrome.runtime.sendMessage({action: "saveSettings", settings: Settings.settings, sendSettings: true});
+      setTimeout(function () {
+        this.saveButton.value = "Save";
+      }.bind(this), 3000);
+    }.bind(this));
   }
 };
 

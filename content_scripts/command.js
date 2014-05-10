@@ -177,7 +177,7 @@ Command.complete = function(value) {
       this.historyMode = true;
       return port.postMessage({action: "searchHistory", search: value.replace(/^\S+\s+/, ""), limit: settings.searchlimit});
     }
-    if (Complete.engines.indexOf(search[0]) !== -1) {
+    if (Complete.engines.indexOf(search[0]) !== -1 && Complete.hasOwnProperty(search[0])) {
       Complete[search[0]](search.slice(1), function(response) {
         if (!response.length) {
           return this.hideData();
@@ -462,11 +462,12 @@ Command.hide = function() {
 };
 
 Command.init = function(enabled) {
+  var key;
   if (enabled) {
     Mappings.defaults = Mappings.defaultsClone.clone();
     Mappings.shortCuts = Mappings.shortCutsClone.clone();
     if (typeof settings.qmarks === "object") {
-      for (var key in settings.qmarks) {
+      for (key in settings.qmarks) {
         if (Array.isArray(Marks.quickMarks[key])) {
           for (var i = 0; i < settings.qmarks[key].length; ++i) {
             if (Marks.quickMarks[key].indexOf(settings.qmarks[key][i]) === -1) {
@@ -475,6 +476,14 @@ Command.init = function(enabled) {
           }
         } else {
           Marks.quickMarks[key] = settings.qmarks[key];
+        }
+      }
+    }
+    if (settings.searchengines && !Array.isArray(settings.searchengines) && typeof settings.searchengines === "object") {
+      for (key in settings.searchengines) {
+        if (Complete.engines.indexOf(key) === -1 && typeof settings.searchengines[key] === "string") {
+          Complete.engines.push(key);
+          Complete.requestUrls[key] = settings.searchengines[key];
         }
       }
     }

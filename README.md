@@ -15,7 +15,7 @@
 
  * Boolean cVimrc settings are enabled with the command ```'set' + <SETTING_NAME>``` and disabled with<br>
    the command ```'set' + no<SETTING_NAME>``` (for example, ```set regexp``` and ```set noregexp```)
- * Other settings are defined with ```=``` used as a separator (for example, ```set hintcharacters=abc```)
+ * Other settings are defined with ```=``` used as a separator and are prefixed by ```let``` (for example, ```let hintcharacters="abc"```)
 
 | setting                             | type                               | description                                                                               | default                                                                     |
 | ----------------------------------- | ---------------------------------- | ----------------------------------------------------------------------------------------- | --------------------------------------------------------------------------: |
@@ -32,7 +32,7 @@
 | autofocus                           | boolean                            | allows websites to automatically focus an input box when they are first loaded            | true                                                                        |
 | insertmappings                      | boolean                            | use insert mappings to navigate the cursor in text boxes (see bindings below)             | true                                                                        |
 | smoothscroll                        | boolean                            | use smooth scrolling                                                                      | true                                                                        |
-| qmark &lt;alphanumeric charcter&gt; | string                             | add a persistent QuickMark (e.g. ```set qmark a = http://google.com,http://reddit.com```) | none                                                                        |
+| qmark &lt;alphanumeric charcter&gt; | string                             | add a persistent QuickMark (e.g. ```let qmark a = ["http://google.com", "http://reddit.com"]```) | none                                                                        |
 | previousmatchpattern                | string (regexp)                    | the pattern looked for when navigating a page's back button                               | ((?!last)(prev(ious)?&#124;back&#124;«&#124;less&#124;&lt;&#124;‹&#124; )+) |
 | nextmatchpattern                    | string (regexp)                    | the pattern looked for when navigation a page's next button                               | ((?!first)(next&#124;more&#124;&gt;&#124;›&#124;»&#124;forward&#124; )+)    |
 | hintcharacters                      | string (alphanumeric)              | set the default characters to be used in link hint mode                                   | "asdfgqwertzxcvb"                                                           |
@@ -41,12 +41,15 @@
 ###Example configuration
 ```viml
 " Settings
-set searchlimit=30
-set scrollstep=70
-set nosmoothscroll
 set nohud
+set nosmoothscroll
 set noautofocus
-set barposition=bottom
+let searchlimit = 30
+let scrollstep = 70
+let barposition = "bottom"
+let hintcharacters = "abc123"
+let qmark a = ["http://www.reddit.com", "http://www.google.com", "http://twitter.com"]  "Open all of these in a tab with `gnb` or open one of these with <N>goa where <N>
+let searchengine dogpile = "http://www.dogpile.com/search/web?q="
 
 " Mappings
 unmap j
@@ -56,6 +59,8 @@ map <C-u> rootFrame
 map <M-h> previousTab
 map <C-d> scrollPageDown
 map <C-e> scrollPageUp
+unmap X
+map X :execute gTx<CR> "Close the current tab and move to the one before it
 ```
 
 #Keybindings
