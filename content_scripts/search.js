@@ -11,7 +11,7 @@ Search.chromeMatch = function(string, callback) {
   }).map(function(e){return["chrome",e];}));
 };
 
-Search.settings = ["|numerichints", "|typelinkhints", "|smoothscroll", "scrollstep", "searchlimit", "|regexp", "|ignorecase", "hintcharacters", "|linkanimations", "|hud", "|insertmappings"];
+Search.settings = ["|numerichints", "|typelinkhints", "|smoothscroll", "scrollstep", "searchlimit", "|regexp", "|ignorecase", "|incsearch", "|smartcase", "hintcharacters", "|linkanimations", "|hud", "|insertmappings"];
 
 Search.settingsMatch = function(string, callback) {
   if (string.trim() === "") return callback(Search.settings.slice(0, settings.searchlimit).map(function(e){return["settings",e.replace(/^\|/, "")];}));

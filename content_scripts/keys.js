@@ -204,7 +204,7 @@ keyDown = function(e) {
           e.preventDefault();
           break;
         }
-        if (Command.type === "search") {
+        if (Command.type === "search" && settings.incsearch) {
           Find.clear();
           setTimeout(function() {
             if (Command.input.value !== "" && Command.input.value.length > 2) {
@@ -281,7 +281,7 @@ keyDown = function(e) {
           }, 0);
         } else {
           setTimeout(function() {
-            if (Command.type === "search" && (Command.input.value !== Find.lastSearch || !Find.highlights.length)) {
+            if (Command.type === "search" && settings.incsearch && (Command.input.value !== Find.lastSearch || !Find.highlights.length)) {
               if (Command.input.value !== "") {
                 Find.clear();
                 if (Command.input.value.length > 2) {

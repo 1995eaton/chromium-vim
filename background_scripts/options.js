@@ -38,6 +38,8 @@ var settingsDefault = {
     ignorediacritics: true,
     numerichints: false,
     cncpcompletion: false,
+    smartcase: true,
+    incsearch: true,
     typelinkhints: false,
     autofocus: true,
     insertmappings: true,

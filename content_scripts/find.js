@@ -76,7 +76,8 @@ Find.search = function(reverse, repeats) {
 };
 
 Find.highlight = function(baseNode, match, setIndex, search, reverse, saveSearch) {
-  var mode, node, matches, mark, mid, pass, data, walker, regexp, matchPosition, nName, highlight, ignoreDiacritics;
+  var mode, node, matches, mark, mid, pass, data, walker, regexp, matchPosition, nName, highlight, ignoreDiacritics, containsCap;
+  containsCap = match.toLowerCase() !== match;
   highlight = settings.highlight;
   ignoreDiacritics = settings.ignoreDiacritics;
   regexp = settings.regexp;
@@ -86,7 +87,7 @@ Find.highlight = function(baseNode, match, setIndex, search, reverse, saveSearch
   if (saveSearch !== undefined) {
     this.lastSearch = match;
   }
-  if (settings.ignorecase || /\/i$/.test(match)) {
+  if ((settings.ignorecase || /\/i$/.test(match)) && !(settings.smartcase && containsCap)) {
     mode = "i";
     match = match.replace(/\/i$/, "");
   } else {
@@ -110,7 +111,15 @@ Find.highlight = function(baseNode, match, setIndex, search, reverse, saveSearch
       } else {
         data = node.data;
       }
-      matchPosition = (regexp ? data.search(match) : node.data.indexOf(match));
+      if (regexp) {
+        matchPosition = data.search(match);
+      } else {
+        if (containsCap) {
+          matchPosition = node.data.indexOf(match);
+        } else {
+          matchPosition = node.data.toLowerCase().indexOf(match);
+        }
+      }
       if (matchPosition >= 0) {
         if (regexp) {
           matches = data.match(match);
