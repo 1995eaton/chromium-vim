@@ -1,4 +1,4 @@
-var storageMethod = "sync",
+var storageMethod = "local",
     Settings = {},
     Options = {};
 
@@ -114,7 +114,7 @@ Options.getDefaults = function(request, sender) {
 };
 
 (function() {
-  chrome.storage.sync.get("settings", function(data) {
+  chrome.storage[storageMethod].get("settings", function(data) {
     if (data.settings) {
       Settings = data.settings.flatten();
     }

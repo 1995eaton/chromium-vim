@@ -39,6 +39,7 @@
 set nohud
 set nosmoothscroll
 set noautofocus
+set typelinkhints
 let searchlimit = 30
 let scrollstep = 70
 let barposition = "bottom"
@@ -51,6 +52,7 @@ unmap j
 map j scrollUp
 
 map <C-h> :set hud!<CR>
+map <C-i> :set numerichints!<CR>
 map <C-u> rootFrame
 map <M-h> previousTab
 map <C-d> scrollPageDown
