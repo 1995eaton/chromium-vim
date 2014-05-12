@@ -2,7 +2,7 @@ var Settings = {};
 var Config = {};
 var log;
 log = console.log.bind(console);
-Settings.ignore = ["commandBarCSS", "mappings", "blacklists"];
+Settings.ignore = ["commandBarCSS", "mappings", "blacklists", "gisturl"];
 
 function convertOldSetting(s) {
   if (/(\s+)?let/.test(s)) {
@@ -16,7 +16,7 @@ function convertOldSetting(s) {
     s = s.replace(/set/, "let");
     if (!/"|'/.test(s) && !/^[0-9]+$/.test(s.replace(/.*= /, "").trim())) {
       s = s.replace(/=(\s+)?([^\s]+)/, "=$1\"$2\"");
-    }
+  }
   }
   return s;
 }
@@ -109,6 +109,7 @@ Settings.loadrc = function () {
     Settings.cssEl.setValue(this.settings.commandBarCSS);
   }
   document.getElementById("blacklists").value = this.settings.blacklists;
+  document.getElementById("gistUrl").value = this.settings.gisturl;
 };
 
 Settings.resetRelease = function() {
@@ -122,6 +123,7 @@ Settings.saveRelease = function() {
     this.applyConfig(Config.parse(this.rcEl.value), function() {
       this.settings.commandBarCSS = this.cssEl.getValue();
       this.settings.blacklists = document.getElementById("blacklists").value;
+      this.settings.gisturl = document.getElementById("gistUrl").value;
       this.settings.mappings = Settings.rcEl.value;
       this.saveButton.value = "Saved";
       chrome.runtime.sendMessage({action: "saveSettings", settings: Settings.settings, sendSettings: true});
@@ -147,6 +149,9 @@ Settings.onMouseDown = function(ev) {
       localStorage.url    = "";
       localStorage.action = "";
       break;
+    case "gistSync":
+      this.syncGist();
+      break;
   }
   this.saveButton.value = "Save";
 };
@@ -159,6 +164,21 @@ Settings.editMode = function (e) {
       this.cssEl.setOption("keyMap", "default");
     }
   }
+};
+
+Settings.syncGist = function() {
+  var url = document.getElementById("gistUrl").value;
+  if (url.trim() === "") {
+    return false;
+  }
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", url + (url.indexOf("raw") === -1 ? "/raw" : ""));
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      document.getElementById("mappings").value = xhr.responseText;
+    }
+  };
+  xhr.send();
 };
 
 Settings.init = function() {

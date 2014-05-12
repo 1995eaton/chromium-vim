@@ -50,6 +50,7 @@ var settingsDefault = {
     hintcharacters: "asdfgqwertzxcvb",
     mappings: "",
     blacklists: "",
+    gisturl: "",
     activehighlight: "#ff9632",
     highlight: "#ffff00",
     nextmatchpattern: "((?!first)(next|more|>|›|»|forward| )+)",

@@ -136,13 +136,20 @@ a:hover {
   color: darkcyan;
 }
 
-#clearHistory {
+#clearHistory, #gistSync {
   border: 1px solid #777;
   border-radius: 2px;
   margin: 5px;
   height: 25px;
   background-color: #fff;
   margin-left: 10px;
+}
+
+#gistSync {
+  float: right;
+}
+#gistUrl {
+  width: calc(100% - 65px);
 }
 
 input {
