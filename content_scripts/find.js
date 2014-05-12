@@ -24,6 +24,7 @@ Find.getSelectedTextNode = function() {
 };
 
 Find.search = function(reverse, repeats) {
+  var activeHighlight = settings.activehighlight;
   if (Find.swap) reverse = !reverse;
   if (!this.matches.length) {
     HUD.display("No matches", 1);
@@ -62,7 +63,7 @@ Find.search = function(reverse, repeats) {
       break;
     }
   }
-  this.matches[this.index].style.backgroundColor = "#ff9632";
+  this.matches[this.index].style.backgroundColor = activeHighlight;
   HUD.display(this.index + 1 + " / " + this.matches.length);
   if (br.top + br.height > window.innerHeight) {
     if (isLink && !reverse) origTop += br.height;
@@ -115,6 +116,7 @@ Find.highlight = function(baseNode, match, setIndex, search, reverse, saveSearch
               continue;
           }
           mark = document.createElement("mark");
+          mark.style.backgroundColor = settings.highlight;
           mid = node.splitText(matchPosition);
           mid.splitText((regexp ? matches[0].length : match.length));
           mark.appendChild(mid.cloneNode(true));

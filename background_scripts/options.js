@@ -48,6 +48,8 @@ var settingsDefault = {
     hintcharacters: "asdfgqwertzxcvb",
     mappings: "",
     blacklists: "",
+    activehighlight: "#ff9632",
+    highlight: "#ffff00",
     nextmatchpattern: "((?!first)(next|more|>|›|»|forward| )+)",
     previousmatchpattern: "((?!last)(prev(ious)?|back|«|less|<|‹| )+)",
     barposition: "top",
