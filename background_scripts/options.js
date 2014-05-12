@@ -33,7 +33,7 @@ var settingsDefault = {
   booleans: {
     hud: true,
     regexp: true,
-    linkanimations: true,
+    linkanimations: false,
     ignorecase: true,
     ignorediacritics: true,
     numerichints: false,

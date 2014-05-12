@@ -47,7 +47,7 @@
 <ul>
 <li>Boolean cVimrc settings are enabled with the command <code>'set' + &lt;SETTING_NAME&gt;</code> and disabled with<br>
 the command <code>'set' + no&lt;SETTING_NAME&gt;</code> (for example, <code>set regexp</code> and <code>set noregexp</code>)</li>
-<li>Other settings are defined with <code>=</code> used as a separator (for example, <code>set hintcharacters=abc</code>)</li>
+<li>Other settings are defined with <code>=</code> used as a separator and are prefixed by <code>let</code> (for example, <code>let hintcharacters="abc"</code>)</li>
 </ul><table>
 <thead><tr>
 <th>setting</th>
@@ -96,7 +96,7 @@ the command <code>'set' + no&lt;SETTING_NAME&gt;</code> (for example, <code>set 
 <td>linkanimations</td>
 <td>boolean</td>
 <td>show fade effect when link hints open and close</td>
-<td align="right">true</td>
+<td align="right">false</td>
 </tr>
 <tr>
 <td>numerichints</td>
@@ -137,7 +137,7 @@ the command <code>'set' + no&lt;SETTING_NAME&gt;</code> (for example, <code>set 
 <tr>
 <td>qmark &lt;alphanumeric charcter&gt;</td>
 <td>string</td>
-<td>add a persistent QuickMark (e.g. <code>set qmark a = http://google.com,http://reddit.com</code>)</td>
+<td>add a persistent QuickMark (e.g. <code>let qmark a = ["http://google.com", "http://reddit.com"]</code>)</td>
 <td align="right">none</td>
 </tr>
 <tr>
@@ -169,12 +169,15 @@ the command <code>'set' + no&lt;SETTING_NAME&gt;</code> (for example, <code>set 
 <a name="user-content-example-configuration" class="anchor" href="#example-configuration"><span class="octicon octicon-link"></span></a>Example configuration</h3>
 
 <div class="highlight highlight-viml"><pre><span class="c">" Settings</span>
-<span class="k">set</span> searchlimit<span class="p">=</span><span class="m">30</span>
-<span class="k">set</span> scrollstep<span class="p">=</span><span class="m">70</span>
-<span class="k">set</span> nosmoothscroll
 <span class="k">set</span> nohud
+<span class="k">set</span> nosmoothscroll
 <span class="k">set</span> noautofocus
-<span class="k">set</span> barposition<span class="p">=</span>bottom
+<span class="k">let</span> searchlimit <span class="p">=</span> <span class="m">30</span>
+<span class="k">let</span> scrollstep <span class="p">=</span> <span class="m">70</span>
+<span class="k">let</span> barposition <span class="p">=</span> <span class="s2">"bottom"</span>
+<span class="k">let</span> hintcharacters <span class="p">=</span> <span class="s2">"abc123"</span>
+<span class="k">let</span> qmark <span class="k">a</span> <span class="p">=</span> [<span class="s2">"http://www.reddit.com"</span><span class="p">,</span> <span class="s2">"http://www.google.com"</span><span class="p">,</span> <span class="s2">"http://twitter.com"</span>]  <span class="c">"Open all of these in a tab with `gnb` or open one of these with &lt;N&gt;goa where &lt;N&gt;</span>
+<span class="k">let</span> searchengine dogpile <span class="p">=</span> <span class="s2">"http://www.dogpile.com/search/web?q="</span>
 
 <span class="c">" Mappings</span>
 unmap <span class="k">j</span>
@@ -184,6 +187,8 @@ map <span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span>
 map <span class="p">&lt;</span>M<span class="p">-</span><span class="k">h</span><span class="p">&gt;</span> previousTab
 map <span class="p">&lt;</span>C<span class="p">-</span><span class="k">d</span><span class="p">&gt;</span> scrollPageDown
 map <span class="p">&lt;</span>C<span class="p">-</span><span class="k">e</span><span class="p">&gt;</span> scrollPageUp
+unmap <span class="k">X</span>
+map <span class="k">X</span> :execute gTx<span class="p">&lt;</span>CR<span class="p">&gt;</span> <span class="c">"Close the current tab and move to the one before it</span>
 </pre></div>
 
 <h1>
