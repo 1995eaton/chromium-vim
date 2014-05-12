@@ -23,7 +23,7 @@ Find.getSelectedTextNode = function() {
   return el.firstChild;
 };
 
-Find.search = function(reverse, repeats) {
+Find.search = function(reverse, repeats, ignoreFocus) {
   var activeHighlight = settings.activehighlight;
   if (Find.swap) reverse = !reverse;
   if (!this.matches.length) {
@@ -53,12 +53,16 @@ Find.search = function(reverse, repeats) {
   var isLink = false;
   var br = this.matches[this.index].getBoundingClientRect();
   var origTop = document.body.scrollTop;
-  document.activeElement.blur();
-  document.body.focus();
+  if (!ignoreFocus) {
+    document.activeElement.blur();
+    document.body.focus();
+  }
   var node = this.matches[this.index];
   while (node = node.parentElement) {
     if (node.getAttribute("href") !== null) {
-      node.focus();
+      if (!ignoreFocus) {
+        node.focus();
+      }
       isLink = true;
       break;
     }

@@ -187,6 +187,7 @@ keyDown = function(e) {
   } else if (keyType.escape) {
     Mappings.actions.inputFocused = false;
     if (Command.type === "search") {
+      document.body.scrollTop = Command.lastScrollTop;
       Find.clear();
       HUD.hide();
     }
@@ -209,6 +210,9 @@ keyDown = function(e) {
           setTimeout(function() {
             if (Command.input.value !== "" && Command.input.value.length > 2) {
               Find.highlight(document.body, Command.input.value);
+              Find.index = -1;
+              Find.setIndex();
+              Find.search(false, 1, true);
             } else {
               HUD.hide();
             }
@@ -262,12 +266,10 @@ keyDown = function(e) {
             Find.clear();
             Find.highlight(document.body, Command.input.value, false, false, false, true);
           }
-          setTimeout(function() {
-            Find.index = -1;
-            Find.setIndex();
-            Find.search(false, 1);
-            Command.hide();
-          }, 0);
+          Find.index = -1;
+          Find.setIndex();
+          Find.search(false, 1);
+          Command.hide();
         } else {
           Command.execute(Command.input.value + (e.ctrlKey ? "&" : ""), 1);
         }
@@ -286,6 +288,9 @@ keyDown = function(e) {
                 Find.clear();
                 if (Command.input.value.length > 2) {
                   Find.highlight(document.body, Command.input.value);
+                  Find.index = -1;
+                  Find.setIndex();
+                  Find.search(false, 1, true);
                 }
               }
             }

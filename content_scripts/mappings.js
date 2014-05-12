@@ -273,6 +273,7 @@ Mappings.actions   = {
   },
   openSearchBar: function() {
     Command.hide();
+    Command.lastScrollTop = document.body.scrollTop;
     commandMode = true;
     Find.swap = false;
     return Command.show("/");
