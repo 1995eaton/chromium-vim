@@ -47,6 +47,7 @@
 <ul>
 <li>Boolean cVimrc settings are enabled with the command <code>'set' + &lt;SETTING_NAME&gt;</code> and disabled with<br>
 the command <code>'set' + no&lt;SETTING_NAME&gt;</code> (for example, <code>set regexp</code> and <code>set noregexp</code>)</li>
+<li>Boolean cVimrc settings can be inversed by adding "!" to the end</li>
 <li>Other settings are defined with <code>=</code> used as a separator and are prefixed by <code>let</code> (for example, <code>let hintcharacters="abc"</code>)</li>
 </ul><table>
 <thead><tr>
@@ -213,6 +214,7 @@ the command <code>'set' + no&lt;SETTING_NAME&gt;</code> (for example, <code>set 
 unmap <span class="k">j</span>
 map <span class="k">j</span> scrollUp
 
+map <span class="p">&lt;</span>C<span class="p">-</span><span class="k">h</span><span class="p">&gt;</span> :<span class="k">set</span> hud<span class="p">!&lt;</span>CR<span class="p">&gt;</span>
 map <span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span> rootFrame
 map <span class="p">&lt;</span>M<span class="p">-</span><span class="k">h</span><span class="p">&gt;</span> previousTab
 map <span class="p">&lt;</span>C<span class="p">-</span><span class="k">d</span><span class="p">&gt;</span> scrollPageDown

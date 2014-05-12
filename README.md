@@ -4,6 +4,7 @@
 
  * Boolean cVimrc settings are enabled with the command ```'set' + <SETTING_NAME>``` and disabled with<br>
    the command ```'set' + no<SETTING_NAME>``` (for example, ```set regexp``` and ```set noregexp```)
+ * Boolean cVimrc settings can be inversed by adding "!" to the end
  * Other settings are defined with ```=``` used as a separator and are prefixed by ```let``` (for example, ```let hintcharacters="abc"```)
 
 | setting                             | type                               | description                                                                               | default                                                                     |
@@ -49,6 +50,7 @@ let searchengine dogpile = "http://www.dogpile.com/search/web?q="
 unmap j
 map j scrollUp
 
+map <C-h> :set hud!<CR>
 map <C-u> rootFrame
 map <M-h> previousTab
 map <C-d> scrollPageDown

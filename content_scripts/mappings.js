@@ -498,7 +498,7 @@ Mappings.parseCustom = function(config) {
     if (!mapping.length) {
       return false;
     }
-    if (!/^(imap|iunmap|map|unmap)$/.test(mapping[0]) || (mapping.length !== 3 && /^(map|imap)$/.test(mapping[0]))) {
+    if (!/^(imap|iunmap|map|unmap)$/.test(mapping[0]) || (mapping.length < 3 && /^(map|imap)$/.test(mapping[0]))) {
       return false;
     }
     if (mapping.length === 1) {

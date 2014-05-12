@@ -361,21 +361,26 @@ Command.execute = function(value, repeats) {
         });
       } else if (/^set +/.test(value) && value !== "set") {
         value = value.replace(/^set +/, "").split(/[ =]+/);
-        var isSet;
+        var isSet, swapVal;
         var isQuery = /\?$/.test(value[0]);
         value[0] = value[0].replace(/\?$/, "");
-        if (!settings.hasOwnProperty(value[0].replace(/^no/, ""))) {
+        if (!settings.hasOwnProperty(value[0].replace(/^no|!$/g, ""))) {
           Status.setMessage("unknown option: " + value[0], 1, "error");
         } else if (isQuery) {
           Status.setMessage(value + ": " + settings[value[0]], 1);
         } else {
           isSet = !/^no/.test(value[0]);
-          value[0] = value[0].replace(/^no|\?$/g, "");
+          swapVal = /!$/.test(value[0]);
+          value[0] = value[0].replace(/^no|[?!]$/g, "");
           if (value.length === 1 && (settings[value] === true || settings[value] === false)) {
             if (value[0] === "hud" && !isSet) {
               HUD.hide(true);
             }
-            settings[value[0]] = isSet;
+            if (swapVal) {
+              settings[value[0]] = !settings[value[0]];
+            } else {
+              settings[value[0]] = isSet;
+            }
           } else if (value.length === 2) {
             switch (value[0]) {
               case "scrollstep":
