@@ -39,19 +39,19 @@ td {
 tr:nth-child(odd) {
   background-color:#ccc;
 }
-tr:nth-child(odd) .left {
+tr:nth-child(odd) .options-left {
   background-color:#333;
 }
-tr:nth-child(even) .left {
+tr:nth-child(even) .options-left {
   background-color:#2c2c2c;
 }
 
-tr .right {
+tr .options-right {
   background-color: #444;
   border-bottom: 1px solid #ccc;
 }
 
-.left {
+.options-left {
   width: 20%;
   top: 0;
   color: #eee;
@@ -59,7 +59,7 @@ tr .right {
   text-align: center;
 }
 
-.right {
+.options-right {
   width: 100%;
 }
 

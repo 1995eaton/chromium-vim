@@ -5,6 +5,23 @@
   <title>cVim Options</title>
   <link rel="stylesheet" href="options.css">
   <link rel="stylesheet" href="codemirror/codemirror.css">
+  <link rel="stylesheet" href="../content_scripts/main.css">
+  <script src="../content_scripts/utils.js"></script>
+  <script src="../content_scripts/messenger.js"></script>
+  <script src="../content_scripts/bookmarks.js"></script>
+  <script src="../content_scripts/clipboard.js"></script>
+  <script src="../content_scripts/command.js"></script>
+  <script src="../content_scripts/complete.js"></script>
+  <script src="../content_scripts/find.js"></script>
+  <script src="../content_scripts/frames.js"></script>
+  <script src="../content_scripts/hints.js"></script>
+  <script src="../content_scripts/hud.js"></script>
+  <script src="../content_scripts/keys.js"></script>
+  <script src="../content_scripts/mappings.js"></script>
+  <script src="../content_scripts/scroll.js"></script>
+  <script src="../content_scripts/search.js"></script>
+  <script src="../content_scripts/status.js"></script>
+  <script src="../content_scripts/visual.js"></script>
 </head>
 <body>
 <div id="container_main">
@@ -17,24 +34,24 @@
   <div id="settings">
     <table>
       <tr>
-        <td class="left">Clear the command bar history</td>
-        <td class="right"><input id="clearHistory" value="Clear" type="button"></td>
+        <td class="options-left">Clear the command bar history</td>
+        <td class="options-right"><input id="clearHistory" value="Clear" type="button"></td>
       </tr>
       <tr>
-        <td class="left">
+        <td class="options-left">
           cVimrc <a href="mappings.html" target="_blank" class="mapping-help" style="font-size: 10pt; font-weight: bold">?</a>
         </td>
-        <td class="right"><textarea id="mappings"></textarea></td>
+        <td class="options-right"><textarea id="mappings"></textarea></td>
       </tr>
       <tr>
-        <td class="left">Blacklisted Domains</td>
-        <td class="right"><textarea id="blacklists" placeholder="e.g. http://reddit.com"></textarea></td>
+        <td class="options-left">Blacklisted Domains</td>
+        <td class="options-right"><textarea id="blacklists" placeholder="e.g. http://reddit.com"></textarea></td>
       </tr>
       <tr>
-        <td class="left">CSS
+        <td class="options-left">CSS
           <select id="edit_mode"><option disabled>Mode</option><option>Normal</option><option>Vim</option></select>
         </td>
-        <td class="right"><textarea id="commandBarCSS" name="css"></textarea></td>
+        <td class="options-right"><textarea id="commandBarCSS" name="css"></textarea></td>
       </tr>
     </table>
   </div>
