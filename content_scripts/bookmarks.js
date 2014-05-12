@@ -24,7 +24,7 @@ Marks.addQuickMark = function(ch) {
 
 Marks.openQuickMark = function(ch, tabbed, repeats) {
   if (!this.quickMarks.hasOwnProperty(ch)) {
-    return Status.setMessage("Error: mark not set", 1);
+    return Status.setMessage("mark not set", 1, "error");
   }
   if (tabbed) {
     if (repeats !== 1) {

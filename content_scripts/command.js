@@ -330,7 +330,7 @@ Command.execute = function(value, repeats) {
       } else if (/^delsession/.test(value)) {
         value = value.replace(/^\S+(\s+)?/, "").trimAround();
         if (value === "") {
-          Status.setMessage("Error: argument required", 1);
+          Status.setMessage("argument required", 1, "error");
           break;
         }
         if (sessions.indexOf(value) !== -1) sessions.splice(sessions.indexOf(value), 1);
@@ -341,10 +341,10 @@ Command.execute = function(value, repeats) {
       } else if (/^mksession/.test(value)) {
         value = value.replace(/^\S+(\s+)?/, "").trimAround();
         if (value === "") {
-          Status.setMessage("Error: session name required", 1);
+          Status.setMessage("session name required", 1, "error");
           break;
         } else if (/[^a-zA-Z0-9_-]/.test(value)) {
-          Status.setMessage("Error: only alphanumeric characters, dashes, and underscores are allowed", 1);
+          Status.setMessage("only alphanumeric characters, dashes, and underscores are allowed", 1, "error");
           break;
         }
         if (sessions.indexOf(value) === -1) sessions.push(value);
@@ -353,11 +353,11 @@ Command.execute = function(value, repeats) {
       } else if (/^session/.test(value)) {
         value = value.replace(/^\S+(\s+)?/, "").trimAround();
         if (value === "") {
-          Status.setMessage("Error: session name required", 1);
+          Status.setMessage("session name required", 1, "error");
           break;
         }
         chrome.runtime.sendMessage({action: "openSession", name: value, sameWindow: !activeTab}, function() {
-          Status.setMessage("Error: session does not exist", 1);
+          Status.setMessage("session does not exist", 1, "error");
         });
       } else if (/^set +/.test(value) && value !== "set") {
         value = value.replace(/^set +/, "").split(/[ =]+/);
@@ -365,7 +365,7 @@ Command.execute = function(value, repeats) {
         var isQuery = /\?$/.test(value[0]);
         value[0] = value[0].replace(/\?$/, "");
         if (!settings.hasOwnProperty(value[0].replace(/^no/, ""))) {
-          Status.setMessage("Unknown option: " + value[0], 1);
+          Status.setMessage("unknown option: " + value[0], 1, "error");
         } else if (isQuery) {
           Status.setMessage(value + ": " + settings[value[0]], 1);
         } else {
@@ -379,16 +379,16 @@ Command.execute = function(value, repeats) {
           } else if (value.length === 2) {
             switch (value[0]) {
               case "scrollstep":
-                if (!/^[0-9]+$/.test(value[1])) Status.setMessage("Invalid integer: '" + (value[1] || "") + "'", 1);
+                if (!/^[0-9]+$/.test(value[1])) Status.setMessage("invalid integer: '" + (value[1] || "") + "'", 1, "error");
                 else settings.scrollstep = parseInt(value[1]);
                 break;
               case "searchlimit":
-                if (!/^[0-9]+$/.test(value[1])) Status.setMessage("Invalid integer: " + value, 1);
+                if (!/^[0-9]+$/.test(value[1])) Status.setMessage("invalid integer: " + value, 1, "error");
                 else settings.searchlimit = parseInt(value[1]);
                 break;
               case "hintcharacters":
                 value = value[1].split("").unique().join("");
-                if (value.length <= 1) Status.setMessage("Two unique hint characters are required", 1);
+                if (value.length <= 1) Status.setMessage("two unique hint characters are required", 1, "error");
                 else settings.hintcharacters = value;
                 break;
             }
@@ -399,9 +399,9 @@ Command.execute = function(value, repeats) {
           return e.trim();
         });
         if (value.length !== 2) {
-          Status.setMessage("Error: two arguments are required", 1);
+          Status.setMessage("two arguments are required", 1, "error");
         } else if (value[0].length !== 1) {
-          Status.setMessage("Error: argument must be an ASCI letter or digit", 1);
+          Status.setMessage("argument must be an ASCI letter or digit", 1, "error");
         } else {
           if (Marks.quickMarks.hasOwnProperty(value[0])) {
             if (Marks.quickMarks[value[0]].indexOf(value[1]) !== -1) {

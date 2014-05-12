@@ -1,14 +1,24 @@
 var Status = {};
 Status.defaultTimeout = 3;
 
-Status.setMessage = function(message, timeout) {
+Status.setMessage = function(message, timeout, type) {
   window.clearTimeout(this.delay);
   this.hide();
   if (timeout === undefined) {
     timeout = this.defaultTimeout;
   }
   this.active = true;
-  Command.statusBar.innerText = message;
+  Command.statusBar.innerText = "";
+  if (type === "error") {
+    var error = document.createElement("span");
+    error.style.color = "red";
+    error.innerText = "Error";
+    error.className = "cVim-error";
+    Command.statusBar.appendChild(error);
+    Command.statusBar.appendChild(document.createTextNode(": "));
+  }
+  Command.statusBar.appendChild(document.createTextNode(message));
+  Command.statusBar.normalize();
   Command.statusBar.style.display = "inline-block";
   this.delay = window.setTimeout(function() {
     if (Status.active === true) {
