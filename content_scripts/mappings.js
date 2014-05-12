@@ -427,10 +427,11 @@ Mappings.insertFunctions = {
   forwardWord: function() {
     var aval = (document.activeElement.value + " ").slice(document.activeElement.selectionStart, -1);
     var diff = aval.length - aval.replace(/^([a-zA-Z_]+|[^a-zA-Z\s]+)( +)?/, "").length;
-    if (diff === 0)
+    if (diff === 0) {
       document.activeElement.selectionStart = document.activeElement.value.length;
-    else
+    } else {
       document.activeElement.selectionStart += diff;
+    }
     return true;
   },
   backwardWord: function() {
@@ -441,10 +442,17 @@ Mappings.insertFunctions = {
     return true;
   },
   deleteForwardWord: function() {
-    if (document.activeElement.selectionStart !== document.activeElement.value.length) {
-      this.forwardWord();
-      this.deleteWord();
+    var start = document.activeElement.selectionStart;
+    var end = document.activeElement.selectionEnd;
+    if (start !== end) {
+      return false;
     }
+    var s = document.activeElement.value.slice(0, start);
+    var e = document.activeElement.value.slice(start);
+    e = e.replace(/^([a-zA-Z_]+|\s+|[^\sa-zA-Z]+)(\s+)?/, "");
+    document.activeElement.value = s + e;
+    document.activeElement.selectionStart = s.length;
+    document.activeElement.selectionEnd = s.length;
     return true;
   }
 };
@@ -471,41 +479,63 @@ Mappings.insertCommand = function(modifier, callback) {
   });
 };
 
+Mappings.removeMapping = function(list, mapping) {
+  for (var key in list) {
+    if (Array.isArray(list[key])) {
+      while (list[key].indexOf(mapping) !== -1) {
+        list[key].splice(list[key].indexOf(mapping), 1);
+      }
+    }
+  }
+};
+
 Mappings.parseCustom = function(config) {
   config += this.siteSpecificBlacklists;
   config = config.split(/\n+/).map(function(item) { return item.replace(/(\s+)?".*/, "").split(/ +/); });
   config.forEach(function(mapping) {
     var key;
-    if (mapping.length && mapping[0].trimAround() === "unmapAll") {
-      for (key in Mappings.defaults) {
-        Mappings.defaults[key] = [];
-      }
-      return Mappings.shortCuts = [];
+    if (!mapping.length) {
+      return false;
     }
-    if (mapping.length === 1 || !/(un)?map/.test(mapping[0])) return false;
-    if (mapping.shift() === "map") {
-      if (mapping.length === 2 && Mappings.defaults.hasOwnProperty(mapping[1])) {
+    if (!/^(imap|iunmap|map|unmap)$/.test(mapping[0]) || (mapping.length !== 3 && /^(map|imap)$/.test(mapping[0]))) {
+      return false;
+    }
+    if (mapping.length === 1) {
+      if (mapping[0].trimAround() === "unmapAll") {
+        for (key in Mappings.defaults) {
+          Mappings.defaults[key] = [];
+        }
+        Mappings.shortCuts = [];
+      } else if (mapping[0].trimAround() === "iunmapAll") {
+        for (key in Mappings.insertDefaults) {
+          Mappings.insertDefaults[key] = [];
+        }
+      }
+      return;
+    }
+    if (mapping[0] === "map") {
+      mapping.shift();
+      if (Mappings.defaults.hasOwnProperty(mapping[1])) {
         return Mappings.defaults[mapping[1]].push(mapping[0]);
       }
       if (mapping[1][0] === ":") {
         return Mappings.shortCuts.push([mapping[0], mapping.slice(1).join(" ")]);
       }
-    }
-    if (mapping.length === 1) {
-      for (key in Mappings.defaults) {
-        if (Array.isArray(Mappings.defaults[key])) {
-          var index = 0;
-          while (index !== -1) {
-            index = Mappings.defaults[key].indexOf(mapping[0]);
-            if (index !== -1) {
-              Mappings.defaults[key].splice(index, 1);
-            }
-          }
-        }
+    } else if (mapping[0] === "imap") {
+      mapping.shift();
+      if (Mappings.insertDefaults.hasOwnProperty(mapping[1])) {
+        return Mappings.insertDefaults[mapping[1]].push(mapping[0]);
       }
-      Mappings.shortCuts = Mappings.shortCuts.filter(function(item) {
-        return item[0] !== mapping[0];
-      });
+    }
+    if (mapping.length === 2) {
+      if (mapping[0] === "iunmap") {
+        Mappings.removeMapping(Mappings.insertDefaults, mapping[1]);
+      } else {
+        Mappings.removeMapping(Mappings.defaults, mapping[1]);
+        Mappings.shortCuts = Mappings.shortCuts.filter(function(item) {
+          return item[0] !== mapping[1];
+        });
+      }
     }
   });
   Mappings.shortCuts = Mappings.shortCuts.map(function(item) {

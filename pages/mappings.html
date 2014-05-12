@@ -25,23 +25,6 @@
 <a name="user-content-cvimrc" class="anchor" href="#cvimrc"><span class="octicon octicon-link"></span></a>cVimrc</h1>
 
 <h3>
-<a name="user-content-mappings" class="anchor" href="#mappings"><span class="octicon octicon-link"></span></a>Mappings</h3>
-
-<ul>
-<li>Mappings are defined with the following structure: <code>map &lt;KEY&gt; &lt;MAPPING_NAME&gt;</code>
-</li>
-<li>Control, meta, and alt can be used also:</li>
-</ul><div class="highlight highlight-viml"><pre><span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span> <span class="c">"Ctrl + u</span>
-<span class="p">&lt;</span>M<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span> <span class="c">"Meta + u</span>
-<span class="p">&lt;</span>A<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span> <span class="c">"Alt  + u</span>
-</pre></div>
-
-<ul>
-<li>It is also possible to unmap default bindings with <code>unmap &lt;KEY&gt;</code>
-</li>
-<li>To unmap all default keybindings, use <code>unmapAll</code>
-</li>
-</ul><h3>
 <a name="user-content-settings" class="anchor" href="#settings"><span class="octicon octicon-link"></span></a>Settings</h3>
 
 <ul>
@@ -193,11 +176,31 @@ map <span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span>
 map <span class="p">&lt;</span>M<span class="p">-</span><span class="k">h</span><span class="p">&gt;</span> previousTab
 map <span class="p">&lt;</span>C<span class="p">-</span><span class="k">d</span><span class="p">&gt;</span> scrollPageDown
 map <span class="p">&lt;</span>C<span class="p">-</span><span class="k">e</span><span class="p">&gt;</span> scrollPageUp
+iunmap <span class="p">&lt;</span>C<span class="p">-</span><span class="k">y</span><span class="p">&gt;</span> deleteWord
+imap <span class="p">&lt;</span>C<span class="p">-</span><span class="k">m</span><span class="p">&gt;</span> deleteWord
 unmap <span class="k">X</span>
 map <span class="k">X</span> :execute gTx<span class="p">&lt;</span>CR<span class="p">&gt;</span> <span class="c">"Close the current tab and move to the one before it</span>
 </pre></div>
 
-<h1>
+<h3>
+<a name="user-content-mappings" class="anchor" href="#mappings"><span class="octicon octicon-link"></span></a>Mappings</h3>
+
+<ul>
+<li>Normal mappings are defined with the following structure: <code>map &lt;KEY&gt; &lt;MAPPING_NAME&gt;</code>
+</li>
+<li>Insert mappings use the same structure, but use the command "imap" instead of "map"</li>
+<li>Control, meta, and alt can be used also:</li>
+</ul><div class="highlight highlight-viml"><pre><span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span> <span class="c">"Ctrl + u</span>
+<span class="p">&lt;</span>M<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span> <span class="c">"Meta + u</span>
+<span class="p">&lt;</span>A<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span> <span class="c">"Alt  + u</span>
+</pre></div>
+
+<ul>
+<li>It is also possible to unmap default bindings with <code>unmap &lt;KEY&gt;</code> and insert bindings with <code>iunmap &lt;KEY&gt;</code>
+</li>
+<li>To unmap all default keybindings, use <code>unmapAll</code>. To unmap all default insert bindings, use <code>iunmapAll</code>
+</li>
+</ul><h1>
 <a name="user-content-keybindings" class="anchor" href="#keybindings"><span class="octicon octicon-link"></span></a>Keybindings</h1>
 
 <table>
@@ -570,52 +573,52 @@ map <span class="k">X</span> :execute gTx<span class="p">&lt;</span>CR<span clas
 <tr>
 <td>&lt;C-i&gt;</td>
 <td align="left">move cursor to the beginning of the line</td>
-<td align="left"></td>
+<td align="left">beginningOfLine</td>
 </tr>
 <tr>
 <td>&lt;C-e&gt;</td>
 <td align="left">move cursor to the end of the line</td>
-<td align="left"></td>
+<td align="left">endOfLine</td>
 </tr>
 <tr>
 <td>&lt;C-u&gt;</td>
 <td align="left">delete to the beginning of the line</td>
-<td align="left"></td>
+<td align="left">deleteToBeginning</td>
 </tr>
 <tr>
 <td>&lt;C-o&gt;</td>
 <td align="left">delete to the end of the line</td>
-<td align="left"></td>
+<td align="left">deleteToEnd</td>
 </tr>
 <tr>
 <td>&lt;C-y&gt;</td>
 <td align="left">delete back one word</td>
-<td align="left"></td>
+<td align="left">deleteWord</td>
 </tr>
 <tr>
 <td>&lt;C-p&gt;</td>
 <td align="left">delete forward one word</td>
-<td align="left"></td>
+<td align="left">deleteForwardWord</td>
 </tr>
 <tr>
 <td>&lt;C-h&gt;</td>
 <td align="left">move cursor back one word</td>
-<td align="left"></td>
+<td align="left">backwardWord</td>
 </tr>
 <tr>
 <td>&lt;C-l&gt;</td>
 <td align="left">move cursor forward one word</td>
-<td align="left"></td>
+<td align="left">forwardWord</td>
 </tr>
 <tr>
 <td>&lt;C-f&gt;</td>
 <td align="left">move cursor forward one letter</td>
-<td align="left"></td>
+<td align="left">forwardChar</td>
 </tr>
 <tr>
 <td>&lt;C-b&gt;</td>
 <td align="left">move cursor back one letter</td>
-<td align="left"></td>
+<td align="left">backwardChar</td>
 </tr>
 </tbody>
 </table><h1>
@@ -673,7 +676,7 @@ map <span class="k">X</span> :execute gTx<span class="p">&lt;</span>CR<span clas
 </tr>
 <tr>
 <td>:execute</td>
-<td>execute a sequence of keys (Useful for mappings. For example, "map j 2j")</td>
+<td>execute a sequence of keys (Useful for mappings. For example, "map j :execute 2j")</td>
 </tr>
 <tr>
 <td>:buffers (autocomplete)</td>
