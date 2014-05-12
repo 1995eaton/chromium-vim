@@ -179,5 +179,6 @@ map X :execute gTx<CR> "Close the current tab and move to the one before it
 #Tips
 
  * You can specify whether you activate the tab (:tabopen, :bookmarks, :history, etc) by appending an ampersand (&) to the end of the url
+ * You can use @% in "open" commands to specify the current URL. For example, ":open @%" would essentially refresh the current page.
  * Prepend a number to the command to repeat that command N times
  * Use the up/down arrows in command/find mode to navigate through previously executed commands/searches -- you can also use this to search for previously executed commands starting with a certain combination of letters (for example, entering "ta" in the command bar and pressing the up arrow will search command history for all matches beginning with "ta"

@@ -53,6 +53,7 @@ Complete.apis = {
 
 Complete.convertToLink = function(input) {
   var prefix, suffix;
+  input = input.replace(/@%/g, document.URL);
   input = input.split(/\s+/).filter(function(e) { return e; });
   input.shift();
   if (input.length === 0) {
