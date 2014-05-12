@@ -165,11 +165,11 @@ keyDown = function(e) {
     e.preventDefault();
     return Hints.hideHints();
   } else if (!commandMode) {
-    if (keyType.escape || (!isInput && (e.which === 32 || e.which === 13))) {
+    if (keyType.escape || (!isInput && (asciiKey === "<Space>" || e.which === 13))) {
       if (insertMode && !document.activeElement.isInput()) {
         insertMode = false;
         HUD.hide();
-      } else if (Find.matches.length) {
+      } else if (Find.matches.length && asciiKey !== "<Space>") {
         Find.clear();
         HUD.hide();
       }
@@ -258,7 +258,7 @@ keyDown = function(e) {
         }
         document.activeElement.blur();
         if (Command.type === "search") {
-          if (Command.input.value !== "" && (Command.input.value !== Find.lastSearch || Find.matches.length === 0)) {
+          if (Command.input.value !== "" && (Command.input.value !== Find.lastSearch || !Find.matches.length)) {
             Find.clear();
             Find.highlight(document.body, Command.input.value, false, false, false, true);
           }
@@ -281,7 +281,7 @@ keyDown = function(e) {
           }, 0);
         } else {
           setTimeout(function() {
-            if (Command.type === "search" && Command.input.value !== Find.lastSearch) {
+            if (Command.type === "search" && (Command.input.value !== Find.lastSearch || !Find.highlights.length)) {
               if (Command.input.value !== "") {
                 Find.clear();
                 if (Command.input.value.length > 2) {
