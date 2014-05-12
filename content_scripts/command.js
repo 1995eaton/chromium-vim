@@ -40,12 +40,12 @@ Command.setup = function() {
     this.data = document.createElement("div");
     this.data.id = "cVim-command-bar-search-results";
     this.data.cVim = true;
-    this.data.style[(this.onBottom) ? "bottom" : "top"] = "20px";
     try {
       document.lastChild.appendChild(this.data);
     } catch(e) {
       document.body.appendChild(this.data);
     }
+    this.data.style[(this.onBottom) ? "bottom" : "top"] = getComputedStyle(this.bar).height;
   }
 };
 
