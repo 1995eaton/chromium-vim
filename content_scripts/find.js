@@ -76,10 +76,16 @@ Find.search = function(reverse, repeats) {
 };
 
 Find.highlight = function(baseNode, match, setIndex, search, reverse, saveSearch) {
-  var mode, node, matches, mark, mid, pass, data;
-  var regexp = settings.regexp;
-  if (this.clearing) return;
-  if (saveSearch !== undefined) this.lastSearch = match;
+  var mode, node, matches, mark, mid, pass, data, walker, regexp, matchPosition, nName, highlight, ignoreDiacritics;
+  highlight = settings.highlight;
+  ignoreDiacritics = settings.ignoreDiacritics;
+  regexp = settings.regexp;
+  if (this.clearing) {
+    return false;
+  }
+  if (saveSearch !== undefined) {
+    this.lastSearch = match;
+  }
   if (settings.ignorecase || /\/i$/.test(match)) {
     mode = "i";
     match = match.replace(/\/i$/, "");
@@ -87,45 +93,38 @@ Find.highlight = function(baseNode, match, setIndex, search, reverse, saveSearch
     mode = "";
   }
   if (regexp) {
-    if (match === "." || match === ".*") {
-      match = ".*.";
-    }
     try {
-      match = new RegExp(match, mode);
+      match = new RegExp(match, "g" + mode);
     } catch(e) {
       return;
     }
   }
-  var walker = document.createTreeWalker(baseNode, NodeFilter.SHOW_TEXT, null, false);
+  walker = document.createTreeWalker(baseNode, NodeFilter.SHOW_TEXT, null, false);
   document.body.normalize();
   pass = false;
   while (node = walker.nextNode()) {
-    var nName = node.parentNode.nodeName;
-    if (nName !== "SCRIPT" && nName !== "STYLE" && nName !== "NOSCRIPT" && node.data.trim() !== "" && !node.parentNode.hasAttribute("cVim")) {
-      if (settings.ignorediacritics) {
+    nName = node.parentNode.nodeName;
+    if (nName !== "SCRIPT" && nName !== "STYLE" && nName !== "NOSCRIPT" && nName !== "MARK" && node.data.trim() !== "" && !node.parentNode.hasAttribute("cVim")) {
+      if (ignoreDiacritics) {
         data = node.data.removeDiacritics();
       } else {
         data = node.data;
       }
-      var matchPosition = (regexp ? data.search(match) : node.data.indexOf(match));
-      if (!pass) {
-        if (matchPosition >= 0) {
-          if (regexp) {
-            matches = data.match(match);
-            if (!matches.length || matches[0] === "")
-              continue;
-          }
-          mark = document.createElement("mark");
-          mark.style.backgroundColor = settings.highlight;
-          mid = node.splitText(matchPosition);
-          mid.splitText((regexp ? matches[0].length : match.length));
-          mark.appendChild(mid.cloneNode(true));
-          mid.parentNode.replaceChild(mark, mid);
-          this.matches.push(mark);
-          pass = true;
+      matchPosition = (regexp ? data.search(match) : node.data.indexOf(match));
+      if (matchPosition >= 0) {
+        if (regexp) {
+          matches = data.match(match);
+          if (!matches.length || matches[0] === "")
+            continue;
         }
-      } else {
-        pass = false;
+        mark = document.createElement("mark");
+        mark.style.backgroundColor = highlight;
+        mid = node.splitText(matchPosition);
+        mid.splitText((regexp ? matches[0].length : match.length));
+        mark.appendChild(mid.cloneNode(true));
+        mid.parentNode.replaceChild(mark, mid);
+        this.matches.push(mark);
+        pass = true;
       }
     }
   }
