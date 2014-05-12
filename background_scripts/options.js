@@ -42,6 +42,7 @@ var settingsDefault = {
     autofocus: true,
     insertmappings: true,
     smoothscroll: true,
+    scrollduration: 20
   },
   strings: {
     hintcharacters: "asdfgqwertzxcvb",

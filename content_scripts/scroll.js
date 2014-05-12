@@ -18,13 +18,17 @@ var ease = {
   },
   outQuart: function(t, b, c, d) {
     return -c * ((t=t/d-1)*t*t*t - 1) + b;
+  },
+  outCirc: function (t, b, c, d) {
+    t /= d;
+    t--;
+    return c * Math.sqrt(1 - t*t) + b;
   }
 };
 
 Scroll.smoothScrollBy = function(x, y) {
 
   var isVertical = (y) ? true : false,
-      duration = 30,
       easeFunc = ease.outExpo,
       i = 0,
       delta = 0;
@@ -32,16 +36,16 @@ Scroll.smoothScrollBy = function(x, y) {
   function animLoop() {
 
     if (isVertical) {
-      window.scrollBy(0, Math.round(easeFunc(i, 0, y, duration) - delta));
+      window.scrollBy(0, Math.round(easeFunc(i, 0, y, settings.scrollduration) - delta));
     } else {
-      window.scrollBy(Math.round(easeFunc(i, 0, x, duration) - delta), 0);
+      window.scrollBy(Math.round(easeFunc(i, 0, x, settings.scrollduration) - delta), 0);
     }
 
-    if (i < duration) {
+    if (i < settings.scrollduration) {
       window.requestAnimationFrame(animLoop);
     }
 
-    delta = easeFunc(i, 0, (x || y), duration);
+    delta = easeFunc(i, 0, (x || y), settings.scrollduration);
     i += 1;
   }
 
