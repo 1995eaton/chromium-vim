@@ -98,7 +98,11 @@ Hints.dispatchAction = function(link) {
       if (this.type === "tabbed") {
         chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: link.href, noconvert: true});
       } else {
-        link.simulateClick();
+        if (link.getAttribute("href")) {
+          link.click();
+        } else {
+          link.simulateClick();
+        }
       }
       break;
   }
