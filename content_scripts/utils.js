@@ -32,7 +32,9 @@ String.prototype.trimAround = function() {
 String.prototype.span = function(attributes, className) {
   var strat = "";
   for (var key in attributes) {
-    strat += key + ":" + attributes[key] + ";";
+    if (typeof attributes[key] === "string") {
+      strat += key + ":" + attributes[key] + ";";
+    }
   }
   return "<span " + (className !== undefined ? "class=\"" + className + "\" " : "") + "style=\"" + strat + "\">" + this + "</span>";
 };
