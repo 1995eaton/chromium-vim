@@ -579,26 +579,7 @@ Command.configureSettings = function(s) {
 port.postMessage({action: "getBookmarks"});
 port.postMessage({action: "getQuickMarks"});
 port.postMessage({action: "getSessionNames"});
-chrome.extension.onMessage.addListener(function(request, sender, callback) {
-  if (request.action === "sendSettings") {
-    Command.configureSettings(request.settings);
-  } else if (request.action === "confirm") {
-    var c = confirm(request.message);
-    callback(c);
-  } else if (request.action === "cancelAllWebRequests") {
-    window.stop();
-  } else if (request.action === "updateMarks") {
-    Marks.quickMarks = request.marks;
-  } else if (request.action === "nextCompletionResult") {
-    if (settings.cncpcompletion && Command.type === "action" && commandMode && document.activeElement.id === "cVim-command-bar-input") {
-      Search.nextResult();
-    } else {
-      if (window.self === window.top) {
-        callback(true);
-      }
-    }
-  }
-});
+
 document.addEventListener("DOMContentLoaded", function() {
   chrome.runtime.sendMessage({action: "getSettings"});
 });

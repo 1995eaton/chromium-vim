@@ -60,3 +60,29 @@ port.onMessage.addListener(function(response) {
       break;
   }
 });
+
+chrome.extension.onMessage.addListener(function(request, sender, callback) {
+  switch (request.action) {
+    case "sendSettings":
+      Command.configureSettings(request.settings);
+      break;
+    case "confirm":
+      callback(confirm(request.message));
+      break;
+    case "cancelAllWebRequests":
+      window.stop();
+      break;
+    case "updateMarks":
+      Marks.quickMarks = request.marks;
+      break;
+    case "nextCompletionResult":
+      if (settings.cncpcompletion && Command.type === "action" && commandMode && document.activeElement.id === "cVim-command-bar-input") {
+        Search.nextResult();
+        break;
+      }
+      if (window.self === window.top) {
+        callback(true);
+      }
+      break;
+  }
+});
