@@ -169,7 +169,7 @@ keyDown = function(e) {
       if (insertMode && !document.activeElement.isInput()) {
         insertMode = false;
         HUD.hide();
-      } else if (Find.matches.length && asciiKey !== "<Space>") {
+      } else if (Find.matches.length && !/Space|Enter/.test(asciiKey)) {
         Find.clear();
         HUD.hide();
       }
