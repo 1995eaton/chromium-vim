@@ -19,18 +19,19 @@ String.prototype.validURL = function() {
 
 var Complete = {};
 
-Complete.engines = ["google", "wikipedia", "imdb", "amazon", "wolframalpha", "google-image", "duckduckgo", "yahoo", "bing"];
+Complete.engines = ["google", "wikipedia", "imdb", "amazon", "wolframalpha", "google-image", "ebay", "duckduckgo", "yahoo", "bing"];
 
 Complete.requestUrls = {
-  wikipedia:  "https://en.wikipedia.org/wiki/",
-  google:     "https://www.google.com/search?q=",
+  wikipedia:      "https://en.wikipedia.org/wiki/",
+  google:         "https://www.google.com/search?q=",
   "google-image": "https://www.google.com/search?site=imghp&tbm=isch&source=hp&q=",
-  duckduckgo: "https://duckduckgo.com/?q=",
-  yahoo:      "https://search.yahoo.com/search?p=",
-  bing:       "https://www.bing.com/search?q=",
-  imdb:       "http://www.imdb.com/find?s=all&q=",
-  amazon:     "http://www.amazon.com/s/?field-keywords=",
-  wolframalpha:    "https://www.wolframalpha.com/input/?i="
+  duckduckgo:     "https://duckduckgo.com/?q=",
+  yahoo:          "https://search.yahoo.com/search?p=",
+  bing:           "https://www.bing.com/search?q=",
+  imdb:           "http://www.imdb.com/find?s=all&q=",
+  amazon:         "http://www.amazon.com/s/?field-keywords=",
+  wolframalpha:   "https://www.wolframalpha.com/input/?i=",
+  ebay:           "https://www.ebay.com/sch/i.html?_sacat=0&_from=R40&_nkw="
 };
 
 Complete.parseQuery = {
@@ -39,18 +40,25 @@ Complete.parseQuery = {
   },
   bing: function(query) {
     return query + "&FORM=SEEMOR";
+  },
+  wolframalpha: function(query) {
+    return encodeURIComponent(query);
+  },
+  imdb: function(query) {
+    return encodeURIComponent(query);
   }
 };
 
 Complete.apis = {
-  wikipedia:   "https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=",
-  google:      "https://suggestqueries.google.com/complete/search?client=firefox&q=",
+  wikipedia:      "https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=",
+  google:         "https://suggestqueries.google.com/complete/search?client=firefox&q=",
   "google-image": "http://www.google.com/complete/search?client=img&hl=en&gs_rn=43&gs_ri=img&ds=i&cp=1&gs_id=8&q=",
-  yahoo:       "https://search.yahoo.com/sugg/gossip/gossip-us-ura/?output=sd1&appid=search.yahoo.com&nresults=10&command=",
-  bing:        "http://api.bing.com/osjson.aspx?query=",
-  imdb:        "http://sg.media-imdb.com/suggests/",
-  amazon:      "http://completion.amazon.com/search/complete?method=completion&search-alias=aps&client=amazon-search-ui&mkt=1&q=",
-  wolframalpha: "https://www.wolframalpha.com/input/autocomplete.jsp?qr=0&i="
+  yahoo:          "https://search.yahoo.com/sugg/gossip/gossip-us-ura/?output=sd1&appid=search.yahoo.com&nresults=10&command=",
+  bing:           "http://api.bing.com/osjson.aspx?query=",
+  imdb:           "http://sg.media-imdb.com/suggests/",
+  amazon:         "http://completion.amazon.com/search/complete?method=completion&search-alias=aps&client=amazon-search-ui&mkt=1&q=",
+  wolframalpha:   "https://www.wolframalpha.com/input/autocomplete.jsp?qr=0&i=",
+  ebay:           "https://autosug.ebay.com/autosug?kwd="
 };
 
 Complete.convertToLink = function(input) {
@@ -121,7 +129,7 @@ Complete["google-image"] = function(query, callback) {
 };
 
 Complete.amazon = function(query, callback) {
-  this.xhr(this.apis.amazon + query, function(response) {
+  this.xhr(this.apis.amazon + encodeURIComponent(query), function(response) {
     callback(response[1].map(function(e) {
       return ["search"].concat(e);
     }));
@@ -129,7 +137,7 @@ Complete.amazon = function(query, callback) {
 };
 
 Complete.yahoo = function(query, callback) {
-  this.xhr(this.apis.yahoo + query, function(response) {
+  this.xhr(this.apis.yahoo + encodeURIComponent(query), function(response) {
     var _ret = [];
     for (var key in response.r) {
       if (response.r[key].hasOwnProperty("k")) {
@@ -148,11 +156,27 @@ Complete.bing = function(query, callback) {
   });
 };
 
+Complete.ebay = function(query, callback) {
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", this.apis.ebay + encodeURIComponent(query));
+  xhr.onreadystatechange = function() {
+    if (this.readyState === 4 && this.status === 200 && document.activeElement.id === "cVim-command-bar-input" && commandMode) {
+      var _ret = JSON.parse(xhr.responseText.replace(/^[^\(]+\(|\)$/g, ""));
+      if (!_ret.res) {
+        return false;
+      }
+      callback(_ret.res.sug.map(function(e) {
+        return ["search", e];
+      }));
+    }
+  };
+  xhr.send();
+};
+
 Complete.wolframalpha = function(query, callback) {
-  log(this.apis.wolframalpha + encodeURIComponent(query));
   this.xhr(this.apis.wolframalpha + encodeURIComponent(query), function(response) {
     callback(response.results.map(function(e) {
-      return ["search", e.input, "https://www.wolframalpha.com" + e.waPath];
+      return ["search", e.input];
     }));
   });
 };
