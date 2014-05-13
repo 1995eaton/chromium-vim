@@ -160,7 +160,7 @@ Complete["google-finance"] = function(query, callback) {
       return ["search", e.t + " - " + e.n + " - " + e.e, Complete.requestUrls["google-finance"] + e.e + ":" + e.t];
     }));
   });
-}
+};
 
 Complete.amazon = function(query, callback) {
   this.xhr(this.apis.amazon + encodeURIComponent(query), function(response) {

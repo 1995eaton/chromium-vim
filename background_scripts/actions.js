@@ -2,7 +2,7 @@ var actions = {},
 request, sender, callback, url;
 
 function isAction(action) {
-  return actions[action] ? true : false;
+  return actions.hasOwnProperty(action);
 }
 
 function callAction(action, config) {

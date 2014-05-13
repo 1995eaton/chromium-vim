@@ -30,10 +30,10 @@ String.prototype.trimAround = function() {
 };
 
 String.prototype.escape = function() {
-  return this.replace(/&/g, '&amp;')
-             .replace(/"/g, '&quot;')
-             .replace(/</g, '&lt;')
-             .replace(/>/g, '&gt;');
+  return this.replace(/&/g, "&amp;")
+             .replace(/"/g, "&quot;")
+             .replace(/</g, "&lt;")
+             .replace(/>/g, "&gt;");
 };
 
 String.prototype.span = function(attributes, className) {

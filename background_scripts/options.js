@@ -78,13 +78,13 @@ Options.refreshSettings = function(callback) {
     }
   }
   if (callback) {
-    callback(Settings);
+    callback();
   }
 };
 
 Options.saveSettings = function(request) {
   Settings = request.settings;
-  this.refreshSettings(function(data) {
+  this.refreshSettings(function() {
     chrome.storage[storageMethod].set({settings: Settings});
     if (request.sendSettings) {
       Options.sendSettings();
@@ -101,7 +101,7 @@ Options.sendSettings = function() {
 };
 
 Options.getSettings = function(request, sender) {
-  this.refreshSettings(function(data) {
+  this.refreshSettings(function() {
     chrome.tabs.sendMessage(sender.tab.id, {action: "sendSettings", settings: (request.reset ? Options.compressedDefaults : Settings)});
   });
 };
