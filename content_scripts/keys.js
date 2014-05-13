@@ -72,8 +72,16 @@ fromKeyCode = function(e) {
 
 keyDown = function(e) {
 
-  if (e.which === 18 && Hints.active) {
-    return Hints.changeFocus();
+  if (Hints.active) {
+    if (e.which === 18) {
+      return Hints.changeFocus();
+    } else if (e.which === 191) {
+      return document.getElementById("cVim-link-container").style.opacity = "0";
+    }
+  }
+  if (Hints.keyDelay) {
+    e.stopPropagation();
+    return e.preventDefault();
   }
   if (e.which === 17 || e.which === 16 || e.which === 91 || e.which === 123) {
     return false;
@@ -317,6 +325,9 @@ keyUp = function(e) {
   if (document.activeElement.id === "cVim-command-bar-input" || (!insertMode && Mappings.queue.length && Mappings.validMatch)) {
     e.stopPropagation();
     e.preventDefault();
+  }
+  if (Hints.active && e.which === 191) {
+    document.getElementById("cVim-link-container").style.opacity = "1";
   }
 };
 

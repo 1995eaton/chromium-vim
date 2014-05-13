@@ -24,7 +24,8 @@ Object.prototype.flatten = function() {
 var settingsDefault = {
   positiveIntegers: {
     searchlimit: 20,
-    scrollstep: 75
+    scrollstep: 75,
+    typelinkhintsdelay: 500
   },
   objects: {
     qmarks: {},

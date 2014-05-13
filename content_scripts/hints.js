@@ -45,6 +45,12 @@ Hints.hideHints = function(reset, multi) {
   this.linkArr = [];
   this.linkHints = [];
   this.permutations = [];
+  if (!this.active && settings.numerichints && settings.typelinkhints) {
+    Hints.keyDelay = true;
+    window.setTimeout(function() {
+      Hints.keyDelay = false;
+    }, settings.typelinkhintsdelay);
+  }
 };
 
 Hints.changeFocus = function() {
@@ -64,6 +70,12 @@ Hints.removeContainer = function() {
 
 Hints.dispatchAction = function(link) {
   var node = link.nodeName;
+  if (settings.numerichints && settings.typelinkhints) {
+    Hints.keyDelay = true;
+    window.setTimeout(function() {
+      Hints.keyDelay = false;
+    }, settings.typelinkhintsdelay);
+  }
   switch (this.type) {
     case "multi":
       chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: link.href, noconvert: true});
