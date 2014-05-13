@@ -20,6 +20,9 @@ Mappings.actions   = {
       Visual.scrollIntoView();
     }
   },
+  openLastHint: function() {
+    Hints.dispatchAction(Hints.lastClicked);
+  },
   nextMatchPattern: function() {
     Hints.matchPatterns(true);
   },
@@ -341,6 +344,7 @@ Mappings.defaults = {
   goForward:            ["L", "D"],
   firstTab:             ["g0"],
   addQuickMark:         ["M*"],
+  openLastHint:         ["A"],
   openQuickMark:        ["go*"],
   openQuickMarkTabbed:  ["gn*"],
   cancelWebRequest:     ["gq"],

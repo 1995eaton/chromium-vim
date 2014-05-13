@@ -97,6 +97,7 @@ map X :execute gTx<CR> "Close the current tab and move to the one before it
 | f                       | open link in current tab                                           | createHint             | 
 | F                       | open link in new tab                                               | createTabbedHint       | 
 | W                       | open link in new window                                            | createHintWindow       | 
+| A                       | repeat last hint command                                           | openLastHint           |
 | q                       | trigger a hover event (mouseover + mouseenter)                     | createHoverHint        |
 | Q                       | trigger a unhover event (mouseout + mouseleave)                    | createUnhoverHint      | 
 | mf                      | open multiple links                                                | createMultiHint        | 

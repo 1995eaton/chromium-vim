@@ -77,6 +77,8 @@ keyDown = function(e) {
     if (e.which === 18) {
       return Hints.changeFocus();
     } else if (e.which === 191) {
+      e.preventDefault();
+      e.stopPropagation();
       return document.getElementById("cVim-link-container").style.opacity = "0";
     }
   }
@@ -172,7 +174,7 @@ keyDown = function(e) {
   } else if (Hints.active && (keyType.escape || e.which <= 40) && !(settings.typelinkhints && e.which === 32)) {
     e.stopPropagation();
     e.preventDefault();
-    return Hints.hideHints();
+    Hints.hideHints(false, false, true);
   } else if (!commandMode) {
     if (keyType.escape || (!isInput && (asciiKey === "<Space>" || e.which === 13))) {
       if (keyType.escape && Hints.lastHover) {

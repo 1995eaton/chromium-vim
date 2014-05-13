@@ -25,7 +25,7 @@ Hints.matchPatterns = function(forward) {
   }
 };
 
-Hints.hideHints = function(reset, multi) {
+Hints.hideHints = function(reset, multi, useKeyDelay) {
   if (document.getElementById("cVim-link-container") !== null) {
     if (!multi) {
       HUD.hide();
@@ -45,7 +45,7 @@ Hints.hideHints = function(reset, multi) {
   this.linkArr = [];
   this.linkHints = [];
   this.permutations = [];
-  if (!this.active && settings.numerichints && settings.typelinkhints) {
+  if (useKeyDelay && !this.active && settings.numerichints && settings.typelinkhints) {
     Hints.keyDelay = true;
     window.setTimeout(function() {
       Hints.keyDelay = false;
@@ -69,6 +69,10 @@ Hints.removeContainer = function() {
 };
 
 Hints.dispatchAction = function(link) {
+  if (!link) {
+    return false;
+  }
+  this.lastClicked = link;
   var node = link.nodeName;
   if (settings.numerichints && settings.typelinkhints) {
     Hints.keyDelay = true;
@@ -136,7 +140,7 @@ Hints.dispatchAction = function(link) {
     this.removeContainer();
     this.create(this.type, true);
   } else {
-    this.hideHints(false);
+    this.hideHints(false, false, true);
   }
 };
 
@@ -227,7 +231,7 @@ Hints.handleHintFeedback = function() {
   }
   
   if (linksFound === 0) {
-    this.hideHints(false);
+    this.hideHints(false, false, true);
   }
   if (linksFound === 1) {
     if (settings.numerichints) {
@@ -241,11 +245,14 @@ Hints.handleHintFeedback = function() {
 
 
 Hints.handleHint = function(key) {
+  if (key === "<C-[>" || key === "<Esc>") {
+    return this.hideHints(false, false, false);
+  }
   if (settings.numerichints || settings.hintcharacters.split("").indexOf(key.toLowerCase()) !== -1) {
     this.currentString += key.toLowerCase();
     this.handleHintFeedback(this.currentString);
   } else {
-    this.hideHints(false);
+    this.hideHints(false, false, true);
   }
 };
 

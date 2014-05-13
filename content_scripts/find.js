@@ -127,8 +127,9 @@ Find.highlight = function(baseNode, match, setIndex, search, reverse, saveSearch
       if (matchPosition >= 0) {
         if (regexp) {
           matches = data.match(match);
-          if (!matches.length || matches[0] === "")
+          if (!matches.length || matches[0] === "") {
             continue;
+          }
         }
         mark = document.createElement("mark");
         mark.style.backgroundColor = highlight;
