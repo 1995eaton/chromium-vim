@@ -21,13 +21,16 @@ port.onMessage.addListener(function(response) {
       });
       if (Command.historyMode) {
         if (matches.length > 0) {
-          Command.appendResults(matches, false);
-        } else Command.hideData();
+          Command.appendResults(matches, false, "History", "cyan");
+        }
       }
       Marks.history = matches;
       break;
     case "bookmarks":
       Marks.parse(response.bookmarks);
+      break;
+    case "topsites":
+      Search.topSites = response.sites;
       break;
     case "buffers":
       if (Command.bar.style.display !== "none") {

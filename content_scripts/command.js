@@ -114,9 +114,9 @@ Command.appendResults = function(data, extend, identifier, color) {
     temp.cVim = true;
     temp.className = "completion-item";
     if (arrCount >= 3) {
-      temp.innerHTML = ((identifier ? identifier.span({"color": color}) + ":&nbsp;" : "") + data[i][1]).span({}, "left") + data[i][2].span({}, "right");
+      temp.innerHTML = ((identifier ? identifier.span({"color": color, escape: true}) + ":&nbsp;" : "") + data[i][1]).span({escape: false}, "left") + data[i][2].span({}, "right");
     } else {
-      temp.innerHTML = (identifier ? identifier.span({"color": color}) + "&nbsp;" : "") + data[i][1].span({}, "full");
+      temp.innerHTML = (identifier ? identifier.span({"color": color, escape: true}) + "&nbsp;" : "") + data[i][1].span({escape: true}, "full");
     }
     this.dataElements.push(temp);
     this.data.appendChild(temp);
@@ -172,8 +172,26 @@ Command.complete = function(value) {
           matches.push(["engines", Complete.engines[i], Complete.requestUrls[Complete.engines[i]]]);
         }
       }
-      if (matches.length) {
-        return this.appendResults(matches, false);
+      Command.completionResults = [];
+      if (matches.length && !Search.topSites.length) {
+        this.hideData();
+        this.appendResults(matches, false);
+      }
+      if (Search.topSites.length) {
+        var topsites = Search.topSites.filter(function(e) {
+          return (e[0] + " " + e[1]).toLowerCase().indexOf(search.slice(0).join(" ").toLowerCase()) !== -1;
+        }).slice(0, 5).map(function(e) {
+          return ["search", e[0], e[1]];
+        })
+        this.appendResults(matches, false);
+        if (topsites.length) {
+          if (!matches.length) {
+            this.hideData();
+          }
+          return this.appendResults(topsites, true, "Top Site", "darkcyan");
+        } else if (matches.length) {
+          return;
+        }
       }
       this.historyMode = true;
       return port.postMessage({action: "searchHistory", search: value.replace(/^\S+\s+/, ""), limit: settings.searchlimit});
@@ -584,6 +602,7 @@ Command.configureSettings = function(s) {
 port.postMessage({action: "getBookmarks"});
 port.postMessage({action: "getQuickMarks"});
 port.postMessage({action: "getSessionNames"});
+port.postMessage({action: "getTopSites"});
 
 document.addEventListener("DOMContentLoaded", function() {
   chrome.runtime.sendMessage({action: "getSettings"});

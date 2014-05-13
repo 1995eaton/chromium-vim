@@ -325,6 +325,12 @@ actions.searchHistory = function() {
   });
 };
 
+actions.getTopSites = function() {
+  Sites.getTop(function(results) {
+    callback({type: "topsites", sites: results});
+  });
+};
+
 actions.getQuickMarks = function() {
   callback({type: "quickMarks", marks: Quickmarks});
 };

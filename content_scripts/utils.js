@@ -43,7 +43,7 @@ String.prototype.span = function(attributes, className) {
       strat += key + ":" + attributes[key] + ";";
     }
   }
-  return "<span " + (className !== undefined ? "class=\"" + className + "\" " : "") + "style=\"" + strat + "\">" + this.escape() + "</span>";
+  return "<span " + (className !== undefined ? "class=\"" + className + "\" " : "") + "style=\"" + strat + "\">" + (attributes.escape ? this.escape() : this) + "</span>"; // TODO: escape left half
 };
 
 String.prototype.isBoolean = function() {

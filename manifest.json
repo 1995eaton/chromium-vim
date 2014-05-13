@@ -46,6 +46,7 @@
     "storage",
     "sessions",
     "downloads",
+    "topSites",
     "downloads.shelf",
     "clipboardRead",
     "clipboardWrite"
