@@ -19,7 +19,7 @@ String.prototype.validURL = function() {
 
 var Complete = {};
 
-Complete.engines = ["google", "wikipedia", "imdb", "amazon", "wolframalpha", "google-image", "ebay", "webster", "wictionary", "urbandictionary", "duckduckgo", "google-trends", "google-finance", "yahoo", "bing"];
+Complete.engines = ["google", "wikipedia", "youtube", "imdb", "amazon", "wolframalpha", "google-image", "ebay", "webster", "wictionary", "urbandictionary", "duckduckgo", "google-trends", "google-finance", "yahoo", "bing"];
 
 Complete.requestUrls = {
   wikipedia:      "https://en.wikipedia.org/wiki/",
@@ -36,6 +36,7 @@ Complete.requestUrls = {
   "google-trends": "http://www.google.com/trends/explore#q=",
   "google-finance": "https://www.google.com/finance?q=",
   webster:          "http://www.merriam-webster.com/dictionary/",
+  youtube:          "https://www.youtube.com/results?search_query=",
   wictionary:       "http://en.wiktionary.org/wiki/"
 };
 
@@ -74,6 +75,7 @@ Complete.apis = {
   "google-trends": "http://www.google.com/trends/entitiesQuery?tn=10&q=",
   "google-finance": "https://www.google.com/finance/match?matchtype=matchall&q=",
   webster:          "http://www.merriam-webster.com/autocomplete?query=",
+  youtube:          "https://clients1.google.com/complete/search?client=youtube&hl=en&gl=us&gs_rn=23&gs_ri=youtube&ds=yt&cp=2&gs_id=d&q=",
   wictionary:       "http://en.wiktionary.org/w/api.php?action=opensearch&limit=15&format=json&search="
 };
 
@@ -199,6 +201,20 @@ Complete.ebay = function(query, callback) {
       }
       callback(_ret.res.sug.map(function(e) {
         return ["search", e];
+      }));
+    }
+  };
+  xhr.send();
+};
+
+Complete.youtube = function(query, callback) {
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", this.apis.youtube + query);
+  xhr.onreadystatechange = function() {
+    if (this.readyState === 4 && this.status === 200 && document.activeElement.id === "cVim-command-bar-input" && commandMode) {
+      var _ret = JSON.parse(xhr.responseText.replace(/^[^\(]+\(|\)$/g, ""));
+      callback(_ret[1].map(function(e) {
+        return ["search", e[0]];
       }));
     }
   };
