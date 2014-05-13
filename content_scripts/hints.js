@@ -26,7 +26,9 @@ Hints.matchPatterns = function(forward) {
 };
 
 Hints.hideHints = function(reset, multi, useKeyDelay) {
-  if (document.getElementById("cVim-link-container") !== null) {
+  if (reset && document.getElementById("cVim-link-container") !== null) {
+    document.getElementById("cVim-link-container").parentNode.removeChild(document.getElementById("cVim-link-container"));
+  } else if (document.getElementById("cVim-link-container") !== null) {
     if (!multi) {
       HUD.hide();
     }
