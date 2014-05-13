@@ -96,6 +96,8 @@ map X :execute gTx<CR> "Close the current tab and move to the one before it
 | f                       | open link in current tab                                           | createHint             | 
 | F                       | open link in new tab                                               | createTabbedHint       | 
 | W                       | open link in new window                                            | createHintWindow       | 
+| q                       | trigger a hover event (mouseover + mouseenter)                     | createHoverHint        |
+| Q                       | trigger a unhover event (mouseout + mouseleave)                    | createUnhoverHint      | 
 | mf                      | open multiple links                                                | createMultiHint        | 
 | mr                      | reverse image search multiple links                                | multiReverseImage      | 
 | my                      | yank multiple links (open the list of links with P)                | multiYankUrl           | 
@@ -123,6 +125,8 @@ map X :execute gTx<CR> "Close the current tab and move to the one before it
 | gj                      | hide the download shelf                                            | hideDownloadsShelf     | 
 | gf                      | cycle through iframes                                              | nextFrame              | 
 | gF                      | go to the root frame                                               | rootFrame              | 
+| gq                      | stop the current tab from loading                                  | cancelWebRequest       |
+| gQ                      | stop all tabs from loading                                         | cancelAllWebRequests   |
 | **Tab Navigation**      |                                                                    |                        | 
 | gt, K, R                | navigate to the next tab                                           | nextTab                | 
 | gT, J, E                | navigate to the previous tab                                       | previousTab            | 

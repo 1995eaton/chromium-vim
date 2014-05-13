@@ -76,6 +76,20 @@ Hints.dispatchAction = function(link) {
     case "multiimage":
       chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: "https://www.google.com/searchbyimage?image_url=" + link.src, noconvert: true});
       break;
+    case "hover":
+      if (Hints.lastHover) {
+        Hints.lastHover.unhover();
+        if (Hints.lastHover === link) {
+          Hints.lastHover = null;
+          break;
+        }
+      }
+      link.hover();
+      Hints.lastHover = link;
+      break;
+    case "unhover":
+      link.unhover();
+      break;
     case "window":
       chrome.runtime.sendMessage({action: "openLinkWindow", focused: false, url: link.href, noconvert: true});
       break;
@@ -392,6 +406,12 @@ Hints.create = function(type, multi) {
         case "window":
           Hints.windowOpen = true;
           return "(window)";
+        case "hover":
+          Hints.hover = true;
+          return "(hover)";
+        case "unhover":
+          Hints.unhover = true;
+          return "(unhover)";
         case "multi":
           Hints.multiHint = true;
           return "(multi)";

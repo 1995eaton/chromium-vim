@@ -153,6 +153,16 @@ Mappings.actions   = {
       Hints.create("window");
     }, 0);
   },
+  createHoverHint: function() {
+    window.setTimeout(function() {
+      Hints.create("hover");
+    }, 0);
+  },
+  createUnhoverHint: function() {
+    window.setTimeout(function() {
+      Hints.create("unhover");
+    }, 0);
+  },
   yankUrl: function() {
     window.setTimeout(function() {
       Hints.create("yank");
@@ -333,8 +343,10 @@ Mappings.defaults = {
   addQuickMark:         ["M*"],
   openQuickMark:        ["go*"],
   openQuickMarkTabbed:  ["gn*"],
-  cancelWebRequest:     ["q"],
-  cancelAllWebRequests: ["Q"],
+  cancelWebRequest:     ["gq"],
+  cancelAllWebRequests: ["gQ"],
+  createHoverHint:      ["q"],
+  createUnhoverHint:    ["Q"],
   lastTab:              ["g$"],
   lastClosedTab:        ["X"],
   hideDownloadsShelf:   ["gj", "gD"],

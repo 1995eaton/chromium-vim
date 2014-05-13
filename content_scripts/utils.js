@@ -72,10 +72,22 @@ Object.prototype.clone = function() {
   return clone;
 };
 
+function simulateMouseEvents(element, events) {
+  for (var i = 0; i < events.length; ++i) {
+    var ev = document.createEvent("MouseEvents");
+    ev.initMouseEvent(events[i], true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+    element.dispatchEvent(ev);
+  }
+}
+
+Object.prototype.hover = function() {
+  simulateMouseEvents(this, ["mouseover", "mouseenter"]);
+};
+
+Object.prototype.unhover = function() {
+  simulateMouseEvents(this, ["mouseout", "mouseleave"]);
+};
+
 Object.prototype.simulateClick = function() {
-  ["mouseover", "mousedown", "mouseup", "click"].forEach(function(event) {
-    var mev = document.createEvent("MouseEvents");
-    mev.initMouseEvent(event, true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
-    this.dispatchEvent(mev);
-  }.bind(this));
+  simulateMouseEvents(this, ["mouseover", "mousedown", "mouseup", "click"]);
 };

@@ -166,6 +166,10 @@ keyDown = function(e) {
     return Hints.hideHints();
   } else if (!commandMode) {
     if (keyType.escape || (!isInput && (asciiKey === "<Space>" || e.which === 13))) {
+      if (keyType.escape && Hints.lastHover) {
+        Hints.lastHover.unhover();
+        Hints.lastHover = null;
+      }
       if (insertMode && !document.activeElement.isInput()) {
         insertMode = false;
         HUD.hide();
