@@ -29,6 +29,13 @@ String.prototype.trimAround = function() {
   return this.replace(/^(\s+)?(.*\S)?(\s+)?$/g, "$2");
 };
 
+String.prototype.escape = function() {
+  return this.replace(/&/g, '&amp;')
+             .replace(/"/g, '&quot;')
+             .replace(/</g, '&lt;')
+             .replace(/>/g, '&gt;');
+};
+
 String.prototype.span = function(attributes, className) {
   var strat = "";
   for (var key in attributes) {
@@ -36,7 +43,7 @@ String.prototype.span = function(attributes, className) {
       strat += key + ":" + attributes[key] + ";";
     }
   }
-  return "<span " + (className !== undefined ? "class=\"" + className + "\" " : "") + "style=\"" + strat + "\">" + this + "</span>";
+  return "<span " + (className !== undefined ? "class=\"" + className + "\" " : "") + "style=\"" + strat + "\">" + this.escape() + "</span>";
 };
 
 String.prototype.isBoolean = function() {
