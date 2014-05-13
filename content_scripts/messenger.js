@@ -21,7 +21,15 @@ port.onMessage.addListener(function(response) {
       });
       if (Command.historyMode) {
         if (matches.length > 0) {
-          Command.appendResults(matches, false, "History", "cyan");
+          Command.appendResults(matches, false);
+        }
+      } else if (Command.searchMode) {
+        Command.searchMode = false;
+        Command.hideData();
+        Command.appendResults(Command.engineMatches, false);
+        Command.appendResults(Command.topSiteMatches, true, "Top Sites", "darkcyan");
+        if (matches.length > 0) {
+          Command.appendResults(matches, true, "History", "cyan");
         }
       }
       Marks.history = matches;

@@ -110,6 +110,7 @@ Command.appendResults = function(data, extend, identifier, color) {
   } else this.completionResults = this.completionResults.concat(data);
   var arrCount = data[0].length;
   for (var i = 0, l = data.length; i < l; ++i) {
+    if (this.dataElements.length > settings.searchlimit) return;
     var temp = document.createElement("div");
     temp.cVim = true;
     temp.className = "completion-item";
@@ -173,27 +174,14 @@ Command.complete = function(value) {
         }
       }
       Command.completionResults = [];
-      if (matches.length && !Search.topSites.length) {
-        this.hideData();
-        this.appendResults(matches, false);
-      }
-      if (Search.topSites.length) {
-        var topsites = Search.topSites.filter(function(e) {
-          return (e[0] + " " + e[1]).toLowerCase().indexOf(search.slice(0).join(" ").toLowerCase()) !== -1;
-        }).slice(0, 5).map(function(e) {
-          return ["search", e[0], e[1]];
-        })
-        this.appendResults(matches, false);
-        if (topsites.length) {
-          if (!matches.length) {
-            this.hideData();
-          }
-          return this.appendResults(topsites, true, "Top Site", "darkcyan");
-        } else if (matches.length) {
-          return;
-        }
-      }
-      this.historyMode = true;
+      var topsites = Search.topSites.filter(function(e) {
+        return (e[0] + " " + e[1]).toLowerCase().indexOf(search.slice(0).join(" ").toLowerCase()) !== -1;
+      }).slice(0, 5).map(function(e) {
+        return ["search", e[0], e[1]];
+      });
+      this.engineMatches = matches;
+      this.topSiteMatches = topsites;
+      this.searchMode = true;
       return port.postMessage({action: "searchHistory", search: value.replace(/^\S+\s+/, ""), limit: settings.searchlimit});
     }
     if (Complete.engines.indexOf(search[0]) !== -1 && Complete.hasOwnProperty(search[0])) {
