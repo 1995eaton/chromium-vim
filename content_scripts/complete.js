@@ -10,8 +10,8 @@ String.prototype.validURL = function() {
   "((\\d{1,3}\\.){3}\\d{1,3})|"+
   "localhost)" +
   "(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*"+
-  "(\\?[;&a-z\\d%_.~+=-]*)?"+
-  "(\\#[-a-z\\d_]*)?$","i");
+  "(\\?[;:&a-z\\d%_.~+=-]*)?"+
+  "(\\#[#:-a-z\\d_]*)?$","i");
   if (pattern.test(url)) {
     return true;
   }
@@ -19,7 +19,7 @@ String.prototype.validURL = function() {
 
 var Complete = {};
 
-Complete.engines = ["google", "wikipedia", "imdb", "amazon", "wolframalpha", "google-image", "ebay", "duckduckgo", "yahoo", "bing"];
+Complete.engines = ["google", "wikipedia", "imdb", "amazon", "wolframalpha", "google-image", "ebay", "urbandictionary", "duckduckgo", "google-trends", "google-finance", "yahoo", "bing"];
 
 Complete.requestUrls = {
   wikipedia:      "https://en.wikipedia.org/wiki/",
@@ -31,7 +31,10 @@ Complete.requestUrls = {
   imdb:           "http://www.imdb.com/find?s=all&q=",
   amazon:         "http://www.amazon.com/s/?field-keywords=",
   wolframalpha:   "https://www.wolframalpha.com/input/?i=",
-  ebay:           "https://www.ebay.com/sch/i.html?_sacat=0&_from=R40&_nkw="
+  ebay:           "https://www.ebay.com/sch/i.html?_sacat=0&_from=R40&_nkw=",
+  urbandictionary: "http://www.urbandictionary.com/define.php?term=",
+  "google-trends": "http://www.google.com/trends/explore#q=",
+  "google-finance": "https://www.google.com/finance?q="
 };
 
 Complete.parseQuery = {
@@ -46,6 +49,9 @@ Complete.parseQuery = {
   },
   imdb: function(query) {
     return encodeURIComponent(query);
+  },
+  "google-finance": function(query) {
+    return encodeURIComponent(query);
   }
 };
 
@@ -58,7 +64,10 @@ Complete.apis = {
   imdb:           "http://sg.media-imdb.com/suggests/",
   amazon:         "http://completion.amazon.com/search/complete?method=completion&search-alias=aps&client=amazon-search-ui&mkt=1&q=",
   wolframalpha:   "https://www.wolframalpha.com/input/autocomplete.jsp?qr=0&i=",
-  ebay:           "https://autosug.ebay.com/autosug?kwd="
+  ebay:           "https://autosug.ebay.com/autosug?kwd=",
+  urbandictionary: "http://api.urbandictionary.com/v0/autocomplete?term=",
+  "google-trends": "http://www.google.com/trends/entitiesQuery?tn=10&q=",
+  "google-finance": "https://www.google.com/finance/match?matchtype=matchall&q="
 };
 
 Complete.convertToLink = function(input) {
@@ -128,6 +137,22 @@ Complete["google-image"] = function(query, callback) {
   xhr.send();
 };
 
+Complete["google-trends"] = function(query, callback) {
+  this.xhr(this.apis["google-trends"] + encodeURIComponent(query), function(response) {
+    callback(response.entityList.map(function(e) {
+      return ["search", e.title + " - " + e.type, Complete.requestUrls["google-trends"] + encodeURIComponent(e.mid)];
+    }));
+  });
+};
+
+Complete["google-finance"] = function(query, callback) {
+  this.xhr(this.apis["google-finance"] + encodeURIComponent(query), function(response) {
+    callback(response.matches.map(function(e) {
+      return ["search", e.t + " - " + e.n + " - " + e.e, Complete.requestUrls["google-finance"] + e.e + ":" + e.t];
+    }));
+  });
+}
+
 Complete.amazon = function(query, callback) {
   this.xhr(this.apis.amazon + encodeURIComponent(query), function(response) {
     callback(response[1].map(function(e) {
@@ -177,6 +202,14 @@ Complete.wolframalpha = function(query, callback) {
   this.xhr(this.apis.wolframalpha + encodeURIComponent(query), function(response) {
     callback(response.results.map(function(e) {
       return ["search", e.input];
+    }));
+  });
+};
+
+Complete.urbandictionary = function(query, callback) {
+  this.xhr(this.apis.urbandictionary + encodeURIComponent(query), function(response) {
+    callback(response.slice(1).map(function(e) {
+      return ["search", e];
     }));
   });
 };
