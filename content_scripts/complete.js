@@ -19,7 +19,7 @@ String.prototype.validURL = function() {
 
 var Complete = {};
 
-Complete.engines = ["google", "wikipedia", "imdb", "amazon", "wolframalpha", "google-image", "ebay", "urbandictionary", "duckduckgo", "google-trends", "google-finance", "yahoo", "bing"];
+Complete.engines = ["google", "wikipedia", "imdb", "amazon", "wolframalpha", "google-image", "ebay", "webster", "wictionary", "urbandictionary", "duckduckgo", "google-trends", "google-finance", "yahoo", "bing"];
 
 Complete.requestUrls = {
   wikipedia:      "https://en.wikipedia.org/wiki/",
@@ -34,7 +34,9 @@ Complete.requestUrls = {
   ebay:           "https://www.ebay.com/sch/i.html?_sacat=0&_from=R40&_nkw=",
   urbandictionary: "http://www.urbandictionary.com/define.php?term=",
   "google-trends": "http://www.google.com/trends/explore#q=",
-  "google-finance": "https://www.google.com/finance?q="
+  "google-finance": "https://www.google.com/finance?q=",
+  webster:          "http://www.merriam-webster.com/dictionary/",
+  wictionary:       "http://en.wiktionary.org/wiki/"
 };
 
 Complete.parseQuery = {
@@ -52,12 +54,15 @@ Complete.parseQuery = {
   },
   "google-finance": function(query) {
     return encodeURIComponent(query);
+  },
+  wictionary: function(query) {
+    return query.replace(" ", "_");
   }
 };
 
 Complete.apis = {
   wikipedia:      "https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=",
-  google:         "https://suggestqueries.google.com/complete/search?client=firefox&q=",
+  google:         "https://www.google.com/complete/search?client=firefox&hl=en&q=",
   "google-image": "http://www.google.com/complete/search?client=img&hl=en&gs_rn=43&gs_ri=img&ds=i&cp=1&gs_id=8&q=",
   yahoo:          "https://search.yahoo.com/sugg/gossip/gossip-us-ura/?output=sd1&appid=search.yahoo.com&nresults=10&command=",
   bing:           "http://api.bing.com/osjson.aspx?query=",
@@ -67,7 +72,9 @@ Complete.apis = {
   ebay:           "https://autosug.ebay.com/autosug?kwd=",
   urbandictionary: "http://api.urbandictionary.com/v0/autocomplete?term=",
   "google-trends": "http://www.google.com/trends/entitiesQuery?tn=10&q=",
-  "google-finance": "https://www.google.com/finance/match?matchtype=matchall&q="
+  "google-finance": "https://www.google.com/finance/match?matchtype=matchall&q=",
+  webster:          "http://www.merriam-webster.com/autocomplete?query=",
+  wictionary:       "http://en.wiktionary.org/w/api.php?action=opensearch&limit=15&format=json&search="
 };
 
 Complete.convertToLink = function(input) {
@@ -202,6 +209,22 @@ Complete.wolframalpha = function(query, callback) {
   this.xhr(this.apis.wolframalpha + encodeURIComponent(query), function(response) {
     callback(response.results.map(function(e) {
       return ["search", e.input];
+    }));
+  });
+};
+
+Complete.webster = function(query, callback) {
+  this.xhr(this.apis.webster + encodeURIComponent(query), function(response) {
+    callback(response.suggestions.map(function(e) {
+      return ["search", e];
+    }));
+  });
+};
+
+Complete.wictionary = function(query, callback) {
+  this.xhr(this.apis.wictionary + encodeURIComponent(query), function(response) {
+    callback(response[1].map(function(e) {
+      return ["search", e];
     }));
   });
 };
