@@ -179,7 +179,7 @@ Command.complete = function(value) {
       return port.postMessage({action: "searchHistory", search: value.replace(/^\S+\s+/, ""), limit: settings.searchlimit});
     }
     if (Complete.engines.indexOf(search[0]) !== -1 && Complete.hasOwnProperty(search[0])) {
-      Complete[search[0]](search.slice(1), function(response) {
+      Complete[search[0]](search.slice(1).join(" "), function(response) {
         if (!response.length) {
           return this.hideData();
         }

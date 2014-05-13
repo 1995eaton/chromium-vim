@@ -19,7 +19,7 @@ String.prototype.validURL = function() {
 
 var Complete = {};
 
-Complete.engines = ["google", "wikipedia", "imdb", "amazon", "google-image", "duckduckgo", "yahoo", "bing"];
+Complete.engines = ["google", "wikipedia", "imdb", "amazon", "wolframalpha", "google-image", "duckduckgo", "yahoo", "bing"];
 
 Complete.requestUrls = {
   wikipedia:  "https://en.wikipedia.org/wiki/",
@@ -29,7 +29,8 @@ Complete.requestUrls = {
   yahoo:      "https://search.yahoo.com/search?p=",
   bing:       "https://www.bing.com/search?q=",
   imdb:       "http://www.imdb.com/find?s=all&q=",
-  amazon:     "http://www.amazon.com/s/?field-keywords="
+  amazon:     "http://www.amazon.com/s/?field-keywords=",
+  wolframalpha:    "https://www.wolframalpha.com/input/?i="
 };
 
 Complete.parseQuery = {
@@ -48,7 +49,8 @@ Complete.apis = {
   yahoo:       "https://search.yahoo.com/sugg/gossip/gossip-us-ura/?output=sd1&appid=search.yahoo.com&nresults=10&command=",
   bing:        "http://api.bing.com/osjson.aspx?query=",
   imdb:        "http://sg.media-imdb.com/suggests/",
-  amazon:      "http://completion.amazon.com/search/complete?method=completion&search-alias=aps&client=amazon-search-ui&mkt=1&q="
+  amazon:      "http://completion.amazon.com/search/complete?method=completion&search-alias=aps&client=amazon-search-ui&mkt=1&q=",
+  wolframalpha: "https://www.wolframalpha.com/input/autocomplete.jsp?qr=0&i="
 };
 
 Complete.convertToLink = function(input) {
@@ -146,9 +148,18 @@ Complete.bing = function(query, callback) {
   });
 };
 
+Complete.wolframalpha = function(query, callback) {
+  log(this.apis.wolframalpha + encodeURIComponent(query));
+  this.xhr(this.apis.wolframalpha + encodeURIComponent(query), function(response) {
+    callback(response.results.map(function(e) {
+      return ["search", e.input, "https://www.wolframalpha.com" + e.waPath];
+    }));
+  });
+};
+
 Complete.imdb = function(query, callback) {
   var xhr = new XMLHttpRequest();
-  xhr.open("GET", this.apis.imdb + query[0][0] + "/" + query.join("_") + ".json");
+  xhr.open("GET", this.apis.imdb + query[0] + "/" + query.replace(" ", "_") + ".json");
   xhr.onreadystatechange = function() {
     if (this.readyState === 4 && this.status === 200 && document.activeElement.id === "cVim-command-bar-input" && commandMode) {
       var _ret = JSON.parse(xhr.responseText.replace(/^[^\(]+\(|\)$/g, ""));
