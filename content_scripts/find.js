@@ -25,7 +25,7 @@ Find.getSelectedTextNode = function() {
 
 Find.search = function(reverse, repeats, ignoreFocus) {
   var activeHighlight = settings.activehighlight;
-  if (Find.swap) reverse = !reverse;
+  if (Find.swap) reverse ^= 1;
   if (!this.matches.length) {
     HUD.display("No matches", 1);
     return;
@@ -80,7 +80,7 @@ Find.search = function(reverse, repeats, ignoreFocus) {
 };
 
 Find.highlight = function(baseNode, match, setIndex, search, reverse, saveSearch) {
-  var mode, node, matches, mark, mid, pass, data, walker, regexp, matchPosition, nName, highlight, ignoreDiacritics, containsCap;
+  var mode, node, matches, mark, mid, data, walker, regexp, matchPosition, nName, highlight, ignoreDiacritics, containsCap;
   containsCap = match.toLowerCase() !== match;
   highlight = settings.highlight;
   ignoreDiacritics = settings.ignoreDiacritics;
@@ -106,7 +106,6 @@ Find.highlight = function(baseNode, match, setIndex, search, reverse, saveSearch
   }
   walker = document.createTreeWalker(baseNode, NodeFilter.SHOW_TEXT, null, false);
   document.body.normalize();
-  pass = false;
   while (node = walker.nextNode()) {
     nName = node.parentNode.nodeName;
     if (nName !== "SCRIPT" && nName !== "STYLE" && nName !== "NOSCRIPT" && nName !== "MARK" && node.data.trim() !== "" && !node.parentNode.hasAttribute("cVim")) {
@@ -138,7 +137,6 @@ Find.highlight = function(baseNode, match, setIndex, search, reverse, saveSearch
         mark.appendChild(mid.cloneNode(true));
         mid.parentNode.replaceChild(mark, mid);
         this.matches.push(mark);
-        pass = true;
       }
     }
   }

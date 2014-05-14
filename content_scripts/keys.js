@@ -145,9 +145,9 @@ keyDown = function(e) {
 
   }
 
-  if (!Object.prototype.hasOwnProperty("isVisible")) {
-    return false;
-  }
+  // if (!HTMLElement.prototype.hasOwnProperty("isVisible")) {
+  //   return false;
+  // }
 
   var isInput = (document.activeElement.isInput() ||
       insertMode ||

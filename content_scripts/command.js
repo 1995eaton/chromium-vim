@@ -383,7 +383,7 @@ Command.execute = function(value, repeats) {
               HUD.hide(true);
             }
             if (swapVal) {
-              settings[value[0]] = !settings[value[0]];
+              settings[value[0]] ^= 1; 
             } else {
               settings[value[0]] = isSet;
             }

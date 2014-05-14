@@ -92,7 +92,7 @@ Visual.action = function(key) {
     }
   } else this.queue = "";
   if (key === "v") {
-    this.visualModeActive = !this.visualModeActive;
+    this.visualModeActive ^= 1;
     if (!this.visualModeActive) {
       HUD.setMessage(" -- CARET -- ");
       return Visual.collapse();

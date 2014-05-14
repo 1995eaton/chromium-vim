@@ -1,12 +1,12 @@
-Object.prototype.isInput = function() {
+HTMLElement.prototype.isInput = function() {
   return (
-      (this.nodeName === "TEXTAREA" || this.nodeName === "INPUT" || this.contentEditable === "true") &&
+      (this.nodeName === "TEXTAREA" || this.nodeName === "INPUT" || this.getAttribute("contenteditable") === "true") && !this.disabled &&
       !/button|radio|file|image|checkbox|submit/i.test(this.getAttribute("type"))
   );
 };
 
 
-Object.prototype.isVisible = function() {
+HTMLElement.prototype.isVisible = function() {
   return (
        (this.offsetParent &&
        !this.disabled &&
@@ -87,14 +87,16 @@ function simulateMouseEvents(element, events) {
   }
 }
 
-Object.prototype.hover = function() {
+HTMLElement.prototype.hover = function() {
   simulateMouseEvents(this, ["mouseover", "mouseenter"]);
 };
 
-Object.prototype.unhover = function() {
+HTMLElement.prototype.unhover = function() {
   simulateMouseEvents(this, ["mouseout", "mouseleave"]);
 };
 
-Object.prototype.simulateClick = function() {
+HTMLElement.prototype.simulateClick = function() {
   simulateMouseEvents(this, ["mouseover", "mousedown", "mouseup", "click"]);
 };
+
+// Object.prototype.hideElement = function

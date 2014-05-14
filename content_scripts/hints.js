@@ -112,7 +112,7 @@ Hints.dispatchAction = function(link) {
       chrome.runtime.sendMessage({action: "openLinkWindow", focused: false, url: link.href, noconvert: true});
       break;
     default:
-      if (node === "TEXTAREA" || (node === "INPUT" && /^(text|password|email|search)$/i.test(link.type))) {
+      if (node === "TEXTAREA" || (node === "INPUT" && /^(text|password|email|search)$/i.test(link.type)) || link.getAttribute("contenteditable") === "true") {
         setTimeout(function() {
           link.focus();
           if (link.getAttribute("readonly")) {
@@ -273,7 +273,7 @@ Hints.getLinks = function() {
       selection = "//img";
       break;
     default:
-      selection = "//a|//div[@class='fc-panel']|//area[@href]|//*[not(@aria-disabled='true') and (@onclick or @role='button' or @role='checkbox' or @tabindex or @aria-haspopup or @data-cmd or @jsaction)]|//button|//select|//textarea|//input";
+      selection = "//a|//div[@class='fc-panel']|//area[@href]|//*[not(@aria-disabled='true') and not(@aria-hidden='true') and (@onclick or @role='button' or @role='checkbox' or @tabindex or @aria-haspopup or @data-cmd or @jsaction)]|//button|//select|//textarea|//input[not(@type='hidden' or @disabled)]";
       break;
   }
   candidates = document.evaluate(selection, document.body, null, 6, null);

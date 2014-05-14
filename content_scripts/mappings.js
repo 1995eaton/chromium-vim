@@ -100,6 +100,88 @@ Mappings.actions   = {
       Hints.create("multiimage");
     }, 0);
   },
+  toggleImages: function() {
+    if (!this.imagesDisabled) {
+      this.images = [];
+      var walker = document.createTreeWalker(document.body, 1, false, null);
+      var el;
+      while (el = walker.nextNode()) {
+        var computedStyle = getComputedStyle(el, null);
+        if (el.nodeName === "IMG" || computedStyle.getPropertyValue("background-image") !== "none") {
+          var opacity = computedStyle.getPropertyValue("opacity");
+          var bimg = computedStyle.getPropertyValue("background-image");
+          if (opacity === "1") {
+            opacity = null;
+          }
+          if (bimg === "none") {
+            bimg = null;
+          }
+          this.images.push([opacity, bimg, el]);
+        }
+      }
+    }
+    this.imagesDisabled = (this.imagesDisabled === undefined ? true : !this.imagesDisabled);
+    for (i = 0, l = this.images.length; i < l; ++i) {
+      if (this.images[i][2].nodeName === "IMG") {
+        this.images[i][2].style.opacity = (this.imagesDisabled ? "0" : this.images[i][1]);
+      }
+      if (this.images[i][1] !== null) {
+        if (this.imagesDisabled) {
+          this.images[i][2].style.backgroundImage = "none";
+        } else {
+          this.images[i][2].style.backgroundImage = this.images[i][1];
+        }
+      }
+    }
+  },
+  toggleImageZoom: function() {
+    if (/\.[a-z]+\s+\(\d+×\d+\)/.test(document.title)) {
+      var images = document.getElementsByTagName("img");
+      if (images.length) {
+        images[0].simulateClick();
+      }
+    }
+  },
+  toggleDimDisplay: function() {
+    if (this.isDim === undefined) {
+      this.isDim = false;
+    }
+    this.isDim ^= 1;
+    function clearDimOverlay() {
+      var e;
+      while (e = document.getElementById("cVim-display-dim")) {
+        e.parentNode.removeChild(e);
+      }
+    }
+    clearDimOverlay();
+    if (this.isDim) {
+      var e = document.createElement("div");
+      e.id = "cVim-display-dim";
+      e.style.position = "fixed";
+      e.style.left = "0";
+      e.style.right = "0";
+      e.style.top = "0";
+      e.style.bottom = "0";
+      e.style.zIndex = "999999";
+      e.style.pointerEvents = "none";
+      e.style.webkitTransform = "translateZ(0)";
+      e.style.backgroundColor = "rgba(175, 77, 0, 0.15)";
+      try {
+        document.lastChild.appendChild(e);
+      } catch (ex) {
+        document.body.appendChild(e);
+      }
+    }
+  },
+  zoomPageIn: function(repeats) {
+    document.body.style.zoom = (isNaN(parseInt(document.body.style.zoom)) ? 1 : parseFloat(document.body.style.zoom)) + 0.1 * repeats;
+  },
+  zoomPageOut: function(repeats) {
+    document.body.style.zoom = (isNaN(parseInt(document.body.style.zoom)) ? 1 : parseFloat(document.body.style.zoom)) - 0.1 * repeats;
+  },
+  zoomOrig: function() {
+    document.body.style.zoom = "1";
+  },
   centerMatchT: function() {
     if (Find.matches.length && Find.matches[Find.index])
       window.scrollBy(0, Find.matches[Find.index].getBoundingClientRect().top);
@@ -350,6 +432,8 @@ Mappings.defaults = {
   cancelWebRequest:     ["gq"],
   cancelAllWebRequests: ["gQ"],
   createHoverHint:      ["q"],
+  toggleImages:         ["ci"],
+  toggleDimDisplay:     ["cc"],
   createUnhoverHint:    ["Q"],
   lastTab:              ["g$"],
   lastClosedTab:        ["X"],
@@ -361,6 +445,10 @@ Mappings.defaults = {
   rootFrame:            ["gF"],
   percentScroll:        ["g%"],
   goToTab:              ["%"],
+  toggleImageZoom:      ["z<Enter>"],
+  zoomPageIn:           ["zi"],
+  zoomPageOut:          ["zo"],
+  zoomOrig:             ["z0"],
   centerMatchT:         ["zt"],
   centerMatchB:         ["zb"],
   centerMatchH:         ["zz"],
