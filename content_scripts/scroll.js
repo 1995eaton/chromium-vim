@@ -81,6 +81,12 @@ Scroll.scroll = function(type, repeats) {
       case "right":
         Scroll.smoothScrollBy(repeats * settings.scrollstep / 2, 0);
         break;
+      case "leftmost":
+        Scroll.smoothScrollBy(-document.body.scrollLeft - 10, 0);
+        break;
+      case "rightmost":
+        Scroll.smoothScrollBy(document.body.scrollWidth - document.body.scrollLeft - window.innerWidth + 20, 0);
+        break;
       default:
         break;
     }
@@ -104,13 +110,19 @@ Scroll.scroll = function(type, repeats) {
         scrollTo(0, 0);
         break;
       case "bottom":
-        scrollTo(0, document.body.offsetHeight);
+        scrollTo(0, document.body.scrollHeight);
         break;
       case "left":
         scrollBy(-repeats * settings.scrollstep, 0);
         break;
       case "right":
         scrollBy(repeats * settings.scrollstep, 0);
+        break;
+      case "leftmost":
+        scrollTo(0, document.body.scrollTop);
+        break;
+      case "rightmost":
+        scrollTo(document.body.scrollWidth - document.documentElement.offsetWidth, document.body.scrollTop);
         break;
       default:
         break;

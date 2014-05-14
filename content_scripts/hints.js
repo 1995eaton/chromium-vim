@@ -303,7 +303,7 @@ Hints.generateHintString = function(n, x) {
 };
 
 Hints.create = function(type, multi) {
-  var screen, links, linkNumber, main, frag, linkElement, isAreaNode, mapCoordinates, computedStyle, imgParent, c, i;
+  var screen, links, linkNumber, main, frag, linkElement, isAreaNode, mapCoordinates, computedStyle, imgParent, c, i, documentZoom;
   this.type = type;
   links = this.getLinks();
   if (type && type.indexOf("multi") !== -1) {
@@ -315,6 +315,7 @@ Hints.create = function(type, multi) {
     return false;
   }
   this.hideHints(true, multi);
+  documentZoom = parseFloat(document.body.style.zoom) || 1;
   screen = {
     top: document.body.scrollTop,
     bottom: document.body.scrollTop + window.innerHeight,
@@ -351,21 +352,21 @@ Hints.create = function(type, multi) {
         if (!/,/.test(l.getAttribute("coords"))) return false;
         mapCoordinates = l.coords.split(",");
         if (mapCoordinates.length < 2) return false;
-        linkElement.style.top = linkLocation.top + screen.top + parseInt(mapCoordinates[1]) + "px";
-        linkElement.style.left = linkLocation.left + screen.left + parseInt(mapCoordinates[0]) + "px";
+        linkElement.style.top = linkLocation.top * documentZoom + screen.top + parseInt(mapCoordinates[1]) + "px";
+        linkElement.style.left = linkLocation.left * documentZoom + screen.left + parseInt(mapCoordinates[0]) + "px";
       } else {
         if (linkLocation.top < 0) {
           linkElement.style.top = screen.top + "px";
         } else {
-          linkElement.style.top = linkLocation.top + screen.top + "px";
+          linkElement.style.top = linkLocation.top * documentZoom + screen.top + "px";
         }
         if (linkLocation.left < 0) {
           linkElement.style.left = screen.left + "px";
         } else {
           if (l.offsetLeft > linkLocation.left) {
-            linkElement.style.left = l.offsetLeft + "px";
+            linkElement.style.left = l.offsetLeft * documentZoom + "px";
           } else {
-            linkElement.style.left = linkLocation.left + screen.left + "px";
+            linkElement.style.left = linkLocation.left * documentZoom + screen.left + "px";
           }
         }
       }

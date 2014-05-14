@@ -69,13 +69,14 @@ Find.search = function(reverse, repeats, ignoreFocus) {
   }
   this.matches[this.index].style.backgroundColor = activeHighlight;
   HUD.display(this.index + 1 + " / " + this.matches.length);
-  if (br.top + br.height > window.innerHeight) {
-    if (isLink && !reverse) origTop += br.height;
+  var documentZoom = parseFloat(document.body.style.zoom) || 1;
+  if (br.top * documentZoom + br.height * documentZoom > window.innerHeight) {
+    if (isLink && !reverse) origTop += br.height * documentZoom;
     window.scrollTo(0, origTop);
-    window.scrollBy(0, br.top + br.height - window.innerHeight);
+    window.scrollBy(0, br.top * documentZoom + br.height * documentZoom - window.innerHeight);
   } else if (br.top < 0) {
     window.scrollTo(0, origTop);
-    window.scrollBy(0, br.top);
+    window.scrollBy(0, br.top * documentZoom);
   }
 };
 

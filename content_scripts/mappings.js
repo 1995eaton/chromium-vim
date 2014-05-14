@@ -183,16 +183,19 @@ Mappings.actions   = {
     document.body.style.zoom = "1";
   },
   centerMatchT: function() {
+    var documentZoom = parseFloat(document.body.style.zoom) || 1;
     if (Find.matches.length && Find.matches[Find.index])
-      window.scrollBy(0, Find.matches[Find.index].getBoundingClientRect().top);
+      window.scrollBy(0, Find.matches[Find.index].getBoundingClientRect().top * documentZoom);
   },
   centerMatchH: function() {
+    var documentZoom = parseFloat(document.body.style.zoom) || 1;
     if (Find.matches.length && Find.matches[Find.index])
-      window.scrollBy(0, Find.matches[Find.index].getBoundingClientRect().top + Find.matches[Find.index].offsetHeight - 0.5 * window.innerHeight);
+      window.scrollBy(0, Find.matches[Find.index].getBoundingClientRect().top * documentZoom + Find.matches[Find.index].offsetHeight - 0.5 * window.innerHeight);
   },
   centerMatchB: function() {
+    var documentZoom = parseFloat(document.body.style.zoom) || 1;
     if (Find.matches.length && Find.matches[Find.index])
-      window.scrollBy(0, Find.matches[Find.index].getBoundingClientRect().top + Find.matches[Find.index].offsetHeight - window.innerHeight);
+      window.scrollBy(0, Find.matches[Find.index].getBoundingClientRect().top * documentZoom + Find.matches[Find.index].offsetHeight * documentZoom - window.innerHeight);
   },
   scrollDown: function(repeats) {
     Scroll.scroll("down", repeats);
@@ -217,6 +220,12 @@ Mappings.actions   = {
   },
   scrollToBottom: function() {
     Scroll.scroll("bottom");
+  },
+  scrollToLeft: function() {
+    Scroll.scroll("leftmost");
+  },
+  scrollToRight: function() {
+    Scroll.scroll("rightmost");
   },
   createHint: function() {
     window.setTimeout(function() {
@@ -409,6 +418,8 @@ Mappings.defaults = {
   scrollToBottom:       ["G"],
   scrollLeft:           ["h"],
   scrollRight:          ["l"],
+  scrollToLeft:         ["0"],
+  scrollToRight:        ["$"],
   insertMode:           ["i"],
   reloadTab:            ["r"],
   reloadTabUncached:    ["gR"],
