@@ -124,7 +124,7 @@ Hints.dispatchAction = function(link) {
         }, 0);
         break;
       }
-      if (link.getAttribute("target") !== "_top" && !link.getAttribute("tabindex") && (this.type === "tabbed" || this.type === "multi")) {
+      if (link.getAttribute("target") !== "_top" && (this.type === "tabbed" || this.type === "multi")) {
         chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: link.href, noconvert: true});
       } else {
         if (link.getAttribute("href")) {
