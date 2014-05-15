@@ -27,9 +27,9 @@ Sites = {
 
 Quickmarks = {};
 
-chrome.storage.sync.get("sessions", function(s) {
+chrome.storage.local.get("sessions", function(s) {
   if (s.sessions === undefined) {
-    chrome.storage.sync.set({sessions: {}});
+    chrome.storage.local.set({sessions: {}});
   } else sessions = s.sessions;
 });
 

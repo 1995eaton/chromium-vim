@@ -180,12 +180,14 @@ actions.focusMainWindow = function() {
 actions.createSession = function() {
   sessions[request.name] = {};
   chrome.tabs.query({
-    windowId: sender.tab.windowId
+    currentWindow: true
   }, function(tabs) {
     tabs.forEach(function(tab) {
-      sessions[request.name][tab.index] = tab;
+      if (tab && tab.index !== undefined) {
+        sessions[request.name][tab.index] = tab;
+      }
     });
-    chrome.storage.sync.set({
+    chrome.storage.local.set({
       sessions: sessions
     });
   });
