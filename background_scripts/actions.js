@@ -145,7 +145,7 @@ actions.moveTabLeft = function() {
 actions.openPasteTab = function() {
   var paste = Clipboard.paste();
   if (!paste) return;
-  paste = paste.split("\n");
+  paste = paste.split("\n").filter(function(e) { return e.trim(); });
   for (var i = 0; i < request.repeats; ++i) {
     for (var j = 0, l = paste.length; j < l; ++j) {
       chrome.tabs.create({
