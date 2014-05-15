@@ -592,7 +592,14 @@ port.postMessage({action: "getQuickMarks"});
 port.postMessage({action: "getSessionNames"});
 port.postMessage({action: "getTopSites"});
 
-document.addEventListener("DOMContentLoaded", function() {
-  chrome.runtime.sendMessage({action: "getSettings"});
+window.addEventListener("focus", function() {
+  if (!Command.loaded) {
+    chrome.runtime.sendMessage({action: "getSettings"});
+  }
 });
 
+document.addEventListener("DOMContentLoaded", function() {
+  if (window.self === window.top) {
+    chrome.runtime.sendMessage({action: "getSettings"});
+  }
+});

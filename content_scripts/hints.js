@@ -83,9 +83,6 @@ Hints.dispatchAction = function(link) {
     }, settings.typelinkhintsdelay);
   }
   switch (this.type) {
-    case "multi":
-      chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: link.href, noconvert: true});
-      break;
     case "yank":
     case "multiyank":
       Clipboard.copy(link.href, this.multi);
@@ -121,13 +118,13 @@ Hints.dispatchAction = function(link) {
         }.bind(this), 0);
         break;
       }
-      if (node === "INPUT" || /button|select/i.test(node) || /^(button|checkbox)$/.test(link.getAttribute("role")) || link.getAttribute("jsaction") || link.getAttribute("onclick")) {
+      if (node === "INPUT" || /button|select/i.test(node) || /^(button|^checkbox|^menu)$/.test(link.getAttribute("role")) || link.getAttribute("jsaction") || link.getAttribute("onclick") || link.getAttribute("role") === "checkbox") {
         window.setTimeout(function() {
           link.simulateClick();
         }, 0);
         break;
       }
-      if (this.type === "tabbed") {
+      if (link.getAttribute("target") !== "_top" && !link.getAttribute("tabindex") && (this.type === "tabbed" || this.type === "multi")) {
         chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: link.href, noconvert: true});
       } else {
         if (link.getAttribute("href")) {
@@ -140,7 +137,11 @@ Hints.dispatchAction = function(link) {
   }
   if (this.multi) {
     this.removeContainer();
-    this.create(this.type, true);
+    window.setTimeout(function() {
+      if (!document.activeElement.isInput()) {
+        this.create(this.type, true);
+      }
+    }.bind(this), 0);
   } else {
     this.hideHints(false, false, true);
   }
@@ -273,7 +274,7 @@ Hints.getLinks = function() {
       selection = "//img";
       break;
     default:
-      selection = "//a|//div[@class='fc-panel']|//area[@href]|//*[not(@aria-disabled='true') and not(@aria-hidden='true') and (@onclick or @role='button' or @role='checkbox' or @tabindex or @aria-haspopup or @data-cmd or @jsaction)]|//button|//select|//textarea|//input[not(@type='hidden' or @disabled)]";
+      selection = "//a|//div[@class='fc-panel']|//area[@href]|//*[not(@aria-disabled='true') and not(@aria-hidden='true') and (@onclick or @role='button' or @role='checkbox' or starts-with(@role, 'menu') or @tabindex or @aria-haspopup or @data-cmd or @jsaction)]|//button|//select|//textarea|//input[not(@type='hidden' or @disabled)]";
       break;
   }
   candidates = document.evaluate(selection, document.body, null, 6, null);
