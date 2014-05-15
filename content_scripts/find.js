@@ -25,24 +25,27 @@ Find.getSelectedTextNode = function() {
 
 Find.search = function(reverse, repeats, ignoreFocus) {
   var activeHighlight = settings.activehighlight;
-  if (Find.swap) reverse ^= 1;
-  if (!this.matches.length) {
-    HUD.display("No matches", 1);
-    return;
+  if (Find.swap) {
+    reverse = !reverse;
   }
-  if (this.index >= 0)
+  if (!this.matches.length) {
+    return HUD.display("No matches", 1);
+  }
+  if (this.index >= 0) {
     this.matches[this.index].style.backgroundColor = "";
+  }
   if (reverse && repeats === 1 && this.index === 0) {
     this.index = this.matches.length - 1;
   } else if (!reverse && repeats === 1 && this.index + 1 === this.matches.length) {
     this.index = 0;
   } else {
-    this.index = (((this.index + ((reverse)? -1 : 1) * repeats) % this.matches.length) + this.matches.length) % this.matches.length;
+    this.index = (this.index + (reverse ? -1 : 1) * repeats).mod(this.matches.length);
   }
   if (!this.matches[this.index].isVisible()) {
     this.tries++;
-    if (this.tries > this.matches.length)
+    if (this.tries > this.matches.length) {
       return;
+    }
     if (this.swap) {
       return this.search(!reverse, 1);
     }

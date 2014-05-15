@@ -98,5 +98,3 @@ HTMLElement.prototype.unhover = function() {
 HTMLElement.prototype.simulateClick = function() {
   simulateMouseEvents(this, ["mouseover", "mousedown", "mouseup", "click"]);
 };
-
-// Object.prototype.hideElement = function

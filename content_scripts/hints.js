@@ -248,9 +248,9 @@ Hints.handleHintFeedback = function() {
 
 
 Hints.handleHint = function(key) {
-  if (key === "<C-[>" || key === "<Esc>") {
-    return this.hideHints(false, false, false);
-  }
+  // if (key === "<C-[>" || key === "<Esc>") {
+  //   return this.hideHints(false, false, false);
+  // }
   if (settings.numerichints || settings.hintcharacters.split("").indexOf(key.toLowerCase()) !== -1) {
     this.currentString += key.toLowerCase();
     this.handleHintFeedback(this.currentString);

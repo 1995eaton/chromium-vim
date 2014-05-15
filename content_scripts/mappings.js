@@ -146,7 +146,7 @@ Mappings.actions   = {
     if (this.isDim === undefined) {
       this.isDim = false;
     }
-    this.isDim ^= 1;
+    this.isDim = !this.isDim;
     function clearDimOverlay() {
       var e;
       while (e = document.getElementById("cVim-display-dim")) {
@@ -697,7 +697,46 @@ Mappings.isValidMapping = function(c) {
     if (Array.isArray(this.defaults[key]) && this.defaults[key].indexOf(c) >= 0) return true;
 };
 
+Mappings.handleEscapeKey = function() {
+  
+  this.queue = "";
+  this.repeats = "";
+
+  if (commandMode) {
+    if (Command.type === "search") {
+      document.body.scrollTop = Command.lastScrollTop;
+      Find.clear();
+      HUD.hide();
+    }
+    Command.hideData();
+    return Command.hide();
+  }
+
+  if (document.activeElement.isInput()) {
+    this.actions.inputFocused = false;
+    return document.activeElement.blur();
+  }
+
+  if (Hints.active) {
+    return Hints.hideHints(false, false, true);
+  }
+
+  if (insertMode) {
+    insertMode = false;
+    return HUD.hide();
+  }
+  
+  if (Find.matches.length) {
+    Find.clear();
+    return HUD.hide();
+  }
+};
+
 Mappings.convertToAction = function(c) {
+  if (c === "<Esc>" || c === "<C-[>") {
+    log(c);
+    return this.handleEscapeKey();
+  }
   var addOne = false;
   if (!c || c.trim() === "") {
     return false;

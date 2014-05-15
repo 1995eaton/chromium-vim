@@ -95,5 +95,11 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
         callback(true);
       }
       break;
+    case "toggleEnabled":
+      Command.init(request.state);
+      break;
+    case "getBlacklistStatus":
+      callback(Command.blacklisted);
+      break;
   }
 });
