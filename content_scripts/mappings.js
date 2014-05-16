@@ -382,12 +382,15 @@ Mappings.actions   = {
     Command.hide();
     Command.lastScrollTop = document.body.scrollTop;
     commandMode = true;
+    Find.previousMatches = Find.matches.length > 0;
     Find.swap = false;
     return Command.show("/");
   },
   openSearchBarReverse: function() {
     Command.hide();
     commandMode = true;
+    Command.lastScrollTop = document.body.scrollTop;
+    Find.previousMatches = Find.matches.length > 0;
     Find.swap = true;
     return Command.show("?");
   },
@@ -710,6 +713,9 @@ Mappings.handleEscapeKey = function() {
       document.body.scrollTop = Command.lastScrollTop;
       Find.clear();
       HUD.hide();
+      if (Find.previousMatches && Find.lastSearch) {
+        Find.highlight(document.body, Find.lastSearch, true, true, false, true);
+      }
     }
     Command.hideData();
     return Command.hide();
@@ -727,6 +733,12 @@ Mappings.handleEscapeKey = function() {
   if (insertMode) {
     insertMode = false;
     return HUD.hide();
+  }
+
+  if (Hints.lastHover) {
+    Hints.lastHover.unhover();
+    Hints.lastHover = null;
+    return;
   }
   
   if (Find.matches.length) {

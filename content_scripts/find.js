@@ -81,6 +81,7 @@ Find.search = function(reverse, repeats, ignoreFocus) {
     window.scrollTo(0, origTop);
     window.scrollBy(0, br.top * documentZoom);
   }
+  Command.input.focus();
 };
 
 Find.highlight = function(baseNode, match, setIndex, search, reverse, saveSearch) {
