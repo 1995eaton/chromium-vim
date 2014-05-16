@@ -40,6 +40,25 @@ Complete.requestUrls = {
   wictionary:       "http://en.wiktionary.org/wiki/"
 };
 
+Complete.baseUrls = {
+  wikipedia:      "https://en.wikipedia.org/wiki/Main_Page",
+  google:         "https://www.google.com",
+  "google-image": "http://www.google.com/imghp",
+  duckduckgo:     "https://duckduckgo.com",
+  yahoo:          "https://search.yahoo.com",
+  bing:           "https://www.bing.com",
+  imdb:           "http://www.imdb.com",
+  amazon:         "http://www.amazon.com",
+  wolframalpha:   "https://www.wolframalpha.com",
+  ebay:           "http://www.ebay.com",
+  urbandictionary: "http://www.urbandictionary.com",
+  "google-trends": "http://www.google.com/trends/",
+  "google-finance": "https://www.google.com/finance",
+  webster:          "http://www.merriam-webster.com",
+  youtube:          "https://www.youtube.com",
+  wictionary:       "https://en.wiktionary.org/wiki/Wiktionary:Main_Page"
+};
+
 Complete.parseQuery = {
   wikipedia: function(query) {
     return query.replace(" ", "_");
@@ -87,8 +106,12 @@ Complete.convertToLink = function(input) {
   if (input.length === 0) {
     return "";
   }
-  if (Complete.engines.indexOf(input[0]) !== -1 && input.length > 1) {
-    prefix = Complete.requestUrls[input[0]];
+  if (Complete.engines.indexOf(input[0]) !== -1) {
+    if (input.length > 1) {
+      prefix = Complete.requestUrls[input[0]];
+    } else {
+      return Complete.baseUrls[input[0]];
+    }
   } else {
     if (input.join(" ").validURL()) {
       if (!/:\/\//.test(input.join(" "))) {
