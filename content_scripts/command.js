@@ -54,49 +54,46 @@ Command.history = {
   search: [],
   url: [],
   action: [],
+  setInfo: function(type, index) {
+    var fail = false;
+    if (index < 0) {
+      index = 0;
+      fail = true;
+    }
+    if (index >= this[type].length) {
+      index = this[type].length;
+      fail = true;
+    }
+    this.index[type] = index;
+    return !fail;
+  },
   cycle: function(type, reverse) {
     if (this[type].length === 0) return false;
-    if (this.index[type] === this[type].length - 1 && !reverse) {
-      return Command.input.value = Command.typed || "";
-    } else if (reverse && this.index[type] === this[type].length - 1 && Command.input.value === "") {
-      this.index[type] = this[type].length;
+    var len = this[type].length,
+        index = this.index[type];
+    if (index === undefined) {
+      index = len;
+    }
+    var lastIndex = index;
+    index += reverse? -1 : 1;
+    if (Command.typed && Command.typed.trim()) {
+      while (this.setInfo(type, index)) {
+        if (this[type][index].substring(0, Command.typed.length) === Command.typed) {
+          break;
+        }
+        index += reverse? -1 : 1;
+      }
+    }
+    if (reverse && index === -1) {
+      this.index[type] = lastIndex;
+      return;
     }
     Command.hideData();
-    if (Command.history.reset) {
-      Command.history.reset = false;
-      Command.history.index = {};
-    }
-    if (this.index[type] === undefined) {
-      Command.typed = Command.input.value;
-      this.index[type] = this[type].length;
-    }
-    if (Command.input.value === "") {
-      if (reverse) {
-        if (this.index[type] - 1 < 0) return false;
-        this.index[type]--;
-        return Command.input.value = this[type][this.index[type]];
-      } else {
-        if (this.index[type] + 1 === this[type].length) return Command.input.value = Command.typed;
-        this.index[type]++;
-        return Command.input.value = this[type][this.index[type]];
-      }
+    this.setInfo(type, index);
+    if (this.index[type] !== this[type].length) {
+      Command.input.value = this[type][this.index[type]];
     } else {
-      if (reverse) {
-        while (this.index[type] > 0) {
-          this.index[type]--;
-          if (this[type][this.index[type]].substring(0, Command.typed.length) === Command.typed) {
-            return Command.input.value = this[type][this.index[type]];
-          }
-        }
-      } else {
-        while (this.index[type] + 1 < this[type].length) {
-          this.index[type]++;
-          if (this[type][this.index[type]].substring(0, Command.typed.length) === Command.typed) {
-            return Command.input.value = this[type][this.index[type]];
-          }
-        }
-        return Command.input.value = Command.typed;
-      }
+      Command.input.value = Command.typed || "";
     }
   }
 };
