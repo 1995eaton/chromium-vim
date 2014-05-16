@@ -1,5 +1,5 @@
 #cVim-link-container, .cVim-link-hint, #cVim-command-bar, #cVim-command-bar-mode, #cVim-command-bar-input, #cVim-command-bar-search-results, .cVim-completion-item, .cVim-completion-item .cVim-full, .cVim-completion-item .cVim-left, .cVim-completion-item .cVim-right, #cVim-hud, #cVim-status-bar {
-  font-family: Sans;
+  font-family: Helvetica, Helvetica Neue, Neue, Sans, monospace, Arial;
   font-size: 10pt !important;
   -webkit-font-smoothing: antialiased !important;
 }
