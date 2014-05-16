@@ -1,5 +1,8 @@
 #cVim Changelog
 
+## 1.2.45
+ * Fixed a CSS issue with the default font (if your font looks ugly, reset cVim to see changes).
+
 ## 1.2.44
  * Tiny bugfix
 
