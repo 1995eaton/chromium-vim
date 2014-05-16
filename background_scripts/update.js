@@ -18,7 +18,8 @@ chrome.runtime.onInstalled.addListener(function(details) {
   } else if (details.reason === "update") {
     if (previousVersion !== currentVersion) {
       chrome.tabs.create({
-        url: "https://github.com/1995eaton/chromium-vim/blob/master/CHANGELOG.md#" + currentVersion.replace(/\./g, "")
+        url: chrome.runtime.getURL("pages/changelog.html"),
+        active: true
       });
     }
   }

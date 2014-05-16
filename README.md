@@ -1,6 +1,5 @@
+#cVim Help
 #cVimrc
-
-###Settings
 
  * Boolean cVimrc settings are enabled with the command ```'set' + <SETTING_NAME>``` and disabled with<br>
    the command ```'set' + no<SETTING_NAME>``` (for example, ```set regexp``` and ```set noregexp```)
