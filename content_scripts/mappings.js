@@ -12,6 +12,9 @@ Mappings.actions   = {
     document.body.spellcheck = false;
     document.designMode = "on";
     Visual.selection = document.getSelection();
+    if (document.getSelection().type === "Range") {
+      return false;
+    }
     if (Find.matches.length) {
       Visual.focusSearchResult();
     } else {
@@ -734,7 +737,6 @@ Mappings.handleEscapeKey = function() {
 
 Mappings.convertToAction = function(c) {
   if (c === "<Esc>" || c === "<C-[>") {
-    log(c);
     return this.handleEscapeKey();
   }
   var addOne = false;
@@ -757,7 +759,8 @@ Mappings.convertToAction = function(c) {
       return true;
     }
     if (c === "<Space>") {
-      return false;
+      Hints.hideHints(false);
+      return true;
     }
     return (c === ";" ? Hints.changeFocus() : Hints.handleHint(c));
   }

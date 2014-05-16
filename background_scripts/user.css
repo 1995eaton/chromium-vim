@@ -1,8 +1,9 @@
 #cVim-link-container, .cVim-link-hint, #cVim-command-bar, #cVim-command-bar-mode, #cVim-command-bar-input, #cVim-command-bar-search-results, .completion-item, .completion-item .full, .completion-item .left, .completion-item .right, #cVim-hud, #cVim-status-bar {
-  font-family: Helvetica, Helvetica Neue, Neue, Sans, Arial;
-  font-size: 11pt !important;
+  font-family: Sans;
+  font-size: 10pt !important;
   -webkit-font-smoothing: antialiased !important;
 }
+
 #cVim-link-container {
   position: absolute;
   pointer-events: none;
@@ -10,6 +11,7 @@
   height: 100%; top: 0;
   z-index: 2147483647;
 }
+
 .cVim-link-hint {
   border-radius: 2px;
   color: #ddd;
@@ -25,9 +27,11 @@
   transition: opacity 0.2s ease-out, background 0.2s ease-out;
   background: linear-gradient(to bottom, #636363 0%,#3f3f3f 39%,#3f3f3f 39%,#000000 100%);
 }
+
 .cVim-link-hint_match {
   color: #888;
 }
+
 #cVim-command-bar {
   position: fixed !important;
   z-index: 2147483646 !important;
@@ -51,6 +55,7 @@
   padding-top: 2px !important;
   color: #888 !important;
 }
+
 #cVim-command-bar-input {
   background-color: #1b1d1e !important;
   color: #bbb !important;
@@ -60,6 +65,7 @@
   width: calc(100% - 10px) !important;
   position: absolute !important;
 }
+
 #cVim-command-bar-search-results {
   position: fixed;
   width: 100% !important;
@@ -69,6 +75,7 @@
   box-shadow: 0 3px 3px rgba(0,0,0,0.4);
   background-color: rgba(44, 44, 44, 1);
 }
+
 .completion-item, .completion-item .full, .completion-item .left, .completion-item .right {
   text-overflow: ellipsis;
   padding: 1px;
@@ -78,28 +85,34 @@
   overflow: hidden;
   white-space: nowrap;
 }
+
 .completion-item:nth-child(even) {
   background-color: #282828;
 }
+
 .completion-item {
   width: 100%; left: 0;
   color: #fff;
 }
+
 .completion-item .left {
   color: #fff;
   width: 47%;
 }
+
 .completion-item .right {
   font-style: italic;
   color: #888;
   width: 47%;
 }
+
 #cVim-hud {
   background-color: rgba(28,28,28,0.9);
   position: fixed !important;
   transition: right 0.2s ease-out;
   z-index: 24724289;
 }
+
 #cVim-hud span {
   padding: 2px;
   padding-left: 4px;

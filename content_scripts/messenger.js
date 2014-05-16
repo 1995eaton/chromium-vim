@@ -86,6 +86,9 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
     case "updateMarks":
       Marks.quickMarks = request.marks;
       break;
+    case "sessions":
+      sessions = request.sessions;
+      break;
     case "nextCompletionResult":
       if (settings.cncpcompletion && Command.type === "action" && commandMode && document.activeElement.id === "cVim-command-bar-input") {
         Search.nextResult();

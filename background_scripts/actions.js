@@ -146,6 +146,13 @@ actions.openPasteTab = function() {
   var paste = Clipboard.paste();
   if (!paste) return;
   paste = paste.split("\n").filter(function(e) { return e.trim(); });
+  if (paste.length && paste[0].convertLink() !== paste[0]) {
+    paste = encodeURIComponent(paste.join("\n"));
+    return chrome.tabs.create({
+      url: paste.convertLink(),
+      index: sender.tab.index + 1
+    });
+  }
   for (var i = 0; i < request.repeats; ++i) {
     for (var j = 0, l = paste.length; j < l; ++j) {
       chrome.tabs.create({
@@ -190,6 +197,7 @@ actions.createSession = function() {
     chrome.storage.local.set({
       sessions: sessions
     });
+    chrome.tabs.sendMessage(sender.tab.id, {action: "sessions", sessions: Object.keys(sessions).map(function(e) { return [e, Object.keys(sessions[e]).length.toString() + " tab" + (Object.keys(sessions[e]).length === 1 ? "" : "s")]; } )});
   });
 };
 

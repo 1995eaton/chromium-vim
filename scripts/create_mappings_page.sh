@@ -9,7 +9,10 @@ command -v grip >/dev/null 2>&1 || {
   exit 1
 }
 
-cd $(dirname $0) &&
+cd $(dirname $0)
+scripts=$(cat ../pages/options.html | grep "content_s")
+scripts=$(echo $scripts | sed 's/[\\\/\*\.]/\\&/g')
 grip --export ../README.md &&
 mv ../README.html ../pages/mappings.html &&
 sed -i 's/<title>.*/<title>cVim - Mappings<\/title>/' ../pages/mappings.html
+sed -i "s/<\/head>/$scripts&/" ../pages/mappings.html

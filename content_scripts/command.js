@@ -355,7 +355,7 @@ Command.execute = function(value, repeats) {
         }
         if (sessions.indexOf(value) === -1) sessions.push(value);
         chrome.runtime.sendMessage({action: "createSession", name: value});
-        port.postMessage({action: "getSessionNames"});
+        // port.postMessage({action: "getSessionNames"});
       } else if (/^session/.test(value)) {
         value = value.replace(/^\S+(\s+)?/, "").trimAround();
         if (value === "") {
