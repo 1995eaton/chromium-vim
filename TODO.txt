@@ -1,1 +1,3 @@
-(A) Simplify the way settings are configured/handled to make transitions with updates that add new CSS styles or features easier
+(A) Simplify the way settings are configured/handled to make
+    transitions with updates that add new CSS styles or
+    features easier
