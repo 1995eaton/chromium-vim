@@ -536,6 +536,10 @@ Command.init = function(enabled) {
     }
     this.setup();
     addListeners();
+    port.postMessage({action: "getBookmarks"});
+    port.postMessage({action: "getQuickMarks"});
+    port.postMessage({action: "getSessionNames"});
+    port.postMessage({action: "getTopSites"});
   } else {
     this.loaded = false;
     this.css.parentNode.removeChild(this.css);
@@ -549,6 +553,7 @@ Command.init = function(enabled) {
 };
 
 Command.configureSettings = function(s) {
+
   function checkBlacklist(callback) {
     var blacklists = settings.blacklists.split("\n");
     Command.blacklisted = false;
@@ -583,11 +588,6 @@ Command.configureSettings = function(s) {
     });
   });
 };
-
-port.postMessage({action: "getBookmarks"});
-port.postMessage({action: "getQuickMarks"});
-port.postMessage({action: "getSessionNames"});
-port.postMessage({action: "getTopSites"});
 
 window.addEventListener("focus", function() {
   if (!Command.loaded) {

@@ -121,10 +121,15 @@ Options.getDefaults = function(request, sender) {
   chrome.tabs.sendMessage(sender.tab.id, {action: "sendDefaultSettings", settings: Options.compressedDefaults});
 };
 
+function parseOldCSS(value) {
+  return value.replace(/\.(left|right|completion-item)/g, ".cVim-$1");
+}
+
 (function() {
   chrome.storage[storageMethod].get("settings", function(data) {
     if (data.settings) {
       Settings = data.settings.flatten();
+      Settings.commandBarCSS = parseOldCSS(Settings.commandBarCSS); // Delete sometime in the future
     }
     Options.refreshSettings();
   });
