@@ -113,11 +113,11 @@ Command.appendResults = function(data, extend, identifier, color) {
     if (this.dataElements.length > settings.searchlimit) return;
     var temp = document.createElement("div");
     temp.cVim = true;
-    temp.className = "completion-item";
+    temp.className = "cVim-completion-item";
     if (arrCount >= 3) {
-      temp.innerHTML = ((identifier ? identifier.span({"color": color, escape: true}) + ":&nbsp;" : "") + data[i][1]).span({escape: false}, "left") + data[i][2].span({}, "right");
+      temp.innerHTML = ((identifier ? identifier.span({"color": color, escape: true}) + ":&nbsp;" : "") + data[i][1]).span({escape: false}, "cVim-left") + data[i][2].span({}, "cVim-right");
     } else {
-      temp.innerHTML = (identifier ? identifier.span({"color": color, escape: true}) + "&nbsp;" : "") + data[i][1].span({escape: true}, "full");
+      temp.innerHTML = (identifier ? identifier.span({"color": color, escape: true}) + "&nbsp;" : "") + data[i][1].span({escape: true}, "cVim-full");
     }
     this.dataElements.push(temp);
     this.data.appendChild(temp);
@@ -601,5 +601,8 @@ window.addEventListener("focus", function() {
 document.addEventListener("DOMContentLoaded", function() {
   if (window.self === window.top) {
     chrome.runtime.sendMessage({action: "getSettings"});
+    chrome.runtime.sendMessage({action: "isNewInstall"}, function(message) {
+      alert(message);
+    });
   }
 });

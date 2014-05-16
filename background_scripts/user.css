@@ -1,4 +1,4 @@
-#cVim-link-container, .cVim-link-hint, #cVim-command-bar, #cVim-command-bar-mode, #cVim-command-bar-input, #cVim-command-bar-search-results, .completion-item, .completion-item .full, .completion-item .left, .completion-item .right, #cVim-hud, #cVim-status-bar {
+#cVim-link-container, .cVim-link-hint, #cVim-command-bar, #cVim-command-bar-mode, #cVim-command-bar-input, #cVim-command-bar-search-results, .cVim-completion-item, .cVim-completion-item .cVim-full, .cVim-completion-item .cVim-left, .cVim-completion-item .cVim-right, #cVim-hud, #cVim-status-bar {
   font-family: Sans;
   font-size: 10pt !important;
   -webkit-font-smoothing: antialiased !important;
@@ -76,7 +76,7 @@
   background-color: rgba(44, 44, 44, 1);
 }
 
-.completion-item, .completion-item .full, .completion-item .left, .completion-item .right {
+.cVim-completion-item, .cVim-completion-item .cVim-full, .cVim-completion-item .cVim-left, .cVim-completion-item .cVim-right {
   text-overflow: ellipsis;
   padding: 1px;
   display: inline-block;
@@ -86,24 +86,24 @@
   white-space: nowrap;
 }
 
-.completion-item:nth-child(even) {
+.cVim-completion-item:nth-child(even) {
   background-color: #282828;
 }
 
-.completion-item {
+.cVim-completion-item {
   width: 100%; left: 0;
   color: #fff;
 }
 
-.completion-item .left {
+.cVim-completion-item .cVim-left {
   color: #fff;
-  width: 47%;
+  width: 37%;
 }
 
-.completion-item .right {
+.cVim-completion-item .cVim-right {
   font-style: italic;
   color: #888;
-  width: 47%;
+  width: 57%;
 }
 
 #cVim-hud {

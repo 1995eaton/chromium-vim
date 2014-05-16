@@ -297,6 +297,14 @@ actions.selectTab = function() {
   });
 };
 
+actions.isNewInstall = function() {
+  if (sender.tab.id === Updates.tabId && Updates.displayMessage) {
+    Updates.displayMessage = false;
+    Updates.tabId = null;
+    callback(Updates.installMessage);
+  }
+};
+
 actions.cancelAllWebRequests = function() {
   chrome.tabs.query({currentWindow: true}, function(tabs) {
     tabs.forEach(function(tab) {

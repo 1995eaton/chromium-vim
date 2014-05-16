@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "cVim",
-  "version": "1.2.42",
+  "version": "1.2.43",
   "description": "An extension adding Vim-like bindings to Google Chrome",
   "update_url": "https://clients2.google.com/service/update2/crx",
   "icons": {
@@ -58,7 +58,8 @@
       "background_scripts/actions.js",
       "background_scripts/options.js",
       "background_scripts/sessions.js",
-      "background_scripts/popup.js"
+      "background_scripts/popup.js",
+      "background_scripts/update.js"
     ]
   },
   "content_scripts": [
