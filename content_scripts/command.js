@@ -536,10 +536,12 @@ Command.init = function(enabled) {
     }
     this.setup();
     addListeners();
-    port.postMessage({action: "getBookmarks"});
-    port.postMessage({action: "getQuickMarks"});
-    port.postMessage({action: "getSessionNames"});
-    port.postMessage({action: "getTopSites"});
+    if (this.rootFrame) {
+      port.postMessage({action: "getBookmarks"});
+      port.postMessage({action: "getQuickMarks"});
+      port.postMessage({action: "getSessionNames"});
+      port.postMessage({action: "getTopSites"});
+    }
   } else {
     this.loaded = false;
     this.css.parentNode.removeChild(this.css);
@@ -597,6 +599,7 @@ window.addEventListener("focus", function() {
 
 document.addEventListener("DOMContentLoaded", function() {
   if (window.self === window.top) {
+    Command.rootFrame = true;
     chrome.runtime.sendMessage({action: "getSettings"});
     chrome.runtime.sendMessage({action: "isNewInstall"}, function(message) {
       alert(message);
