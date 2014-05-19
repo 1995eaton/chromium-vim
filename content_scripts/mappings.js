@@ -272,6 +272,7 @@ Mappings.actions   = {
   },
   yankDocumentUrl: function() {
     Clipboard.copy(document.URL);
+    Status.setMessage("URL yanked to clipboard: " + document.URL, 2);
   },
   openPaste: function() {
     Clipboard.paste(false);
@@ -309,6 +310,9 @@ Mappings.actions   = {
   },
   reloadTabUncached: function() {
     chrome.runtime.sendMessage({action: "reloadTab", nocache: true});
+  },
+  reloadAllTabs: function() {
+    chrome.runtime.sendMessage({action: "reloadAllTabs", nocache: false});
   },
   nextSearchResult: function(repeats) {
     if (Find.matches.length) Find.search(false, repeats);
@@ -428,6 +432,7 @@ Mappings.defaults = {
   scrollToRight:        ["$"],
   insertMode:           ["i"],
   reloadTab:            ["r"],
+  reloadAllTabs:        ["cr"],
   reloadTabUncached:    ["gR"],
   createHint:           ["f"],
   createMultiHint:      ["mf"],
@@ -437,6 +442,7 @@ Mappings.defaults = {
   pinTab:               ["gp"],
   moveTabRight:         [">"],
   moveTabLeft:          ["<"],
+  toggleCvim:           ["<C-z>"],
   goBack:               ["H", "S"],
   reverseImage:         ["gr"],
   multiReverseImage:    ["mr"],
@@ -486,6 +492,8 @@ Mappings.defaults = {
   openCommandBar:       [":"],
   shortCuts:            []
 };
+
+Mappings.toggleCvim = [];
 Mappings.defaultsClone = Mappings.defaults.clone();
 Mappings.shortCutsClone = Mappings.shortCuts.clone();
 
@@ -660,6 +668,8 @@ Mappings.parseCustom = function(config) {
       }
     }
   });
+  Mappings.toggleCvim = Mappings.defaults.toggleCvim;
+  delete Mappings.defaults.toggleCvim;
   Mappings.shortCuts = Mappings.shortCuts.map(function(item) {
     item[1] = item[1].replace(/@%/, document.URL);
     return item;
@@ -797,9 +807,13 @@ Mappings.convertToAction = function(c) {
       if (Mappings.queue === this.defaults[key][i].replace(/\*$/, c)) {
         Mappings.validMatch = false;
         if (/^0?$/.test(Mappings.repeats)) addOne = true;
-        if (key === "shortCuts")
-          Mappings.actions[key](Mappings.queue, (addOne ? 1 : parseInt(Mappings.repeats)));
-        else Mappings.actions[key]((addOne ? 1 : parseInt(Mappings.repeats)), Mappings.queue);
+        if (Mappings.actions.hasOwnProperty(key)) {
+          if (key === "shortCuts") {
+            Mappings.actions[key](Mappings.queue, (addOne ? 1 : parseInt(Mappings.repeats)));
+          } else {
+            Mappings.actions[key]((addOne ? 1 : parseInt(Mappings.repeats)), Mappings.queue);
+          }
+        }
         Mappings.queue = "";
         Mappings.repeats = "";
       }

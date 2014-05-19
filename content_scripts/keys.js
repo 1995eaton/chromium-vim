@@ -279,3 +279,14 @@ removeListeners = function() {
   document.removeEventListener("keyup", Key.up, true);
   document.removeEventListener("keydown", Key.down, true);
 };
+
+Key.toggleCvim = function(ev) {
+  var key = Key.fromKeyCode(ev);
+  if (Mappings.toggleCvim.indexOf(key) !== -1) {
+    chrome.runtime.sendMessage({action: "toggleEnabled"});
+  }
+};
+
+document.addEventListener("DOMContentLoaded", function() {
+  document.addEventListener("keydown", Key.toggleCvim, true);
+});

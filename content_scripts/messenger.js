@@ -38,6 +38,7 @@ port.onMessage.addListener(function(response) {
       Marks.history = matches;
       break;
     case "bookmarks":
+      Marks.bookmarks = [];
       Marks.parse(response.bookmarks);
       break;
     case "topsites":

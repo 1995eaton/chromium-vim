@@ -1,5 +1,9 @@
 #cVim Changelog
 
+## 1.2.47
+ * Several bugfixes
+ * Added reloadAllTabs (cr), toggleImages (ci), zoomPageIn (zi), zoomPageOut (zo), zoomOrig (z0), zoomImage (z&lt;Enter&gt;), and toggleCvim (&lt;C-z&gt;) mappings
+
 ## 1.2.46
  * Fixed a bug where bookmarks would be displayed multiple times on some sites
 

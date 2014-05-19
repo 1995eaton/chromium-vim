@@ -79,6 +79,16 @@ actions.reloadTab = function() {
   });
 };
 
+actions.reloadAllTabs = function() {
+  chrome.tabs.query({}, function(tabs) {
+    tabs.forEach(function(tab) {
+      if (!/^chrome:\/\//.test(tab.url)) {
+        chrome.tabs.reload(tab.id);
+      }
+    });
+  });
+};
+
 actions.newTab = function() {
   chrome.tabs.create({
     url: "https://google.com",

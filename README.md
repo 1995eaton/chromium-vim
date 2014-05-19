@@ -112,6 +112,7 @@ map X :execute gTx<CR> "Close the current tab and move to the one before it
 | **Miscellaneous**       |                                                                    |                        | 
 | a                       | alias to ":tabopen google "                                        | :tabopen google        | 
 | :                       | open command bar                                                   | openCommandBar         | 
+| &lt;C-z&gt;             | toggle cVim (same as disable cVim option in toolbar icon)          | toggleCvim             |
 | /                       | open search bar                                                    | openSearchBar          | 
 | ?                       | open search bar (reverse search)                                   | openSearchBarReverse   | 
 | I                       | search through browser history                                     | :history               | 
@@ -119,6 +120,12 @@ map X :execute gTx<CR> "Close the current tab and move to the one before it
 | i                       | enter insert mode (escape to exit)                                 | insertMode             | 
 | r                       | reload the current tab                                             | reloadTab              | 
 | gR                      | reload the current tab + local cache                               | reloadTabUncached      | 
+| cr                      | reload all tabs                                                    | reloadAllTabs          |
+| ci                      | toggle page images                                                 | toggleImages           |
+| zi                      | zoom page in                                                       | zoomPageIn             |
+| zo                      | zoom page out                                                      | zoomPageOut            |
+| z0                      | zoom page to original size                                         | zoomOrig               |
+| z&lt;Enter&gt;          | toggle image zoom (same as clicking the image on image-only pages) | toggleImageZoom        |
 | yy                      | copy the url of the current page to the clipboard                  | yankDocumentUrl        | 
 | b                       | search through bookmarks                                           | :bookmarks             | 
 | p                       | open the clipboard selection                                       | openPaste              | 

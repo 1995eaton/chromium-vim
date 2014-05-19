@@ -38,9 +38,10 @@ var fileMap = {
 };
 
 getIncludes(function(includes) {
-  for (var outputFile in fileMap) {
-    fs.readFile("../" + fileMap[outputFile], "utf8", function(err, data) {
-      fs.writeFileSync("../pages/" + outputFile + ".html", makeHTML(includes, data));
-    });
-  }
+  fs.readFile("../" + fileMap.mappings, "utf8", function(err, data) {
+    fs.writeFileSync("../pages/mappings.html", makeHTML(includes, data));
+  });
+  fs.readFile("../" + fileMap.changelog, "utf8", function(err, data) {
+    fs.writeFileSync("../pages/changelog.html", makeHTML(includes, data));
+  });
 });
