@@ -109,7 +109,7 @@ Settings.loadrc = function () {
     Settings.cssEl.setValue(this.settings.commandBarCSS);
   }
   document.getElementById("blacklists").value = this.settings.blacklists;
-  document.getElementById("gistUrl").value = this.settings.gisturl;
+  this.gistUrl.value = this.settings.gisturl;
 };
 
 Settings.resetRelease = function() {
@@ -123,7 +123,7 @@ Settings.saveRelease = function() {
     this.applyConfig(Config.parse(this.rcEl.value), function() {
       this.settings.commandBarCSS = this.cssEl.getValue();
       this.settings.blacklists = document.getElementById("blacklists").value;
-      this.settings.gisturl = document.getElementById("gistUrl").value;
+      this.settings.gisturl = this.gistUrl.value;
       this.settings.mappings = Settings.rcEl.value;
       this.saveButton.value = "Saved";
       chrome.runtime.sendMessage({action: "saveSettings", settings: Settings.settings, sendSettings: true});
@@ -167,7 +167,7 @@ Settings.editMode = function (e) {
 };
 
 Settings.syncGist = function() {
-  var url = document.getElementById("gistUrl").value;
+  var url = this.gistUrl.value;
   if (url.trim() === "") {
     return false;
   }
@@ -198,6 +198,14 @@ Settings.init = function() {
   this.editModeEl.addEventListener("change", this.editMode.bind(this), false);
   this.saveButton.addEventListener("mouseup", this.saveRelease.bind(this), false);
   this.resetButton.addEventListener("mouseup", this.resetRelease.bind(this), false);
+  this.gistUrl = document.getElementById("gistUrl");
+  this.gistPlaceHolder = "https://gist.github.com/1995eaton/9e68803bf1f1e7524340";
+  this.gistUrl.addEventListener("focus", function() {
+    this.setAttribute("placeholder", "");
+  });
+  this.gistUrl.addEventListener("blur", function() {
+    this.setAttribute("placeholder", Settings.gistPlaceHolder);
+  });
 
 };
 
