@@ -120,7 +120,8 @@ map X :execute gTx<CR> "Close the current tab and move to the one before it
 | i                       | enter insert mode (escape to exit)                                 | insertMode             | 
 | r                       | reload the current tab                                             | reloadTab              | 
 | gR                      | reload the current tab + local cache                               | reloadTabUncached      | 
-| cr                      | reload all tabs                                                    | reloadAllTabs          |
+| none                    | reload all tabs                                                    | reloadAllTabs          |
+| cr                      | reload all tabs but current                                        | reloadAllButCurrent    |
 | ci                      | toggle page images                                                 | toggleImages           |
 | zi                      | zoom page in                                                       | zoomPageIn             |
 | zo                      | zoom page out                                                      | zoomPageOut            |

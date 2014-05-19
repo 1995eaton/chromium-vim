@@ -329,8 +329,11 @@ Mappings.actions   = {
   reloadTabUncached: function() {
     chrome.runtime.sendMessage({action: "reloadTab", nocache: true});
   },
+  reloadAllButCurrent: function() {
+    chrome.runtime.sendMessage({action: "reloadAllTabs", nocache: false, current: false});
+  },
   reloadAllTabs: function() {
-    chrome.runtime.sendMessage({action: "reloadAllTabs", nocache: false});
+    chrome.runtime.sendMessage({action: "reloadAllTabs", nocache: false, current: true});
   },
   nextSearchResult: function(repeats) {
     if (Find.matches.length) Find.search(false, repeats);
@@ -450,7 +453,8 @@ Mappings.defaults = {
   scrollToRight:        ["$"],
   insertMode:           ["i"],
   reloadTab:            ["r"],
-  reloadAllTabs:        ["cr"],
+  reloadAllTabs:        [],
+  reloadAllButCurrent:  ["cr"],
   reloadTabUncached:    ["gR"],
   createHint:           ["f"],
   createMultiHint:      ["mf"],

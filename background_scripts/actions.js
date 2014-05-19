@@ -82,7 +82,7 @@ actions.reloadTab = function() {
 actions.reloadAllTabs = function() {
   chrome.tabs.query({}, function(tabs) {
     tabs.forEach(function(tab) {
-      if (!/^chrome:\/\//.test(tab.url)) {
+      if (!/^chrome:\/\//.test(tab.url) && !(!request.current && tab.id === sender.tab.id && tab.windowId === sender.tab.windowId)) {
         chrome.tabs.reload(tab.id);
       }
     });
