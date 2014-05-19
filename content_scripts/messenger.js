@@ -1,13 +1,16 @@
 var port = chrome.extension.connect({name: "main"});
 
 port.onMessage.addListener(function(response) {
+  var key;
   switch (response.type) {
     case "commandHistory":
-      Command.history[response.historyType[0]] = response.historyType[1];
+      for (key in response.history) {
+        Command.history[key] = response.history[key];
+      }
       break;
     case "history":
       var matches = [];
-      for (var key in response.history) {
+      for (key in response.history) {
         if (response.history[key].url) {
           if (response.history[key].title.trim() === "") {
             matches.push(["history", "Untitled", response.history[key].url]);
@@ -74,6 +77,14 @@ port.onMessage.addListener(function(response) {
 
 chrome.extension.onMessage.addListener(function(request, sender, callback) {
   switch (request.action) {
+    case "commandHistory":
+      for (var key in request.history) {
+        Command.history[key] = request.history[key];
+      }
+      break;
+    case "updateLastSearch":
+      Find.lastSearch = request.value;
+      break;
     case "sendSettings":
       Command.configureSettings(request.settings);
       break;

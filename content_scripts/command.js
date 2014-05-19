@@ -4,13 +4,6 @@ var settings, sessions;
 Command.dataElements = [];
 Command.matches = [];
 
-var historyStates = ["action", "url", "search"];
-for (var i = 0; i < historyStates.length; i++) {
-  chrome.runtime.sendMessage({action: "retrieveHistory", type: historyStates[i]}, function(result) {
-    Command.history[result[0]] = result[1];
-  });
-}
-
 Command.setup = function() {
   this.bar = document.createElement("div");
   this.bar.id = "cVim-command-bar";
@@ -541,6 +534,7 @@ Command.init = function(enabled) {
       port.postMessage({action: "getQuickMarks"});
       port.postMessage({action: "getSessionNames"});
       port.postMessage({action: "getTopSites"});
+      port.postMessage({action: "retrieveAllHistory"});
     }
   } else {
     this.loaded = false;

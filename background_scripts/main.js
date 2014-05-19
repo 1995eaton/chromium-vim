@@ -60,6 +60,7 @@ Clipboard = {
 };
 
 History = {
+  historyTypes: ["action", "url", "search"],
   searchResults: null,
   append: function(value, type) {
     if (!localStorage[type] || localStorage[type] === "")

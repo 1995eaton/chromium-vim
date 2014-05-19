@@ -222,8 +222,8 @@ Key.down = function(e) {
         Find.index = -1;
         Find.setIndex();
         Find.search(false, 1);
+        chrome.runtime.sendMessage({action: "updateLastSearch", value: Find.lastSearch});
         Command.hide();
-
         break;
 
       default:

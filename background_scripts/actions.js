@@ -1,11 +1,11 @@
 var actions = {},
-request, sender, callback, url;
+isAction, callAction, request, sender, callback, url;
 
-function isAction(action) {
+isAction = function(action) {
   return actions.hasOwnProperty(action);
-}
+};
 
-function callAction(action, config) {
+callAction = function(action, config) {
   request = config.request;
   sender = config.sender;
   callback = config.callback;
@@ -20,7 +20,7 @@ function callAction(action, config) {
     url = "../pages/blank.html";
   }
   actions[action]();
-}
+};
 
 function isRepeat(request) {
   return request.action === "focusMainWindow" || (request.repeats && /[0-9]([0-9]+)?/.test(request.repeats.toString()));
@@ -104,6 +104,15 @@ actions.lastTab = function() {
 
 actions.appendHistory = function() {
   History.append(request.value, request.type);
+  chrome.tabs.query({}, function(tabs) {
+    var hist = {};
+    for (var i = 0; i < History.historyTypes.length; ++i) {
+      hist[History.historyTypes[i]] = localStorage[History.historyTypes[i]].split(",");
+    }
+    tabs.forEach(function(tab) {
+      chrome.tabs.sendMessage(tab.id, {action: "commandHistory", history: hist});
+    });
+  });
 };
 
 actions.retrieveHistory = function() {
@@ -329,6 +338,18 @@ actions.updateMarks = function() {
   });
 };
 
+actions.updateLastSearch = function() {
+  var search = request.value;
+  if (!search) {
+    return false;
+  }
+  chrome.tabs.query({}, function(tabs) {
+    tabs.forEach(function(tab) {
+      chrome.tabs.sendMessage(tab.id, {action: "updateLastSearch", value: search});
+    });
+  });
+};
+
 // Port actions
 
 actions.getBookmarks = function() {
@@ -369,6 +390,14 @@ actions.getBuffers = function() {
 
 actions.getSessionNames = function() {
   callback({type: "sessions", sessions: Object.keys(sessions).map(function(e) { return [e, Object.keys(sessions[e]).length.toString() + " tab" + (Object.keys(sessions[e]).length === 1 ? "" : "s")]; } )});
+};
+
+actions.retrieveAllHistory = function() {
+  var hist = {};
+  for (var i = 0; i < History.historyTypes.length; ++i) {
+    hist[History.historyTypes[i]] = localStorage[History.historyTypes[i]].split(",");
+  }
+  callback({type: "commandHistory", history: hist});
 };
 
 actions.getBookmarkPath = function() {
