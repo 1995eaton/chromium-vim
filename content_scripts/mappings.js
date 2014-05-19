@@ -737,7 +737,7 @@ Mappings.handleEscapeKey = function() {
   }
 
   if (Hints.active) {
-    return Hints.hideHints(false, false, true);
+    return Hints.hideHints(false, false);
   }
 
   if (insertMode) {
