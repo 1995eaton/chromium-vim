@@ -9,6 +9,7 @@ Mappings.actions   = {
   toggleVisualMode: function() {
     Visual.caretModeActive = true;
     Visual.getTextNodes();
+    Visual.lineMode = false;
     document.body.spellcheck = false;
     document.designMode = "on";
     Visual.selection = document.getSelection();
@@ -21,6 +22,23 @@ Mappings.actions   = {
       Visual.selection.setPosition(Visual.closestNode(), 0);
       HUD.display(" -- CARET -- ");
       Visual.scrollIntoView();
+    }
+  },
+  toggleVisualLineMode: function() {
+    if (Visual.caretModeActive || Visual.visualModeActive) {
+      return false;
+    }
+    Visual.caretModeActive = true;
+    Visual.getTextNodes();
+    Visual.lineMode = true;
+    document.body.spellcheck = false;
+    document.designMode = "on";
+    Visual.selection = document.getSelection();
+    if (document.getSelection().type === "Range") {
+      return false;
+    }
+    if (Find.matches.length) {
+      Visual.focusSearchResult(true);
     }
   },
   openLastHint: function() {
@@ -483,6 +501,7 @@ Mappings.defaults = {
   yankDocumentUrl:      ["yy"],
   openPaste:            ["p"],
   toggleVisualMode:     ["v"],
+  toggleVisualLineMode: ["V"],
   openPasteTab:         ["P"],
   previousTab:          ["J", "E", "gT"],
   nextSearchResult:     ["n"],

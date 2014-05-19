@@ -115,6 +115,7 @@ Key.down = function(e) {
       e.preventDefault();
     }
     if (keyType.escape) {
+      Visual.lineMode = false;
       if (Visual.visualModeActive === false) {
         return Visual.exit();
       }

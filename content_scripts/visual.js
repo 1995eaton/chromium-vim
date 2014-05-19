@@ -27,12 +27,20 @@ Visual.exit = function() {
   return document.body.spellcheck = true;
 };
 
-Visual.focusSearchResult = function() {
+Visual.focusSearchResult = function(lineMode) {
   var node = Find.getSelectedTextNode();
   if (node.data.length === 0) return false;
   this.selection = document.getSelection();
-  HUD.display(" -- VISUAL -- ");
   this.selection.setPosition(node, 0);
+  if (lineMode) {
+    this.lineMode = true;
+    this.visualModeActive = true;
+    this.selection.setPosition(this.selection.baseNode, 0);
+    this.selection.extend(this.selection.baseNode, this.selection.baseNode.length);
+    HUD.display(" -- VISUAL LINE -- ");
+    return this.enterLineMode();
+  }
+  HUD.display(" -- VISUAL -- ");
   this.selection = document.getSelection();
   this.selection.extend(node, node.data.replace(/\s+$/, "").length);
   this.visualModeActive = true;
@@ -76,6 +84,63 @@ Visual.scrollIntoView = function() {
   }
 };
 
+Visual.enterLineMode = function() {
+  this.selection = document.getSelection();
+  var base = this.textNodes[this.textNodes.indexOf(this.selection.baseNode)];
+  if (base === undefined) {
+    HUD.setMessage(" -- VISUAL -- ");
+    return this.lineMode = false;
+  }
+  if (this.selection.type === "Caret") {
+    this.selection.setPosition(base, 0);
+    this.selection.extend(base, base.length);
+  } else {
+    var bnode = this.selection.baseNode;
+    var enode = this.selection.extentNode;
+    this.selection.setPosition(bnode, 0);
+    this.selection.extend(enode, enode.length);
+    this.selection.modify("extend", "forward", "lineboundary");
+  }
+};
+
+Visual.fillLine = function() {
+  this.selection = document.getSelection();
+  if (this.selection.type === "Caret") {
+    this.selection.setPosition(this.selection.baseNode, 0);
+    this.selection.modify("extend", "forward", "lineboundary");
+  }
+};
+
+Visual.lineAction = function(key) {
+  this.selection = document.getSelection();
+  switch (key) {
+    case "j":
+      this.selection.modify("extend", "forward", "line");
+      this.selection.modify("extend", "forward", "lineboundary");
+      this.fillLine();
+      break;
+    case "k":
+      this.selection.modify("extend", "backward", "lineboundary");
+      this.selection.modify("extend", "backward", "line");
+      this.fillLine();
+      break;
+    case "p":
+    case "P":
+      Clipboard.copy(this.selection.toString());
+      Clipboard.paste(key === "P");
+      this.exit();
+      break;
+    case "y":
+      Clipboard.copy(this.selection.toString());
+      Visual.collapse();
+      break;
+    case "G":
+      this.selection.modify("extend", "forward", "documentboundary");
+      break;
+  }
+  Visual.scrollIntoView();
+};
+
 Visual.action = function(key) {
   this.selection = document.getSelection();
   if (key === "g") {
@@ -92,11 +157,24 @@ Visual.action = function(key) {
     }
   } else this.queue = "";
   if (key === "v") {
+    if (this.lineMode) {
+      HUD.setMessage(" -- VISUAL -- ");
+      return this.lineMode = false;
+    }
     this.visualModeActive = !this.visualModeActive;
     if (!this.visualModeActive) {
       HUD.setMessage(" -- CARET -- ");
       return Visual.collapse();
     } else HUD.setMessage(" -- VISUAL -- ");
+  }
+  if (key === "V") {
+    this.lineMode = !this.lineMode;
+    this.visualModeActive = true;
+    this.enterLineMode();
+    return HUD.setMessage(" -- VISUAL LINE -- ");
+  }
+  if (this.lineMode) {
+    return this.lineAction(key);
   }
   if (this.selection.type === "Range") this.visualModeActive = true;
   var movementType = ((this.selection.type === "Range" || this.visualModeActive) ? "extend" : "move");
