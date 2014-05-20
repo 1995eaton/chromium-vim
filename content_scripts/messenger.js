@@ -65,7 +65,14 @@ port.onMessage.addListener(function(response) {
       sessions = response.sessions;
       break;
     case "quickMarks":
-      Marks.quickMarks = response.marks;
+      Marks.quickMarks = {};
+      for (key in response.marks) {
+        if (typeof response.marks[key] === "string") {
+          Marks.quickMarks[key] = [response.marks[key]];
+        } else {
+          Marks.quickMarks[key] = response.marks[key];
+        }
+      }
       break;
     case "bookmarkPath":
       var _ret = response.path.map(function(e) { return ["path"].concat(e); });

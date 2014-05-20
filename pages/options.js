@@ -16,7 +16,7 @@ function convertOldSetting(s) {
     s = s.replace(/set/, "let");
     if (!/"|'/.test(s) && !/^[0-9]+$/.test(s.replace(/.*= /, "").trim())) {
       s = s.replace(/=(\s+)?([^\s]+)/, "=$1\"$2\"");
-  }
+    }
   }
   return s;
 }
@@ -28,7 +28,7 @@ Config.getLines = function(config) {
 };
 
 Config.parseLine = function(line) {
-  line = line.replace(/, /, ",").replace(/(^[^=]+)=/, "$1 ").split(/\s+/);
+  line = line.replace(/, /g, ",").replace(/(^[^=]+)=/g, "$1 ").split(/\s+/);
   return line;
 };
 
@@ -50,7 +50,9 @@ Config.let = function(params) {
     }
     this._ret[params[0]] = params[1].replace(/^"|"$/g, "");
   } else if (params.length === 3) {
-    this._ret[params[0]] = {};
+    if (typeof this._ret[params[0]] !== "object") {
+      this._ret[params[0]] = {};
+    }
     if (params[2][0] === "[") {
       this._ret[params[0]][params[1]] = JSON.parse(params[2]);
     } else if (/'|"/.test(params[2][0])) {

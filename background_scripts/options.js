@@ -86,6 +86,9 @@ Options.refreshSettings = function(callback) {
 
 Options.saveSettings = function(request) {
   Settings = request.settings;
+  for (var key in Settings.qmarks) {
+    Quickmarks[key] = Settings.qmarks[key];
+  }
   this.refreshSettings(function() {
     chrome.storage[storageMethod].set({settings: Settings});
     if (request.sendSettings) {
@@ -125,6 +128,7 @@ function parseOldCSS(value) {
   chrome.storage[storageMethod].get("settings", function(data) {
     if (data.settings) {
       Settings = data.settings.flatten();
+      Quickmarks = Settings.qmarks;
     }
     Options.refreshSettings();
   });
