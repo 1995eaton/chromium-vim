@@ -24,7 +24,7 @@ HUD.hide = function(ignoreSetting) {
 
 HUD.setMessage = function(text, duration) {
   if (!settings.hud || this.element === undefined) return false;
-  this.element.firstElementChild.innerText = text;
+  this.element.firstElementChild.textContent = text;
   if (duration) {
     window.setTimeout(function() {
       HUD.hide();
@@ -43,7 +43,7 @@ HUD.display = function(text, duration) {
     this.element.style.top    = "0";
   }
   span = document.createElement("span");
-  span.innerText = text;
+  span.textContent = text;
   this.element.appendChild(span);
 
   try { document.lastElementChild.appendChild(this.element); }

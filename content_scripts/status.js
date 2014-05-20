@@ -8,11 +8,11 @@ Status.setMessage = function(message, timeout, type) {
     timeout = this.defaultTimeout;
   }
   this.active = true;
-  Command.statusBar.innerText = "";
+  Command.statusBar.textContent = "";
   if (type === "error") {
     var error = document.createElement("span");
     error.style.color = "red";
-    error.innerText = "Error";
+    error.textContent = "Error";
     error.className = "cVim-error";
     Command.statusBar.appendChild(error);
     Command.statusBar.appendChild(document.createTextNode(": "));

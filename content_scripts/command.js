@@ -494,7 +494,7 @@ Command.init = function(enabled) {
     }
     Mappings.parseCustom(settings.mappings);
     this.css = document.createElement("style");
-    this.css.innerText = settings.commandBarCSS;
+    this.css.textContent = settings.commandBarCSS;
     document.getElementsByTagName("head")[0].appendChild(this.css);
     this.onBottom = settings.barposition === "bottom";
     if (this.data !== undefined) {

@@ -191,12 +191,12 @@ Hints.handleHintFeedback = function() {
       validMatch = false;
 
       if (settings.typelinkhints) {
-        if (containsNumber && this.linkArr[i][0].innerText.indexOf(stringNum) === 0) {
+        if (containsNumber && this.linkArr[i][0].textContent.indexOf(stringNum) === 0) {
           validMatch = true;
         } else if (!containsNumber && this.linkArr[i][2].toLowerCase().indexOf(string.replace(/.*\d/g, "")) !== -1) {
           validMatch = true;
         }
-      } else if (this.linkArr[i][0].innerText.indexOf(string) === 0) {
+      } else if (this.linkArr[i][0].textContent.indexOf(string) === 0) {
         validMatch = true;
       }
 
@@ -209,12 +209,12 @@ Hints.handleHintFeedback = function() {
           var c = 0;
           for (var j = 0; j < this.linkArr.length; ++j) {
             if (this.linkArr[j][0].style.opacity !== "0") {
-              this.linkArr[j][0].innerText = c + 1;
+              this.linkArr[j][0].textContent = c + 1;
               c++;
             }
           }
         }
-        if (!Hints.numericMatch || this.linkArr[i][0].innerText === string) {
+        if (!Hints.numericMatch || this.linkArr[i][0].textContent === string) {
           Hints.numericMatch = this.linkArr[i][1];
         }
         if (containsNumber) {
@@ -304,7 +304,7 @@ Hints.generateHintString = function(n, x) {
 };
 
 Hints.create = function(type, multi) {
-  var screen, links, linkNumber, main, frag, linkElement, isAreaNode, mapCoordinates, computedStyle, imgParent, c, i, documentZoom;
+  var screen, links, linkNumber, main, frag, linkElement, isAreaNode, mapCoordinates, computedStyle, imgParent, c, i, l, documentZoom;
   this.type = type;
   links = this.getLinks();
   if (type && type.indexOf("multi") !== -1) {
@@ -326,33 +326,36 @@ Hints.create = function(type, multi) {
   linkNumber = 0;
 
   c = 0;
-  links.forEach(function(l) {
+  for (i = 0, l = links.length; i < l; ++i) {
+    var link = links[i];
     isAreaNode = false;
-    if (l.nodeName === "AREA" && l.parentNode && l.parentNode.nodeName === "MAP") {
+    if (link.nodeName === "AREA" && link.parentNode && link.parentNode.nodeName === "MAP") {
       imgParent = document.querySelectorAll("img[usemap='#" + l.parentNode.name + "'");
-      if (!imgParent.length) return false;
+      if (!imgParent.length) {
+        continue;
+      }
       linkLocation = imgParent[0].getBoundingClientRect();
       isAreaNode = true;
       computedStyle = getComputedStyle(imgParent[0], null);
     } else {
-      linkLocation = l.getBoundingClientRect();
-      computedStyle = getComputedStyle(l, null);
+      linkLocation = link.getBoundingClientRect();
+      computedStyle = getComputedStyle(link, null);
       if (linkLocation.width === 0) {
-        if (!l.firstElementChild) return false;
-        linkLocation = l.firstElementChild.getBoundingClientRect();
-        if (linkLocation.width === 0) return false;
+        if (!l.firstElementChild) continue;
+        linkLocation = link.firstElementChild.getBoundingClientRect();
+        if (linkLocation.width === 0) continue;
       }
     }
     if (computedStyle.opacity !== "0" && computedStyle.visibility === "visible" && computedStyle.display !== "none" && linkLocation.top + linkLocation.height >= 10 && linkLocation.top + 15 <= window.innerHeight && linkLocation.left >= 0 && linkLocation.left + 10 < window.innerWidth && linkLocation.width > 0) {
-      this.linkHints.push(l);
+      this.linkHints.push(link);
       linkElement = document.createElement("div");
       linkElement.cVim = true;
       linkElement.className = "cVim-link-hint";
       linkElement.style.zIndex = c;
       if (isAreaNode) {
-        if (!/,/.test(l.getAttribute("coords"))) return false;
-        mapCoordinates = l.coords.split(",");
-        if (mapCoordinates.length < 2) return false;
+        if (!/,/.test(link.getAttribute("coords"))) continue;
+        mapCoordinates = link.coords.split(",");
+        if (mapCoordinates.length < 2) continue;
         linkElement.style.top = linkLocation.top * documentZoom + screen.top + parseInt(mapCoordinates[1]) + "px";
         linkElement.style.left = linkLocation.left * documentZoom + screen.left + parseInt(mapCoordinates[0]) + "px";
       } else {
@@ -365,7 +368,7 @@ Hints.create = function(type, multi) {
           linkElement.style.left = screen.left + "px";
         } else {
           if (l.offsetLeft > linkLocation.left) {
-            linkElement.style.left = l.offsetLeft * documentZoom + "px";
+            linkElement.style.left = link.offsetLeft * documentZoom + "px";
           } else {
             linkElement.style.left = linkLocation.left * documentZoom + screen.left + "px";
           }
@@ -373,22 +376,22 @@ Hints.create = function(type, multi) {
       }
       if (settings.numerichints) {
         if (!settings.typelinkhints) {
-          this.linkArr.push([linkLocation.bottom * linkLocation.left, linkElement, l]);
+          this.linkArr.push([linkLocation.bottom * linkLocation.left, linkElement, link]);
         } else {
           var textValue = "";
-          if (l.innerText) {
-            textValue = l.innerText;
-          } else if (l.value) {
-            textValue = l.value;
+          if (link.textContent) {
+            textValue = link.textContent;
+          } else if (link.value) {
+            textValue = link.value;
           }
-          this.linkArr.push([linkLocation.bottom * linkLocation.left, linkElement, l, textValue]);
+          this.linkArr.push([linkLocation.bottom * linkLocation.left, linkElement, link, textValue]);
         }
       } else {
         this.linkArr.push(linkElement);
       }
     }
     c += 1;
-  }.bind(this));
+  }
 
   if (this.linkArr.length === 0) {
     return this.hideHints();
@@ -449,7 +452,7 @@ Hints.create = function(type, multi) {
     var rlim = Math.floor((Math.pow(settings.hintcharacters.length, lim) - this.linkArr.length) / settings.hintcharacters.length);
     
     for (i = 0; i < rlim; ++i) {
-      this.linkArr[i].innerText = this.generateHintString(i, lim - 1);
+      this.linkArr[i].textContent = this.generateHintString(i, lim - 1);
       this.permutations.push(this.generateHintString(i, lim - 1));
     }
 
@@ -458,7 +461,7 @@ Hints.create = function(type, multi) {
     }
 
     for (i = this.linkArr.length - 1; i >= 0; --i) {
-      this.linkArr[i].innerText = this.permutations[i];
+      this.linkArr[i].textContent = this.permutations[i];
       frag.appendChild(this.linkArr[i]);
     }
   } else {
@@ -468,7 +471,7 @@ Hints.create = function(type, multi) {
       return e.slice(1);
     });
     for (i = 0, l = this.linkArr.length; i < l; ++i) {
-      this.linkArr[i][0].innerText = (i + 1).toString();
+      this.linkArr[i][0].textContent = (i + 1).toString();
       frag.appendChild(this.linkArr[i][0]);
     }
   }
