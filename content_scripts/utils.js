@@ -98,3 +98,7 @@ HTMLElement.prototype.unhover = function() {
 HTMLElement.prototype.simulateClick = function() {
   simulateMouseEvents(this, ["mouseover", "mousedown", "mouseup", "click"]);
 };
+
+Node.prototype.isTextNode = function() {
+  return this.nodeType === 3 && !/SCRIPT|STYLE|NOSCRIPT|MARK/.test(this.parentNode.nodeName) && this.data.trim() !== "";
+};

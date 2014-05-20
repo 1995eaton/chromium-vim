@@ -338,13 +338,20 @@ Mappings.actions   = {
   nextSearchResult: function(repeats) {
     if (Find.matches.length) Find.search(false, repeats);
     else if (Find.lastSearch !== undefined && typeof Find.lastSearch === "string")
-      Find.highlight(document.body, Find.lastSearch, true, true, false);
+      Find.highlight({ base: document.body,
+                       search: Find.lastSearch,
+                       setIndex: true,
+                       executeSearch: true });
   },
   previousSearchResult: function(repeats) {
     if (Find.matches.length)
       Find.search(true, repeats);
     else if (Find.lastSearch !== undefined && typeof Find.lastSearch === "string")
-      Find.highlight(document.body, Find.lastSearch, true, true, true);
+      Find.highlight({ base: document.body,
+                       search: Find.lastSearch,
+                       setIndex: true,
+                       executeSearch: true,
+                       reverse: true });
   },
   nextTab: function(r) {
     chrome.runtime.sendMessage({action: "nextTab", repeats: r});
@@ -747,7 +754,12 @@ Mappings.handleEscapeKey = function() {
       Find.clear();
       HUD.hide();
       if (Find.previousMatches && Find.lastSearch) {
-        Find.highlight(document.body, Find.lastSearch, true, true, false, true);
+        Find.highlight({ base: document.body,
+                         search: Find.lastSearch,
+                         setIndex: true,
+                         executeSearch: true,
+                         reverse: true,
+                         saveSearch: true });
       }
     }
     Command.hideData();

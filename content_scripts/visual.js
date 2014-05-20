@@ -86,6 +86,7 @@ Visual.scrollIntoView = function() {
 
 Visual.enterLineMode = function() {
   this.selection = document.getSelection();
+  this.firstLine = true;
   var base = this.textNodes[this.textNodes.indexOf(this.selection.baseNode)];
   if (base === undefined) {
     HUD.setMessage(" -- VISUAL -- ");
@@ -97,9 +98,16 @@ Visual.enterLineMode = function() {
   } else {
     var bnode = this.selection.baseNode;
     var enode = this.selection.extentNode;
-    this.selection.setPosition(bnode, 0);
-    this.selection.extend(enode, enode.length);
-    this.selection.modify("extend", "forward", "lineboundary");
+    if (bnode.parentNode.getBoundingClientRect().top > enode.parentNode.getBoundingClientRect().top) {
+      this.selection.setPosition(bnode, bnode.length);
+      this.selection.extend(enode, 0);
+      this.selection.modify("extend", "backward", "lineboundary");
+    } else {
+      this.selection.setPosition(bnode, 0);
+      this.selection.extend(enode, enode.length);
+      this.selection.modify("extend", "forward", "lineboundary");
+    }
+    this.firstExtentNode = this.selection.extentNode;
   }
 };
 
@@ -115,13 +123,21 @@ Visual.lineAction = function(key) {
   this.selection = document.getSelection();
   switch (key) {
     case "j":
+      if (this.firstLine || this.selection.extentNode === this.firstExtentNode || this.selection.baseNode === this.selection.extentNode) {
+        this.selection.setPosition(this.selection.baseNode, 0);
+        this.firstLine = false;
+      }
       this.selection.modify("extend", "forward", "line");
-      this.selection.modify("extend", "forward", "lineboundary");
+      this.selection.modify("extend", "backward", "lineboundary");
       this.fillLine();
       break;
     case "k":
-      this.selection.modify("extend", "backward", "lineboundary");
+      if (this.firstLine || this.selection.extentNode === this.firstExtentNode || this.selection.baseNode === this.selection.extentNode) {
+        this.selection.setPosition(this.selection.baseNode, this.selection.baseNode.length);
+        this.firstLine = false;
+      }
       this.selection.modify("extend", "backward", "line");
+      this.selection.modify("extend", "forward", "lineboundary");
       this.fillLine();
       break;
     case "p":

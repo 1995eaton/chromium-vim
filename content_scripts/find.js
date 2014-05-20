@@ -17,10 +17,10 @@ Find.setIndex = function() {
 };
 
 Find.getSelectedTextNode = function() {
-  if (!this.matches.length) return false;
-  var el = this.matches[this.index];
-  if (!el) return false;
-  return el.firstChild;
+  if (!this.matches.length) {
+    return false;
+  }
+  return (this.matches[this.index] && this.matches[this.index].firstChild) || false;
 };
 
 Find.search = function(reverse, repeats, ignoreFocus) {
@@ -84,85 +84,72 @@ Find.search = function(reverse, repeats, ignoreFocus) {
   Command.input.focus();
 };
 
-Find.highlight = function(baseNode, match, setIndex, search, reverse, saveSearch) {
-  var mode, node, matches, mark, mid, data, walker, regexp, matchPosition, nName, highlight, ignoreDiacritics, containsCap;
-  containsCap = match.toLowerCase() !== match;
-  highlight = settings.highlight;
-  ignoreDiacritics = settings.ignoreDiacritics;
-  regexp = settings.regexp;
-  if (this.clearing) {
-    return false;
-  }
-  if (saveSearch !== undefined) {
-    this.lastSearch = match;
-  }
-  if ((settings.ignorecase || /\/i$/.test(match)) && !(settings.smartcase && containsCap)) {
-    mode = "i";
-    match = match.replace(/\/i$/, "");
-  } else {
-    mode = "";
-  }
-  if (regexp) {
-    try {
-      match = new RegExp(match, "g" + mode);
-    } catch(e) {
-      return;
-    }
-  }
-  walker = document.createTreeWalker(baseNode, NodeFilter.SHOW_TEXT, null, false);
-  document.body.normalize();
-  while (node = walker.nextNode()) {
-    nName = node.parentNode.nodeName;
-    if (nName !== "SCRIPT" && nName !== "STYLE" && nName !== "NOSCRIPT" && nName !== "MARK" && node.data.trim() !== "" && !node.parentNode.hasAttribute("cVim")) {
-      if (ignoreDiacritics) {
-        data = node.data.removeDiacritics();
-      } else {
-        data = node.data;
-      }
-      if (regexp) {
-        matchPosition = data.search(match);
-      } else {
-        if (containsCap) {
-          matchPosition = node.data.indexOf(match);
-        } else {
-          matchPosition = node.data.toLowerCase().indexOf(match);
-        }
-      }
-      if (matchPosition >= 0) {
-        if (regexp) {
-          matches = data.match(match);
-          if (!matches.length || matches[0] === "") {
-            continue;
-          }
-        }
-        mark = document.createElement("mark");
-        mark.style.backgroundColor = highlight;
-        mid = node.splitText(matchPosition);
-        mid.splitText((regexp ? matches[0].length : match.length));
-        mark.appendChild(mid.cloneNode(true));
-        mid.parentNode.replaceChild(mark, mid);
-        this.matches.push(mark);
-      }
-    }
-  }
-  if (this.matches.length === 0) {
-    HUD.display("No matches");
-  } else {
-    HUD.display(this.matches.length);
-  }
-  document.body.normalize();
+Find.highlight = function(params) {
+  // params => {}
+  //   base           -> node to search in
+  //   search         -> text to look for
+  //   reverse        -> reverse search
+  //   setIndex       -> find the first match within the viewport
+  //   executesearch  -> run Find.search after highlighting
+  //   saveSearch     -> add search to search history
+  var regexMode = "",
+      containsCap = params.search.search(/[A-Z]/) !== -1,
+      useRegex = settings.regexp,
+      node, regexMatches, mark, mid, data, treeWalker, matchPosition;
 
-  if (setIndex === true)
+  if (params.saveSearch) {
+    this.lastSearch = params.search;
+  }
+
+  if ((settings.ignorecase || /\/i$/.test(params.search)) && !(settings.smartcase && containsCap)) {
+    params.search = params.search.replace(/\/i$/, "");
+    regexMode = "i";
+  }
+
+  if (useRegex) {
+    try { params.search = new RegExp(params.search, regexMode); }
+    catch(e) { useRegex = false; }
+  }
+
+  treeWalker = document.createTreeWalker(params.base, NodeFilter.SHOW_TEXT, { acceptNode: function(node) { // Make sure HTML element isn't a script/style
+    return node.isTextNode();
+  }}, false);
+
+  while (node = treeWalker.nextNode()) {
+    data = (settings.ignorediacritics ? node.data.removeDiacritics() : node.data);
+    if (useRegex) {
+      matchPosition = data.search(params.search);
+    } else {
+      matchPosition = (containsCap ? node.data.indexOf(params.search) : node.data.toLowerCase().indexOf(params.search));
+    }
+    if (matchPosition >= 0) {
+      if (useRegex) {
+        regexMatches = data.match(params.search);
+      }
+      mark = document.createElement("mark");
+      mark.style.backgroundColor = settings.highlight;
+      mid = node.splitText(matchPosition);
+      mid.splitText(useRegex ? regexMatches[0].length : params.search.length);
+      mark.appendChild(mid.cloneNode(true));
+      mid.parentNode.replaceChild(mark, mid);
+      this.matches.push(mark);
+    }
+  }
+
+  HUD.display(this.matches.length || "No matches");
+
+  if (params.setIndex) {
     this.setIndex();
-  if (search === true)
-    return this.search(reverse, 1);
+  }
+  if (params.executeSearch) {
+    this.search(params.reverse, 1);
+  }
 
 };
 
 Find.clear = function() {
-  this.clearing = true;
   for (var i = 0; i < this.matches.length; i++) {
-    try { // Ignore text nodes that have changed since last search
+    try { // Ignore text nodes that have changed or been removed since last search
       var parent = this.matches[i].parentNode;
       parent.replaceChild(this.matches[i].firstChild, this.matches[i]);
       parent.normalize();
@@ -171,5 +158,4 @@ Find.clear = function() {
     }
   }
   this.matches = [];
-  this.clearing = false;
 };

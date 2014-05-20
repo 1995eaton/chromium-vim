@@ -218,7 +218,13 @@ Key.down = function(e) {
 
         if (Command.input.value !== "" && (Command.input.value !== Find.lastSearch || !Find.matches.length)) {
           Find.clear();
-          Find.highlight(document.body, Command.input.value, false, false, false, true);
+          // Find.highlight(document.body, Command.input.value, false, false, false, true);
+          Find.highlight({ base: document.body,
+                           search: Command.input.value,
+                           setIndex: true,
+                           executeSearch: true,
+                           reverse: false,
+                           saveSearch: true });
         }
         Find.index = -1;
         Find.setIndex();
@@ -239,7 +245,8 @@ Key.down = function(e) {
             Command.complete(Command.input.value);
           } else if ((settings.incsearch && (Command.input.value !== Find.lastSearch || !Find.highlights.length)) && Command.input.value.length > 2) {
             Find.clear();
-            Find.highlight(document.body, Command.input.value);
+            Find.highlight({ base: document.body,
+                             search: Command.input.value});
             Find.index = -1;
             Find.setIndex();
             Find.search(false, 1, true);
