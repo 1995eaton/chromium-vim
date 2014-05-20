@@ -95,7 +95,8 @@ Complete.apis = {
   "google-finance": "https://www.google.com/finance/match?matchtype=matchall&q=",
   webster:          "http://www.merriam-webster.com/autocomplete?query=",
   youtube:          "https://clients1.google.com/complete/search?client=youtube&hl=en&gl=us&gs_rn=23&gs_ri=youtube&ds=yt&cp=2&gs_id=d&q=",
-  wictionary:       "http://en.wiktionary.org/w/api.php?action=opensearch&limit=15&format=json&search="
+  wictionary:       "http://en.wiktionary.org/w/api.php?action=opensearch&limit=15&format=json&search=",
+  duckduckgo:       "https://duckduckgo.com/ac/?q="
 };
 
 Complete.convertToLink = function(input) {
@@ -264,6 +265,14 @@ Complete.wictionary = function(query, callback) {
   this.xhr(this.apis.wictionary + encodeURIComponent(query), function(response) {
     callback(response[1].map(function(e) {
       return ["search", e];
+    }));
+  });
+};
+
+Complete.duckduckgo = function(query, callback) {
+  this.xhr(this.apis.duckduckgo + encodeURIComponent(query), function(response) {
+    callback(response.map(function(e) {
+      return ["search", e.phrase];
     }));
   });
 };
