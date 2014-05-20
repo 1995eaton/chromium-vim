@@ -405,6 +405,9 @@ actions.getSessionNames = function() {
 actions.retrieveAllHistory = function() {
   var hist = {};
   for (var i = 0; i < History.historyTypes.length; ++i) {
+    if (localStorage[History.historyTypes[i]] === undefined) {
+      localStorage[History.historyTypes[i]] = "";
+    }
     hist[History.historyTypes[i]] = localStorage[History.historyTypes[i]].split(",");
   }
   callback({type: "commandHistory", history: hist});
