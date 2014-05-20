@@ -435,6 +435,7 @@ Mappings.actions   = {
 
 Mappings.shortCuts = [
   ["a",  ":tabopen google "],
+  ["zr", ":chrome://restart&<CR>"],
   ["o",  ":open "],
   ["O",  ":open @%"],
   ["b",  ":bookmarks "],
