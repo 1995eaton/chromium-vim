@@ -7,6 +7,7 @@ HUD.transitionEvent = function() {
     document.body.style.overflowX = HUD.overflowValue;
   }
   delete HUD.overflowValue;
+  HUD.element.removeEventListener("transitionend", HUD.transitionEvent, true);
   HUD.element.parentNode.removeChild(HUD.element);
   delete HUD.element;
 };
@@ -24,9 +25,10 @@ HUD.hide = function(ignoreSetting) {
 
 HUD.setMessage = function(text, duration) {
   if (!settings.hud || this.element === undefined) return false;
+  window.clearTimeout(this.hideTimeout);
   this.element.firstElementChild.textContent = text;
   if (duration) {
-    window.setTimeout(function() {
+    this.hideTimeout = window.setTimeout(function() {
       HUD.hide();
     }, duration * 1000);
   }
@@ -35,13 +37,16 @@ HUD.setMessage = function(text, duration) {
 HUD.display = function(text, duration) {
   if (!settings.hud || HUD.element !== undefined) return HUD.setMessage(text, duration);
   var span, pageWidth, screenWidth, height, width;
-  document.removeEventListener("transitionend", this.transitionEvent, true);
-  this.element = document.createElement("div");
-  this.element.id  = "cVim-hud";
-  if (Command.onBottom) {
-    this.element.style.bottom = "initial";
-    this.element.style.top    = "0";
+  if (!this.element) {
+    this.element = document.createElement("div");
+    this.element.id  = "cVim-hud";
+    if (Command.onBottom) {
+      this.element.style.bottom = "initial";
+      this.element.style.top    = "0";
+    }
   }
+  window.clearTimeout(this.hideTimeout);
+  this.element.innerHTML = "";
   span = document.createElement("span");
   span.textContent = text;
   this.element.appendChild(span);
@@ -69,7 +74,7 @@ HUD.display = function(text, duration) {
   this.element.style.right = "0";
 
   if (duration) {
-    window.setTimeout(function() {
+    this.hideTimeout = window.setTimeout(function() {
       HUD.hide();
     }, duration * 1000);
   }
