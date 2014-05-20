@@ -1,5 +1,13 @@
 #cVim Changelog
 
+## 1.2.48
+ * Fixed an issue where quickmarks wouldn't save
+ * Minor bugfixes
+ * Added basic support for Visual Line mode (V)
+ * Updated DuckDuckGo search engine for completion
+ * Added a restart chrome shortcut (zr). The same could be accomplished with the config ```map zr :chrome://restart&<CR>```
+ * reloadAllTabs is still available for mapping, but the key binding ```cr``` now defaults to reloadAllButCurrent
+
 ## 1.2.47
  * Several bugfixes
  * Added reloadAllTabs (cr), toggleImages (ci), zoomPageIn (zi), zoomPageOut (zo), zoomOrig (z0), zoomImage (z&lt;Enter&gt;), and toggleCvim (&lt;C-z&gt;) mappings
