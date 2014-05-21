@@ -362,6 +362,10 @@ actions.updateLastSearch = function() {
 
 // Port actions
 
+actions.injectCSS = function() {
+  chrome.tabs.insertCSS({code: request.css});
+};
+
 actions.getBookmarks = function() {
   Bookmarks.getMarks(function(marks) {
     callback({type: "bookmarks", bookmarks: marks});

@@ -493,9 +493,12 @@ Command.init = function(enabled) {
       }
     }
     Mappings.parseCustom(settings.mappings);
-    this.css = document.createElement("style");
-    this.css.textContent = settings.commandBarCSS;
-    document.getElementsByTagName("head")[0].appendChild(this.css);
+    var head = document.getElementsByTagName("head");
+    if (head.length) { // Use chrome.tabs.insertCSS if document.head does not exist
+      this.css = document.createElement("style");
+      this.css.textContent = settings.commandBarCSS;
+      head[0].appendChild(this.css);
+    }
     this.onBottom = settings.barposition === "bottom";
     if (this.data !== undefined) {
       this.data.style[(!this.onBottom) ? "bottom" : "top"] = "";
@@ -530,6 +533,9 @@ Command.init = function(enabled) {
     this.setup();
     addListeners();
     if (this.rootFrame) {
+      if (!head.length) {
+        port.postMessage({action: "injectCSS", css: settings.commandBarCSS});
+      }
       port.postMessage({action: "getBookmarks"});
       port.postMessage({action: "getQuickMarks"});
       port.postMessage({action: "getSessionNames"});
