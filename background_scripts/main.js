@@ -81,23 +81,6 @@ History = {
   }
 };
 
-String.prototype.convertLink = function() {
-  var url = this.trimLeft().trimRight();
-  if (url.length === 0) return "chrome://newtab";
-  if (/^\//.test(url)) url = "file://" + url;
-  if (/^(chrome|chrome-extension|file):\/\/\S+$/.test(url)) return url;
-  var pattern = new RegExp("^((https?|ftp):\\/\\/)?"+
-  "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|"+
-  "((\\d{1,3}\\.){3}\\d{1,3})|"+
-  "localhost)" +
-  "(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*"+
-  "(\\?[;&a-z\\d%_.~+=-]*)?"+
-  "(\\#[-a-z\\d_]*)?$","i");
-  if (pattern.test(url))
-    return (/:\/\//.test(url) ? "" : "http://") + url;
-  return "https://www.google.com/search?q=" + url;
-};
-
 function getTab(sender, reverse, count, first, last) {
   chrome.tabs.query({windowId: sender.tab.windowId}, function(tabs) {
     if (first) {

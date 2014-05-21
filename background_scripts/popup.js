@@ -2,7 +2,8 @@ var Popup = {};
 Popup.active = true;
 
 function parseDomain(url) {
-  return url.replace(/(\.([^\.]+))\/.*$/, "$1");
+  var urlLocation = url.parseLocation();
+  return urlLocation.protocol + "//" + urlLocation.hostname + "/*";
 }
 
 Popup.getAllTabs = function(callback) {

@@ -363,7 +363,7 @@ actions.updateLastSearch = function() {
 // Port actions
 
 actions.injectCSS = function() {
-  chrome.tabs.insertCSS({code: request.css});
+  chrome.tabs.insertCSS(sender.tab.id, {code: request.css});
 };
 
 actions.getBookmarks = function() {

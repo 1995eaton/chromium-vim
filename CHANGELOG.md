@@ -1,5 +1,9 @@
 #cVim Changelog
 
+## 1.2.49
+ * Reworked domain blacklists engine. See https://developer.chrome.com/extensions/match_patterns for a description of the new URL match syntax
+ * Fixed some iframe bugs
+
 ## 1.2.48
  * Fixed an issue where quickmarks wouldn't save
  * Minor bugfixes

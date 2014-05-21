@@ -2,25 +2,6 @@ var storageMethod = "local",
     Settings = {},
     Options = {};
 
-Object.prototype.flatten = function() {
-	var _ret = {};
-	for (var key in this) {
-		if (this.hasOwnProperty(key)) {
-      if (key !== "qmarks" && key !== "searchengines" && typeof this[key] === "object" && !Array.isArray(this[key])) {
-        var _rec = this[key].flatten();
-        for (var subKey in _rec) {
-          if (!_rec.hasOwnProperty(subKey)) continue;
-          
-          _ret[subKey] = _rec[subKey];
-        }
-      } else {
-        _ret[key] = this[key];
-      }
-    }
-  }
-	return _ret;
-};
-
 var settingsDefault = {
   positiveIntegers: {
     searchlimit: 20,

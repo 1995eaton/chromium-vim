@@ -5,15 +5,11 @@ HTMLElement.prototype.isInput = function() {
   );
 };
 
-
 HTMLElement.prototype.isVisible = function() {
-  return (
-       (this.offsetParent &&
-       !this.disabled &&
-       this.getAttribute("type") !== "hidden" &&
-       getComputedStyle(this).visibility !== "hidden" &&
-       this.getAttribute("display") !== "none")
-  );
+  return this.offsetParent && !this.disabled &&
+         this.getAttribute("type") !== "hidden" &&
+         getComputedStyle(this).visibility !== "hidden" &&
+         this.getAttribute("display") !== "none";
 };
 
 Array.prototype.unique = function() {
@@ -79,6 +75,26 @@ Object.prototype.clone = function() {
   return clone;
 };
 
+Object.prototype.flatten = function() {
+	var _ret = {};
+	for (var key in this) {
+		if (this.hasOwnProperty(key)) {
+      if (key !== "qmarks" && key !== "searchengines" && typeof this[key] === "object" && !Array.isArray(this[key])) {
+        var _rec = this[key].flatten();
+        for (var subKey in _rec) {
+          if (!_rec.hasOwnProperty(subKey)) {
+            continue;
+          }
+          _ret[subKey] = _rec[subKey];
+        }
+      } else {
+        _ret[key] = this[key];
+      }
+    }
+  }
+	return _ret;
+};
+
 function simulateMouseEvents(element, events) {
   for (var i = 0; i < events.length; ++i) {
     var ev = document.createEvent("MouseEvents");
@@ -102,3 +118,85 @@ HTMLElement.prototype.simulateClick = function() {
 Node.prototype.isTextNode = function() {
   return this.nodeType === 3 && !/SCRIPT|STYLE|NOSCRIPT|MARK/.test(this.parentNode.nodeName) && this.data.trim() !== "";
 };
+
+String.prototype.rxp = function() {
+  return new RegExp(this, Array.prototype.slice.call(arguments));
+};
+
+String.prototype.parseLocation = function() {
+  var protocolMatch = "^[a-zA-Z0-9\\-]+:(?=\\/\\/)",
+      hostnameMatch = "^[a-zA-Z0-9\\-.]+",
+      pathPattern = "\\/.*";
+  var urlProtocol = (this.match(protocolMatch.rxp()) || [""])[0] || "",
+      urlHostname = (this.substring(urlProtocol.length + 2).match(hostnameMatch.rxp("g")) || [""])[0] || "",
+      urlPath = ((this.substring(urlProtocol.length + 2 + urlHostname.length).match(pathPattern.rxp()) || [""])[0] || "").replace(/[#?].*/, "");
+  return {
+    protocol: urlProtocol,
+    hostname: urlHostname,
+    pathname: urlPath
+  };
+};
+
+String.prototype.convertLink = function() {
+  var url = this.trimLeft().trimRight();
+  if (url.length === 0) {
+    return "chrome://newtab";
+  }
+  if (/^\//.test(url)) {
+    url = "file://" + url;
+  }
+  if (/^(chrome|chrome-extension|file):\/\/\S+$/.test(url)) {
+    return url;
+  }
+  var pattern = new RegExp("^((https?|ftp):\\/\\/)?"+
+  "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|"+
+  "((\\d{1,3}\\.){3}\\d{1,3})|"+
+  "localhost)" +
+  "(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*"+
+  "(\\?[;&a-z\\d%_.~+=-]*)?"+
+  "(\\#[-a-z\\d_]*)?$","i");
+  if (pattern.test(url))
+    return (/:\/\//.test(url) ? "" : "http://") + url;
+  return "https://www.google.com/search?q=" + url;
+};
+
+function matchLocation(url, pattern) { // Uses @match syntax
+  // See https://code.google.com/p/chromium/codesearch#chromium/src/extensions/common/url_pattern.h&sq=package:chromium
+  var urlLocation = url.parseLocation(),
+      protocol    = (pattern.match(/.*:\/\//) || [""])[0].slice(0, -2),
+      hostname, path, pathMatch, hostMatch;
+  if (/\*\*/.test(pattern)) {
+    console.error("cVim Error: Invalid pattern: \"%s\"", pattern);
+    return false;
+  }
+  if (!protocol.length) {
+    console.error("cVim Error: Invalid protocol in pattern: \"%s\"", pattern);
+    return false;
+  }
+  pattern = pattern.replace(/.*:\/\//, "");
+  if (protocol !== "*:" && urlLocation.protocol !== protocol) {
+    return false;
+  }
+  if (urlLocation.protocol !== "file:") {
+    hostname = pattern.match(/^[^\/]+\//g);
+    if (!hostname) {
+      console.error("cVim Error: Invalid host in pattern: \"%s\"", pattern);
+      return false;
+    }
+    var origHostname = hostname;
+    hostname = hostname[0].slice(0, -1).replace(/([.])/g, "\\$1").replace(/\*/g, ".*");
+    hostMatch = urlLocation.hostname.match(new RegExp(hostname, "i"));
+    if (!hostMatch || hostMatch[0].length !== urlLocation.hostname.length) {
+      return false;
+    }
+    pattern = "/" + pattern.slice(origHostname[0].length);
+  }
+  if (pattern.length) {
+    path = pattern.replace(/([.&\\\/\(\)\[\]!?])/g, "\\$1").replace(/\*/g, ".*");
+    pathMatch = urlLocation.pathname.match(new RegExp(path));
+    if (!pathMatch || pathMatch[0].length !== urlLocation.pathname.length) {
+      return false;
+    }
+  }
+  return true;
+}

@@ -206,6 +206,15 @@ imap &lt;C-m&gt; deleteWord
 unmap X
 map X :execute gTx&lt;CR&gt; &quot;Close the current tab and move to the one before it
 </code></pre>
+<h3 id="blacklists">Blacklists</h3>
+<ul>
+<li>You can blacklist specific commands on chosen domains by adding the keybinding after the blacklist URL. For instance, if you want smooth scrolling enabled with the &lt;Up&gt; and &lt;Down&gt; keys, but not on pages like Chrome&#39;s built-in PDF viewer (in which the up and down keys won&#39;t respond if they have been mapped), your cVimrc would look like this:<pre><code class="lang-viml">map &lt;Up&gt; scrollUp
+map &lt;Down&gt; scrollDown
+</code></pre>
+and the blacklists text box would have this line:<pre><code>*://*/*.pdf &lt;Up&gt; &lt;Down&gt;
+</code></pre></li>
+<li>The blacklists text box uses Chrome&#39;s @match pattern. See <a href="https://developer.chrome.com/extensions/match_patterns">https://developer.chrome.com/extensions/match_patterns</a> for a description of the syntax.</li>
+</ul>
 <h3 id="mappings">Mappings</h3>
 <ul>
 <li>Normal mappings are defined with the following structure: <code>map &lt;KEY&gt; &lt;MAPPING_NAME&gt;</code></li>

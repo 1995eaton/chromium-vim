@@ -469,6 +469,9 @@ Command.hide = function() {
 Command.init = function(enabled) {
   var key;
   if (enabled) {
+    if (!settings) {
+      return chrome.runtime.sendMessage({action: "getSettings"});
+    }
     Mappings.defaults = Mappings.defaultsClone.clone();
     Mappings.shortCuts = Mappings.shortCutsClone.clone();
     if (typeof settings.qmarks === "object") {
@@ -532,21 +535,23 @@ Command.init = function(enabled) {
     }
     this.setup();
     addListeners();
-    if (this.rootFrame) {
-      if (!head.length) {
-        port.postMessage({action: "injectCSS", css: settings.commandBarCSS});
-      }
-      port.postMessage({action: "getBookmarks"});
-      port.postMessage({action: "getQuickMarks"});
-      port.postMessage({action: "getSessionNames"});
-      port.postMessage({action: "getTopSites"});
-      port.postMessage({action: "retrieveAllHistory"});
+    if (!head.length && document.URL.indexOf("chrome") !== 0) {
+      chrome.runtime.sendMessage({action: "injectCSS", css: settings.commandBarCSS, runAt: "document_start"});
     }
+    port.postMessage({action: "getBookmarks"});
+    port.postMessage({action: "getQuickMarks"});
+    port.postMessage({action: "getSessionNames"});
+    port.postMessage({action: "getTopSites"});
+    port.postMessage({action: "retrieveAllHistory"});
   } else {
     this.loaded = false;
-    this.css.parentNode.removeChild(this.css);
+    if (this.css) {
+      this.css.parentNode.removeChild(this.css);
+    }
     var links = document.getElementById("cVim-link-container");
-    this.bar.parentNode.removeChild(this.bar);
+    if (this.bar) {
+      this.bar.parentNode.removeChild(this.bar);
+    }
     if (links) {
       links.parentNode.removeChild(links);
     }
@@ -557,18 +562,24 @@ Command.init = function(enabled) {
 Command.configureSettings = function(s) {
 
   function checkBlacklist(callback) {
-    var blacklists = settings.blacklists.split("\n");
+    var blacklists = settings.blacklists.split("\n"),
+        blacklist;
     Command.blacklisted = false;
     for (var i = 0, l = blacklists.length; i < l; i++) {
-      if (blacklists[i].trim() === "") continue;
-      var blacklist = blacklists[i].split(/\s+/);
-      var url = blacklist[0];
-      if (document.URL.substring(0, url.length) === url || url.substring(0, document.URL.length) === document.URL) {
+      blacklist = blacklists[i].trimAround().split(/\s+/g);
+      if (!blacklist.length) {
+        continue;
+      }
+      if (matchLocation(document.URL, blacklist[0])) {
         if (blacklist.length > 1) {
-          Mappings.siteSpecificBlacklists += blacklist.slice(1).map(function(e) { return "\nunmap " + e; }).join("");
-          return callback(false);
+          var unmaps      = blacklist.slice(1),
+              unmapString = "";
+          for (var j = 0, q = unmaps.length; j < q; ++j) {
+            unmapString += "\nunmap " + unmaps[j];
+          }
+          Mappings.siteSpecificBlacklists += unmapString;
+          break;
         }
-        Command.blacklisted = true;
         return callback(true);
       }
     }
@@ -592,17 +603,18 @@ Command.configureSettings = function(s) {
 };
 
 window.addEventListener("focus", function() {
-  if (!Command.loaded) {
-    chrome.runtime.sendMessage({action: "getSettings"});
-  }
+  window.setTimeout(function() {
+    if (!Command.loaded) {
+      chrome.runtime.sendMessage({action: "getSettings"});
+    }
+  }, 0);
 });
 
 document.addEventListener("DOMContentLoaded", function() {
-  if (window.self === window.top) {
-    Command.rootFrame = true;
-    chrome.runtime.sendMessage({action: "getSettings"});
-    chrome.runtime.sendMessage({action: "isNewInstall"}, function(message) {
-      alert(message);
-    });
-  }
+  // if (window.self === window.top) {
+  chrome.runtime.sendMessage({action: "getSettings"});
+  chrome.runtime.sendMessage({action: "isNewInstall"}, function(message) {
+    alert(message);
+  });
+  // }
 });
