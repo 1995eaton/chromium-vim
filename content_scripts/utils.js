@@ -162,6 +162,9 @@ String.prototype.convertLink = function() {
 
 function matchLocation(url, pattern) { // Uses @match syntax
   // See https://code.google.com/p/chromium/codesearch#chromium/src/extensions/common/url_pattern.h&sq=package:chromium
+  if (typeof pattern !== "string" || !pattern.trim()) {
+    return false;
+  }
   var urlLocation = url.parseLocation(),
       protocol    = (pattern.match(/.*:\/\//) || [""])[0].slice(0, -2),
       hostname, path, pathMatch, hostMatch;

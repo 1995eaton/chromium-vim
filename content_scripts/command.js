@@ -545,11 +545,11 @@ Command.init = function(enabled) {
     port.postMessage({action: "retrieveAllHistory"});
   } else {
     this.loaded = false;
-    if (this.css) {
+    if (this.css && this.css.parentNode) {
       this.css.parentNode.removeChild(this.css);
     }
     var links = document.getElementById("cVim-link-container");
-    if (this.bar) {
+    if (this.bar && this.bar.parentNode) {
       this.bar.parentNode.removeChild(this.bar);
     }
     if (links) {
