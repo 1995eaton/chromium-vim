@@ -38,7 +38,16 @@ Command.setup = function() {
     } catch(e) {
       document.body.appendChild(this.data);
     }
-    this.data.style[(this.onBottom) ? "bottom" : "top"] = getComputedStyle(this.bar).height;
+    this.barHeight = parseInt(getComputedStyle(this.bar).height);
+    if (this.onBottom) {
+      this.barPaddingTop = 0;
+      this.barPaddingBottom = this.barHeight;
+      this.data.style.bottom = this.barHeight + "px";
+    } else {
+      this.barPaddingBottom = 0;
+      this.barPaddingTop = this.barHeight;
+      this.data.style.top = this.barHeight + "px";
+    }
   }
 };
 

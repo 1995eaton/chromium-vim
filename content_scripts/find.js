@@ -72,13 +72,19 @@ Find.search = function(reverse, repeats, ignoreFocus) {
   }
   this.matches[this.index].style.backgroundColor = activeHighlight;
   HUD.display(this.index + 1 + " / " + this.matches.length);
+  var paddingTop = 0,
+      paddingBottom = 0;
+  if (Command.active) {
+    paddingBottom = Command.barPaddingBottom;
+    paddingTop    = Command.barPaddingTop;
+  }
   var documentZoom = parseFloat(document.body.style.zoom) || 1;
-  if (br.top * documentZoom + br.height * documentZoom > window.innerHeight) {
+  if (br.top * documentZoom + br.height * documentZoom > window.innerHeight - paddingBottom) {
     if (isLink && !reverse) origTop += br.height * documentZoom;
-    window.scrollTo(0, origTop);
+    window.scrollTo(0, origTop + paddingTop + paddingBottom);
     window.scrollBy(0, br.top * documentZoom + br.height * documentZoom - window.innerHeight);
-  } else if (br.top < 0) {
-    window.scrollTo(0, origTop);
+  } else if (br.top < paddingTop) {
+    window.scrollTo(0, origTop - paddingTop - paddingBottom);
     window.scrollBy(0, br.top * documentZoom);
   }
   Command.input.focus();
