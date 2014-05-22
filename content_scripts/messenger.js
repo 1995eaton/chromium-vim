@@ -3,6 +3,13 @@ var port = chrome.extension.connect({name: "main"});
 port.onMessage.addListener(function(response) {
   var key;
   switch (response.type) {
+    case "hello":
+      port.postMessage({action: "getBookmarks"});
+      port.postMessage({action: "getQuickMarks"});
+      port.postMessage({action: "getSessionNames"});
+      port.postMessage({action: "getTopSites"});
+      port.postMessage({action: "retrieveAllHistory"});
+      break;
     case "commandHistory":
       for (key in response.history) {
         Command.history[key] = response.history[key];
@@ -67,10 +74,10 @@ port.onMessage.addListener(function(response) {
     case "quickMarks":
       Marks.quickMarks = {};
       for (key in response.marks) {
-        if (typeof response.marks[key] === "string") {
-          Marks.quickMarks[key] = [response.marks[key]];
-        } else {
+        if (Array.isArray(response.marks[key])) {
           Marks.quickMarks[key] = response.marks[key];
+        } else if (typeof response.marks[key] === "string") {
+          Marks.quickMarks[key] = [response.marks[key]];
         }
       }
       break;

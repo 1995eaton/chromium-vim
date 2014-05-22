@@ -279,12 +279,14 @@ Key.press = function(e) {
 };
 
 addListeners = function() {
+  Key.listenersActive = true;
   document.addEventListener("keypress", Key.press, true);
   document.addEventListener("keyup", Key.up, true);
   document.addEventListener("keydown", Key.down, true);
 };
 
 removeListeners = function() {
+  Key.listenersActive = false;
   document.removeEventListener("keypress", Key.press, true);
   document.removeEventListener("keyup", Key.up, true);
   document.removeEventListener("keydown", Key.down, true);

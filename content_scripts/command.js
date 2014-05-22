@@ -345,7 +345,6 @@ Command.execute = function(value, repeats) {
         }
         if (sessions.indexOf(value) === -1) sessions.push(value);
         chrome.runtime.sendMessage({action: "createSession", name: value});
-        // port.postMessage({action: "getSessionNames"});
       } else if (/^session/.test(value)) {
         value = value.replace(/^\S+(\s+)?/, "").trimAround();
         if (value === "") {
@@ -474,19 +473,6 @@ Command.init = function(enabled) {
     }
     Mappings.defaults = Mappings.defaultsClone.clone();
     Mappings.shortCuts = Mappings.shortCutsClone.clone();
-    if (typeof settings.qmarks === "object") {
-      for (key in settings.qmarks) {
-        if (Array.isArray(Marks.quickMarks[key])) {
-          for (var i = 0; i < settings.qmarks[key].length; ++i) {
-            if (Marks.quickMarks[key].indexOf(settings.qmarks[key][i]) === -1) {
-              Marks.quickMarks[key].push(settings.qmarks[key][i]);
-            }
-          }
-        } else {
-          Marks.quickMarks[key] = settings.qmarks[key];
-        }
-      }
-    }
     if (settings.searchengines && !Array.isArray(settings.searchengines) && typeof settings.searchengines === "object") {
       for (key in settings.searchengines) {
         if (Complete.engines.indexOf(key) === -1 && typeof settings.searchengines[key] === "string") {
@@ -534,15 +520,12 @@ Command.init = function(enabled) {
       settings.hintcharacters = settings.hintcharacters.split("").unique().join("");
     }
     this.setup();
-    addListeners();
+    if (!Key.listenersActive) {
+      addListeners();
+    }
     if (!head.length && document.URL.indexOf("chrome") !== 0) {
       chrome.runtime.sendMessage({action: "injectCSS", css: settings.commandBarCSS, runAt: "document_start"});
     }
-    port.postMessage({action: "getBookmarks"});
-    port.postMessage({action: "getQuickMarks"});
-    port.postMessage({action: "getSessionNames"});
-    port.postMessage({action: "getTopSites"});
-    port.postMessage({action: "retrieveAllHistory"});
   } else {
     this.loaded = false;
     if (this.css && this.css.parentNode) {
@@ -561,7 +544,7 @@ Command.init = function(enabled) {
 
 Command.configureSettings = function(s) {
 
-  function checkBlacklist(callback) {
+  function checkBlacklist() {
     var blacklists = settings.blacklists.split("\n"),
         blacklist;
     Command.blacklisted = false;
@@ -580,26 +563,29 @@ Command.configureSettings = function(s) {
           Mappings.siteSpecificBlacklists += unmapString;
           break;
         }
-        return callback(true);
+        return true;
       }
     }
-    return callback(false);
   }
   function loadMain() {
     Command.loaded = true;
     chrome.runtime.sendMessage({action: "setIconEnabled"});
     Command.init(true);
   }
-  if (this.loaded) this.init(false);
+  if (this.loaded) {
+    this.init(false);
+  }
   settings = s;
   settings.searchlimit = parseInt(settings.searchlimit);
-  checkBlacklist(function(isBlacklisted) {
-    if (isBlacklisted) return false;
+  if (!checkBlacklist()) {
     chrome.runtime.sendMessage({action: "getActiveState"}, function(response) {
-      if (!response) return false;
-      return loadMain();
+      if (response) {
+        loadMain();
+      }
     });
-  });
+  } else if (Key.listenersActive) {
+    removeListeners();
+  }
 };
 
 window.addEventListener("focus", function() {
@@ -611,10 +597,8 @@ window.addEventListener("focus", function() {
 });
 
 document.addEventListener("DOMContentLoaded", function() {
-  // if (window.self === window.top) {
   chrome.runtime.sendMessage({action: "getSettings"});
   chrome.runtime.sendMessage({action: "isNewInstall"}, function(message) {
     alert(message);
   });
-  // }
 });

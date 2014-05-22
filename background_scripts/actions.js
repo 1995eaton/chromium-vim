@@ -79,6 +79,14 @@ actions.reloadTab = function() {
   });
 };
 
+actions.getTabIndex = function() {
+  callback(sender.tab.index);
+};
+
+actions.getSettingValue = function() {
+  callback(Settings[request.value]);
+};
+
 actions.reloadAllTabs = function() {
   chrome.tabs.query({}, function(tabs) {
     tabs.forEach(function(tab) {
@@ -235,7 +243,7 @@ actions.openBookmarkFolder = function() {
 
 actions.deleteSession = function() {
   delete sessions[request.name];
-  chrome.storage.sync.set({
+  chrome.storage.local.set({
     sessions: sessions
   });
 };
