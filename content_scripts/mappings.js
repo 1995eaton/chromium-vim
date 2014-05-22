@@ -490,7 +490,7 @@ Mappings.defaults = {
   createUnhoverHint:    ["Q"],
   lastTab:              ["g$"],
   lastClosedTab:        ["X"],
-  hideDownloadsShelf:   ["gj", "gD"],
+  hideDownloadsShelf:   ["gj"],
   createTabbedHint:     ["F"],
   goToInput:            ["gi"],
   nextTab:              ["K", "R", "gt"],

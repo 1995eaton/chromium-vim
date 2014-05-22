@@ -280,6 +280,16 @@ and the blacklists text box would have this line:<pre><code>*://*/*.pdf &lt;Up&g
 <td style="text-align:left">scrollToBottom</td>
 </tr>
 <tr>
+<td>0</td>
+<td style="text-align:left">scroll to the left of the page</td>
+<td style="text-align:left">scrollToLeft</td>
+</tr>
+<tr>
+<td>$</td>
+<td style="text-align:left">scroll to the right of the page</td>
+<td style="text-align:left">scrollToRight</td>
+</tr>
+<tr>
 <td>gi</td>
 <td style="text-align:left">go to first input box</td>
 <td style="text-align:left">goToInput</td>
@@ -425,6 +435,11 @@ and the blacklists text box would have this line:<pre><code>*://*/*.pdf &lt;Up&g
 <td style="text-align:left">percentScroll</td>
 </tr>
 <tr>
+<td>zr</td>
+<td style="text-align:left">restart Google Chrome</td>
+<td style="text-align:left">:chrome://restart&lt;CR&gt;</td>
+</tr>
+<tr>
 <td>i</td>
 <td style="text-align:left">enter insert mode (escape to exit)</td>
 <td style="text-align:left">insertMode</td>
@@ -450,11 +465,6 @@ and the blacklists text box would have this line:<pre><code>*://*/*.pdf &lt;Up&g
 <td style="text-align:left">reloadAllButCurrent</td>
 </tr>
 <tr>
-<td>ci</td>
-<td style="text-align:left">toggle page images</td>
-<td style="text-align:left">toggleImages</td>
-</tr>
-<tr>
 <td>zi</td>
 <td style="text-align:left">zoom page in</td>
 <td style="text-align:left">zoomPageIn</td>
@@ -475,6 +485,11 @@ and the blacklists text box would have this line:<pre><code>*://*/*.pdf &lt;Up&g
 <td style="text-align:left">toggleImageZoom</td>
 </tr>
 <tr>
+<td>gd</td>
+<td style="text-align:left">alias to :chrome://downloads&lt;CR&gt;</td>
+<td style="text-align:left">:chrome://downloads&lt;CR&gt;</td>
+</tr>
+<tr>
 <td>yy</td>
 <td style="text-align:left">copy the url of the current page to the clipboard</td>
 <td style="text-align:left">yankDocumentUrl</td>
@@ -493,6 +508,11 @@ and the blacklists text box would have this line:<pre><code>*://*/*.pdf &lt;Up&g
 <td>P</td>
 <td style="text-align:left">open the clipboard selection in a new tab</td>
 <td style="text-align:left">openPasteTab</td>
+</tr>
+<tr>
+<td>ci</td>
+<td style="text-align:left">toggle visibility of images on the current webpage</td>
+<td style="text-align:left">toggleImages</td>
 </tr>
 <tr>
 <td>gj</td>
@@ -535,9 +555,19 @@ and the blacklists text box would have this line:<pre><code>*://*/*.pdf &lt;Up&g
 <td style="text-align:left">previousTab</td>
 </tr>
 <tr>
+<td>g0, g$</td>
+<td style="text-align:left">go to the first/last tab</td>
+<td style="text-align:left">firstTab, lastTab</td>
+</tr>
+<tr>
 <td>x</td>
 <td style="text-align:left">close the current tab</td>
 <td style="text-align:left">closeTab</td>
+</tr>
+<tr>
+<td>X</td>
+<td style="text-align:left">open the last closed tab</td>
+<td style="text-align:left">lastClosedTab</td>
 </tr>
 <tr>
 <td>t</td>
@@ -547,7 +577,12 @@ and the blacklists text box would have this line:<pre><code>*://*/*.pdf &lt;Up&g
 <tr>
 <td>T</td>
 <td style="text-align:left">:tabopen &lt;CURRENT URL&gt;</td>
-<td style="text-align:left"></td>
+<td style="text-align:left">:tabopen @%</td>
+</tr>
+<tr>
+<td>O</td>
+<td style="text-align:left">:open &lt;CURRENT URL&gt;</td>
+<td style="text-align:left">:open @%</td>
 </tr>
 <tr>
 <td>&lt;N&gt;%</td>
@@ -566,7 +601,7 @@ and the blacklists text box would have this line:<pre><code>*://*/*.pdf &lt;Up&g
 </tr>
 <tr>
 <td>B</td>
-<td style="text-align:left">change to another tab</td>
+<td style="text-align:left">search for another active tab</td>
 <td style="text-align:left">:buffers</td>
 </tr>
 <tr>
@@ -611,8 +646,13 @@ and the blacklists text box would have this line:<pre><code>*://*/*.pdf &lt;Up&g
 </tr>
 <tr>
 <td>v</td>
-<td style="text-align:left">enter visual mode (highlight current search)</td>
-<td style="text-align:left"></td>
+<td style="text-align:left">enter visual/caret mode (highlight current search/selection)</td>
+<td style="text-align:left">toggleVisualMode</td>
+</tr>
+<tr>
+<td>V</td>
+<td style="text-align:left">enter visual line mode from caret mode/currently highlighted search</td>
+<td style="text-align:left">toggleVisualLineMode</td>
 </tr>
 <tr>
 <td><strong>Visual/Caret Mode</strong></td>
