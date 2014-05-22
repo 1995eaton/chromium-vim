@@ -112,6 +112,11 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
     case "updateMarks":
       Marks.quickMarks = request.marks;
       break;
+    case "focusFrame":
+      if (request.index === Frames.index) {
+        Frames.focus();
+      }
+      break;
     case "sessions":
       sessions = request.sessions;
       break;

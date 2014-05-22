@@ -597,8 +597,10 @@ window.addEventListener("focus", function() {
 });
 
 document.addEventListener("DOMContentLoaded", function() {
-  chrome.runtime.sendMessage({action: "getSettings"});
-  chrome.runtime.sendMessage({action: "isNewInstall"}, function(message) {
-    alert(message);
-  });
+  if (self === top) {
+    chrome.runtime.sendMessage({action: "getSettings"});
+    chrome.runtime.sendMessage({action: "isNewInstall"}, function(message) {
+      alert(message);
+    });
+  }
 });

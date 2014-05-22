@@ -1,5 +1,6 @@
 var sessions   = {};
-var Clipboard, History, Bookmarks, Links, Quickmarks, Sites;
+var Clipboard, History, Bookmarks, Links, Quickmarks, Sites, Frames;
+Frames = {};
 
 Sites = {
   querySites: function(callback) {
@@ -193,4 +194,8 @@ chrome.commands.onCommand.addListener(function(command) {
 
 chrome.runtime.onMessage.addListener(function(request, sender, callback) {
   requestAction("extension", request, sender, callback);
+});
+
+chrome.tabs.onRemoved.addListener(function(tab) {
+  delete Frames[tab.id];
 });

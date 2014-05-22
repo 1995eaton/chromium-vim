@@ -5,6 +5,14 @@ HTMLElement.prototype.isInput = function() {
   );
 };
 
+HTMLCollection.prototype.toArray = function() {
+  var nodes = [];
+  for (var i = 0, l = this.length; i < l; ++i) {
+    nodes.push(this[i]);
+  }
+  return nodes;
+};
+
 HTMLElement.prototype.isVisible = function() {
   return this.offsetParent && !this.disabled &&
          this.getAttribute("type") !== "hidden" &&
@@ -203,3 +211,7 @@ function matchLocation(url, pattern) { // Uses @match syntax
   }
   return true;
 }
+
+Array.prototype.last = function() {
+  return this[this.length - 1];
+};

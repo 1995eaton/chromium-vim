@@ -52,6 +52,27 @@ actions.openLinkTab = function() {
   }
 };
 
+actions.addFrame = function() {
+  if (Frames[sender.tab.id] === undefined) {
+    Frames[sender.tab.id] = {
+      length: 1,
+      index: 0
+    };
+  } else {
+    Frames[sender.tab.id].length += 1;
+  }
+  callback(Frames[sender.tab.id].length - 1);
+};
+
+actions.focusFrame = function() {
+  if (request.isRoot) {
+    Frames[sender.tab.id].index = 0;
+  } else {
+    Frames[sender.tab.id].index = (Frames[sender.tab.id].index + request.repeats).mod(Frames[sender.tab.id].length);
+  }
+  chrome.tabs.sendMessage(sender.tab.id, {action: "focusFrame", index: Frames[sender.tab.id].index});
+};
+
 actions.openLinkWindow = function() {
   for (var i = 0; i < request.repeats; ++i) {
     chrome.windows.create({

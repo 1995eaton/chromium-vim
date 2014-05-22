@@ -79,10 +79,10 @@ Mappings.actions   = {
     }
   },
   nextFrame: function(repeats) {
-    chrome.runtime.sendMessage({action: "focusMainWindow", repeats: repeats});
+    chrome.runtime.sendMessage({action: "focusFrame", repeats: repeats});
   },
   rootFrame: function() {
-    chrome.runtime.sendMessage({action: "focusMainWindow", repeats: -1});
+    chrome.runtime.sendMessage({action: "focusFrame", isRoot: true});
   },
   closeTab: function(repeats) {
     chrome.runtime.sendMessage({action: "closeTab", repeats: repeats});
