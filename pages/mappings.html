@@ -192,18 +192,20 @@ let qmark a = [&quot;http://www.reddit.com&quot;, &quot;http://www.google.com&qu
 let searchengine dogpile = &quot;http://www.dogpile.com/search/web?q=&quot;
 
 &quot; Mappings
-unmap j
-map j scrollUp
 
-map &lt;C-h&gt; :set hud!&lt;CR&gt;
-map &lt;C-i&gt; :set numerichints!&lt;CR&gt;
+map j scrollUp &quot;This remaps the default &#39;j&#39; mapping
+unmap k &quot;The unmaps the default &#39;k&#39; mapping
+
+map f F &quot;This remaps the default &#39;f&#39; mapping to the current &#39;F&#39; mapping
+
+map &lt;C-h&gt; :set hud!&lt;CR&gt; &quot;Toggle the current HUD display value
+map &lt;C-i&gt; :set numerichints!&lt;CR&gt; &quot;Switch between alphabetical hint characters and numeric hints
 map &lt;C-u&gt; rootFrame
 map &lt;M-h&gt; previousTab
 map &lt;C-d&gt; scrollPageDown
 map &lt;C-e&gt; scrollPageUp
 iunmap &lt;C-y&gt; deleteWord
 imap &lt;C-m&gt; deleteWord
-unmap X
 map X :execute gTx&lt;CR&gt; &quot;Close the current tab and move to the one before it
 </code></pre>
 <h3 id="blacklists">Blacklists</h3>

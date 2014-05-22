@@ -23,16 +23,18 @@ Key.keyMap = {
   192: ["`", "~"],
   219: ["[", "{"],
   221: ["]", "}"],
+  220: ["\\", "|"],
   222: ["'", "\""]
 };
+
+for (var i = 112; i < 123; ++i) {
+  Key.keyMap[i] = "F" + (i - 111).toString();
+}
 
 Key.fromKeyCode = function(e) {
   var keyCode  = e.which;
   var shiftKey = e.shiftKey;
   var convertedKey;
-  if (/^F[0-9]+$/.test(e.keyIdentifier)) {
-    return "<" + e.keyIdentifier + ">";
-  }
   if (this.keyMap.hasOwnProperty(keyCode.toString())) {
     convertedKey = this.keyMap[keyCode.toString()];
     if (Array.isArray(convertedKey)) {
@@ -69,7 +71,7 @@ Key.fromKeyCode = function(e) {
       (!this.keyMap.hasOwnProperty(keyCode) ? convertedKey.toLowerCase() : convertedKey) + ">";
   }
 
-  if (/^S-/.test(convertedKey) || (!modifier && keyCode <= 40 && this.keyMap.hasOwnProperty(keyCode))) {
+  if (convertedKey.indexOf("S-") !== -1 || (!modifier && keyCode <= 40 && this.keyMap.hasOwnProperty(keyCode))) {
     convertedKey = "<" + convertedKey + ">";
   }
   return convertedKey;

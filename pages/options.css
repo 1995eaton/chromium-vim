@@ -96,6 +96,8 @@ select {
   max-width: 100%;
   height: 200px;
   resize: none;
+  font-family: monospace;
+  font-size: 10pt;
 }
 
 #save_container {
@@ -123,6 +125,7 @@ select {
 }
 
 #blacklists {
+  font-family: monospace;
   width: 100%;
   resize: vertical;
 }

@@ -106,11 +106,13 @@ Settings.applyConfig = function(config, callback) {
 };
 
 Settings.loadrc = function () {
-  Settings.rcEl.value = this.settings.mappings;
-  if (Settings.cssEl) {
-    Settings.cssEl.setValue(this.settings.commandBarCSS);
+  this.rcEl.value = this.settings.mappings;
+  this.rcEl.style.height = this.rcEl.scrollHeight + "px";
+  this.blacklistEl.value = this.settings.blacklists;
+  this.blacklistEl.style.height = this.blacklistEl.scrollHeight + "px";
+  if (this.cssEl) {
+    this.cssEl.setValue(this.settings.commandBarCSS);
   }
-  document.getElementById("blacklists").value = this.settings.blacklists;
   this.gistUrl.value = this.settings.gisturl;
 };
 
@@ -192,6 +194,15 @@ Settings.init = function() {
   this.resetButton = document.getElementById("reset_button");
   this.rcEl = document.getElementById("mappings");
   this.editModeEl = document.getElementById("edit_mode");
+  this.blacklistEl = document.getElementById("blacklists");
+
+  function autoSize() {
+    this.style.height = "";
+    this.style.height = this.scrollHeight + "px";
+  }
+
+  this.rcEl.addEventListener("input", autoSize);
+  this.blacklistEl.addEventListener("input", autoSize);
 
   chrome.runtime.sendMessage({action: "getSettings"});
   chrome.runtime.sendMessage({action: "getDefaults"});

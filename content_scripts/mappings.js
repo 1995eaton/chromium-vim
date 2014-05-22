@@ -650,48 +650,80 @@ Mappings.removeMapping = function(list, mapping) {
   }
 };
 
+Mappings.indexFromKeybinding = function(keybinding) {
+  for (var key in this.defaults) {
+    if (Array.isArray(this.defaults[key]) && this.defaults[key].indexOf(keybinding) !== -1) {
+      return key;
+    }
+  }
+  return null;
+};
+
 Mappings.parseCustom = function(config) {
   config += this.siteSpecificBlacklists;
-  config = config.split(/\n+/).map(function(item) { return item.replace(/(\s+)?".*/, "").split(/ +/); });
+  config = config.split(/\n+/).map(function(item) { return item.replace(/(\s+)?".*/, "").split(/ +/).map(function(e) { return e.trimAround(); }); });
   config.forEach(function(mapping) {
     var key;
     if (!mapping.length) {
       return false;
     }
-    if (!/^(imap|iunmap|map|unmap)$/.test(mapping[0]) || (mapping.length < 3 && /^(map|imap)$/.test(mapping[0]))) {
+    if (!/^(imap|(re)?map|i?unmap(All)?)$/.test(mapping[0]) || (mapping.length < 3 && /^((re)?map|imap)$/.test(mapping[0]))) {
       return false;
     }
+
     if (mapping.length === 1) {
-      if (mapping[0].trimAround() === "unmapAll") {
+      if (mapping[0] === "unmapAll") {
         for (key in Mappings.defaults) {
-          Mappings.defaults[key] = [];
+          if (Array.isArray(Mappings.defaults[key])) {
+            Mappings.defaults[key] = [];
+          }
         }
         Mappings.shortCuts = [];
-      } else if (mapping[0].trimAround() === "iunmapAll") {
+      } else if (mapping[0] === "iunmapAll") {
         for (key in Mappings.insertDefaults) {
-          Mappings.insertDefaults[key] = [];
+          if (Array.isArray(Mappings.insertDefaults[key])) {
+            Mappings.insertDefaults[key] = [];
+          }
         }
       }
       return;
     }
-    if (mapping[0] === "map") {
-      mapping.shift();
-      if (Mappings.defaults.hasOwnProperty(mapping[1])) {
-        return Mappings.defaults[mapping[1]].push(mapping[0]);
+
+    if (mapping[0] === "map" || mapping[0] === "remap") {
+      var fromKey = Mappings.indexFromKeybinding(mapping[2]);
+      for (key in Mappings.defaults) {
+        if (Array.isArray(Mappings.defaults[key])) {
+          var match = Mappings.defaults[key].indexOf(mapping[1]);
+          if (match !== -1) {
+            Mappings.defaults[key].splice(match, 1);
+          }
+          if (fromKey !== null) {
+            Mappings.defaults[fromKey].push(mapping[1]);
+          }
+        }
       }
-      if (mapping[1][0] === ":") {
-        return Mappings.shortCuts.push([mapping[0], mapping.slice(1).join(" ")]);
+      if (mapping[2][0] === ":") {
+        return Mappings.shortCuts.push([mapping[1], mapping.slice(2).join(" ")]);
       }
-    } else if (mapping[0] === "imap") {
+      if (Object.keys(Mappings.defaults).indexOf(mapping[2]) !== -1) {
+        return Mappings.defaults[mapping[2]].push(mapping[1]);
+      }
+      return;
+    }
+
+    if (mapping[0] === "imap") {
       mapping.shift();
       if (Mappings.insertDefaults.hasOwnProperty(mapping[1])) {
         return Mappings.insertDefaults[mapping[1]].push(mapping[0]);
       }
+      return;
     }
+
     if (mapping.length === 2) {
       if (mapping[0] === "iunmap") {
-        Mappings.removeMapping(Mappings.insertDefaults, mapping[1]);
-      } else {
+        return Mappings.removeMapping(Mappings.insertDefaults, mapping[1]);
+      }
+      if (mapping[0] === "unmap") {
         Mappings.removeMapping(Mappings.defaults, mapping[1]);
         Mappings.shortCuts = Mappings.shortCuts.filter(function(item) {
           return item[0] !== mapping[1];
@@ -821,9 +853,6 @@ Mappings.convertToAction = function(c) {
       return true;
     }
     return (c === ";" ? Hints.changeFocus() : Hints.handleHint(c));
-  }
-  if (!c || c === "<Space>") {
-    return false;
   }
   if (/^[0-9]$/.test(c) && !(c === "0" && Mappings.repeats === "") && Mappings.queue.length === 0) {
     return Mappings.repeats += c;

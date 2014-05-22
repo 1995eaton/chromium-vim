@@ -48,18 +48,20 @@ let qmark a = ["http://www.reddit.com", "http://www.google.com", "http://twitter
 let searchengine dogpile = "http://www.dogpile.com/search/web?q="
 
 " Mappings
-unmap j
-map j scrollUp
 
-map <C-h> :set hud!<CR>
-map <C-i> :set numerichints!<CR>
+map j scrollUp "This remaps the default 'j' mapping
+unmap k "The unmaps the default 'k' mapping
+
+map f F "This remaps the default 'f' mapping to the current 'F' mapping
+
+map <C-h> :set hud!<CR> "Toggle the current HUD display value
+map <C-i> :set numerichints!<CR> "Switch between alphabetical hint characters and numeric hints
 map <C-u> rootFrame
 map <M-h> previousTab
 map <C-d> scrollPageDown
 map <C-e> scrollPageUp
 iunmap <C-y> deleteWord
 imap <C-m> deleteWord
-unmap X
 map X :execute gTx<CR> "Close the current tab and move to the one before it
 ```
 

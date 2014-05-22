@@ -15,6 +15,11 @@
   <script src="../content_scripts/search.js"></script>
   <script src="../content_scripts/status.js"></script>
   <script src="../content_scripts/visual.js"></script></head><h1 id="cvim-changelog">cVim Changelog</h1>
+<h2 id="1-2-50">1.2.50</h2>
+<ul>
+<li><code>map</code> automatically unmaps the existing binding if a conflict occurs (e.g. same binding mapped to multiple functions). <code>unmap</code> is no longer necessary unless you wish to disable a default mapping</li>
+<li><code>map</code> can now point to other mappings as a reference (e.g. <code>map j k</code>)</li>
+</ul>
 <h2 id="1-2-49">1.2.49</h2>
 <ul>
 <li>Reworked domain blacklists engine. See <a href="https://developer.chrome.com/extensions/match_patterns">https://developer.chrome.com/extensions/match_patterns</a> for a description of the new URL match syntax</li>

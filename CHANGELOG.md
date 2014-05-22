@@ -1,5 +1,11 @@
 #cVim Changelog
 
+## 1.2.50
+ * ```map``` automatically unmaps the existing binding if a conflict occurs (e.g. same key mapped to multiple functions). ```unmap``` is no longer necessary unless you wish to disable a default mapping
+ * ```map``` can now point to other mappings as a reference (e.g. ```map j k```)
+ * Improved mapping key compatibility
+ * Minor CSS tweaks in the options page
+
 ## 1.2.49
  * Reworked domain blacklists engine. See https://developer.chrome.com/extensions/match_patterns for a description of the new URL match syntax
  * Fixed some iframe bugs
