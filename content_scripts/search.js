@@ -26,7 +26,7 @@ Search.settingsMatch = function(string, callback) {
 };
 
 Search.nextResult = function(reverse) {
-
+  var i, l;
   if (!Command.dataElements.length) {
     if (Command.input.value.length) {
       return false;
@@ -43,9 +43,12 @@ Search.nextResult = function(reverse) {
   } else {
     Command.dataElements[this.index].style.backgroundColor = "";
     Command.dataElements[this.index].style.color = "";
-    if (Command.dataElements[this.index].children.length > 1) {
-      Command.dataElements[this.index].children[0].style.color = "";
-      Command.dataElements[this.index].children[1].style.color = "";
+    spanElements = Command.dataElements[this.index].getElementsByTagName("span");
+    for (i = 0, l = spanElements.length; i < l; ++i) {
+      spanElements[i].style.color = "";
+    }
+    if (this.lastStyle) {
+      spanElements[0].firstElementChild.style.color = this.lastStyle;
     }
     if (!reverse) {
       if (this.index + 1 < Command.dataElements.length) {
@@ -67,11 +70,16 @@ Search.nextResult = function(reverse) {
   }
 
   Command.dataElements[this.index].style.backgroundColor = "#fefefe";
-  if (Command.dataElements[this.index].children.length > 1) {
-    Command.dataElements[this.index].children[0].style.color = "#1b1d1e";
-    Command.dataElements[this.index].children[1].style.color = "#1b1d1e";
+  Command.dataElements[this.index].style.color = "#1b1d1e";
+  spanElements = Command.dataElements[this.index].getElementsByTagName("span");
+  l = spanElements.length;
+  if (spanElements[0].childNodes.length === 2) {
+    this.lastStyle = spanElements[0].firstElementChild.style.color;
   } else {
-    Command.dataElements[this.index].style.color = "#1b1d1e";
+    delete this.lastStyle;
+  }
+  for (i = 0; i < l; ++i) {
+    spanElements[i].style.color = "#1b1d1e";
   }
 
   switch (Command.completionResults[this.index][0]) {

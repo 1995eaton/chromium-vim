@@ -1,6 +1,6 @@
 HTMLElement.prototype.isInput = function() {
   return (
-      (this.nodeName === "TEXTAREA" || this.nodeName === "INPUT" || this.getAttribute("contenteditable") === "true") && !this.disabled &&
+      (this.localName === "textarea" || this.localName === "input" || this.getAttribute("contenteditable") === "true") && !this.disabled &&
       !/button|radio|file|image|checkbox|submit/i.test(this.getAttribute("type"))
   );
 };
@@ -40,16 +40,6 @@ String.prototype.escape = function() {
              .replace(/>/g, "&gt;");
 };
 
-String.prototype.span = function(attributes, className) {
-  var strat = "";
-  for (var key in attributes) {
-    if (typeof attributes[key] === "string") {
-      strat += key + ":" + attributes[key] + ";";
-    }
-  }
-  return "<span " + (className !== undefined ? "class=\"" + className + "\" " : "") + "style=\"" + strat + "\">" + (attributes.escape ? this.escape() : this) + "</span>"; // TODO: escape left half
-};
-
 String.prototype.isBoolean = function() {
   return /^(true|false|0|1)$/i.test(this);
 };
@@ -75,15 +65,29 @@ Number.prototype.mod = function(n) {
   return ((this % n) + n) % n;
 };
 
-Object.prototype.clone = function() {
+Object.clone = function(obj) {
   var old = history.state;
-  history.replaceState(this);
+  history.replaceState(obj);
   var clone = history.state;
   history.replaceState(old);
   return clone;
 };
 
-Object.prototype.flatten = function() {
+Object.extend = function() {
+  var _ret = {};
+  for (var i = 0, l = arguments.length; i < l; ++i) {
+    for (var key in arguments[i]) {
+      _ret[key] = arguments[i][key];
+    }
+  }
+  return _ret;
+};
+
+function sameType(a, b) {
+  return a.constructor === b.constructor;
+}
+
+Object.flatten = function() {
 	var _ret = {};
 	for (var key in this) {
 		if (this.hasOwnProperty(key)) {
@@ -124,7 +128,7 @@ HTMLElement.prototype.simulateClick = function() {
 };
 
 Node.prototype.isTextNode = function() {
-  return this.nodeType === 3 && !/SCRIPT|STYLE|NOSCRIPT|MARK/.test(this.parentNode.nodeName) && this.data.trim() !== "";
+  return this.nodeType === 3 && !/script|style|noscript|mark/.test(this.parentNode.localName) && this.data.trim() !== "";
 };
 
 String.prototype.rxp = function() {

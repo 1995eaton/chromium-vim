@@ -13,7 +13,7 @@ Popup.getAllTabs = function(callback) {
 };
 
 Popup.getBlacklisted = function(callback) {
-  var blacklists = Settings.blacklists.split("\n").filter(function(e) {
+  var blacklists = Settings.BLACKLISTS.split("\n").filter(function(e) {
     return e;
   });
   this.getActiveTab(function(tab) {
@@ -82,7 +82,7 @@ Popup.toggleEnabled = function(obj) {
 };
 
 Popup.toggleBlacklisted = function() {
-  var blacklists = Settings.blacklists.split("\n").filter(function(e) {
+  var blacklists = Settings.BLACKLISTS.split("\n").filter(function(e) {
     return e;
   });
   this.getActiveTab(function(tab) {
@@ -97,7 +97,7 @@ Popup.toggleBlacklisted = function() {
     if (!foundMatch) {
       blacklists.push(url);
     }
-    Settings.blacklists = blacklists.join("\n");
+    Settings.BLACKLISTS = blacklists.join("\n");
     Options.saveSettings({settings: Settings});
   });
 };

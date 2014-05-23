@@ -7,14 +7,14 @@ Hints.matchPatterns = function(forward) {
   var treeWalker = document.createTreeWalker(document.body, 4, null, false);
   var node;
   while (node = treeWalker.nextNode()) {
-    var nodeName = node.nodeName;
-    if (/script|style|noscript/i.test(nodeName)) {
+    var localName = node.localName;
+    if (/script|style|noscript/.test(localName)) {
       continue;
     }
     var nodeText = node.data.trim();
     if (pattern.test(nodeText)) {
       var parentNode = node.parentNode;
-      if (/A|BUTTON/.test(parentNode.nodeName) || parentNode.getAttribute("jsaction") || parentNode.getAttribute("onclick")) {
+      if (/a|button/.test(parentNode.localName) || parentNode.getAttribute("jsaction") || parentNode.getAttribute("onclick")) {
         var computedStyle = getComputedStyle(parentNode);
         if (computedStyle.opacity !== "0" && computedStyle.visibility === "visible" && computedStyle.display !== "none") {
           node.parentNode.click();
@@ -75,7 +75,7 @@ Hints.dispatchAction = function(link) {
     return false;
   }
   this.lastClicked = link;
-  var node = link.nodeName;
+  var node = link.localName;
   if (settings.numerichints && settings.typelinkhints) {
     Hints.keyDelay = true;
     window.setTimeout(function() {
@@ -109,7 +109,7 @@ Hints.dispatchAction = function(link) {
       chrome.runtime.sendMessage({action: "openLinkWindow", focused: false, url: link.href, noconvert: true});
       break;
     default:
-      if (node === "TEXTAREA" || (node === "INPUT" && /^(text|password|email|search)$/i.test(link.type)) || link.getAttribute("contenteditable") === "true") {
+      if (node === "textarea" || (node === "input" && /^(text|password|email|search)$/i.test(link.type)) || link.getAttribute("contenteditable") === "true") {
         setTimeout(function() {
           link.focus();
           if (link.getAttribute("readonly")) {
@@ -118,7 +118,7 @@ Hints.dispatchAction = function(link) {
         }.bind(this), 0);
         break;
       }
-      if (node === "INPUT" || /button|select/i.test(node) || /^(button|^checkbox|^menu)$/.test(link.getAttribute("role")) || link.getAttribute("jsaction") || link.getAttribute("onclick") || link.getAttribute("role") === "checkbox") {
+      if (node === "input" || /button|select/i.test(node) || /^(button|^checkbox|^menu)$/.test(link.getAttribute("role")) || link.getAttribute("jsaction") || link.getAttribute("onclick") || link.getAttribute("role") === "checkbox") {
         window.setTimeout(function() {
           link.simulateClick();
         }, 0);
@@ -248,9 +248,6 @@ Hints.handleHintFeedback = function() {
 
 
 Hints.handleHint = function(key) {
-  // if (key === "<C-[>" || key === "<Esc>") {
-  //   return this.hideHints(false, false, false);
-  // }
   if (settings.numerichints || settings.hintcharacters.split("").indexOf(key.toLowerCase()) !== -1) {
     this.currentString += key.toLowerCase();
     this.handleHintFeedback(this.currentString);
@@ -277,7 +274,14 @@ Hints.getLinks = function() {
       selection = "//a|//div[@class='fc-panel']|//area[@href]|//*[not(@aria-disabled='true') and not(@aria-hidden='true') and (@onclick or @role='button' or @role='checkbox' or starts-with(@role, 'menu') or @tabindex or @aria-haspopup or @data-cmd or @jsaction)]|//button|//select|//textarea|//input[not(@type='hidden' or @disabled)]";
       break;
   }
-  candidates = document.evaluate(selection, document.body, null, 6, null);
+  selection = selection.split("|").filter(function(e) {
+    return e;
+  }).map(function(e) {
+    return e + "|//xhtml:" + e.slice(2);
+  }).join("|");
+  candidates = document.evaluate(selection, document, function(namespace) {
+    return namespace === "xhtml" ? "http://www.w3.org/1999/xhtml" : null;
+  }, 6, null);
   for (var i = 0, l = candidates.snapshotLength; i < l; i++) {
     item = candidates.snapshotItem(i);
     if (isRedditUrl && (/click_thing/.test(item.getAttribute("onclick")) || (document.body.classList.contains("listing-chooser-collapsed") && item.offsetParent && (item.offsetParent.classList.contains("listing-chooser") || item.offsetParent.offsetParent && item.offsetParent.offsetParent.classList.contains("listing-chooser"))))) continue;
@@ -329,7 +333,7 @@ Hints.create = function(type, multi) {
   for (i = 0, l = links.length; i < l; ++i) {
     var link = links[i];
     isAreaNode = false;
-    if (link.nodeName === "AREA" && link.parentNode && link.parentNode.nodeName === "MAP") {
+    if (link.localName === "area" && link.parentNode && link.parentNode.localName === "map") {
       imgParent = document.querySelectorAll("img[usemap='#" + l.parentNode.name + "'");
       if (!imgParent.length) {
         continue;

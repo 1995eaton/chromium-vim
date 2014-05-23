@@ -2,162 +2,110 @@ var Settings = {};
 var Config = {};
 var log;
 log = console.log.bind(console);
-Settings.ignore = ["commandBarCSS", "mappings", "blacklists", "gisturl"];
 
-function convertOldSetting(s) {
-  if (/(\s+)?let/.test(s)) {
-    return s;
-  }
-  if (s.indexOf("qmark") !== -1) {
-    s = s.split(/\s+|,|=/).filter(function(e) { return e.trim(); });
-    return "let " + s.slice(1, 3).join(" ") + " = " + "[\"" + s.slice(3).join("\", \"") + "\"]";
-  }
-  if (/=/.test(s)) {
-    s = s.replace(/set/, "let");
-    if (!/"|'/.test(s) && !/^[0-9]+$/.test(s.replace(/.*= /, "").trim())) {
-      s = s.replace(/=(\s+)?([^\s]+)/, "=$1\"$2\"");
-    }
-  }
-  return s;
-}
-
-Config.getLines = function(config) {
-  return config.split(/(\s+)?\n+(\s+)?/).filter(function(e) {
-    return e !== undefined && e.trim();
+Array.prototype.compact = function() {
+  return this.filter(function(e) {
+    return e;
   });
 };
 
-Config.parseLine = function(line) {
-  line = line.replace(/, /g, ",").replace(/(^[^=]+)=/g, "$1 ").split(/\s+/);
-  return line;
+Config.validPrefixes = [/^ *let( +[a-zA-Z0-9_]+){1,2} *= */,
+                        /^ *set +[a-z]+ *$/];
+
+Config.set = function(value) {
+  value = value.split(/ +/).compact().pop();
+  this._ret[value.replace(/^no/, "")] = value.indexOf("no") !== 0;
 };
 
-Config.set = function(params) {
-  if (params.length !== 1) {
-    return false;
-  }
-  if (/^no/.test(params)) {
-    this._ret[params[0].replace(/^no/, "")] = false;
+Config.let = function(value) {
+  var _ret, objVal, assignment;
+  value = value.split("=");
+  value = [value[0], value.slice(1).join("=")];
+
+  assignment = value[0].split(/ +/).compact().slice(1);
+  objVal = assignment.shift();
+  if (assignment.length) {
+    objVal += "s";
+    var key = assignment.pop();
+    value = JSON.parse(value[1]);
+    if (this._ret.hasOwnProperty(objVal) && this._ret[objVal].constructor === Object) {
+      this._ret[objVal][key] = value;
+      return;
+    }
+    _ret = {};
+    _ret[key] = value;
   } else {
-    this._ret[params[0]] = true;
+    _ret = JSON.parse(value[1]);
   }
+  this._ret[objVal] = _ret;
+
 };
 
-Config.let = function(params) {
-  if (params.length === 2) {
-    if (!/^[a-zA-Z_]+$/.test(params[0])) {
-      return false;
-    }
-    this._ret[params[0]] = params[1].replace(/^"|"$/g, "");
-  } else if (params.length === 3) {
-    if (typeof this._ret[params[0]] !== "object") {
-      this._ret[params[0]] = {};
-    }
-    if (params[2][0] === "[") {
-      this._ret[params[0]][params[1]] = JSON.parse(params[2]);
-    } else if (/'|"/.test(params[2][0])) {
-      this._ret[params[0]][params[1]] = params[2];
+Config.parseLine = function(value) {
+  for (var i = 0, l = this.validPrefixes.length; i < l; ++i) {
+    if (this.validPrefixes[i].test(value)) {
+      var prefix = value.match(/[a-zA-Z0-9_]+/)[0];
+      this[prefix](value, "string");
     }
   }
 };
 
-Config.parse = function(config) {
-  var lines = this.getLines(config);
+Config.parse = function() {
+  var text = Settings.rcEl.value;
   this._ret = {};
-  for (var i = 0, l = lines.length; i < l; ++i) {
-    var line = convertOldSetting(lines[i]); // Used in transition from set <x> = <y> to let <x> = <y>
-    line = this.parseLine(line);
-    var arg = line.shift();
-    if (!Array.isArray(line)) {
-      continue;
-    }
-    if (this.hasOwnProperty(arg)) {
-      this[arg](line);
-    }
+  text = text.split(/\n+/).compact();
+  for (var i = 0, l = text.length; i < l; ++i) {
+    this.parseLine(text[i]);
   }
   return this._ret;
 };
 
-Settings.applyConfig = function(config, callback) {
-  var key;
-  for (key in this.defaultSettings) {
-    this.settings[key] = this.defaultSettings[key];
-  }
-  for (key in config) {
-    if (this.ignore.indexOf(key) === -1 && this.defaultSettings.hasOwnProperty(key) !== -1) {
-      if (typeof config[key] === "object") {
-        if (!Array.isArray(config[key]) && /^(qmark|searchengine)$/.test(key)) {
-          this.settings[key + "s"] = {};
-          for (var key2 in config[key]) {
-            if (typeof config[key][key2] === "string") {
-              config[key][key2] = config[key][key2].replace(/^["']|["']$/g, "");
-            }
-            this.settings[key + "s"][key2] = config[key][key2];
-          }
-        }
+Settings.checkConfig = function(config) {
+  var validSettings = Object.keys(Settings.settings).filter(function(e) {
+    return e.toLowerCase() === e;
+  });
+  for (var key in config) {
+    if (validSettings.indexOf(key) !== -1 && sameType(config[key], Settings.settings[key])) {
+      if (config[key].constructor === Object) {
+        Settings.settings[key] = Object.extend(Settings.settings[key], config[key]);
       } else {
-        this.settings[key] = config[key];
+        Settings.settings[key] = config[key];
       }
     }
   }
-  if (callback) {
-    callback();
-  }
 };
 
-Settings.loadrc = function () {
-  this.rcEl.value = this.settings.mappings;
+Settings.loadrc = function (config) {
+  this.rcEl.value = config.MAPPINGS;
   this.rcEl.style.height = this.rcEl.scrollHeight + "px";
-  this.blacklistEl.value = this.settings.blacklists;
+  this.blacklistEl.value = config.BLACKLISTS;
   this.blacklistEl.style.height = this.blacklistEl.scrollHeight + "px";
   if (this.cssEl) {
-    this.cssEl.setValue(this.settings.commandBarCSS);
+    this.cssEl.setValue(config.COMMANDBARCSS);
   }
-  this.gistUrl.value = this.settings.gisturl;
+  this.gistUrl.value = config.GISTURL;
 };
 
-Settings.resetRelease = function() {
-  if (this.resetClicked) {
-    chrome.runtime.sendMessage({action: "getSettings", reset: true});
-  }
+Settings.resetSettings = function() {
+  this.rcEl.value = this.defaults.MAPPINGS;
+  this.blacklistEl.value = this.defaults.BLACKLISTS;
+  this.cssEl.setValue(this.defaults.COMMANDBARCSS);
+  this.gistUrl.value = this.defaults.GISTURL;
+  delete this.settings;
+  this.settings = Object.clone(this.defaults);
 };
 
-Settings.saveRelease = function() {
-  if (this.saveClicked) {
-    this.applyConfig(Config.parse(this.rcEl.value), function() {
-      this.settings.commandBarCSS = this.cssEl.getValue();
-      this.settings.blacklists = document.getElementById("blacklists").value;
-      this.settings.gisturl = this.gistUrl.value;
-      this.settings.mappings = Settings.rcEl.value;
-      this.saveButton.value = "Saved";
-      chrome.runtime.sendMessage({action: "saveSettings", settings: Settings.settings, sendSettings: true});
-      setTimeout(function () {
-        this.saveButton.value = "Save";
-      }.bind(this), 3000);
-    }.bind(this));
-  }
-};
-
-Settings.onMouseDown = function(ev) {
-  this.saveClicked = false;
-  this.resetClicked = false;
-  switch (ev.target.id) {
-    case "save_button":
-      this.saveClicked = true;
-      break;
-    case "reset_button":
-      this.resetClicked = true;
-      break;
-    case "clearHistory":
-      localStorage.search = "";
-      localStorage.url    = "";
-      localStorage.action = "";
-      break;
-    case "gistSync":
-      this.syncGist();
-      break;
-  }
-  this.saveButton.value = "Save";
+Settings.saveSettings = function() {
+  Settings.checkConfig(Config.parse());
+  this.settings.COMMANDBARCSS = this.cssEl.getValue();
+  this.settings.BLACKLISTS = this.blacklistEl.value;
+  this.settings.GISTURL = this.gistUrl.value;
+  this.settings.MAPPINGS = this.rcEl.value;
+  this.saveButton.value = "Saved";
+  chrome.runtime.sendMessage({action: "saveSettings", settings: Settings.settings, sendSettings: true});
+  setTimeout(function () {
+    this.saveButton.value = "Save";
+  }.bind(this), 3000);
 };
 
 Settings.editMode = function (e) {
@@ -191,7 +139,6 @@ Settings.init = function() {
   this.initialLoad = true;
 
   this.saveButton = document.getElementById("save_button");
-  this.resetButton = document.getElementById("reset_button");
   this.rcEl = document.getElementById("mappings");
   this.editModeEl = document.getElementById("edit_mode");
   this.blacklistEl = document.getElementById("blacklists");
@@ -204,14 +151,18 @@ Settings.init = function() {
   this.rcEl.addEventListener("input", autoSize);
   this.blacklistEl.addEventListener("input", autoSize);
 
-  chrome.runtime.sendMessage({action: "getSettings"});
   chrome.runtime.sendMessage({action: "getDefaults"});
 
-  document.addEventListener("mousedown", this.onMouseDown.bind(this), false);
   this.editModeEl.addEventListener("change", this.editMode.bind(this), false);
-  this.saveButton.addEventListener("mouseup", this.saveRelease.bind(this), false);
-  this.resetButton.addEventListener("mouseup", this.resetRelease.bind(this), false);
+  this.saveButton.addEventListener("click", this.saveSettings.bind(this), false);
+  document.getElementById("reset_button").addEventListener("click", this.resetSettings.bind(this), false);
+  document.getElementById("clearHistory").addEventListener("click", function() {
+    localStorage.search = "";
+    localStorage.url    = "";
+    localStorage.action = "";
+  });
   this.gistUrl = document.getElementById("gistUrl");
+  document.getElementById("gistSync").addEventListener("click", this.syncGist.bind(this));
   this.gistPlaceHolder = "https://gist.github.com/1995eaton/9e68803bf1f1e7524340";
   this.gistUrl.addEventListener("focus", function() {
     this.setAttribute("placeholder", "");
@@ -226,13 +177,15 @@ document.addEventListener("DOMContentLoaded", Settings.init.bind(Settings));
 
 chrome.extension.onMessage.addListener(function(request) {
   if (request.action === "sendSettings") {
-    Settings.settings = request.settings;
     if (Settings.initialLoad) {
       Settings.cssEl = CodeMirror.fromTextArea(document.getElementById("commandBarCSS"), {lineNumbers: true});
       Settings.initialLoad = false;
+      Settings.loadrc(request.settings);
     }
-    Settings.loadrc();
   } else if (request.action === "sendDefaultSettings") {
-    Settings.defaultSettings = request.settings;
+    Settings.settings = request.settings;
+    Settings.defaults = Object.clone(request.settings);
+    Settings.checkConfig(Config.parse());
+    // Settings.saveSettings();
   }
 });

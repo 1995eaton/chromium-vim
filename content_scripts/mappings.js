@@ -106,7 +106,7 @@ Mappings.actions   = {
     chrome.runtime.sendMessage({action: "moveTabLeft", repeats: repeats});
   },
   reverseImage: function() {
-    if (document.body.childNodes.length === 1 && document.body.firstChild.nodeName === "IMG") {
+    if (document.body.childNodes.length === 1 && document.body.firstChild.localName === "img") {
       if (document.body.firstChild.src) {
         return chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: "https://www.google.com/searchbyimage?image_url=" + document.body.firstChild.src, noconvert: true});
       }
@@ -128,7 +128,7 @@ Mappings.actions   = {
       var el;
       while (el = walker.nextNode()) {
         var computedStyle = getComputedStyle(el, null);
-        if (el.nodeName === "IMG" || computedStyle.getPropertyValue("background-image") !== "none") {
+        if (el.localName === "img" || computedStyle.getPropertyValue("background-image") !== "none") {
           var opacity = computedStyle.getPropertyValue("opacity");
           var bimg = computedStyle.getPropertyValue("background-image");
           if (opacity === "1") {
@@ -143,7 +143,7 @@ Mappings.actions   = {
     }
     this.imagesDisabled = (this.imagesDisabled === undefined ? true : !this.imagesDisabled);
     for (i = 0, l = this.images.length; i < l; ++i) {
-      if (this.images[i][2].nodeName === "IMG") {
+      if (this.images[i][2].localName === "img") {
         this.images[i][2].style.opacity = (this.imagesDisabled ? "0" : this.images[i][1]);
       }
       if (this.images[i][1] !== null) {
@@ -525,8 +525,8 @@ Mappings.defaults = {
 };
 
 Mappings.toggleCvim = [];
-Mappings.defaultsClone = Mappings.defaults.clone();
-Mappings.shortCutsClone = Mappings.shortCuts.clone();
+Mappings.defaultsClone = Object.clone(Mappings.defaults);
+Mappings.shortCutsClone = Object.clone(Mappings.shortCuts);
 
 Mappings.insertDefaults = {
   deleteWord:        ["<C-y>"],

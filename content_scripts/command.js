@@ -101,6 +101,7 @@ Command.history = {
 };
 
 Command.appendResults = function(data, extend, identifier, color) {
+  var identifierEl;
   if (!data.length) return false;
   if (!extend || !Array.isArray(this.completionResults)) {
     this.dataElements = [];
@@ -113,10 +114,28 @@ Command.appendResults = function(data, extend, identifier, color) {
     var temp = document.createElement("div");
     temp.cVim = true;
     temp.className = "cVim-completion-item";
+    if (identifier) {
+      identifierEl = document.createElement("span");
+      identifierEl.style.color = color;
+      identifierEl.textContent = identifier + ": ";
+    }
     if (arrCount >= 3) {
-      temp.innerHTML = ((identifier ? identifier.span({"color": color, escape: true}) + ":&nbsp;" : "") + data[i][1]).span({escape: false}, "cVim-left") + data[i][2].span({}, "cVim-right");
+      var left = document.createElement("span");
+      left.className = "cVim-left";
+      left.textContent = data[i][1];
+      var right = document.createElement("span");
+      right.className = "cVim-right";
+      right.textContent = data[i][2];
+      if (identifier) {
+        left.insertBefore(identifierEl, left.firstChild);
+      }
+      temp.appendChild(left);
+      temp.appendChild(right);
     } else {
-      temp.innerHTML = (identifier ? identifier.span({"color": color, escape: true}) + "&nbsp;" : "") + data[i][1].span({escape: true}, "cVim-full");
+      var full = document.createElement("span");
+      full.className = "cVim-full";
+      full.textContent = data[i][1];
+      temp.appendChild(full);
     }
     this.dataElements.push(temp);
     this.data.appendChild(temp);
@@ -125,6 +144,7 @@ Command.appendResults = function(data, extend, identifier, color) {
 };
 
 Command.hideData = function() {
+  Search.lastActive = null;
   this.dataElements.length = 0;
   if (this.data) {
     this.data.innerHTML = "";
@@ -480,8 +500,8 @@ Command.init = function(enabled) {
     if (!settings) {
       return chrome.runtime.sendMessage({action: "getSettings"});
     }
-    Mappings.defaults = Mappings.defaultsClone.clone();
-    Mappings.shortCuts = Mappings.shortCutsClone.clone();
+    Mappings.defaults = Object.clone(Mappings.defaultsClone);
+    Mappings.shortCuts = Object.clone(Mappings.shortCutsClone);
     if (settings.searchengines && !Array.isArray(settings.searchengines) && typeof settings.searchengines === "object") {
       for (key in settings.searchengines) {
         if (Complete.engines.indexOf(key) === -1 && typeof settings.searchengines[key] === "string") {
@@ -490,11 +510,11 @@ Command.init = function(enabled) {
         }
       }
     }
-    Mappings.parseCustom(settings.mappings);
+    Mappings.parseCustom(settings.MAPPINGS);
     var head = document.getElementsByTagName("head");
     if (head.length) { // Use chrome.tabs.insertCSS if document.head does not exist
       this.css = document.createElement("style");
-      this.css.textContent = settings.commandBarCSS;
+      this.css.textContent = settings.COMMANDBARCSS;
       head[0].appendChild(this.css);
     }
     this.onBottom = settings.barposition === "bottom";
@@ -506,7 +526,7 @@ Command.init = function(enabled) {
       var manualFocus = false;
       var initialFocus = window.setInterval(function() {
         if (document.activeElement) {
-          if (/input|textarea/i.test(document.activeElement.nodeName) && !manualFocus) {
+          if (/input|textarea/i.test(document.activeElement.localName) && !manualFocus) {
             document.activeElement.blur();
           }
         }
@@ -533,7 +553,7 @@ Command.init = function(enabled) {
       addListeners();
     }
     if (!head.length && document.URL.indexOf("chrome") !== 0) {
-      chrome.runtime.sendMessage({action: "injectCSS", css: settings.commandBarCSS, runAt: "document_start"});
+      chrome.runtime.sendMessage({action: "injectCSS", css: settings.COMMANDBARCSS, runAt: "document_start"});
     }
   } else {
     this.loaded = false;
@@ -554,7 +574,7 @@ Command.init = function(enabled) {
 Command.configureSettings = function(s) {
 
   function checkBlacklist() {
-    var blacklists = settings.blacklists.split("\n"),
+    var blacklists = settings.BLACKLISTS.split("\n"),
         blacklist;
     Command.blacklisted = false;
     for (var i = 0, l = blacklists.length; i < l; i++) {

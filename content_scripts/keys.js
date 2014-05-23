@@ -93,7 +93,7 @@ Key.down = function(e) {
     return e.preventDefault();
   }
 
-  if (e.which === 17 || e.which === 16 || e.which === 91 || e.which === 123) {
+  if ((e.which >= 16 && e.which <= 18) || e.which === 91 || e.which === 123) {
     return false;
   }
 
@@ -102,6 +102,7 @@ Key.down = function(e) {
   }
 
   var asciiKey = Key.fromKeyCode(e);
+
   if (!asciiKey) {
     return false;
   }
@@ -272,6 +273,9 @@ Key.up = function(e) {
 };
 
 Key.press = function(e) {
+  if (Command.active || document.activeElement.id === "cVim-command-bar-input") {
+    e.stopPropagation();
+  }
   if (Visual.caretModeActive || Visual.visualModeActive) {
     e.preventDefault();
     e.stopPropagation();
