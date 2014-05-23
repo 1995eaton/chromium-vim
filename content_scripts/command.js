@@ -629,7 +629,9 @@ document.addEventListener("DOMContentLoaded", function() {
   if (self === top) {
     chrome.runtime.sendMessage({action: "getSettings"});
     chrome.runtime.sendMessage({action: "isNewInstall"}, function(message) {
-      alert(message);
+      if (message) { // Possible temporary fix for issue #36
+        alert(message);
+      }
     });
   }
 });

@@ -42,6 +42,7 @@ Config.let = function(value) {
 };
 
 Config.parseLine = function(value) {
+  value = value.replace(/"[^"]+$/, "");
   for (var i = 0, l = this.validPrefixes.length; i < l; ++i) {
     if (this.validPrefixes[i].test(value)) {
       var prefix = value.match(/[a-zA-Z0-9_]+/)[0];
