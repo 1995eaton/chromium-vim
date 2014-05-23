@@ -5,6 +5,35 @@ HTMLElement.prototype.isInput = function() {
   );
 };
 
+HTMLElement.prototype.getVisibleBoundingRect = function() {
+  var computedStyle = getComputedStyle(this);
+  if (computedStyle.opacity === "0" || computedStyle.visibility !== "visible" || computedStyle.display === "none") {
+    return false;
+  }
+  var boundingRect = this.getBoundingClientRect();
+  if (boundingRect.top > window.innerHeight || boundingRect.left > window.innerWidth) {
+    return false;
+  }
+  if (boundingRect.width === 0 || boundingRect.height === 0) {
+    var children = this.children;
+    var visibleChildNode = false;
+    for (var i = 0, l = children.length; i < l; ++i) {
+      boundingRect = children[i].getBoundingClientRect();
+      if (boundingRect.width || boundingRect.height) {
+        visibleChildNode = true;
+        break;
+      }
+    }
+    if (!visibleChildNode) {
+      return false;
+    }
+  }
+  if (boundingRect.top + boundingRect.height < 10 || boundingRect.left + boundingRect.width < -10) {
+    return false;
+  }
+  return boundingRect;
+};
+
 HTMLCollection.prototype.toArray = function() {
   var nodes = [];
   for (var i = 0, l = this.length; i < l; ++i) {

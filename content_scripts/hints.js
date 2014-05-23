@@ -232,7 +232,7 @@ Hints.handleHintFeedback = function() {
       }
     }
   }
-  
+
   if (linksFound === 0) {
     this.hideHints(false, false, true);
   }
@@ -308,7 +308,7 @@ Hints.generateHintString = function(n, x) {
 };
 
 Hints.create = function(type, multi) {
-  var screen, links, linkNumber, main, frag, linkElement, isAreaNode, mapCoordinates, computedStyle, imgParent, c, i, l, documentZoom;
+  var screen, links, linkNumber, main, frag, linkElement, isAreaNode, mapCoordinates, imgParent, c, i, l, documentZoom;
   this.type = type;
   links = this.getLinks();
   if (type && type.indexOf("multi") !== -1) {
@@ -334,23 +334,16 @@ Hints.create = function(type, multi) {
     var link = links[i];
     isAreaNode = false;
     if (link.localName === "area" && link.parentNode && link.parentNode.localName === "map") {
-      imgParent = document.querySelectorAll("img[usemap='#" + l.parentNode.name + "'");
+      imgParent = document.querySelectorAll("img[usemap='#" + link.parentNode.name + "'");
       if (!imgParent.length) {
         continue;
       }
-      linkLocation = imgParent[0].getBoundingClientRect();
+      linkLocation = imgParent[0].getVisibleBoundingRect();
       isAreaNode = true;
-      computedStyle = getComputedStyle(imgParent[0], null);
     } else {
-      linkLocation = link.getBoundingClientRect();
-      computedStyle = getComputedStyle(link, null);
-      if (linkLocation.width === 0) {
-        if (!l.firstElementChild) continue;
-        linkLocation = link.firstElementChild.getBoundingClientRect();
-        if (linkLocation.width === 0) continue;
-      }
+      linkLocation = link.getVisibleBoundingRect();
     }
-    if (computedStyle.opacity !== "0" && computedStyle.visibility === "visible" && computedStyle.display !== "none" && linkLocation.top + linkLocation.height >= 10 && linkLocation.top + 15 <= window.innerHeight && linkLocation.left >= 0 && linkLocation.left + 10 < window.innerWidth && linkLocation.width > 0) {
+    if (linkLocation) {
       this.linkHints.push(link);
       linkElement = document.createElement("div");
       linkElement.cVim = true;
@@ -417,7 +410,7 @@ Hints.create = function(type, multi) {
   } catch(e) {
     document.body.appendChild(main);
   }
-  
+
   if (!multi && settings.hud) {
     HUD.display("Follow link " + (function() {
       switch (type) {
@@ -450,11 +443,11 @@ Hints.create = function(type, multi) {
       }
     })());
   }
-  
+
   if (!settings.numerichints) {
     var lim = Math.ceil(Math.log(this.linkArr.length) / Math.log(settings.hintcharacters.length)) || 1;
     var rlim = Math.floor((Math.pow(settings.hintcharacters.length, lim) - this.linkArr.length) / settings.hintcharacters.length);
-    
+
     for (i = 0; i < rlim; ++i) {
       this.linkArr[i].textContent = this.generateHintString(i, lim - 1);
       this.permutations.push(this.generateHintString(i, lim - 1));

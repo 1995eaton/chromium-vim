@@ -221,17 +221,16 @@ Key.down = function(e) {
 
         if (Command.input.value !== "" && (Command.input.value !== Find.lastSearch || !Find.matches.length)) {
           Find.clear();
-          // Find.highlight(document.body, Command.input.value, false, false, false, true);
           Find.highlight({ base: document.body,
                            search: Command.input.value,
                            setIndex: true,
-                           executeSearch: true,
-                           reverse: false,
+                           executeSearch: false,
+                           reverse: asciiKey === "<C-Enter>",
                            saveSearch: true });
         }
-        Find.index = -1;
+        Find.index = (asciiKey === "<C-Enter>" ? -1 : 1);
         Find.setIndex();
-        Find.search(false, 1);
+        Find.search(asciiKey === "<C-Enter>", 1);
         chrome.runtime.sendMessage({action: "updateLastSearch", value: Find.lastSearch});
         Command.hide();
         break;

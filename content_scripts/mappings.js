@@ -790,7 +790,7 @@ Mappings.handleEscapeKey = function() {
         Find.highlight({ base: document.body,
                          search: Find.lastSearch,
                          setIndex: true,
-                         executeSearch: true,
+                         executeSearch: false,
                          reverse: true,
                          saveSearch: true });
       }
