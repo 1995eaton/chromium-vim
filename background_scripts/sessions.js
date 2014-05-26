@@ -34,7 +34,7 @@ Sessions.stepBack = function(sender) {
 (function() {
   // Use Chrome's native tab restore if the user
   // is on the dev channel
-  if (chrome.hasOwnProperty("sessions")) {
+  if (parseInt(navigator.appVersion.replace(/.*Chrome\/(\d+).*/, "$1")) > 36) {
     Sessions.nativeSessions = true;
     chrome.sessions.onChanged.addListener(function() {
       Sessions.onChanged();
