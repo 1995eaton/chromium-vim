@@ -50,7 +50,7 @@ Config.let = function(value) {
 };
 
 Config.parseLine = function(value) {
-  value = value.replace(/"[^\]"]+$/, "");
+  value = value.replace(/(["\]]) *"[^"\]]*$/, "$1");
   for (var i = 0, l = this.validPrefixes.length; i < l; ++i) {
     if (this.validPrefixes[i].test(value)) {
       var prefix = value.match(/[a-zA-Z0-9_]+/)[0];
@@ -154,8 +154,10 @@ Settings.init = function() {
   this.blacklistEl = document.getElementById("blacklists");
 
   function autoSize() {
+    var stop = document.body.scrollTop;
     this.style.height = "";
     this.style.height = this.scrollHeight + "px";
+    document.body.scrollTop = stop;
   }
 
   this.rcEl.addEventListener("input", autoSize);
