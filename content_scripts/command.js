@@ -605,6 +605,9 @@ Command.configureSettings = function(s) {
     this.init(false);
   }
   settings = s;
+  Search.settings = Object.keys(settings).filter(function(e) {
+    return settings[e].constructor === Boolean;
+  });
   settings.searchlimit = parseInt(settings.searchlimit);
   if (!checkBlacklist()) {
     chrome.runtime.sendMessage({action: "getActiveState"}, function(response) {

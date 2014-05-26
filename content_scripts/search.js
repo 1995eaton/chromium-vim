@@ -12,17 +12,17 @@ Search.chromeMatch = function(string, callback) {
   }).map(function(e){return["chrome",e];}));
 };
 
-Search.settings = ["|numerichints", "|typelinkhints", "|smoothscroll", "scrollstep", "searchlimit", "|regexp", "|ignorecase", "|incsearch", "|smartcase", "hintcharacters", "|linkanimations", "|hud", "|insertmappings"];
-
 Search.settingsMatch = function(string, callback) {
-  if (string.trim() === "") return callback(Search.settings.slice(0, settings.searchlimit).map(function(e){return["settings",e.replace(/^\|/, "")];}));
-  callback(this.settings.filter(function(element) {
-    var isBoolean;
-    if (/^\|/.test(element)) {
-      isBoolean = true;
-    }
-    return (string.replace(/^\S+\s+/, "") === element.replace(/^\|/, "").substring(0, string.length) || (isBoolean && string === "no" + element.substring(1, string.length - 1)));
-  }).map(function(e){return["settings",e.replace(/^\|/, "")];}));
+  if (!string.trim()) {
+    return callback(this.settings.slice(0, settings.searchlimit).map(function(e) {
+      return ["settings", e];
+    }));
+  }
+  return callback(this.settings.filter(function(e) {
+    return e.substring(0, string.replace(/^no/, "").length) === string.replace(/^no/, "");
+  }).map(function(e) {
+    return ["settings", e];
+  }).slice(0, settings.searchlimit));
 };
 
 Search.nextResult = function(reverse) {
