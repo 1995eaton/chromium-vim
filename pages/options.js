@@ -27,7 +27,11 @@ Config.let = function(value) {
   if (assignment.length) {
     objVal += "s";
     var key = assignment.pop();
-    value = JSON.parse(value[1]);
+    try {
+      value = JSON.parse(value[1]);
+    } catch (e) {
+      return; // TODO: add error message
+    }
     if (this._ret.hasOwnProperty(objVal) && this._ret[objVal].constructor === Object) {
       this._ret[objVal][key] = value;
       return;
@@ -35,7 +39,11 @@ Config.let = function(value) {
     _ret = {};
     _ret[key] = value;
   } else {
-    _ret = JSON.parse(value[1]);
+    try {
+      _ret = JSON.parse(value[1]);
+    } catch (e) {
+      return // TODO: same as above
+    }
   }
   this._ret[objVal] = _ret;
 
