@@ -89,10 +89,21 @@ Options.getDefaults = function(request, sender) {
   chrome.tabs.sendMessage(sender.tab.id, {action: "sendDefaultSettings", settings: defaultSettings});
 };
 
+Options.oldMappings = ["options", "blacklists", "gisturl", "commandbarcss"];
+Options.convertOldSettings = function() {
+  for (var i = 0; i < this.oldMappings.length; ++i) {
+    if (Settings[this.oldMappings[i]]) {
+      Settings[this.oldMappings[i].toUpperCase()] = Settings[this.oldMappings[i]];
+      delete Settings[this.oldMappings[i]];
+    }
+  }
+};
+
 (function() {
   chrome.storage[storageMethod].get("settings", function(data) {
     if (data.settings) {
       Settings = data.settings;
+      Options.convertOldSettings();
       Quickmarks = Settings.qmarks;
     }
     Options.refreshSettings();

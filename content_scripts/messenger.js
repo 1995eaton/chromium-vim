@@ -35,11 +35,13 @@ port.onMessage.addListener(function(response) {
         }
       } else if (Command.searchMode) {
         Command.searchMode = false;
-        Command.hideData();
-        Command.appendResults(Command.engineMatches, false);
-        Command.appendResults(Command.topSiteMatches, true, "Top Sites", "darkcyan");
-        if (matches.length > 0) {
-          Command.appendResults(matches, true, "History", "cyan");
+        if (Command.active) {
+          Command.hideData();
+          Command.appendResults(Command.engineMatches, false);
+          Command.appendResults(Command.topSiteMatches, true, "Top Sites", "darkcyan");
+          if (matches.length > 0) {
+            Command.appendResults(matches, true, "History", "cyan");
+          }
         }
       }
       Marks.history = matches;
