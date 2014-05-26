@@ -6,8 +6,10 @@ var isBlacklisted = false;
 
 var port = chrome.extension.connect({name: "main"});
 port.onMessage.addListener(function(data) {
-  blacklist.textContent = "Enable cVim on this domain";
-  isBlacklisted = true;
+  if (data === true) {
+    blacklist.textContent = "Enable cVim on this domain";
+    isBlacklisted = true;
+  }
 });
 port.postMessage({action: "getBlacklisted"});
 

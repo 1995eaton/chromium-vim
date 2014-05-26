@@ -456,6 +456,6 @@ actions.getBookmarkPath = function() {
 
 actions.getBlacklisted = function() {
   Popup.getBlacklisted(function() {
-    callback({});
+    callback(true);
   });
 };
