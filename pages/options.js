@@ -42,7 +42,7 @@ Config.let = function(value) {
     try {
       _ret = JSON.parse(value[1]);
     } catch (e) {
-      return // TODO: same as above
+      return; // TODO: same as above
     }
   }
   this._ret[objVal] = _ret;
