@@ -25,6 +25,7 @@
 | insertmappings                      | boolean                            | use insert mappings to navigate the cursor in text boxes (see bindings below)             | true                                                                        |
 | smoothscroll                        | boolean                            | use smooth scrolling                                                                      | true                                                                        |
 | scrollduration                      | integer                            | the duration of smooth scrolling                                                          | 20                                                                          |
+| completionengines                   | array of strings                   | use only the specified search engines                                                     | []                                                                          |
 | highlight                           | string                             | the highlight color in find mode                                                          | "#ffff00"                                                                   |
 | activehighlight                     | string                             | the highlight color for the current find match                                            | "#ff9632"                                                                   |
 | qmark &lt;alphanumeric charcter&gt; | string                             | add a persistent QuickMark (e.g. ```let qmark a = ["http://google.com", "http://reddit.com"]```) | none                                                                 |
@@ -44,6 +45,7 @@ let searchlimit = 30
 let scrollstep = 70
 let barposition = "bottom"
 let hintcharacters = "abc123"
+let completionengines = ["google", "amazon", "imdb"]
 let qmark a = ["http://www.reddit.com", "http://www.google.com", "http://twitter.com"]  "Open all of these in a tab with `gnb` or open one of these with <N>goa where <N>
 let searchengine dogpile = "http://www.dogpile.com/search/web?q="
 

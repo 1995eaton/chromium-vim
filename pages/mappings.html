@@ -135,6 +135,12 @@ the command <code>&#39;set&#39; + no&lt;SETTING_NAME&gt;</code> (for example, <c
 <td style="text-align:right">20</td>
 </tr>
 <tr>
+<td>completionengines</td>
+<td>array of strings</td>
+<td>use only the specified search engines</td>
+<td style="text-align:right">[]</td>
+</tr>
+<tr>
 <td>highlight</td>
 <td>string</td>
 <td>the highlight color in find mode</td>
@@ -188,6 +194,7 @@ let searchlimit = 30
 let scrollstep = 70
 let barposition = &quot;bottom&quot;
 let hintcharacters = &quot;abc123&quot;
+let completionengines = [&quot;google&quot;, &quot;amazon&quot;, &quot;imdb&quot;]
 let qmark a = [&quot;http://www.reddit.com&quot;, &quot;http://www.google.com&quot;, &quot;http://twitter.com&quot;]  &quot;Open all of these in a tab with `gnb` or open one of these with &lt;N&gt;goa where &lt;N&gt;
 let searchengine dogpile = &quot;http://www.dogpile.com/search/web?q=&quot;
 

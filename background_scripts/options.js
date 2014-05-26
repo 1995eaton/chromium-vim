@@ -25,6 +25,7 @@ var defaultSettings = {
   hintcharacters: "asdfgqwertzxcvb",
   activehighlight: "#ff9632",
   highlight: "#ffff00",
+  completionengines: [],
   nextmatchpattern: "((?!first)(next|more|>|›|»|forward| )+)",
   previousmatchpattern: "((?!last)(prev(ious)?|back|«|less|<|‹| )+)",
   barposition: "top",

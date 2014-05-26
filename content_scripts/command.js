@@ -552,6 +552,11 @@ Command.init = function(enabled) {
     if (!Key.listenersActive) {
       addListeners();
     }
+    if (Array.isArray(settings.completionengines) && settings.completionengines.length) {
+      Complete.engines = Complete.engines.filter(function(e) {
+        return settings.completionengines.indexOf(e) !== -1;
+      });
+    }
     if (!head.length && document.URL.indexOf("chrome") !== 0) {
       chrome.runtime.sendMessage({action: "injectCSS", css: settings.COMMANDBARCSS, runAt: "document_start"});
     }

@@ -3,6 +3,7 @@
 ## 1.2.51
  * cVimrc setting are more strict (must use 'let' instead of set when using options requiring an equal symbol)
  * Lots of bug fixes
+ * Added completionengines option to cVimrc (choose which completion engines to display)
 
 ## 1.2.50
  * ```map``` automatically unmaps the existing binding if a conflict occurs (e.g. same key mapped to multiple functions). ```unmap``` is no longer necessary unless you wish to disable a default mapping

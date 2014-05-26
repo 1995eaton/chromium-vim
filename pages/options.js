@@ -105,7 +105,8 @@ Settings.resetSettings = function() {
 };
 
 Settings.saveSettings = function() {
-  Settings.checkConfig(Config.parse());
+  this.settings = Object.clone(this.defaults);
+  this.checkConfig(Config.parse());
   this.settings.COMMANDBARCSS = this.cssEl.getValue();
   this.settings.BLACKLISTS = this.blacklistEl.value;
   this.settings.GISTURL = this.gistUrl.value;
@@ -195,6 +196,5 @@ chrome.extension.onMessage.addListener(function(request) {
     Settings.settings = request.settings;
     Settings.defaults = Object.clone(request.settings);
     Settings.checkConfig(Config.parse());
-    // Settings.saveSettings();
   }
 });
