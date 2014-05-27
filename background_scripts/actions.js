@@ -23,7 +23,7 @@ callAction = function(action, config) {
 };
 
 function isRepeat(request) {
-  return request.action === "focusMainWindow" || (request.repeats && /[0-9]([0-9]+)?/.test(request.repeats.toString()));
+  return request.repeats && /[0-9]([0-9]+)?/.test(request.repeats.toString());
 }
 
 // Normal extension connections
@@ -100,14 +100,6 @@ actions.reloadTab = function() {
   });
 };
 
-actions.getTabIndex = function() {
-  callback(sender.tab.index);
-};
-
-actions.getSettingValue = function() {
-  callback(Settings[request.value]);
-};
-
 actions.reloadAllTabs = function() {
   chrome.tabs.query({}, function(tabs) {
     tabs.forEach(function(tab) {
@@ -115,13 +107,6 @@ actions.reloadAllTabs = function() {
         chrome.tabs.reload(tab.id);
       }
     });
-  });
-};
-
-actions.newTab = function() {
-  chrome.tabs.create({
-    url: "https://google.com",
-    index: sender.tab.index + 1
   });
 };
 
@@ -154,10 +139,6 @@ actions.appendHistory = function() {
   });
 };
 
-actions.retrieveHistory = function() {
-  callback(History.retrieve(request.type));
-};
-
 actions.pinTab = function() {
   chrome.tabs.update({
     pinned: !sender.tab.pinned
@@ -170,11 +151,8 @@ actions.copy = function() {
 
 actions.goToTab = function() {
   chrome.tabs.query({currentWindow: true}, function(tabs) {
-    if (request.index < tabs.length) {
-      chrome.tabs.update(tabs[request.index].id, {active: true});
-    } else {
-      chrome.tabs.update(tabs.slice(-1)[0].id, {active: true});
-    }
+    chrome.tabs.update((request.index < tabs.length ? tabs[request.index].id :
+        tabs.slice(-1)[0].id), {active: true});
   });
 };
 
@@ -217,18 +195,6 @@ actions.openPaste = function() {
   paste = paste.split("\n")[0];
   chrome.tabs.update({
     url: paste.convertLink()
-  });
-};
-
-actions.focusMainWindow = function() {
-  chrome.tabs.query({
-    active: true,
-    currentWindow: true
-  }, function(tab) {
-    chrome.tabs.sendMessage(tab[0].id, {
-      action: "focus",
-      repeats: request.repeats
-    });
   });
 };
 
@@ -326,22 +292,6 @@ actions.getBuffers = function() {
       action: "showBuffers",
       buffers: t
     });
-  });
-};
-
-actions.selectTab = function() {
-  chrome.tabs.query({
-    windowId: sender.tab.windowId
-  }, function(tabs) {
-    if (request.tabIndex < tabs.length)
-      chrome.tabs.query({
-        windowId: sender.tab.windowId,
-        index: parseInt(request.tabIndex)
-      }, function(tab) {
-        chrome.tabs.update(tab[0].id, {
-          active: true
-        });
-      });
   });
 };
 

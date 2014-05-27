@@ -1,6 +1,7 @@
-var sessions   = {};
+var sessions = {};
 var Clipboard, History, Bookmarks, Links, Quickmarks, Sites, Frames;
 Frames = {};
+Quickmarks = {};
 
 Sites = {
   querySites: function(callback) {
@@ -25,8 +26,6 @@ Sites = {
     });
   }
 };
-
-Quickmarks = {};
 
 chrome.storage.local.get("sessions", function(s) {
   if (s.sessions === undefined) {

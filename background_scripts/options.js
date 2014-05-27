@@ -36,11 +36,7 @@ var defaultSettings = {
 };
 
 chrome.storage.onChanged.addListener(function(changes) {
-  if (changes.settings) {
-    Settings = changes.settings.newValue;
-  } else {
-    Settings = defaultSettings;
-  }
+  Settings = changes.settings ? changes.settings.newValue : defaultSettings;
 });
 
 Options.refreshSettings = function(callback) {

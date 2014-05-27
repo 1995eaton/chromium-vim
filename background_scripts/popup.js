@@ -6,12 +6,6 @@ function parseDomain(url) {
   return urlLocation.protocol + "//" + urlLocation.hostname + "/*";
 }
 
-Popup.getAllTabs = function(callback) {
-  chrome.tabs.query({}, function(tabs) {
-    callback(tabs);
-  });
-};
-
 Popup.getBlacklisted = function(callback) {
   var blacklists = Settings.BLACKLISTS.split("\n").filter(function(e) {
     return e;
@@ -24,10 +18,6 @@ Popup.getBlacklisted = function(callback) {
       }
     }
   });
-};
-
-Popup.getBlacklistedResponse = function(callback) {
-  callback(this.isBlacklisted);
 };
 
 Popup.getActiveTab = function(callback) {
@@ -66,7 +56,7 @@ Popup.toggleEnabled = function(obj) {
     }
     return this.setIconEnabled({});
   }
-  this.getAllTabs(function(tabs) {
+  chrome.tabs.query({}, function(tabs) {
     this.active = !this.active;
     if (!request.blacklisted) {
       tabs.map(function(tab) { return tab.id; }).forEach(function(id) {

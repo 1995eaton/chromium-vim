@@ -350,7 +350,7 @@ Command.execute = function(value, repeats) {
       } else if (/^(o|open)$/.test(value.replace(/ .*/, ""))) {
         chrome.runtime.sendMessage({action: "openLink", active: activeTab, url: Complete.convertToLink(value), noconvert: true});
       } else if (/^buffers +[0-9]+(\s+)?$/.test(value))
-        chrome.runtime.sendMessage({action: "selectTab", tabIndex: value.replace(/^.*([0-9]+).*$/, "$1")});
+        chrome.runtime.sendMessage({action: "goToTab", index: value.replace(/^.*([0-9]+).*$/, "$1")});
       else if (/^execute +/.test(value)) {
         var command = value.replace(/^\S+/, "").trim();
         realKeys = "";
