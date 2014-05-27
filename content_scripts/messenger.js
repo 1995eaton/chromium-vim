@@ -30,13 +30,13 @@ port.onMessage.addListener(function(response) {
         return a[2].length - b[2].length;
       });
       if (Command.historyMode) {
-        if (matches.length > 0) {
+        if (Command.active && Command.bar.style.display !== "none" && matches.length > 0) {
           Command.appendResults(matches, false);
         }
       } else if (Command.searchMode) {
         Command.searchMode = false;
-        if (Command.active) {
-          Command.hideData();
+        Command.hideData();
+        if (Command.active && Command.bar.style.display !== "none") {
           Command.appendResults(Command.engineMatches, false);
           Command.appendResults(Command.topSiteMatches, true, "Top Sites", "darkcyan");
           if (matches.length > 0) {

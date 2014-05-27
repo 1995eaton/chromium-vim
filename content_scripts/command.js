@@ -160,6 +160,7 @@ Command.descriptions = [
   ["open",       "Open a link in the current tab"],
   ["nohl",       "Clears the search highlight"],
   ["set",        "Configure Settings"],
+  ["date",       "Display the current date"],
   ["mksession",  "Create a saved session of current tabs"],
   ["delsession", "Delete sessions"],
   ["qmark",      "Add QuickMarks"],
@@ -317,6 +318,12 @@ Command.execute = function(value, repeats) {
       break;
     case "settings":
       chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: chrome.extension.getURL("/pages/options.html"), repeats: repeats});
+      break;
+    case "date":
+      var date = new Date();
+      var weekDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      Status.setMessage(weekDays[date.getDay()] + ", " + months[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear(), 2);
       break;
     case "help":
       chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: chrome.extension.getURL("/pages/mappings.html")});
