@@ -18,10 +18,15 @@
   <script src="../content_scripts/visual.js"></script></head><h1 id="cvim-changelog">cVim Changelog</h1>
 <h2 id="1-2-51">1.2.51</h2>
 <ul>
-<li>cVimrc setting are more strict (must use &#39;let&#39; instead of set when using options requiring an equal symbol)</li>
-<li>Added autohidecursor option</li>
-<li>Lots of bug fixes</li>
-<li>Added completionengines option to cVimrc (choose which completion engines to display)</li>
+<li><strong>Important!</strong> cVimrc setting are now stricter. You must use &#39;let&#39; instead of set when using options requiring an equal symbol. For example:<pre><code class="lang-viml">set hintcharacters = abc123 &quot;Incorrect!
+let hintcharacters = &quot;abc123&quot; &quot;Correct
+</code></pre>
+</li>
+<li>Added completionengines option to cVimrc (choose which completion engines to display). For example:<pre><code class="lang-viml">let completionengines = [&quot;google&quot;, &quot;imdb&quot;] &quot;Only these engines will appear in the search autocomplete menu
+</code></pre>
+</li>
+<li>Added autohidecursor option (useful for Linux operating systems, which don&#39;t automatically hide the mouse cursor when a key is pressed). You can test this out by running the command <code>:set autohidecursor</code> and scrolling with j/k (might have to nudge mouse cursor then scroll to see it disappear initially).</li>
+<li>Bug fixes</li>
 </ul>
 <h2 id="1-2-50">1.2.50</h2>
 <ul>

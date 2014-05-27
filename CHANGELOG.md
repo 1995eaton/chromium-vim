@@ -1,10 +1,17 @@
 #cVim Changelog
 
 ## 1.2.51
- * cVimrc setting are more strict (must use 'let' instead of set when using options requiring an equal symbol)
- * Added autohidecursor option
- * Lots of bug fixes
- * Added completionengines option to cVimrc (choose which completion engines to display)
+ * **Important!** cVimrc setting are now stricter. You must use 'let' instead of set when using options requiring an equal symbol. For example:
+```viml
+set hintcharacters = abc123 "Incorrect!
+let hintcharacters = "abc123" "Correct
+```
+ * Added completionengines option to cVimrc (choose which completion engines to display). For example:
+```viml
+let completionengines = ["google", "imdb"] "Only these engines will appear in the search autocomplete menu
+```
+ * Added autohidecursor option (useful for Linux operating systems, which don't automatically hide the mouse cursor when a key is pressed). You can test this out by running the command ```:set autohidecursor``` and scrolling with j/k (might have to nudge mouse cursor then scroll to see it disappear initially).
+ * Bug fixes
 
 ## 1.2.50
  * ```map``` automatically unmaps the existing binding if a conflict occurs (e.g. same key mapped to multiple functions). ```unmap``` is no longer necessary unless you wish to disable a default mapping

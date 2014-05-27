@@ -87,7 +87,7 @@ Options.getDefaults = function(request, sender) {
   chrome.tabs.sendMessage(sender.tab.id, {action: "sendDefaultSettings", settings: defaultSettings});
 };
 
-Options.oldMappings = ["options", "blacklists", "gisturl", "commandbarcss"];
+Options.oldMappings = ["options", "mappings", "blacklists", "gisturl", "commandbarcss"];
 Options.convertOldSettings = function() {
   for (var i = 0; i < this.oldMappings.length; ++i) {
     if (Settings[this.oldMappings[i]]) {
