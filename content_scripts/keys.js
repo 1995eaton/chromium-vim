@@ -97,6 +97,10 @@ Key.down = function(e) {
     return false;
   }
 
+  if (Cursor.overlay && settings.autohidecursor) {
+    Cursor.overlay.style.display = "block";
+  }
+
   if (document.activeElement.id === "cVim-command-bar-input") {
     e.stopPropagation();
   }

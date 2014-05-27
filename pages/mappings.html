@@ -8,6 +8,7 @@
   <script src="../content_scripts/find.js"></script>
   <script src="../content_scripts/frames.js"></script>
   <script src="../content_scripts/hints.js"></script>
+  <script src="../content_scripts/cursor.js"></script>
   <script src="../content_scripts/hud.js"></script>
   <script src="../content_scripts/keys.js"></script>
   <script src="../content_scripts/mappings.js"></script>
@@ -102,6 +103,12 @@ the command <code>&#39;set&#39; + no&lt;SETTING_NAME&gt;</code> (for example, <c
 <td>typelinkhints</td>
 <td>boolean</td>
 <td>(numerichints required) type text in the link to narrow down numeric hints</td>
+<td style="text-align:right">false</td>
+</tr>
+<tr>
+<td>autohidecursor</td>
+<td>boolean</td>
+<td>hide the mouse cursor when scrolling (useful for Linux, which doesn&#39;t auto-hide the cursor on keydown)</td>
 <td style="text-align:right">false</td>
 </tr>
 <tr>

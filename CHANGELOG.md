@@ -2,6 +2,7 @@
 
 ## 1.2.51
  * cVimrc setting are more strict (must use 'let' instead of set when using options requiring an equal symbol)
+ * Added autohidecursor option
  * Lots of bug fixes
  * Added completionengines option to cVimrc (choose which completion engines to display)
 

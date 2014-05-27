@@ -17,6 +17,7 @@ var defaultSettings = {
   cncpcompletion: false,
   smartcase: true,
   incsearch: true,
+  autohidecursor: false,
   typelinkhints: false,
   autofocus: true,
   insertmappings: true,

@@ -529,6 +529,9 @@ Command.init = function(enabled) {
       this.data.style[(!this.onBottom) ? "bottom" : "top"] = "";
       this.data.style[(this.onBottom) ? "bottom" : "top"] = "20px";
     }
+    if (settings.autohidecursor) {
+      Cursor.init();
+    }
     if (!settings.autofocus) {
       var manualFocus = false;
       var initialFocus = window.setInterval(function() {
@@ -573,6 +576,9 @@ Command.init = function(enabled) {
       this.css.parentNode.removeChild(this.css);
     }
     var links = document.getElementById("cVim-link-container");
+    if (Cursor.overlay) {
+      Cursor.overlay.parentNode.removeChild(Cursor.overlay);
+    }
     if (this.bar && this.bar.parentNode) {
       this.bar.parentNode.removeChild(this.bar);
     }
