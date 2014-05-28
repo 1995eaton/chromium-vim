@@ -2,6 +2,11 @@ var log;
 log = console.log.bind(console);
 var Hints = {};
 
+Hints.oldValues = [];
+Hints.switchText = function(index) {
+  this.linkArr[index][0].textContent = this.linkArr[index][1].href || (this.linkArr[index][1].getAttribute("onclick") ? "JavaScript: " + this.linkArr[index][1].getAttribute("onclick") : this.linkArr[index][1].localName);
+};
+
 Hints.matchPatterns = function(forward) {
   var pattern = new RegExp("^" + (forward ? settings.nextmatchpattern : settings.previousmatchpattern) + "$", "gi");
   var treeWalker = document.createTreeWalker(document.body, 4, null, false);
@@ -41,6 +46,7 @@ Hints.hideHints = function(reset, multi, useKeyDelay) {
       main.style.opacity = "0";
     } else document.getElementById("cVim-link-container").parentNode.removeChild(document.getElementById("cVim-link-container"));
   }
+  this.linkPreview = false;
   this.numericMatch = undefined;
   this.active = reset;
   this.currentString = "";
@@ -56,11 +62,7 @@ Hints.hideHints = function(reset, multi, useKeyDelay) {
 };
 
 Hints.changeFocus = function() {
-  if (settings.numerichints) {
-    this.linkArr.forEach(function(item) { item[0].style.zIndex = 1 - parseInt(item[0].style.zIndex); });
-  } else {
-    this.linkArr.forEach(function(item) { item.style.zIndex = 1 - parseInt(item.style.zIndex); });
-  }
+  this.linkArr.forEach(function(item) { item[0].style.zIndex = 1 - parseInt(item[0].style.zIndex); });
 };
 
 Hints.removeContainer = function() {
@@ -155,20 +157,20 @@ Hints.handleHintFeedback = function() {
   if (!settings.numerichints) {
     for (i = 0; i < this.permutations.length; i++) {
       if (this.permutations[i].indexOf(this.currentString) === 0) {
-        if (this.linkArr[i].children.length) {
-          this.linkArr[i].replaceChild(this.linkArr[i].firstChild.firstChild, this.linkArr[i].firstChild);
-          this.linkArr[i].normalize();
+        if (this.linkArr[i][0].children.length) {
+          this.linkArr[i][0].replaceChild(this.linkArr[i][0].firstChild.firstChild, this.linkArr[i][0].firstChild);
+          this.linkArr[i][0].normalize();
         }
         span = document.createElement("span");
         span.setAttribute("cVim", true);
         span.className = "cVim-link-hint_match";
-        this.linkArr[i].firstChild.splitText(this.currentString.length);
-        span.appendChild(this.linkArr[i].firstChild.cloneNode(true));
-        this.linkArr[i].replaceChild(span, this.linkArr[i].firstChild);
+        this.linkArr[i][0].firstChild.splitText(this.currentString.length);
+        span.appendChild(this.linkArr[i][0].firstChild.cloneNode(true));
+        this.linkArr[i][0].replaceChild(span, this.linkArr[i][0].firstChild);
         index = i.toString();
         linksFound++;
-      } else if (this.linkArr[i].parentNode) {
-        this.linkArr[i].style.opacity = "0";
+      } else if (this.linkArr[i][0].parentNode) {
+        this.linkArr[i][0].style.opacity = "0";
       }
     }
   } else {
@@ -209,7 +211,7 @@ Hints.handleHintFeedback = function() {
           var c = 0;
           for (var j = 0; j < this.linkArr.length; ++j) {
             if (this.linkArr[j][0].style.opacity !== "0") {
-              this.linkArr[j][0].textContent = c + 1;
+              this.linkArr[j][0].textContent = (c + 1).toString() + (this.linkArr[j][3] ? ": " + this.linkArr[j][3] : "");
               c++;
             }
           }
@@ -237,10 +239,12 @@ Hints.handleHintFeedback = function() {
     this.hideHints(false, false, true);
   }
   if (linksFound === 1) {
-    if (settings.numerichints) {
-      this.dispatchAction(this.linkArr[index][1]);
+    if (Key.shiftKey && !(settings.numerichints && settings.typelinkhints) && !Hints.containsUppercase) {
+      this.linkPreview = true;
+      this.currentIndex = index;
+      this.switchText(index);
     } else {
-      this.dispatchAction(this.linkHints[index]);
+      this.dispatchAction(this.linkArr[index][1]);
     }
   }
 
@@ -248,6 +252,9 @@ Hints.handleHintFeedback = function() {
 
 
 Hints.handleHint = function(key) {
+  if (this.linkPreview) {
+    this.dispatchAction(this.linkHints[this.currentIndex]);
+  }
   if (settings.numerichints || settings.hintcharacters.split("").indexOf(key.toLowerCase()) !== -1) {
     this.currentString += key.toLowerCase();
     this.handleHintFeedback(this.currentString);
@@ -330,6 +337,10 @@ Hints.create = function(type, multi) {
   linkNumber = 0;
 
   c = 0;
+  var linkElementBase = document.createElement("div");
+  linkElementBase.cVim = true;
+  linkElementBase.className = "cVim-link-hint";
+  linkElementBase.style.zIndex = c;
   for (i = 0, l = links.length; i < l; ++i) {
     var link = links[i];
     isAreaNode = false;
@@ -345,10 +356,7 @@ Hints.create = function(type, multi) {
     }
     if (linkLocation) {
       this.linkHints.push(link);
-      linkElement = document.createElement("div");
-      linkElement.cVim = true;
-      linkElement.className = "cVim-link-hint";
-      linkElement.style.zIndex = c;
+      linkElement = linkElementBase.cloneNode(false);
       if (isAreaNode) {
         if (!/,/.test(link.getAttribute("coords"))) continue;
         mapCoordinates = link.coords.split(",");
@@ -376,15 +384,17 @@ Hints.create = function(type, multi) {
           this.linkArr.push([linkLocation.bottom * linkLocation.left, linkElement, link]);
         } else {
           var textValue = "";
-          if (link.textContent) {
-            textValue = link.textContent;
-          } else if (link.value) {
-            textValue = link.value;
+          var alt = "";
+          if (link.firstElementChild && link.firstElementChild.alt) {
+            textValue = link.firstElementChild.alt;
+            alt = textValue;
+          } else {
+            textValue = link.textContent || link.value || link.alt || "";
           }
-          this.linkArr.push([linkLocation.bottom * linkLocation.left, linkElement, link, textValue]);
+          this.linkArr.push([linkLocation.left + linkLocation.top, linkElement, link, textValue, alt]);
         }
       } else {
-        this.linkArr.push(linkElement);
+        this.linkArr.push([linkElement, link]);
       }
     }
     c += 1;
@@ -447,9 +457,12 @@ Hints.create = function(type, multi) {
   if (!settings.numerichints) {
     var lim = Math.ceil(Math.log(this.linkArr.length) / Math.log(settings.hintcharacters.length)) || 1;
     var rlim = Math.floor((Math.pow(settings.hintcharacters.length, lim) - this.linkArr.length) / settings.hintcharacters.length);
+    if (rlim !== 0) {
+      rlim += 1;
+    }
 
     for (i = 0; i < rlim; ++i) {
-      this.linkArr[i].textContent = this.generateHintString(i, lim - 1);
+      this.linkArr[i][0].textContent = this.generateHintString(i, lim - 1);
       this.permutations.push(this.generateHintString(i, lim - 1));
     }
 
@@ -458,8 +471,8 @@ Hints.create = function(type, multi) {
     }
 
     for (i = this.linkArr.length - 1; i >= 0; --i) {
-      this.linkArr[i].textContent = this.permutations[i];
-      frag.appendChild(this.linkArr[i]);
+      this.linkArr[i][0].textContent = this.permutations[i];
+      frag.appendChild(this.linkArr[i][0]);
     }
   } else {
     this.linkArr = this.linkArr.sort(function(a, b) {
@@ -468,7 +481,7 @@ Hints.create = function(type, multi) {
       return e.slice(1);
     });
     for (i = 0, l = this.linkArr.length; i < l; ++i) {
-      this.linkArr[i][0].textContent = (i + 1).toString();
+      this.linkArr[i][0].textContent = (i + 1).toString() + (this.linkArr[i][3] ? ": " + this.linkArr[i][3] : "");
       frag.appendChild(this.linkArr[i][0]);
     }
   }

@@ -412,6 +412,7 @@ Mappings.actions   = {
   },
   openSearchBar: function() {
     Command.hide();
+    Find.lastIndex = Find.index;
     Command.lastScrollTop = document.body.scrollTop;
     commandMode = true;
     Find.previousMatches = Find.matches.length > 0;
@@ -420,6 +421,7 @@ Mappings.actions   = {
   },
   openSearchBarReverse: function() {
     Command.hide();
+    Find.lastIndex = Find.index;
     commandMode = true;
     Command.lastScrollTop = document.body.scrollTop;
     Find.previousMatches = Find.matches.length > 0;
@@ -784,15 +786,17 @@ Mappings.handleEscapeKey = function() {
   if (commandMode) {
     if (Command.type === "search") {
       document.body.scrollTop = Command.lastScrollTop;
-      Find.clear();
-      HUD.hide();
-      if (Find.previousMatches && Find.lastSearch) {
+      if (Find.previousMatches && Command.input.value && Find.lastSearch && Find.lastSearch !== Command.input.value) {
+        Find.clear();
+        HUD.hide();
         Find.highlight({ base: document.body,
-                         search: Find.lastSearch,
-                         setIndex: true,
-                         executeSearch: false,
-                         reverse: true,
-                         saveSearch: true });
+          search: Find.lastSearch,
+          setIndex: false,
+          executeSearch: false,
+          reverse: true,
+          saveSearch: true });
+        Find.index = Find.lastIndex - 1;
+        Find.search(false, 1, false);
       }
     }
     Command.hideData();

@@ -14,6 +14,9 @@ HTMLElement.prototype.getVisibleBoundingRect = function() {
   if (boundingRect.top > window.innerHeight || boundingRect.left > window.innerWidth) {
     return false;
   }
+  if (boundingRect.top + boundingRect.height > 10 && boundingRect.left + boundingRect.width > -10) {
+    return boundingRect;
+  }
   if (boundingRect.width === 0 || boundingRect.height === 0) {
     var children = this.children;
     var visibleChildNode = false;
@@ -243,6 +246,15 @@ function matchLocation(url, pattern) { // Uses @match syntax
     }
   }
   return true;
+}
+
+function waitForLoad(callback, constructor) {
+  if (document.readyState === "complete" || document.readyState === "interactive") {
+    return callback.call(constructor);
+  }
+  document.addEventListener("DOMContentLoaded", function() {
+    callback.call(constructor);
+  });
 }
 
 Array.prototype.last = function() {

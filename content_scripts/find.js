@@ -101,7 +101,10 @@ Find.highlight = function(params) {
   var regexMode = "",
       containsCap = params.search.search(/[A-Z]/) !== -1,
       useRegex = settings.regexp,
+      markBase = document.createElement("mark"),
       node, regexMatches, mark, mid, data, treeWalker, matchPosition;
+
+  markBase.style.backgroundColor = settings.highlight;
 
   if (params.saveSearch) {
     this.lastSearch = params.search;
@@ -132,8 +135,7 @@ Find.highlight = function(params) {
       if (useRegex) {
         regexMatches = data.match(params.search);
       }
-      mark = document.createElement("mark");
-      mark.style.backgroundColor = settings.highlight;
+      mark = markBase.cloneNode(false);
       mid = node.splitText(matchPosition);
       mid.splitText(useRegex ? regexMatches[0].length : params.search.length);
       mark.appendChild(mid.cloneNode(true));

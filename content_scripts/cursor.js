@@ -12,9 +12,7 @@ Cursor.init = function() {
   this.overlay.style.display = "none";
   this.overlay.style.webkitTransform = "translateZ(0)";
   this.overlay.style.transform = "translateZ(0)";
-  if (document.body) {
-    document.body.appendChild(this.overlay);
-  }
+  document.body.appendChild(this.overlay);
   var oldX, oldY;
   document.addEventListener("mousemove", function(e) {
     if (oldX !== e.x || oldY !== e.y) {

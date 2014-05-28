@@ -467,6 +467,9 @@ Command.execute = function(value, repeats) {
 Command.show = function(search, value) {
   this.type = "";
   this.active = true;
+  if (document.activeElement) {
+    document.activeElement.blur();
+  }
   if (search) {
     this.type = "search";
     this.modeIdentifier.innerHTML = search;
@@ -501,12 +504,48 @@ Command.hide = function() {
   if (this.data) this.data.style.display = "none";
 };
 
+Command.onDOMLoad = function() {
+  var head = document.getElementsByTagName("head");
+  if (head.length) { // Use chrome.tabs.insertCSS if document.head does not exist
+    this.css = document.createElement("style");
+    this.css.textContent = settings.COMMANDBARCSS;
+    head[0].appendChild(this.css);
+  }
+  if (!head.length && document.URL.indexOf("chrome") !== 0) {
+    chrome.runtime.sendMessage({action: "injectCSS", css: settings.COMMANDBARCSS, runAt: "document_start"});
+  }
+  this.onBottom = settings.barposition === "bottom";
+  if (this.data !== undefined) {
+    this.data.style[(!this.onBottom) ? "bottom" : "top"] = "";
+    this.data.style[(this.onBottom) ? "bottom" : "top"] = "20px";
+  }
+  if (!settings.autofocus) {
+    var manualFocus = false;
+    var initialFocus = window.setInterval(function() {
+      if (document.activeElement) {
+        if (/input|textarea/i.test(document.activeElement.localName) && !manualFocus) {
+          document.activeElement.blur();
+        }
+      }
+      if (manualFocus) {
+        window.clearInterval(initialFocus);
+      }
+    }, 5);
+    var initialKeyDown = document.addEventListener("keydown", function() {
+      manualFocus = true;
+      document.removeEventListener("keydown", initialKeyDown, true);
+    }, true);
+    var initialMouseDown = document.addEventListener("mousedown", function() {
+      manualFocus = true;
+      document.removeEventListener("mousedown", initialMouseDown, true);
+    }, true);
+  }
+  this.setup();
+};
+
 Command.init = function(enabled) {
   var key;
   if (enabled) {
-    if (!settings) {
-      return chrome.runtime.sendMessage({action: "getSettings"});
-    }
     Mappings.defaults = Object.clone(Mappings.defaultsClone);
     Mappings.shortCuts = Object.clone(Mappings.shortCutsClone);
     if (settings.searchengines && !Array.isArray(settings.searchengines) && typeof settings.searchengines === "object") {
@@ -518,47 +557,16 @@ Command.init = function(enabled) {
       }
     }
     Mappings.parseCustom(settings.MAPPINGS);
-    var head = document.getElementsByTagName("head");
-    if (head.length) { // Use chrome.tabs.insertCSS if document.head does not exist
-      this.css = document.createElement("style");
-      this.css.textContent = settings.COMMANDBARCSS;
-      head[0].appendChild(this.css);
-    }
-    this.onBottom = settings.barposition === "bottom";
-    if (this.data !== undefined) {
-      this.data.style[(!this.onBottom) ? "bottom" : "top"] = "";
-      this.data.style[(this.onBottom) ? "bottom" : "top"] = "20px";
-    }
+    waitForLoad(this.onDOMLoad, this);
     if (settings.autohidecursor) {
-      Cursor.init();
-    }
-    if (!settings.autofocus) {
-      var manualFocus = false;
-      var initialFocus = window.setInterval(function() {
-        if (document.activeElement) {
-          if (/input|textarea/i.test(document.activeElement.localName) && !manualFocus) {
-            document.activeElement.blur();
-          }
-        }
-        if (manualFocus) {
-          window.clearInterval(initialFocus);
-        }
-      }, 5);
-      var initialKeyDown = document.addEventListener("keydown", function() {
-        manualFocus = true;
-        document.removeEventListener("keydown", initialKeyDown, true);
-      }, true);
-      var initialMouseDown = document.addEventListener("mousedown", function() {
-        manualFocus = true;
-        document.removeEventListener("mousedown", initialMouseDown, true);
-      }, true);
+      waitForLoad(Cursor.init, Cursor);
     }
     Scroll.smoothScroll = settings.smoothscroll;
     Scroll.stepSize = parseInt(settings.scrollstep);
     if (settings.hintcharacters.split("").unique().length > 1) {
       settings.hintcharacters = settings.hintcharacters.split("").unique().join("");
     }
-    this.setup();
+    Hints.containsUppercase = /[A-Z]/.test(settings.hintcharacters);
     if (!Key.listenersActive) {
       addListeners();
     }
@@ -566,9 +574,6 @@ Command.init = function(enabled) {
       Complete.engines = Complete.engines.filter(function(e) {
         return settings.completionengines.indexOf(e) !== -1;
       });
-    }
-    if (!head.length && document.URL.indexOf("chrome") !== 0) {
-      chrome.runtime.sendMessage({action: "injectCSS", css: settings.COMMANDBARCSS, runAt: "document_start"});
     }
   } else {
     this.loaded = false;
@@ -589,8 +594,9 @@ Command.init = function(enabled) {
   }
 };
 
-Command.configureSettings = function(s) {
-
+Command.configureSettings = function(_settings) {
+  
+  settings = _settings;
   function checkBlacklist() {
     var blacklists = settings.BLACKLISTS.split("\n"),
         blacklist;
@@ -622,7 +628,6 @@ Command.configureSettings = function(s) {
   if (this.loaded) {
     this.init(false);
   }
-  settings = s;
   Search.settings = Object.keys(settings).filter(function(e) {
     return settings[e].constructor === Boolean;
   });
@@ -646,7 +651,7 @@ window.addEventListener("focus", function() {
   }, 0);
 });
 
-document.addEventListener("DOMContentLoaded", function() {
+window.addEventListener("DOMContentLoaded", function() {
   if (self === top) {
     chrome.runtime.sendMessage({action: "getSettings"});
     chrome.runtime.sendMessage({action: "isNewInstall"}, function(message) {

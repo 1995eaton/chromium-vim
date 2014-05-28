@@ -34,6 +34,7 @@ for (var i = 112; i < 123; ++i) {
 Key.fromKeyCode = function(e) {
   var keyCode  = e.which;
   var shiftKey = e.shiftKey;
+  this.shiftKey = e.shiftKey;
   var convertedKey;
   if (this.keyMap.hasOwnProperty(keyCode.toString())) {
     convertedKey = this.keyMap[keyCode.toString()];
@@ -101,7 +102,7 @@ Key.down = function(e) {
     Cursor.overlay.style.display = "block";
   }
 
-  if (document.activeElement.id === "cVim-command-bar-input") {
+  if (Command.active && document.activeElement && document.activeElement.id === "cVim-command-bar-input") {
     e.stopPropagation();
   }
 
@@ -141,7 +142,7 @@ Key.down = function(e) {
   }
 
   if (!commandMode && Mappings.actions.inputFocused && e.which === 9) { // When <Tab> or <S-Tab> is pressed in 'gi' mode
-    if (!document.activeElement.isInput() || !Mappings.actions.inputElements.length) {
+    if (document.activeElement && (!document.activeElement.isInput() || !Mappings.actions.inputElements.length)) {
       return Mappings.actions.inputFocused = false;
     }
     e.preventDefault();
@@ -154,7 +155,7 @@ Key.down = function(e) {
     return;
   }
 
-  var isInput = document.activeElement.isInput();
+  var isInput = document.activeElement && document.activeElement.isInput();
 
   if (!isInput) {
     if (Mappings.convertToAction(asciiKey)) {
@@ -173,7 +174,7 @@ Key.down = function(e) {
     }
   }
 
-  if (settings.insertmappings && document.activeElement.isInput() && !keyType.escape && asciiKey !== "" && !(settings.cncpcompletion && asciiKey === "<C-p>" && document.activeElement.id === "cVim-command-bar-input")) { // Handle textbox shortcuts
+  if (settings.insertmappings && document.activeElement && document.activeElement.isInput() && !keyType.escape && asciiKey !== "" && !(settings.cncpcompletion && asciiKey === "<C-p>" && document.activeElement.id === "cVim-command-bar-input")) { // Handle textbox shortcuts
     Mappings.insertCommand(asciiKey, function() {
       e.preventDefault();
       if (document.activeElement.id === "cVim-command-bar-input" && Command.type !== "search") {
@@ -232,11 +233,11 @@ Key.down = function(e) {
                            reverse: asciiKey === "<C-Enter>",
                            saveSearch: true });
         }
-        Find.index = (asciiKey === "<C-Enter>" ? -1 : 1);
-        Find.setIndex();
-        Find.search(asciiKey === "<C-Enter>", 1);
-        chrome.runtime.sendMessage({action: "updateLastSearch", value: Find.lastSearch});
         Command.hide();
+        Find.index = Command.modeIdentifier.textContent === "/" ? -1 : 1;
+        Find.setIndex();
+        Find.search(Command.modeIdentifier.textContent === "?", 1, true);
+        chrome.runtime.sendMessage({action: "updateLastSearch", value: Find.lastSearch});
         break;
 
       default:
@@ -253,9 +254,9 @@ Key.down = function(e) {
             Find.clear();
             Find.highlight({ base: document.body,
                              search: Command.input.value});
-            Find.index = -1;
+            Find.index = Command.modeIdentifier.textContent === "/" ? -1 : 1;
             Find.setIndex();
-            Find.search(false, 1, true);
+            Find.search(Command.modeIdentifier.textContent === "?", 1, true);
           }
         }, 0);
         break;
@@ -266,17 +267,20 @@ Key.down = function(e) {
 };
 
 Key.up = function(e) {
-  if (document.activeElement.id === "cVim-command-bar-input" || (!insertMode && Mappings.queue.length && Mappings.validMatch)) {
+  if ((document.activeElement && document.activeElement.id === "cVim-command-bar-input") || (!insertMode && Mappings.queue.length && Mappings.validMatch)) {
     e.stopPropagation();
     e.preventDefault();
   }
   if (Hints.active && e.which === 191) {
     document.getElementById("cVim-link-container").style.opacity = "1";
   }
+  if (Hints.active && e.which === 16 && Hints.linkPreview) {
+    Hints.hideHints(false);
+  }
 };
 
 Key.press = function(e) {
-  if (Command.active || document.activeElement.id === "cVim-command-bar-input") {
+  if (Command.active || (document.activeElement && document.activeElement.id === "cVim-command-bar-input")) {
     e.stopPropagation();
   }
   if (Visual.caretModeActive || Visual.visualModeActive) {
