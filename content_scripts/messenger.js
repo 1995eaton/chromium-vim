@@ -132,6 +132,10 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
       }
       break;
     case "toggleEnabled":
+      addListeners();
+      if (!settings) {
+        chrome.runtime.sendMessage({action: "getSettings"});
+      }
       Command.init(request.state);
       break;
     case "getBlacklistStatus":

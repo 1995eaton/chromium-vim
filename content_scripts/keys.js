@@ -80,6 +80,12 @@ Key.fromKeyCode = function(e) {
 
 Key.down = function(e) {
 
+  if (Key.initialKey || (document.readyState !== "interactive" && document.readyState !== "complete")) {
+    return Key.initialKey = e;
+  } else {
+    Key.initialKey = null;
+  }
+
   if (Hints.active) {
     e.stopPropagation();
     if (e.which === 18) {
@@ -174,7 +180,7 @@ Key.down = function(e) {
     }
   }
 
-  if (settings.insertmappings && document.activeElement && document.activeElement.isInput() && !keyType.escape && asciiKey !== "" && !(settings.cncpcompletion && asciiKey === "<C-p>" && document.activeElement.id === "cVim-command-bar-input")) { // Handle textbox shortcuts
+  if (settings && settings.insertmappings && document.activeElement && document.activeElement.isInput() && !keyType.escape && asciiKey !== "" && !(settings.cncpcompletion && asciiKey === "<C-p>" && document.activeElement.id === "cVim-command-bar-input")) { // Handle textbox shortcuts
     Mappings.insertCommand(asciiKey, function() {
       e.preventDefault();
       if (document.activeElement.id === "cVim-command-bar-input" && Command.type !== "search") {
@@ -289,19 +295,24 @@ Key.press = function(e) {
   }
 };
 
-addListeners = function() {
-  Key.listenersActive = true;
-  document.addEventListener("keypress", Key.press, true);
-  document.addEventListener("keyup", Key.up, true);
-  document.addEventListener("keydown", Key.down, true);
-};
-
 removeListeners = function() {
   Key.listenersActive = false;
   document.removeEventListener("keypress", Key.press, true);
   document.removeEventListener("keyup", Key.up, true);
   document.removeEventListener("keydown", Key.down, true);
 };
+
+addListeners = function() {
+  if (Key.listenersActive) {
+    removeListeners();
+  }
+  Key.listenersActive = true;
+  document.addEventListener("keypress", Key.press, true);
+  document.addEventListener("keyup", Key.up, true);
+  document.addEventListener("keydown", Key.down, true);
+};
+
+addListeners();
 
 Key.toggleCvim = function(ev) {
   var key = Key.fromKeyCode(ev);
@@ -312,4 +323,15 @@ Key.toggleCvim = function(ev) {
 
 document.addEventListener("DOMContentLoaded", function() {
   document.addEventListener("keydown", Key.toggleCvim, true);
+});
+
+window.addEventListener("DOMContentLoaded", function() {
+  if (self === top) {
+    chrome.runtime.sendMessage({action: "getSettings"});
+    chrome.runtime.sendMessage({action: "isNewInstall"}, function(message) {
+      if (message) { // Possible temporary fix for issue #36
+        alert(message);
+      }
+    });
+  }
 });

@@ -519,7 +519,7 @@ Command.onDOMLoad = function() {
     this.data.style[(!this.onBottom) ? "bottom" : "top"] = "";
     this.data.style[(this.onBottom) ? "bottom" : "top"] = "20px";
   }
-  if (!settings.autofocus) {
+  if (!Key.initialKey && !settings.autofocus) {
     var manualFocus = false;
     var initialFocus = window.setInterval(function() {
       if (document.activeElement) {
@@ -541,13 +541,19 @@ Command.onDOMLoad = function() {
     }, true);
   }
   this.setup();
+  if (Key.initialKey) {
+    var tmp = Key.initialKey;
+    Key.initialKey = null;
+    Key.down(tmp);
+  }
 };
 
 Command.init = function(enabled) {
   var key;
+  Mappings.defaults = Object.clone(Mappings.defaultsClone);
+  Mappings.shortCuts = Object.clone(Mappings.shortCutsClone);
+  Mappings.parseCustom(settings.MAPPINGS);
   if (enabled) {
-    Mappings.defaults = Object.clone(Mappings.defaultsClone);
-    Mappings.shortCuts = Object.clone(Mappings.shortCutsClone);
     if (settings.searchengines && !Array.isArray(settings.searchengines) && typeof settings.searchengines === "object") {
       for (key in settings.searchengines) {
         if (Complete.engines.indexOf(key) === -1 && typeof settings.searchengines[key] === "string") {
@@ -556,7 +562,6 @@ Command.init = function(enabled) {
         }
       }
     }
-    Mappings.parseCustom(settings.MAPPINGS);
     waitForLoad(this.onDOMLoad, this);
     if (settings.autohidecursor) {
       waitForLoad(Cursor.init, Cursor);
@@ -567,9 +572,6 @@ Command.init = function(enabled) {
       settings.hintcharacters = settings.hintcharacters.split("").unique().join("");
     }
     Hints.containsUppercase = /[A-Z]/.test(settings.hintcharacters);
-    if (!Key.listenersActive) {
-      addListeners();
-    }
     if (Array.isArray(settings.completionengines) && settings.completionengines.length) {
       Complete.engines = Complete.engines.filter(function(e) {
         return settings.completionengines.indexOf(e) !== -1;
@@ -581,7 +583,7 @@ Command.init = function(enabled) {
       this.css.parentNode.removeChild(this.css);
     }
     var links = document.getElementById("cVim-link-container");
-    if (Cursor.overlay) {
+    if (Cursor.overlay && Cursor.overlay.parentNode) {
       Cursor.overlay.parentNode.removeChild(Cursor.overlay);
     }
     if (this.bar && this.bar.parentNode) {
@@ -625,21 +627,22 @@ Command.configureSettings = function(_settings) {
     chrome.runtime.sendMessage({action: "setIconEnabled"});
     Command.init(true);
   }
-  if (this.loaded) {
-    this.init(false);
-  }
   Search.settings = Object.keys(settings).filter(function(e) {
     return settings[e].constructor === Boolean;
   });
+  removeListeners();
   settings.searchlimit = parseInt(settings.searchlimit);
   if (!checkBlacklist()) {
     chrome.runtime.sendMessage({action: "getActiveState"}, function(response) {
       if (response) {
+        addListeners();
         loadMain();
+      } else {
+        Command.init(false);
       }
     });
-  } else if (Key.listenersActive) {
-    removeListeners();
+  } else {
+    this.init(false);
   }
 };
 
@@ -649,15 +652,4 @@ window.addEventListener("focus", function() {
       chrome.runtime.sendMessage({action: "getSettings"});
     }
   }, 0);
-});
-
-window.addEventListener("DOMContentLoaded", function() {
-  if (self === top) {
-    chrome.runtime.sendMessage({action: "getSettings"});
-    chrome.runtime.sendMessage({action: "isNewInstall"}, function(message) {
-      if (message) { // Possible temporary fix for issue #36
-        alert(message);
-      }
-    });
-  }
 });

@@ -33,6 +33,7 @@ Scroll.smoothScrollBy = function(x, y) {
       i = 0,
       delta = 0;
 
+  this.isScrolling = true;
   function animLoop() {
 
     if (isVertical) {
@@ -43,6 +44,8 @@ Scroll.smoothScrollBy = function(x, y) {
 
     if (i < settings.scrollduration) {
       window.requestAnimationFrame(animLoop);
+    } else {
+      Scroll.isScrolling = false;
     }
 
     delta = easeFunc(i, 0, (x || y), settings.scrollduration);
@@ -53,15 +56,17 @@ Scroll.smoothScrollBy = function(x, y) {
 };
 
 Scroll.scroll = function(type, repeats) {
+  
+  var stepSize = settings ? settings.scrollstep : 60;
 
-  if (settings.smoothscroll) {
+  if (settings && settings.smoothscroll) {
 
     switch (type) {
       case "down":
-        Scroll.smoothScrollBy(0, repeats * settings.scrollstep);
+        Scroll.smoothScrollBy(0, repeats * stepSize);
         break;
       case "up":
-        Scroll.smoothScrollBy(0, -repeats * settings.scrollstep);
+        Scroll.smoothScrollBy(0, -repeats * stepSize);
         break;
       case "pageDown":
         Scroll.smoothScrollBy(0, repeats * window.innerHeight / 2);
@@ -76,10 +81,10 @@ Scroll.scroll = function(type, repeats) {
         Scroll.smoothScrollBy(0, document.body.scrollHeight - document.body.scrollTop - window.innerHeight + 10);
         break;
       case "left":
-        Scroll.smoothScrollBy(repeats * -settings.scrollstep / 2, 0);
+        Scroll.smoothScrollBy(repeats * -stepSize / 2, 0);
         break;
       case "right":
-        Scroll.smoothScrollBy(repeats * settings.scrollstep / 2, 0);
+        Scroll.smoothScrollBy(repeats * stepSize / 2, 0);
         break;
       case "leftmost":
         Scroll.smoothScrollBy(-document.body.scrollLeft - 10, 0);
@@ -95,10 +100,10 @@ Scroll.scroll = function(type, repeats) {
 
     switch (type) {
       case "down":
-        scrollBy(0, repeats * settings.scrollstep);
+        scrollBy(0, repeats * stepSize);
         break;
       case "up":
-        scrollBy(0, -repeats * settings.scrollstep);
+        scrollBy(0, -repeats * stepSize);
         break;
       case "pageDown":
         scrollBy(0, repeats * window.innerHeight / 2);
@@ -113,10 +118,10 @@ Scroll.scroll = function(type, repeats) {
         scrollTo(0, document.body.scrollHeight);
         break;
       case "left":
-        scrollBy(-repeats * settings.scrollstep, 0);
+        scrollBy(-repeats * stepSize, 0);
         break;
       case "right":
-        scrollBy(repeats * settings.scrollstep, 0);
+        scrollBy(repeats * stepSize, 0);
         break;
       case "leftmost":
         scrollTo(0, document.body.scrollTop);
@@ -129,4 +134,5 @@ Scroll.scroll = function(type, repeats) {
     }
 
   }
+
 };

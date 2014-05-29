@@ -5,12 +5,12 @@ HTMLElement.prototype.isInput = function() {
   );
 };
 
-HTMLElement.prototype.getVisibleBoundingRect = function() {
-  var computedStyle = getComputedStyle(this);
+function getVisibleBoundingRect(node) {
+  var computedStyle = getComputedStyle(node);
   if (computedStyle.opacity === "0" || computedStyle.visibility !== "visible" || computedStyle.display === "none") {
     return false;
   }
-  var boundingRect = this.getBoundingClientRect();
+  var boundingRect = node.getBoundingClientRect();
   if (boundingRect.top > window.innerHeight || boundingRect.left > window.innerWidth) {
     return false;
   }
@@ -18,7 +18,7 @@ HTMLElement.prototype.getVisibleBoundingRect = function() {
     return boundingRect;
   }
   if (boundingRect.width === 0 || boundingRect.height === 0) {
-    var children = this.children;
+    var children = node.children;
     var visibleChildNode = false;
     for (var i = 0, l = children.length; i < l; ++i) {
       boundingRect = children[i].getBoundingClientRect();
@@ -27,7 +27,7 @@ HTMLElement.prototype.getVisibleBoundingRect = function() {
         break;
       }
     }
-    if (!visibleChildNode) {
+    if (visibleChildNode === false) {
       return false;
     }
   }
@@ -35,7 +35,36 @@ HTMLElement.prototype.getVisibleBoundingRect = function() {
     return false;
   }
   return boundingRect;
-};
+}
+
+function isClickable(node, type) {
+  var name = node.localName, t;
+  if (type) {
+    if (type.indexOf("yank") !== -1) {
+      return name === "a";
+    } else if (type.indexOf("image") !== -1) {
+      return name === "img";
+    }
+  }
+  if (name === "a" || name === "button" || name === "select" || name === "textarea" || name === "input" || name === "area") {
+    return true;
+  }
+  if (node.getAttribute("onclick") ||
+        node.getAttribute("tabindex") || node.getAttribute("aria-haspopup") ||
+        node.getAttribute("data-cmd") || node.getAttribute("jsaction") ||
+        ((t = node.getAttribute("role")) && (t === "button" || t === "checkbox" || t === "menu"))) {
+    return true;
+  }
+  // if (name === "div" && node.className === "fc-panel") {
+  //   return true;
+  // }
+  // if (getComputedStyle(node).cursor === "pointer") {
+  //   if (!node.offsetParent || (node.offsetParent.style.cursor !== "pointer" && node.offsetParent.localName !== "a" &&
+  //         !/aria|jsaction|role|onclick/.test(Array.prototype.slice.call(node.offsetParent.attributes).map(function(e){return e.name;}).join(",")))) {
+  //     return true;
+  //   }
+  // }
+}
 
 HTMLCollection.prototype.toArray = function() {
   var nodes = [];
@@ -248,8 +277,8 @@ function matchLocation(url, pattern) { // Uses @match syntax
   return true;
 }
 
-function waitForLoad(callback, constructor) {
-  if (document.readyState === "complete" || document.readyState === "interactive") {
+function waitForLoad(callback, constructor, fullLoad) {
+  if (!fullLoad && document.readyState === "complete" || document.readyState === "interactive") {
     return callback.call(constructor);
   }
   document.addEventListener("DOMContentLoaded", function() {

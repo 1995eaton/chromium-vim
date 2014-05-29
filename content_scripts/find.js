@@ -102,7 +102,7 @@ Find.highlight = function(params) {
       containsCap = params.search.search(/[A-Z]/) !== -1,
       useRegex = settings.regexp,
       markBase = document.createElement("mark"),
-      node, regexMatches, mark, mid, data, treeWalker, matchPosition;
+      node, regexMatches, mark, mid, data, nodeIterator, matchPosition;
 
   markBase.style.backgroundColor = settings.highlight;
 
@@ -120,11 +120,11 @@ Find.highlight = function(params) {
     catch(e) { useRegex = false; }
   }
 
-  treeWalker = document.createTreeWalker(params.base, NodeFilter.SHOW_TEXT, { acceptNode: function(node) { // Make sure HTML element isn't a script/style
+  nodeIterator = document.createNodeIterator(params.base, NodeFilter.SHOW_TEXT, { acceptNode: function(node) { // Make sure HTML element isn't a script/style
     return node.isTextNode();
   }}, false);
 
-  while (node = treeWalker.nextNode()) {
+  while (node = nodeIterator.nextNode()) {
     data = (settings.ignorediacritics ? node.data.removeDiacritics() : node.data);
     if (useRegex) {
       matchPosition = data.search(params.search);

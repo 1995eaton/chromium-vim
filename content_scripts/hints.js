@@ -9,9 +9,9 @@ Hints.switchText = function(index) {
 
 Hints.matchPatterns = function(forward) {
   var pattern = new RegExp("^" + (forward ? settings.nextmatchpattern : settings.previousmatchpattern) + "$", "gi");
-  var treeWalker = document.createTreeWalker(document.body, 4, null, false);
+  var nodeIterator = document.createNodeIterator(document.body, 4, null, false);
   var node;
-  while (node = treeWalker.nextNode()) {
+  while (node = nodeIterator.nextNode()) {
     var localName = node.localName;
     if (/script|style|noscript/.test(localName)) {
       continue;
@@ -245,6 +245,7 @@ Hints.handleHintFeedback = function() {
       this.switchText(index);
     } else {
       this.dispatchAction(this.linkArr[index][1]);
+      this.hideHints(false);
     }
   }
 
@@ -253,7 +254,7 @@ Hints.handleHintFeedback = function() {
 
 Hints.handleHint = function(key) {
   if (this.linkPreview) {
-    this.dispatchAction(this.linkHints[this.currentIndex]);
+    this.dispatchAction(this.linkArr[this.currentIndex][1]);
   }
   if (settings.numerichints || settings.hintcharacters.split("").indexOf(key.toLowerCase()) !== -1) {
     this.currentString += key.toLowerCase();
@@ -263,41 +264,77 @@ Hints.handleHint = function(key) {
   }
 };
 
-Hints.getLinks = function() {
-  var candidates, selection, item;
-  var validLinks = [],
-      isRedditUrl = /\.reddit\.com/.test(window.location.origin);
-
-  switch (this.type) {
-    case "yank":
-    case "multiyank":
-      selection = "//a|//area[@href]";
-      break;
-    case "image":
-    case "multiimage":
-      selection = "//img";
-      break;
-    default:
-      selection = "//a|//div[@class='fc-panel']|//area[@href]|//*[not(@aria-disabled='true') and not(@aria-hidden='true') and (@onclick or @role='button' or @role='checkbox' or starts-with(@role, 'menu') or @tabindex or @aria-haspopup or @data-cmd or @jsaction)]|//button|//select|//textarea|//input[not(@type='hidden' or @disabled)]";
-      break;
+Hints.evaluateLink = function(link) {
+  if (!link) {
+    return;
   }
-  selection = selection.split("|").filter(function(e) {
-    return e;
-  }).map(function(e) {
-    return e + "|//xhtml:" + e.slice(2);
-  }).join("|");
-  candidates = document.evaluate(selection, document, function(namespace) {
-    return namespace === "xhtml" ? "http://www.w3.org/1999/xhtml" : null;
-  }, 6, null);
-  for (var i = 0, l = candidates.snapshotLength; i < l; i++) {
-    item = candidates.snapshotItem(i);
-    if (isRedditUrl && (/click_thing/.test(item.getAttribute("onclick")) || (document.body.classList.contains("listing-chooser-collapsed") && item.offsetParent && (item.offsetParent.classList.contains("listing-chooser") || item.offsetParent.offsetParent && item.offsetParent.offsetParent.classList.contains("listing-chooser"))))) continue;
-    if (!item.hasOwnProperty("cVim")) {
-      validLinks.push(item);
+  isAreaNode = false;
+  if (link.localName === "area" && link.parentNode && link.parentNode.localName === "map") {
+    imgParent = document.querySelectorAll("img[usemap='#" + link.parentNode.name + "'");
+    if (!imgParent.length) {
+      return;
     }
-
+    linkLocation = getVisibleBoundingRect(imgParent[0]);
+    isAreaNode = true;
+  } else {
+    linkLocation = getVisibleBoundingRect(link);
   }
-  return validLinks;
+  if (linkLocation) {
+    linkElement = this.linkElementBase.cloneNode(false);
+    linkElement.style.zIndex = this.linkIndex;
+    if (isAreaNode) {
+      if (!/,/.test(link.getAttribute("coords"))) return;
+      mapCoordinates = link.coords.split(",");
+      if (mapCoordinates.length < 2) return;
+      linkElement.style.top = linkLocation.top * this.documentZoom + document.body.scrollTop + parseInt(mapCoordinates[1]) + "px";
+      linkElement.style.left = linkLocation.left * this.documentZoom + document.body.scrollLeft + parseInt(mapCoordinates[0]) + "px";
+    } else {
+      if (linkLocation.top < 0) {
+        linkElement.style.top = document.body.scrollTop+ "px";
+      } else {
+        linkElement.style.top = linkLocation.top * this.documentZoom + document.body.scrollTop + "px";
+      }
+      if (linkLocation.left < 0) {
+        linkElement.style.left = document.body.scrollLeft + "px";
+      } else {
+        if (l.offsetLeft > linkLocation.left) {
+          linkElement.style.left = link.offsetLeft * this.documentZoom + "px";
+        } else {
+          linkElement.style.left = linkLocation.left * this.documentZoom + document.body.scrollLeft + "px";
+        }
+      }
+    }
+    if (settings && settings.numerichints) {
+      if (!settings.typelinkhints) {
+        this.linkArr.push([linkLocation.bottom * linkLocation.left, linkElement, link]);
+      } else {
+        var textValue = "";
+        var alt = "";
+        if (link.firstElementChild && link.firstElementChild.alt) {
+          textValue = link.firstElementChild.alt;
+          alt = textValue;
+        } else {
+          textValue = link.textContent || link.value || link.alt || "";
+        }
+        this.linkArr.push([linkLocation.left + linkLocation.top, linkElement, link, textValue, alt]);
+      }
+    } else {
+      this.linkArr.push([linkElement, link]);
+    }
+  }
+  this.linkIndex += 1;
+};
+
+Hints.getLinks = function() {
+  var nodeIterator = document.createNodeIterator(document.body, 1, {acceptNode: function(node) {
+    if (isClickable(node, Hints.type)) {
+      return NodeFilter.FILTER_ACCEPT;
+    }
+    return NodeFilter.FILTER_REJECT;
+  }}), node;
+  while (node = nodeIterator.nextNode()) {
+    this.evaluateLink(node);
+  }
 };
 
 Hints.generateHintString = function(n, x) {
@@ -315,97 +352,26 @@ Hints.generateHintString = function(n, x) {
 };
 
 Hints.create = function(type, multi) {
-  var screen, links, linkNumber, main, frag, linkElement, isAreaNode, mapCoordinates, imgParent, c, i, l, documentZoom;
+  var links, main, frag, i, l;
   this.type = type;
+  this.hideHints(true, multi);
+  Hints.documentZoom = parseFloat(document.body.style.zoom) || 1;
+  Hints.linkElementBase = document.createElement("div");
+  Hints.linkElementBase.cVim = true;
+  Hints.linkElementBase.className = "cVim-link-hint";
+  this.linkIndex = 0;
   links = this.getLinks();
   if (type && type.indexOf("multi") !== -1) {
     this.multi = true;
   } else {
     this.multi = false;
   }
-  if (links.length === 0) {
-    return false;
-  }
-  this.hideHints(true, multi);
-  documentZoom = parseFloat(document.body.style.zoom) || 1;
-  screen = {
-    top: document.body.scrollTop,
-    bottom: document.body.scrollTop + window.innerHeight,
-    left: document.body.scrollLeft,
-    right: document.body.scrollLeft + window.innerWidth
-  };
-  linkNumber = 0;
-
-  c = 0;
-  var linkElementBase = document.createElement("div");
-  linkElementBase.cVim = true;
-  linkElementBase.className = "cVim-link-hint";
-  linkElementBase.style.zIndex = c;
-  for (i = 0, l = links.length; i < l; ++i) {
-    var link = links[i];
-    isAreaNode = false;
-    if (link.localName === "area" && link.parentNode && link.parentNode.localName === "map") {
-      imgParent = document.querySelectorAll("img[usemap='#" + link.parentNode.name + "'");
-      if (!imgParent.length) {
-        continue;
-      }
-      linkLocation = imgParent[0].getVisibleBoundingRect();
-      isAreaNode = true;
-    } else {
-      linkLocation = link.getVisibleBoundingRect();
-    }
-    if (linkLocation) {
-      this.linkHints.push(link);
-      linkElement = linkElementBase.cloneNode(false);
-      if (isAreaNode) {
-        if (!/,/.test(link.getAttribute("coords"))) continue;
-        mapCoordinates = link.coords.split(",");
-        if (mapCoordinates.length < 2) continue;
-        linkElement.style.top = linkLocation.top * documentZoom + screen.top + parseInt(mapCoordinates[1]) + "px";
-        linkElement.style.left = linkLocation.left * documentZoom + screen.left + parseInt(mapCoordinates[0]) + "px";
-      } else {
-        if (linkLocation.top < 0) {
-          linkElement.style.top = screen.top + "px";
-        } else {
-          linkElement.style.top = linkLocation.top * documentZoom + screen.top + "px";
-        }
-        if (linkLocation.left < 0) {
-          linkElement.style.left = screen.left + "px";
-        } else {
-          if (l.offsetLeft > linkLocation.left) {
-            linkElement.style.left = link.offsetLeft * documentZoom + "px";
-          } else {
-            linkElement.style.left = linkLocation.left * documentZoom + screen.left + "px";
-          }
-        }
-      }
-      if (settings.numerichints) {
-        if (!settings.typelinkhints) {
-          this.linkArr.push([linkLocation.bottom * linkLocation.left, linkElement, link]);
-        } else {
-          var textValue = "";
-          var alt = "";
-          if (link.firstElementChild && link.firstElementChild.alt) {
-            textValue = link.firstElementChild.alt;
-            alt = textValue;
-          } else {
-            textValue = link.textContent || link.value || link.alt || "";
-          }
-          this.linkArr.push([linkLocation.left + linkLocation.top, linkElement, link, textValue, alt]);
-        }
-      } else {
-        this.linkArr.push([linkElement, link]);
-      }
-    }
-    c += 1;
-  }
-
   if (this.linkArr.length === 0) {
     return this.hideHints();
   }
 
   main = document.createElement("div");
-  if (settings.linkanimations) {
+  if (settings && settings.linkanimations) {
     main.style.opacity = "0";
   }
   main.cVim = true;
@@ -421,7 +387,7 @@ Hints.create = function(type, multi) {
     document.body.appendChild(main);
   }
 
-  if (!multi && settings.hud) {
+  if (!multi && settings && settings.hud) {
     HUD.display("Follow link " + (function() {
       switch (type) {
         case "yank":
@@ -457,9 +423,6 @@ Hints.create = function(type, multi) {
   if (!settings.numerichints) {
     var lim = Math.ceil(Math.log(this.linkArr.length) / Math.log(settings.hintcharacters.length)) || 1;
     var rlim = Math.floor((Math.pow(settings.hintcharacters.length, lim) - this.linkArr.length) / settings.hintcharacters.length);
-    if (rlim !== 0) {
-      rlim += 1;
-    }
 
     for (i = 0; i < rlim; ++i) {
       this.linkArr[i][0].textContent = this.generateHintString(i, lim - 1);

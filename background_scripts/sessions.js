@@ -32,13 +32,17 @@ Sessions.stepBack = function(sender) {
 };
 
 (function() {
-  // Use Chrome's native tab restore if the user
-  // is on the dev channel
-  if (parseInt(navigator.appVersion.replace(/.*Chrome\/(\d+).*/, "$1")) > 36) {
+  if (chrome.hasOwnProperty("sessions")) {
     Sessions.nativeSessions = true;
-    chrome.sessions.onChanged.addListener(function() {
-      Sessions.onChanged();
-    });
+    if (chrome.sessions.hasOwnProperty("onchanged")) { // Chromium version 35 doesn't have this listener, but supports chrome.sessions
+      chrome.sessions.onChanged.addListener(function() {
+        Sessions.onChanged();
+      });
+    } else {
+      chrome.tabs.onRemoved.addListener(function() {
+        Sessions.onChanged();
+      });
+    }
     Sessions.onChanged();
   } else {
     Sessions.activeTabs = {};
