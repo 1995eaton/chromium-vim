@@ -13,7 +13,7 @@ Marks.filePath = function() {
       if (!input && this.files[i][0] !== ".." && this.files[i][0][0] === ".") {
         continue;
       }
-      ret.push(["file", this.files[i][0], !this.files[i][1] ? "File" : "Directory"]);
+      ret.push(["file", this.files[i][0], this.files[i][1]]);
       c++;
       if (c >= settings.searchlimit) {
         break;
@@ -23,7 +23,7 @@ Marks.filePath = function() {
   if (c < settings.searchlimit && !input) {
     for (i = 0; i < this.files.length; ++i) {
       if (this.files[i] !== ".." && this.files[i][0] === ".") {
-        ret.push(["file", this.files[i][0], !this.files[i][1] ? "File": "Directory"]);
+        ret.push(["file", this.files[i][0], !this.files[i][1]]);
         c++;
         if (c >= settings.searchlimit) {
           break;

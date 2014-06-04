@@ -120,7 +120,7 @@ Files = {
     if (matches) {
       for (var i = 0, l = matches.length; i < l; ++i) {
         var m = JSON.parse(matches[i].replace(/[^(]+\(/, "[").slice(0, -1) + "]");
-        results.push([m[0], m[2]]);
+        results.push([m[0], (m[2] ? "Directory" : "File (" + m[3] + ")")]);
       }
     }
     return results;
