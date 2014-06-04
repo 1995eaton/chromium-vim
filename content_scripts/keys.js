@@ -80,12 +80,6 @@ Key.fromKeyCode = function(e) {
 
 Key.down = function(e) {
 
-  if (Key.initialKey || (document.readyState !== "interactive" && document.readyState !== "complete")) {
-    return Key.initialKey = e;
-  } else {
-    Key.initialKey = null;
-  }
-
   if (Hints.active) {
     e.stopPropagation();
     if (e.which === 18) {
@@ -327,9 +321,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
 window.addEventListener("DOMContentLoaded", function() {
   if (self === top) {
-    chrome.runtime.sendMessage({action: "getSettings"});
     chrome.runtime.sendMessage({action: "isNewInstall"}, function(message) {
-      if (message) { // Possible temporary fix for issue #36
+      if (message) {
         alert(message);
       }
     });

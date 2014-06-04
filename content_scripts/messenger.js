@@ -103,7 +103,9 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
       Find.lastSearch = request.value;
       break;
     case "sendSettings":
-      Command.configureSettings(request.settings);
+      if (!Command.initialLoadStarted) {
+        Command.configureSettings(request.settings);
+      }
       break;
     case "confirm":
       callback(confirm(request.message));
@@ -113,6 +115,9 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
       break;
     case "updateMarks":
       Marks.quickMarks = request.marks;
+      break;
+    case "base64Image":
+      chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: "data:text/html;charset=utf-8;base64," + window.btoa(reverseImagePost(request.data, null)), noconvert: true});
       break;
     case "focusFrame":
       if (request.index === Frames.index) {
@@ -130,6 +135,12 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
       if (window.self === window.top) {
         callback(true);
       }
+      break;
+    case "getFilePath":
+      var search = Command.input.value.replace(/.*\//, "");
+      var parsed = request.data;
+      Marks.files = parsed;
+      Marks.filePath();
       break;
     case "toggleEnabled":
       addListeners();

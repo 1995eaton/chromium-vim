@@ -104,6 +104,9 @@ Search.nextResult = function(reverse) {
     case "session":
       Command.input.value = Command.input.value.match(/^\S+/)[0] + " " + Command.completionResults[this.index][1];
       break;
+    case "file":
+      Command.input.value = Command.input.value.replace(/[^\/]+$/, "") + Command.completionResults[this.index][1];
+      break;
     case "settings":
       var command = Command.input.value.split(/\s+/);
       Command.input.value = command[0] + " " + (/^no/.test(command[1]) ? "no" : "") + Command.completionResults[this.index][1];

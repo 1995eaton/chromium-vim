@@ -231,6 +231,7 @@ Visual.action = function(key) {
     case "p":
     case "P":
       Clipboard.copy(this.selection.toString());
+      document.getSelection().collapseToEnd();
       Clipboard.paste(key === "P");
       this.exit();
       break;

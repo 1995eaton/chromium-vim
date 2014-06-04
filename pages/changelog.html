@@ -16,6 +16,15 @@
   <script src="../content_scripts/search.js"></script>
   <script src="../content_scripts/status.js"></script>
   <script src="../content_scripts/visual.js"></script></head><h1 id="cvim-changelog">cVim Changelog</h1>
+<h2 id="1-2-52">1.2.52</h2>
+<ul>
+<li>Added the <code>file</code> command</li>
+<li>Added the <code>date</code> command</li>
+<li>Improved link hint performance</li>
+<li>The reverseImageSearch mapping can now parse base64 images (thanks to Google&#39;s &quot;Search by Image&quot; extension)</li>
+<li>Added the closeTab command to the chrome://extensions -&gt; Keyboard Shortcuts page</li>
+<li>Improved cVim response time on initial page load</li>
+</ul>
 <h2 id="1-2-51">1.2.51</h2>
 <ul>
 <li><strong>Important!</strong> cVimrc setting are now stricter. You must use &#39;let&#39; instead of set when using options requiring an equal symbol. For example:<pre><code class="lang-viml">set hintcharacters = abc123 &quot;Incorrect!

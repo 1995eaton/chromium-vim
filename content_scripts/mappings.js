@@ -7,6 +7,9 @@ Mappings.siteSpecificBlacklists = "";
 Mappings.actions   = {
 
   toggleVisualMode: function() {
+    if (!Command.domElementsLoaded) {
+      return false;
+    }
     Visual.caretModeActive = true;
     Visual.getTextNodes();
     Visual.lineMode = false;
@@ -195,10 +198,10 @@ Mappings.actions   = {
     }
   },
   zoomPageIn: function(repeats) {
-    document.body.style.zoom = (isNaN(parseInt(document.body.style.zoom)) ? 1 : parseFloat(document.body.style.zoom)) + 0.1 * repeats;
+    document.body.style.zoom = (isNaN(+document.body.style.zoom) ? 1 : parseFloat(document.body.style.zoom)) + 0.1 * repeats;
   },
   zoomPageOut: function(repeats) {
-    document.body.style.zoom = (isNaN(parseInt(document.body.style.zoom)) ? 1 : parseFloat(document.body.style.zoom)) - 0.1 * repeats;
+    document.body.style.zoom = (isNaN(+document.body.style.zoom) ? 1 : parseFloat(document.body.style.zoom)) - 0.1 * repeats;
   },
   zoomOrig: function() {
     document.body.style.zoom = "1";
@@ -320,8 +323,10 @@ Mappings.actions   = {
     Marks.openQuickMark(queue.slice(-1), true, repeats);
   },
   insertMode: function() {
-    HUD.display(" -- INSERT -- ");
-    insertMode = true;
+    if (Command.domElementsLoaded) {
+      HUD.display(" -- INSERT -- ");
+      insertMode = true;
+    }
   },
   reloadTab: function() {
     chrome.runtime.sendMessage({action: "reloadTab", nocache: false});
@@ -395,6 +400,9 @@ Mappings.actions   = {
     }
   },
   shortCuts: function(s, repeats) {
+    if (!Command.domElementsLoaded) {
+      return false;
+    }
     for (var i = 0, l = Mappings.shortCuts.length; i < l; i++) {
       if (s === Mappings.shortCuts[i][0]) {
         commandMode = true;
@@ -413,7 +421,9 @@ Mappings.actions   = {
   openSearchBar: function() {
     Command.hide();
     Find.lastIndex = Find.index;
-    Command.lastScrollTop = document.body.scrollTop;
+    if (document && document.body) {
+      Command.lastScrollTop = document.body.scrollTop;
+    }
     commandMode = true;
     Find.previousMatches = Find.matches.length > 0;
     Find.swap = false;
@@ -423,7 +433,9 @@ Mappings.actions   = {
     Command.hide();
     Find.lastIndex = Find.index;
     commandMode = true;
-    Command.lastScrollTop = document.body.scrollTop;
+    if (document && document.body) {
+      Command.lastScrollTop = document.body.scrollTop;
+    }
     Find.previousMatches = Find.matches.length > 0;
     Find.swap = true;
     return Command.show("?");
@@ -878,9 +890,9 @@ Mappings.convertToAction = function(c) {
         if (/^0?$/.test(Mappings.repeats)) addOne = true;
         if (Mappings.actions.hasOwnProperty(key)) {
           if (key === "shortCuts") {
-            Mappings.actions[key](Mappings.queue, (addOne ? 1 : parseInt(Mappings.repeats)));
+            Mappings.actions[key](Mappings.queue, (addOne ? 1 : +Mappings.repeats));
           } else {
-            Mappings.actions[key]((addOne ? 1 : parseInt(Mappings.repeats)), Mappings.queue);
+            Mappings.actions[key]((addOne ? 1 : +Mappings.repeats), Mappings.queue);
           }
         }
         Mappings.queue = "";

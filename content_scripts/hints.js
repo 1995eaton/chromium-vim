@@ -62,7 +62,7 @@ Hints.hideHints = function(reset, multi, useKeyDelay) {
 };
 
 Hints.changeFocus = function() {
-  this.linkArr.forEach(function(item) { item[0].style.zIndex = 1 - parseInt(item[0].style.zIndex); });
+  this.linkArr.forEach(function(item) { item[0].style.zIndex = 1 - +item[0].style.zIndex; });
 };
 
 Hints.removeContainer = function() {
@@ -91,7 +91,10 @@ Hints.dispatchAction = function(link) {
       break;
     case "image":
     case "multiimage":
-      chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: "https://www.google.com/searchbyimage?image_url=" + link.src, noconvert: true});
+      var url = googleReverseImage(link.src, null);
+      if (url) {
+        chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: url, noconvert: true});
+      }
       break;
     case "hover":
       if (Hints.lastHover) {
@@ -325,15 +328,39 @@ Hints.evaluateLink = function(link) {
   this.linkIndex += 1;
 };
 
+Hints.siteFilters = {
+  domains: ["reddit.com"],
+  reddit: function(node) {
+    if (node.localName === "a" && !node.getAttribute("href")) {
+      return false;
+    }
+    if (node.getAttribute("onclick") && node.getAttribute("onclick").indexOf("click_thing") === 0) {
+      return false;
+    }
+    return node;
+  }
+};
+
 Hints.getLinks = function() {
+  var node, nodes = [];
+  var i;
   var nodeIterator = document.createNodeIterator(document.body, 1, {acceptNode: function(node) {
     if (isClickable(node, Hints.type)) {
       return NodeFilter.FILTER_ACCEPT;
     }
     return NodeFilter.FILTER_REJECT;
-  }}), node;
+  }});
   while (node = nodeIterator.nextNode()) {
-    this.evaluateLink(node);
+    nodes.push(node);
+  }
+  for (i = 0; i < this.siteFilters.domains.length; ++i) {
+    if (window.location.origin.indexOf(this.siteFilters.domains[i]) !== -1) {
+      nodes = nodes.filter(this.siteFilters[this.siteFilters.domains[i].replace(/\..*/, "")]);
+      break;
+    }
+  }
+  for (i = 0; i < nodes.length; ++i) {
+    this.evaluateLink(nodes[i]);
   }
 };
 
@@ -352,10 +379,17 @@ Hints.generateHintString = function(n, x) {
 };
 
 Hints.create = function(type, multi) {
+  if (!Command.domElementsLoaded) {
+    return false;
+  }
   var links, main, frag, i, l;
   this.type = type;
   this.hideHints(true, multi);
-  Hints.documentZoom = parseFloat(document.body.style.zoom) || 1;
+  if (document.body && document.body.style) {
+    Hints.documentZoom = +document.body.style.zoom || 1;
+  } else {
+    Hints.documentZoom = 1;
+  }
   Hints.linkElementBase = document.createElement("div");
   Hints.linkElementBase.cVim = true;
   Hints.linkElementBase.className = "cVim-link-hint";

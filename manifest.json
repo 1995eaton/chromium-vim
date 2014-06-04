@@ -13,13 +13,13 @@
       "nextTab": {
          "description": "Go to the next tab",
          "suggested_key": {
-            "default": "Ctrl+K"
+            "default": "Alt+K"
          }
       },
       "previousTab": {
          "description": "Go to the previous tab",
          "suggested_key": {
-            "default": "Ctrl+J"
+            "default": "Alt+J"
          }
       },
       "nextCompletionResult": {
@@ -27,6 +27,12 @@
         "suggested_key": {
           "default": "Ctrl+N"
         }
+      },
+      "closeTab": {
+         "description": "Close the current tab",
+         "suggested_key": {
+            "default": "Alt+W"
+         }
       }
    },
   "browser_action": {

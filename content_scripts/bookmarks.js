@@ -2,6 +2,38 @@ var Marks = {};
 Marks.bookmarks        = [];
 Marks.quickMarks       = {};
 Marks.currentBookmarks = [];
+Marks.files = [];
+
+Marks.filePath = function() {
+  var input = Command.input.value.replace(/.*\//, "");
+  var ret = [];
+  var i, c;
+  for (i = 0, c = 0; i < this.files.length; ++i) {
+    if (this.files[i][0] && this.files[i][0].indexOf(input) === 0) {
+      if (!input && this.files[i][0] !== ".." && this.files[i][0][0] === ".") {
+        continue;
+      }
+      ret.push(["file", this.files[i][0], !this.files[i][1] ? "File" : "Directory"]);
+      c++;
+      if (c >= settings.searchlimit) {
+        break;
+      }
+    }
+  }
+  if (c < settings.searchlimit && !input) {
+    for (i = 0; i < this.files.length; ++i) {
+      if (this.files[i] !== ".." && this.files[i][0] === ".") {
+        ret.push(["file", this.files[i][0], !this.files[i][1] ? "File": "Directory"]);
+        c++;
+        if (c >= settings.searchlimit) {
+          break;
+        }
+      }
+    }
+  }
+  Command.hideData();
+  return Command.appendResults(ret);
+};
 
 Marks.addQuickMark = function(ch) {
   if (this.quickMarks[ch] === undefined) {

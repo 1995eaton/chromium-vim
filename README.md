@@ -213,6 +213,8 @@ and the blacklists text box would have this line:
 | :set (autocomplete)                         | temporarily change a cVim setting                                                      | 
 | :chrome:// (autocomplete)                   | open a chrome:// url                                                                   | 
 | :closetab                                   | close the current tab                                                                  | 
+| :date                                       | display the current date                                                               |
+| :file (autocomplete) [expirimental]         | open a local file                                                                      |
 | :duplicate                                  | duplicate the current tab                                                              | 
 | :settings                                   | open the settings page                                                                 | 
 | :nohl                                       | clear the highlighted text from the last search                                        | 

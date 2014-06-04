@@ -159,6 +159,7 @@ Command.descriptions = [
   ["closetab",   "Close the current tab"],
   ["open",       "Open a link in the current tab"],
   ["nohl",       "Clears the search highlight"],
+  ["file",       "Browse local directories"],
   ["set",        "Configure Settings"],
   ["date",       "Display the current date"],
   ["mksession",  "Create a saved session of current tabs"],
@@ -267,6 +268,17 @@ Command.complete = function(value) {
     return;
   }
 
+  if (/^file +/.test(value)) {
+    if ((search.slice(-1) === "/" && Marks.lastSearchLength < search.length) || Marks.lastSearchLength > search.length || !(Marks.lastFileSearch && Marks.lastFileSearch.replace(/[^\/]+$/, "") === search) && (search.slice(-1) === "/" && !(Marks.lastFileSearch && Marks.lastFileSearch.slice(-1) === "/"))) {
+      Marks.lastFileSearch = search;
+      Marks.lastSearchLength = search.length;
+      return chrome.runtime.sendMessage({action: "getFilePath", path: search});
+    } else {
+      Marks.lastFileSearch = search;
+      return Marks.filePath();
+    }
+  }
+
   if (/^b(ook)?marks(\s+)/.test(value)) {
     if (search[0] === "/") {
       return Marks.matchPath(search);
@@ -343,6 +355,8 @@ Command.execute = function(value, repeats) {
         }
       } else if (/^history +/.test(value)) {
         chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: Complete.convertToLink(value), noconvert: true});
+      } else if (/^file +/.test(value)) {
+        chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: "file://" + value.replace(/\S+ +/, ""), noconvert: true});
       } else if (/^(winopen|wo)$/.test(value.replace(/ .*/, ""))) {
         chrome.runtime.sendMessage({action: "openLinkWindow", focused: activeTab, url: Complete.convertToLink(value), repeats: repeats, noconvert: true});
       } else if (/^(to|tabopen)$/.test(value.replace(/ .*/, ""))) {
@@ -416,11 +430,11 @@ Command.execute = function(value, repeats) {
             switch (value[0]) {
               case "scrollstep":
                 if (!/^[0-9]+$/.test(value[1])) Status.setMessage("invalid integer: '" + (value[1] || "") + "'", 1, "error");
-                else settings.scrollstep = parseInt(value[1]);
+                else settings.scrollstep = +value[1];
                 break;
               case "searchlimit":
                 if (!/^[0-9]+$/.test(value[1])) Status.setMessage("invalid integer: " + value, 1, "error");
-                else settings.searchlimit = parseInt(value[1]);
+                else settings.searchlimit = +value[1];
                 break;
               case "hintcharacters":
                 value = value[1].split("").unique().join("");
@@ -465,6 +479,9 @@ Command.execute = function(value, repeats) {
 };
 
 Command.show = function(search, value) {
+  if (!this.domElementsLoaded) {
+    return false;
+  }
   this.type = "";
   this.active = true;
   if (document.activeElement) {
@@ -489,10 +506,14 @@ Command.show = function(search, value) {
 };
 
 Command.hide = function() {
-  if (!commandMode) return false;
+  if (!commandMode || !this.domElementsLoaded) {
+    return false;
+  }
   document.activeElement.blur();
   this.hideData();
-  this.bar.style.display = "none";
+  if (this.bar) {
+    this.bar.style.display = "none";
+  }
   this.input.value = "";
   this.historyMode = false;
   this.active = false;
@@ -519,7 +540,7 @@ Command.onDOMLoad = function() {
     this.data.style[(!this.onBottom) ? "bottom" : "top"] = "";
     this.data.style[(this.onBottom) ? "bottom" : "top"] = "20px";
   }
-  if (!Key.initialKey && !settings.autofocus) {
+  if (!settings.autofocus) {
     var manualFocus = false;
     var initialFocus = window.setInterval(function() {
       if (document.activeElement) {
@@ -541,11 +562,7 @@ Command.onDOMLoad = function() {
     }, true);
   }
   this.setup();
-  if (Key.initialKey) {
-    var tmp = Key.initialKey;
-    Key.initialKey = null;
-    Key.down(tmp);
-  }
+  this.domElementsLoaded = true;
 };
 
 Command.init = function(enabled) {
@@ -554,6 +571,7 @@ Command.init = function(enabled) {
   Mappings.shortCuts = Object.clone(Mappings.shortCutsClone);
   Mappings.parseCustom(settings.MAPPINGS);
   if (enabled) {
+    this.loaded = true;
     if (settings.searchengines && !Array.isArray(settings.searchengines) && typeof settings.searchengines === "object") {
       for (key in settings.searchengines) {
         if (Complete.engines.indexOf(key) === -1 && typeof settings.searchengines[key] === "string") {
@@ -567,7 +585,7 @@ Command.init = function(enabled) {
       waitForLoad(Cursor.init, Cursor);
     }
     Scroll.smoothScroll = settings.smoothscroll;
-    Scroll.stepSize = parseInt(settings.scrollstep);
+    Scroll.stepSize = +settings.scrollstep;
     if (settings.hintcharacters.split("").unique().length > 1) {
       settings.hintcharacters = settings.hintcharacters.split("").unique().join("");
     }
@@ -597,8 +615,9 @@ Command.init = function(enabled) {
 };
 
 Command.configureSettings = function(_settings) {
-  
+
   settings = _settings;
+  this.initialLoadStarted = true;
   function checkBlacklist() {
     var blacklists = settings.BLACKLISTS.split("\n"),
         blacklist;
@@ -611,7 +630,7 @@ Command.configureSettings = function(_settings) {
       if (matchLocation(document.URL, blacklist[0])) {
         if (blacklist.length > 1) {
           var unmaps      = blacklist.slice(1),
-              unmapString = "";
+            unmapString = "";
           for (var j = 0, q = unmaps.length; j < q; ++j) {
             unmapString += "\nunmap " + unmaps[j];
           }
@@ -631,7 +650,7 @@ Command.configureSettings = function(_settings) {
     return settings[e].constructor === Boolean;
   });
   removeListeners();
-  settings.searchlimit = parseInt(settings.searchlimit);
+  settings.searchlimit = +settings.searchlimit;
   if (!checkBlacklist()) {
     chrome.runtime.sendMessage({action: "getActiveState"}, function(response) {
       if (response) {
@@ -646,10 +665,6 @@ Command.configureSettings = function(_settings) {
   }
 };
 
-window.addEventListener("focus", function() {
-  window.setTimeout(function() {
-    if (!Command.loaded) {
-      chrome.runtime.sendMessage({action: "getSettings"});
-    }
-  }, 0);
-});
+if (!Command.loaded) {
+  chrome.runtime.sendMessage({action: "getSettings"});
+}

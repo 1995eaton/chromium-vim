@@ -339,10 +339,25 @@ actions.updateLastSearch = function() {
   });
 };
 
+
 // Port actions
 
 actions.injectCSS = function() {
   chrome.tabs.insertCSS(sender.tab.id, {code: request.css});
+};
+
+actions.urlToBase64 = function() {
+  var img = new Image();
+  img.onload = function () {
+    var canvas = document.createElement("canvas");
+    canvas.width = this.width;
+    canvas.height = this.height;
+    var context = canvas.getContext("2d");
+    context.drawImage(this, 0, 0);
+    var data = canvas.toDataURL("image/png");
+    chrome.tabs.sendMessage(sender.tab.id, {action: "base64Image", data: data});
+  };
+  img.src = request.url;
 };
 
 actions.getBookmarks = function() {
@@ -401,6 +416,12 @@ actions.getBookmarkPath = function() {
     Bookmarks.getPath(marks[0].children, request.path, function(e) {
       callback({type: "bookmarkPath", path: e});
     });
+  });
+};
+
+actions.getFilePath = function() {
+  Files.getPath(request.path, function(data) {
+    chrome.tabs.sendMessage(sender.tab.id, {action: "getFilePath", data: data});
   });
 };
 
