@@ -53,6 +53,7 @@ let searchengine dogpile = "http://www.dogpile.com/search/web?q="
 " Mappings
 
 map j scrollUp "This remaps the default 'j' mapping
+map gb :buffers<Space> "You can use <Space>, which is interpreted as a literal " " character, to enter buffer completion mode
 unmap k "The unmaps the default 'k' mapping
 
 map f F "This remaps the default 'f' mapping to the current 'F' mapping

@@ -407,7 +407,7 @@ Mappings.actions   = {
       if (s === Mappings.shortCuts[i][0]) {
         commandMode = true;
         window.setTimeout(function() {
-          Command.show(false, Mappings.shortCuts[i][1].replace(/^:/, "").replace(/<cr>(\s+)?$/i, ""));
+          Command.show(false, Mappings.shortCuts[i][1].replace(/^:/, "").replace(/<cr>(\s+)?$/i, "").replace(/<space>/ig, " "));
           this.queue = "";
           this.repeats = "";
           if (/<cr>(\s+)?$/i.test(Mappings.shortCuts[i][1])) {
