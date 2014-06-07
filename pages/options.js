@@ -157,6 +157,7 @@ Settings.init = function() {
 
   this.rcEl.addEventListener("input", autoSize);
 
+  chrome.runtime.sendMessage({action: "updateBlacklistsMappings"});
   chrome.runtime.sendMessage({action: "getDefaults"});
 
   this.editModeEl.addEventListener("change", this.editMode.bind(this), false);

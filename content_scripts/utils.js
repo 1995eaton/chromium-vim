@@ -308,6 +308,12 @@ function waitForLoad(callback, constructor, fullLoad) {
   });
 }
 
+Array.prototype.compress = function() {
+  return this.filter(function(e) {
+    return e;
+  });
+};
+
 Array.prototype.last = function() {
   return this[this.length - 1];
 };
