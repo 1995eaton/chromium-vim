@@ -85,6 +85,7 @@ Popup.toggleBlacklisted = function() {
     }
     Settings.blacklists = blacklists;
     Options.saveSettings({settings: Settings});
+    Options.updateBlacklistsMappings();
   });
 };
 

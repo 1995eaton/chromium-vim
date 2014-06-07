@@ -84,6 +84,7 @@ Options.setDefaults = function() {
 };
 
 Options.getDefaults = function(request, sender) {
+  this.updateBlacklistsMappings();
   chrome.tabs.sendMessage(sender.tab.id, {action: "sendDefaultSettings", settings: defaultSettings});
 };
 
@@ -98,7 +99,6 @@ Options.convertOldSettings = function() {
 };
 
 Options.updateBlacklistsMappings = function() {
-  console.log(Settings.blacklists);
   var mappings = Settings.MAPPINGS,
       configBlacklists = mappings.match(/\n *let +blacklists *= *\[.*\]/),
       i;
@@ -111,12 +111,7 @@ Options.updateBlacklistsMappings = function() {
   if (configBlacklists) {
     for (i = 0; i < mappings.length; ++i) {
       if (/ *let *blacklists *= */.test(mappings[i])) {
-        var bl = JSON.parse(mappings.splice(i, 1)[0].replace(/[^=]*= */, ""));
-        for (j = 0; j < bl.length; j++) {
-          if (Settings.blacklists.indexOf(bl[j]) === -1) {
-            Settings.blacklists.push(bl[j]);
-          }
-        }
+        mappings.splice(i, 1);
       }
     }
     var blacklists = [];
