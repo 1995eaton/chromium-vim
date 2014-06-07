@@ -104,11 +104,13 @@ Options.updateBlacklistsMappings = function() {
       i;
   mappings = mappings.split(/\n+/);
   if (Settings.BLACKLISTS) {
-    configBlacklists = "let blacklists = " + configBlacklists[0].replace(/[^=]+= */, "");
-    mappings.push(configBlacklists);
+    if (configBlacklists) {
+      configBlacklists = "let blacklists = " + configBlacklists[0].replace(/[^=]+= */, "");
+      mappings.push(configBlacklists);
+    }
     delete Settings.BLACKLISTS;
   }
-  if (configBlacklists) {
+  if (configBlacklists || Settings.blacklists.length) {
     for (i = 0; i < mappings.length; ++i) {
       if (/ *let *blacklists *= */.test(mappings[i])) {
         mappings.splice(i, 1);
