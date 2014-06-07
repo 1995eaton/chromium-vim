@@ -1,5 +1,8 @@
 #cVim Changelog
 
+## 1.2.53
+ * **Important!** cVimrc blacklists are now a part of the cVimrc. See the help guide for the new syntax.
+
 ## 1.2.52
  * Added the ```file``` command
  * Added the ```date``` command

@@ -148,9 +148,9 @@ the command <code>&#39;set&#39; + no&lt;SETTING_NAME&gt;</code> (for example, <c
 <td style="text-align:right">[]</td>
 </tr>
 <tr>
-<td>blacklistedsites</td>
+<td>blacklists</td>
 <td>array of strings</td>
-<td>disable chromium-vim on the sites matching one of the patterns</td>
+<td>disable cVim on the sites matching one of the patterns</td>
 <td style="text-align:right">[]</td>
 </tr>
 <tr>
@@ -210,7 +210,7 @@ let hintcharacters = &quot;abc123&quot;
 let completionengines = [&quot;google&quot;, &quot;amazon&quot;, &quot;imdb&quot;]
 let qmark a = [&quot;http://www.reddit.com&quot;, &quot;http://www.google.com&quot;, &quot;http://twitter.com&quot;]  &quot;Open all of these in a tab with `gnb` or open one of these with &lt;N&gt;goa where &lt;N&gt;
 let searchengine dogpile = &quot;http://www.dogpile.com/search/web?q=&quot;
-let blacklistedsites = ["https://mail.google.com/*", "*://*.reddit.com/*"]
+let blacklists = [&quot;https://mail.google.com/*&quot;, &quot;*://*.reddit.com/*&quot;]
 
 &quot; Mappings
 
@@ -234,9 +234,11 @@ map X :execute gTx&lt;CR&gt; &quot;Close the current tab and move to the one bef
 <ul>
 <li>You can blacklist specific commands on chosen domains by adding the keybinding after the blacklist URL. For instance, if you want smooth scrolling enabled with the &lt;Up&gt; and &lt;Down&gt; keys, but not on pages like Chrome&#39;s built-in PDF viewer (in which the up and down keys won&#39;t respond if they have been mapped), your cVimrc would look like this:<pre><code class="lang-viml">map &lt;Up&gt; scrollUp
 map &lt;Down&gt; scrollDown
-let blacklistedsites = ["*://*/*.pdf &lt;Up&gt; &lt;Down&gt;"]
-</code></pre></li>
-<li>The blacklistedsites setting uses Chrome&#39;s @match pattern. See <a href="https://developer.chrome.com/extensions/match_patterns">https://developer.chrome.com/extensions/match_patterns</a> for a description of the syntax.</li>
+</code></pre>
+and the blacklists setting would have look like this:<pre><code class="lang-viml">let blacklists = [&quot;*://*/*.pdf &lt;Up&gt; &lt;Down&gt;&quot;]
+</code></pre>
+</li>
+<li>The blacklists setting uses a custom inplementation of Chrome&#39;s @match pattern guidelines. See <a href="https://developer.chrome.com/extensions/match_patterns">https://developer.chrome.com/extensions/match_patterns</a> for a description of the syntax.</li>
 </ul>
 <h3 id="mappings">Mappings</h3>
 <ul>

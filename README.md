@@ -27,7 +27,7 @@
 | smoothscroll                        | boolean                            | use smooth scrolling                                                                      | true                                                                        |
 | scrollduration                      | integer                            | the duration of smooth scrolling                                                          | 20                                                                          |
 | completionengines                   | array of strings                   | use only the specified search engines                                                     | []                                                                          |
-| blacklistedsites                    | array of strings                   | disable chromium-vim on the sites matching one of the patterns                            | []                                                                          |
+| blacklists                          | array of strings                   | disable cVim on the sites matching one of the patterns                                    | []                                                                          |
 | highlight                           | string                             | the highlight color in find mode                                                          | "#ffff00"                                                                   |
 | activehighlight                     | string                             | the highlight color for the current find match                                            | "#ff9632"                                                                   |
 | qmark &lt;alphanumeric charcter&gt; | string                             | add a persistent QuickMark (e.g. ```let qmark a = ["http://google.com", "http://reddit.com"]```) | none                                                                 |
@@ -50,7 +50,7 @@ let hintcharacters = "abc123"
 let completionengines = ["google", "amazon", "imdb"]
 let qmark a = ["http://www.reddit.com", "http://www.google.com", "http://twitter.com"]  "Open all of these in a tab with `gnb` or open one of these with <N>goa where <N>
 let searchengine dogpile = "http://www.dogpile.com/search/web?q="
-let blacklistedsites = ["https://mail.google.com/*", "*://*.reddit.com/*"]
+let blacklists = ["https://mail.google.com/*", "*://*.reddit.com/*"]
 
 " Mappings
 
@@ -77,11 +77,11 @@ map X :execute gTx<CR> "Close the current tab and move to the one before it
 map <Up> scrollUp
 map <Down> scrollDown
 ```
-and the blacklistedsites setting would have this entry:
+and the blacklists setting would have look like this:
+```viml
+let blacklists = ["*://*/*.pdf <Up> <Down>"]
 ```
-"*://*/*.pdf <Up> <Down>"
-```
- * The blacklistedsites setting uses Chrome's @match pattern. See https://developer.chrome.com/extensions/match_patterns for a description of the syntax.
+ * The blacklists setting uses a custom inplementation of Chrome's @match pattern guidelines. See https://developer.chrome.com/extensions/match_patterns for a description of the syntax.
 
 ###Mappings
  * Normal mappings are defined with the following structure: ```map <KEY> <MAPPING_NAME>```
