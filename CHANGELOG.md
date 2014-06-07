@@ -7,6 +7,7 @@
  * The reverseImageSearch mapping can now parse base64 images (thanks to Google's "Search by Image" extension)
  * Added the closeTab command to the chrome://extensions -&gt; Keyboard Shortcuts page
  * Improved cVim response time on initial page load
+ * Minor bugfixes
 
 ## 1.2.51
  * **Important!** cVimrc setting are now stricter. You must use 'let' instead of set when using options requiring an equal symbol. For example:
