@@ -7,7 +7,7 @@ function parseDomain(url) {
 }
 
 Popup.getBlacklisted = function(callback) {
-  var blacklists = Settings.BLACKLISTS.split("\n").filter(function(e) {
+  var blacklists = Settings.blacklistedsites.filter(function(e) {
     return e;
   });
   this.getActiveTab(function(tab) {
@@ -72,7 +72,7 @@ Popup.toggleEnabled = function(obj) {
 };
 
 Popup.toggleBlacklisted = function() {
-  var blacklists = Settings.BLACKLISTS.split("\n").filter(function(e) {
+  var blacklists = Settings.blacklistedsites.filter(function(e) {
     return e;
   });
   this.getActiveTab(function(tab) {
@@ -87,7 +87,8 @@ Popup.toggleBlacklisted = function() {
     if (!foundMatch) {
       blacklists.push(url);
     }
-    Settings.BLACKLISTS = blacklists.join("\n");
+    Settings.blacklistedsites = blacklists;
+    Options.updateBlacklistsMappings();
     Options.saveSettings({settings: Settings});
   });
 };

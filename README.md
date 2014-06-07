@@ -27,6 +27,7 @@
 | smoothscroll                        | boolean                            | use smooth scrolling                                                                      | true                                                                        |
 | scrollduration                      | integer                            | the duration of smooth scrolling                                                          | 20                                                                          |
 | completionengines                   | array of strings                   | use only the specified search engines                                                     | []                                                                          |
+| blacklistedsites                    | array of strings                   | disable chromium-vim on the sites matching one of the patterns                            | []                                                                          |
 | highlight                           | string                             | the highlight color in find mode                                                          | "#ffff00"                                                                   |
 | activehighlight                     | string                             | the highlight color for the current find match                                            | "#ff9632"                                                                   |
 | qmark &lt;alphanumeric charcter&gt; | string                             | add a persistent QuickMark (e.g. ```let qmark a = ["http://google.com", "http://reddit.com"]```) | none                                                                 |
@@ -75,11 +76,11 @@ map X :execute gTx<CR> "Close the current tab and move to the one before it
 map <Up> scrollUp
 map <Down> scrollDown
 ```
-and the blacklists text box would have this line:
+and the blacklistedsites setting would have this entry:
 ```
-*://*/*.pdf <Up> <Down>
+"*://*/*.pdf <Up> <Down>"
 ```
- * The blacklists text box uses Chrome's @match pattern. See https://developer.chrome.com/extensions/match_patterns for a description of the syntax.
+ * The blacklistedsites setting uses Chrome's @match pattern. See https://developer.chrome.com/extensions/match_patterns for a description of the syntax.
 
 ###Mappings
  * Normal mappings are defined with the following structure: ```map <KEY> <MAPPING_NAME>```
