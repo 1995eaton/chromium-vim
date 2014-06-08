@@ -102,7 +102,7 @@ Complete.apis = {
 Complete.convertToLink = function(input) {
   var prefix, suffix;
   input = input.replace(/@%/g, document.URL);
-  input = input.split(/\s+/).filter(function(e) { return e; });
+  input = input.split(/\s+/).compress();
   input.shift();
   if (input.length === 0) {
     return "";
@@ -144,7 +144,7 @@ Complete.xhr = function(url, callback) {
 Complete.wikipedia = function(query, callback) {
   this.xhr(this.apis.wikipedia + query, function(response) {
     callback(response[1].map(function(e) {
-      return ["search"].concat(e);
+      return e;
     }));
   });
 };
@@ -152,7 +152,7 @@ Complete.wikipedia = function(query, callback) {
 Complete.google = function(query, callback) {
   this.xhr(this.apis.google + query, function(response) {
     callback(response[1].map(function(e) {
-      return ["search"].concat(e);
+      return e;
     }));
   });
 };
@@ -163,7 +163,7 @@ Complete["google-image"] = function(query, callback) {
   xhr.onreadystatechange = function() {
     if (this.readyState === 4 && this.status === 200 && document.activeElement.id === "cVim-command-bar-input" && commandMode) {
       callback(JSON.parse(this.responseText.replace(/^[^\(]+\(|\)$/g, ""))[1].map(function(e) {
-        return ["search", e[0].replace(/<[^>]+>/g, "")];
+        return e[0].replace(/<[^>]+>/g, "");
       }));
     }
   };
@@ -173,7 +173,7 @@ Complete["google-image"] = function(query, callback) {
 Complete["google-trends"] = function(query, callback) {
   this.xhr(this.apis["google-trends"] + encodeURIComponent(query), function(response) {
     callback(response.entityList.map(function(e) {
-      return ["search", e.title + " - " + e.type, Complete.requestUrls["google-trends"] + encodeURIComponent(e.mid)];
+      return [e.title + " - " + e.type, Complete.requestUrls["google-trends"] + encodeURIComponent(e.mid)];
     }));
   });
 };
@@ -181,7 +181,7 @@ Complete["google-trends"] = function(query, callback) {
 Complete["google-finance"] = function(query, callback) {
   this.xhr(this.apis["google-finance"] + encodeURIComponent(query), function(response) {
     callback(response.matches.map(function(e) {
-      return ["search", e.t + " - " + e.n + " - " + e.e, Complete.requestUrls["google-finance"] + e.e + ":" + e.t];
+      return [e.t + " - " + e.n + " - " + e.e, Complete.requestUrls["google-finance"] + e.e + ":" + e.t];
     }));
   });
 };
@@ -189,7 +189,7 @@ Complete["google-finance"] = function(query, callback) {
 Complete.amazon = function(query, callback) {
   this.xhr(this.apis.amazon + encodeURIComponent(query), function(response) {
     callback(response[1].map(function(e) {
-      return ["search"].concat(e);
+      return e;
     }));
   });
 };
@@ -199,7 +199,7 @@ Complete.yahoo = function(query, callback) {
     var _ret = [];
     for (var key in response.r) {
       if (response.r[key].hasOwnProperty("k")) {
-        _ret.push(["search", response.r[key].k]);
+        _ret.push(response.r[key].k);
       }
     }
     callback(_ret);
@@ -209,7 +209,7 @@ Complete.yahoo = function(query, callback) {
 Complete.bing = function(query, callback) {
   this.xhr(this.apis.bing + query, function(response) {
     callback(response[1].map(function(e) {
-      return ["search"].concat(e);
+      return e;
     }));
   });
 };
@@ -224,7 +224,7 @@ Complete.ebay = function(query, callback) {
         return false;
       }
       callback(_ret.res.sug.map(function(e) {
-        return ["search", e];
+        return e;
       }));
     }
   };
@@ -238,7 +238,7 @@ Complete.youtube = function(query, callback) {
     if (this.readyState === 4 && this.status === 200 && document.activeElement.id === "cVim-command-bar-input" && commandMode) {
       var _ret = JSON.parse(xhr.responseText.replace(/^[^\(]+\(|\)$/g, ""));
       callback(_ret[1].map(function(e) {
-        return ["search", e[0]];
+        return e[0];
       }));
     }
   };
@@ -248,7 +248,7 @@ Complete.youtube = function(query, callback) {
 Complete.wolframalpha = function(query, callback) {
   this.xhr(this.apis.wolframalpha + encodeURIComponent(query), function(response) {
     callback(response.results.map(function(e) {
-      return ["search", e.input];
+      return e.input;
     }));
   });
 };
@@ -256,7 +256,7 @@ Complete.wolframalpha = function(query, callback) {
 Complete.webster = function(query, callback) {
   this.xhr(this.apis.webster + encodeURIComponent(query), function(response) {
     callback(response.suggestions.map(function(e) {
-      return ["search", e];
+      return e;
     }));
   });
 };
@@ -264,7 +264,7 @@ Complete.webster = function(query, callback) {
 Complete.wictionary = function(query, callback) {
   this.xhr(this.apis.wictionary + encodeURIComponent(query), function(response) {
     callback(response[1].map(function(e) {
-      return ["search", e];
+      return e;
     }));
   });
 };
@@ -272,7 +272,7 @@ Complete.wictionary = function(query, callback) {
 Complete.duckduckgo = function(query, callback) {
   this.xhr(this.apis.duckduckgo + encodeURIComponent(query), function(response) {
     callback(response.map(function(e) {
-      return ["search", e.phrase];
+      return e;
     }));
   });
 };
@@ -280,7 +280,7 @@ Complete.duckduckgo = function(query, callback) {
 Complete.urbandictionary = function(query, callback) {
   this.xhr(this.apis.urbandictionary + encodeURIComponent(query), function(response) {
     callback(response.slice(1).map(function(e) {
-      return ["search", e];
+      return e;
     }));
   });
 };
@@ -293,13 +293,13 @@ Complete.imdb = function(query, callback) {
       var _ret = JSON.parse(xhr.responseText.replace(/^[^\(]+\(|\)$/g, ""));
       callback(_ret.d.map(function(e) {
         if (/:\/\//.test(e.id)) {
-          return ["search", e.l, e.id];
+          return [e.l, e.id];
         }
         var _url = "http://www.imdb.com/" + (e.id.indexOf("nm") === 0 ? "name" : "title") + "/" + e.id;
         if (e.q) {
-          return ["search", e.l + " - " + e.q + ", " + e.s + " (" + e.y + ")", _url];
+          return [e.l + " - " + e.q + ", " + e.s + " (" + e.y + ")", _url];
         }
-        return ["search", e.l + " - " + e.s, _url];
+        return [e.l + " - " + e.s, _url];
       }));
     }
   };

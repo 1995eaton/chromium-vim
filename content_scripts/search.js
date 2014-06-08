@@ -6,22 +6,20 @@ Search.topSites = [];
 Search.chromeUrls = ["accessibility", "appcache-internals", "apps", "blob-internals", "bookmarks", "cache", "chrome", "chrome-urls", "components", "crashes", "credits", "devices", "dns", "downloads", "extensions", "flags", "flash", "gcm-internals", "gpu", "help", "histograms", "history", "indexeddb-internals", "inspect", "invalidations", "ipc", "linux-proxy-config", "media-internals", "memory", "memory-internals", "nacl", "net-internals", "newtab", "omnibox", "plugins", "policy", "predictors", "print", "profiler", "quota-internals", "sandbox", "serviceworker-internals", "settings", "signin-internals", "stats", "sync-internals", "system", "terms", "tracing", "translate-internals", "user-actions", "version", "view-http-cache", "webrtc-internals", "webrtc-logs", "crash", "kill", "hang", "shorthang", "gpuclean", "gpucrash", "gpuhang", "ppapiflashcrash", "ppapiflashhang", "quit", "restart"];
 
 Search.chromeMatch = function(string, callback) {
-  if (string.trim() === "") return callback(Search.chromeUrls.slice(0, settings.searchlimit).map(function(e){return["chrome",e];}));
+  if (string.trim() === "") {
+    return callback(Search.chromeUrls.slice(0, settings.searchlimit));
+  }
   callback(this.chromeUrls.filter(function(element) {
     return (string === element.substring(0, string.length));
-  }).map(function(e){return["chrome",e];}));
+  }));
 };
 
 Search.settingsMatch = function(string, callback) {
   if (!string.trim()) {
-    return callback(this.settings.slice(0, settings.searchlimit).map(function(e) {
-      return ["settings", e];
-    }));
+    return callback(this.settings.slice(0, settings.searchlimit));
   }
   return callback(this.settings.filter(function(e) {
     return e.substring(0, string.replace(/^no/, "").length) === string.replace(/^no/, "");
-  }).map(function(e) {
-    return ["settings", e];
   }).slice(0, settings.searchlimit));
 };
 
@@ -81,13 +79,13 @@ Search.nextResult = function(reverse) {
   for (i = 0; i < l; ++i) {
     spanElements[i].style.color = "#1b1d1e";
   }
-
   switch (Command.completionResults[this.index][0]) {
     case "chrome":
       Command.input.value = "chrome://" + Command.completionResults[this.index][1];
       break;
-    case "bookmark":
+    case "bookmarks":
     case "history":
+    case "topsites":
       Command.input.value = Command.input.value.match(/^\S+ /)[0] + Command.completionResults[this.index][2];
       break;
     case "engines":
@@ -101,24 +99,24 @@ Search.nextResult = function(reverse) {
         Command.input.value = value.slice(0, 2).join(" ") + " " + Command.completionResults[this.index][1];
       }
       break;
-    case "session":
+    case "sessions":
       Command.input.value = Command.input.value.match(/^\S+/)[0] + " " + Command.completionResults[this.index][1];
       break;
-    case "file":
+    case "files":
       Command.input.value = Command.input.value.replace(/[^\/]+$/, "") + Command.completionResults[this.index][1];
       break;
     case "settings":
       var command = Command.input.value.split(/\s+/);
       Command.input.value = command[0] + " " + (/^no/.test(command[1]) ? "no" : "") + Command.completionResults[this.index][1];
       break;
-    case "path":
+    case "paths":
       if (Command.completionResults[this.index][2] !== "folder") {
         Command.input.value = "bookmarks " + Command.completionResults[this.index][2];
       } else {
         Command.input.value = "bookmarks " + Command.completionResults[this.index][3] + Command.completionResults[this.index][1];
       }
       break;
-    case "buffer":
+    case "buffers":
       Command.input.value = Command.input.value.match(/^\S+/)[0] + " " + Command.completionResults[this.index][1][0];
       break;
     case "complete":

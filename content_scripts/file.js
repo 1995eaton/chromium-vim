@@ -24,7 +24,6 @@ function parseHTML(data) {
 function getPath(path) {
   sendRequest(path, function(data) {
     data = parseHTML(data);
-    console.log(data);
   });
 }
 

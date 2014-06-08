@@ -6,14 +6,14 @@ Marks.files = [];
 
 Marks.filePath = function() {
   var input = Command.input.value.replace(/.*\//, "");
-  var ret = [];
+  Command.completions = { files: [] };
   var i, c;
   for (i = 0, c = 0; i < this.files.length; ++i) {
     if (this.files[i][0] && this.files[i][0].indexOf(input) === 0) {
       if (!input && this.files[i][0] !== ".." && this.files[i][0][0] === ".") {
         continue;
       }
-      ret.push(["file", this.files[i][0], this.files[i][1]]);
+      Command.completions.files.push([this.files[i][0], this.files[i][1]]);
       c++;
       if (c >= settings.searchlimit) {
         break;
@@ -23,7 +23,7 @@ Marks.filePath = function() {
   if (c < settings.searchlimit && !input) {
     for (i = 0; i < this.files.length; ++i) {
       if (this.files[i] !== ".." && this.files[i][0] === ".") {
-        ret.push(["file", this.files[i][0], !this.files[i][1]]);
+        Command.completions.files.push([this.files[i][0], !this.files[i][1]]);
         c++;
         if (c >= settings.searchlimit) {
           break;
@@ -31,8 +31,7 @@ Marks.filePath = function() {
       }
     }
   }
-  Command.hideData();
-  return Command.appendResults(ret);
+  Command.updateCompletions();
 };
 
 Marks.addQuickMark = function(ch) {
@@ -82,7 +81,7 @@ Marks.openQuickMark = function(ch, tabbed, repeats) {
 Marks.parse = function(marks) {
   marks.forEach(function(bookmark) {
     if (bookmark.url) {
-      Marks.bookmarks.push(["bookmark", bookmark.title, bookmark.url]);
+      Marks.bookmarks.push([bookmark.title, bookmark.url]);
     }
     if (bookmark.children) {
       Marks.parse(bookmark.children);

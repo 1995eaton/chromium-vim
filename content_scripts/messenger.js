@@ -20,28 +20,25 @@ port.onMessage.addListener(function(response) {
       for (key in response.history) {
         if (response.history[key].url) {
           if (response.history[key].title.trim() === "") {
-            matches.push(["history", "Untitled", response.history[key].url]);
+            matches.push(["Untitled", response.history[key].url]);
           } else {
-            matches.push(["history", response.history[key].title, response.history[key].url]);
+            matches.push([response.history[key].title, response.history[key].url]);
           }
         }
       }
       matches = matches.sort(function(a, b) {
-        return a[2].length - b[2].length;
+        return a[1].length - b[1].length;
       });
       if (Command.historyMode) {
-        if (Command.active && Command.bar.style.display !== "none" && matches.length > 0) {
-          Command.appendResults(matches, false);
+        if (Command.active && Command.bar.style.display !== "none") {
+          Command.completions = { history: matches };
+          Command.updateCompletions(false);
         }
       } else if (Command.searchMode) {
         Command.searchMode = false;
-        Command.hideData();
         if (Command.active && Command.bar.style.display !== "none") {
-          Command.appendResults(Command.engineMatches, false);
-          Command.appendResults(Command.topSiteMatches, true, "Top Sites", "darkcyan");
-          if (matches.length > 0) {
-            Command.appendResults(matches, true, "History", "cyan");
-          }
+          Command.completions.history = matches;
+          Command.updateCompletions(true);
         }
       }
       Marks.history = matches;
@@ -59,15 +56,18 @@ port.onMessage.addListener(function(response) {
         var val = Command.input.value.replace(/\S+\s+/, ""),
             useRegex = true;
         Command.hideData();
-        Command.appendResults(response.buffers.map(function(e) { return ["buffer"].concat(e); }).filter(function(s) {
-          try {
-            regexp = new RegExp(val, "i");
-          } catch (e) {
-            useRegex = false;
-          }
-          if (useRegex) return regexp.test(s[1]);
-          return s[1].substring(0, val.length) === val;
-        }));
+        Command.completions = {
+          buffers: response.buffers.filter(function(s) {
+            try {
+              regexp = new RegExp(val, "i");
+            } catch (e) {
+              useRegex = false;
+            }
+            if (useRegex) return regexp.test(s[0]);
+            return s[0].substring(0, val.length) === val;
+          })
+        };
+        Command.updateCompletions();
       }
       break;
     case "sessions":
@@ -84,9 +84,10 @@ port.onMessage.addListener(function(response) {
       }
       break;
     case "bookmarkPath":
-      var _ret = response.path.map(function(e) { return ["path"].concat(e); });
-      if (_ret.length) {
-        Command.appendResults(_ret);
+      if (response.path.length) {
+        Command.completions = {};
+        Command.completions.paths = response.path;
+        Command.updateCompletions();
       } else Command.hideData();
       break;
   }

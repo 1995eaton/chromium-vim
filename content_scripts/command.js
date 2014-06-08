@@ -100,50 +100,62 @@ Command.history = {
   }
 };
 
-Command.appendResults = function(data, extend, identifier, color) {
-  var identifierEl;
-  if (!data.length) return false;
-  if (!extend || !Array.isArray(this.completionResults)) {
-    this.dataElements = [];
-    this.completionResults = data;
-    this.data.innerHTML = "";
-  } else this.completionResults = this.completionResults.concat(data);
-  var arrCount = data[0].length;
-  for (var i = 0, l = data.length; i < l; ++i) {
-    if (this.dataElements.length > settings.searchlimit) return;
-    var temp = document.createElement("div");
-    temp.cVim = true;
-    temp.className = "cVim-completion-item";
-    if (identifier) {
-      identifierEl = document.createElement("span");
-      identifierEl.style.color = color;
-      identifierEl.textContent = identifier + ": ";
+Command.completions = {};
+
+Command.completionStyles = {
+  topsites: ["Top Site", "darkcyan"],
+  history:  ["History", "cyan"]
+};
+
+Command.updateCompletions = function(useStyles) {
+  this.completionResults = [];
+  this.dataElements = [];
+  this.data.innerHTML = "";
+  var key, i;
+  for (key in this.completions) {
+    for (i = 0; i < this.completions[key].length; ++i) {
+      this.completionResults.push([key].concat(this.completions[key][i]));
     }
-    if (arrCount >= 3) {
+  }
+  for (i = 0; i < this.completionResults.length; ++i) {
+    if (i > settings.searchlimit) {
+      break;
+    }
+    var item = document.createElement("div");
+    item.className = "cVim-completion-item";
+    var identifier;
+    if (useStyles && this.completionStyles.hasOwnProperty(this.completionResults[i][0])) {
+      var styles = this.completionStyles[this.completionResults[i][0]];
+      identifier = document.createElement("span");
+      identifier.style.color = styles[1];
+      identifier.textContent = styles[0] + ": ";
+    }
+    if (this.completionResults[i].length >= 3) {
       var left = document.createElement("span");
       left.className = "cVim-left";
-      left.textContent = data[i][1];
+      left.textContent = this.completionResults[i][1];
       var right = document.createElement("span");
       right.className = "cVim-right";
-      right.textContent = data[i][2];
+      right.textContent = this.completionResults[i][2];
       if (identifier) {
-        left.insertBefore(identifierEl, left.firstChild);
+        left.insertBefore(identifier, left.firstChild);
       }
-      temp.appendChild(left);
-      temp.appendChild(right);
+      item.appendChild(left);
+      item.appendChild(right);
     } else {
       var full = document.createElement("span");
       full.className = "cVim-full";
-      full.textContent = data[i][1];
-      temp.appendChild(full);
+      full.textContent = this.completionResults[i][1];
+      item.appendChild(full);
     }
-    this.dataElements.push(temp);
-    this.data.appendChild(temp);
+    this.dataElements.push(item);
+    this.data.appendChild(item);
   }
   this.data.style.display = "block";
 };
 
 Command.hideData = function() {
+  this.completions = {};
   Search.lastActive = null;
   this.dataElements.length = 0;
   if (this.data) {
@@ -175,52 +187,64 @@ Command.descriptions = [
   ["settings",   "Open the options page for this extension"]
 ];
 
+Command.deleteCompletions = function(completions) {
+  completions = completions.split(",");
+  for (var i = 0, l = completions.length; i < l; ++i) {
+    this.completions[completions[i]] = [];
+  }
+};
+
 Command.complete = function(value) {
   Search.index = null;
   this.typed = this.input.value;
   var search = value.replace(/^(chrome:\/\/|\S+ +)/, "");
 
   if (/^(tabopen|to|open|o|wo|winopen)(\s+)/.test(value)) {
-    search = search.split(/ +/).filter(function(e) {
-      return e;
-    });
+
+    this.deleteCompletions("engines,bookmarks,complete,chrome,search");
+    search = search.split(/ +/).compress();
+
     if (search.length < 2 || Complete.engines.indexOf(search[0]) === -1) {
-      var matches = [];
+
       if (Complete.engines.indexOf(search[0]) !== -1) {
         return this.hideData();
       }
+
+      this.completions.engines = [];
       for (var i = 0, l = Complete.engines.length; i < l; ++i) {
         if (!search[0] || Complete.engines[i].indexOf(search.join(" ")) === 0) {
-          matches.push(["engines", Complete.engines[i], Complete.requestUrls[Complete.engines[i]]]);
+          this.completions.engines.push([Complete.engines[i], Complete.requestUrls[Complete.engines[i]]]);
         }
       }
-      Command.completionResults = [];
-      var topsites = Search.topSites.filter(function(e) {
+      this.updateCompletions(true);
+
+      this.completions.topsites = Search.topSites.filter(function(e) {
         return (e[0] + " " + e[1]).toLowerCase().indexOf(search.slice(0).join(" ").toLowerCase()) !== -1;
       }).slice(0, 5).map(function(e) {
-        return ["search", e[0], e[1]];
+        return [e[0], e[1]];
       });
-      this.engineMatches = matches;
-      this.topSiteMatches = topsites;
+      this.updateCompletions(true);
+
+      this.historyMode = false;
       this.searchMode = true;
       return port.postMessage({action: "searchHistory", search: value.replace(/^\S+\s+/, ""), limit: settings.searchlimit});
+
     }
+
     if (Complete.engines.indexOf(search[0]) !== -1 && Complete.hasOwnProperty(search[0])) {
       Complete[search[0]](search.slice(1).join(" "), function(response) {
-        if (!response.length) {
-          return this.hideData();
-        }
-        this.appendResults(response, false);
+        this.completions = { search: response };
+        this.updateCompletions();
       }.bind(this));
     }
     return;
+
   }
 
   if (/^chrome:\/\//.test(value)) {
     Search.chromeMatch(search, function(matches) {
-      if (matches.length) {
-        this.appendResults(matches);
-      } else this.hideData();
+      this.completions = { chrome: matches };
+      this.updateCompletions();
     }.bind(this));
     return;
   }
@@ -232,31 +256,28 @@ Command.complete = function(value) {
   }
 
   if (/^(del)?session(\s+)/.test(value)) {
-    var _res = sessions.filter(function(e) {
-      var regexp;
-      var isValidRegex = true;
-      try {
-        regexp = new RegExp(search, "i");
-      } catch (ex) {
-        isValidRegex = false;
-      }
-      if (isValidRegex) {
-        return regexp.test(e[0]);
-      }
-      return e[0].substring(0, search.length) === search;
-    }).map(function(e) { return ["session"].concat(e); });
-    this.hideData();
-    if (_res.length > 0) {
-      this.appendResults(_res);
-    }
-    return;
+    this.completions = {
+      sessions: sessions.filter(function(e) {
+        var regexp;
+        var isValidRegex = true;
+        try {
+          regexp = new RegExp(search, "i");
+        } catch (ex) {
+          isValidRegex = false;
+        }
+        if (isValidRegex) {
+          return regexp.test(e[0]);
+        }
+        return e[0].substring(0, search.length) === search;
+      })
+    };
+    return this.updateCompletions();
   }
 
   if (/^set(\s+)/.test(value)) {
     Search.settingsMatch(search, function(matches) {
-      if (matches.length) {
-        this.appendResults(matches);
-      } else this.hideData();
+      this.completions = {settings: matches};
+      this.updateCompletions();
     }.bind(this));
     return;
   }
@@ -280,28 +301,21 @@ Command.complete = function(value) {
   }
 
   if (/^b(ook)?marks(\s+)/.test(value)) {
+    this.completions = {};
     if (search[0] === "/") {
       return Marks.matchPath(search);
     }
     Marks.match(search, function(response) {
-      if (response.length > 0) {
-        this.appendResults(response);
-      } else {
-        this.hideData();
-      }
+      this.completions.bookmarks = response;
+      this.updateCompletions();
     }.bind(this));
     return;
   }
 
-  var data = this.descriptions.filter(function(element) {
+  this.completions = { complete: this.descriptions.filter(function(element) {
     return value === element[0].slice(0, value.length);
-  }).map(function(e){return["complete"].concat(e);});
-
-  if (data.length) {
-    this.appendResults(data);
-  } else {
-    this.hideData();
-  }
+  }) };
+  this.updateCompletions();
 };
 
 Command.execute = function(value, repeats) {
@@ -445,9 +459,7 @@ Command.execute = function(value, repeats) {
           }
         }
       } else if (/^qmark\s+/.test(value)) {
-        value = value.replace(/\S+\s+/, "").split(/\s+/).filter(function(e) {
-          return e.trim();
-        });
+        value = value.replace(/\S+\s+/, "").split(/\s+/).compress();
         if (value.length !== 2) {
           Status.setMessage("two arguments are required", 1, "error");
         } else if (value[0].length !== 1) {
