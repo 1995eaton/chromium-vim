@@ -87,8 +87,6 @@ Settings.checkConfig = function(config) {
 Settings.loadrc = function (config) {
   this.rcEl.value = config.MAPPINGS;
   this.rcEl.style.height = this.rcEl.scrollHeight + "px";
-  this.blacklistEl.value = config.BLACKLISTS;
-  this.blacklistEl.style.height = this.blacklistEl.scrollHeight + "px";
   if (this.cssEl) {
     this.cssEl.setValue(config.COMMANDBARCSS);
   }
@@ -97,7 +95,6 @@ Settings.loadrc = function (config) {
 
 Settings.resetSettings = function() {
   this.rcEl.value = this.defaults.MAPPINGS;
-  this.blacklistEl.value = this.defaults.BLACKLISTS;
   this.cssEl.setValue(this.defaults.COMMANDBARCSS);
   this.gistUrl.value = this.defaults.GISTURL;
   delete this.settings;
@@ -108,7 +105,6 @@ Settings.saveSettings = function() {
   this.settings = Object.clone(this.defaults);
   this.checkConfig(Config.parse());
   this.settings.COMMANDBARCSS = this.cssEl.getValue();
-  this.settings.BLACKLISTS = this.blacklistEl.value;
   this.settings.GISTURL = this.gistUrl.value;
   this.settings.MAPPINGS = this.rcEl.value;
   this.saveButton.value = "Saved";
@@ -151,7 +147,6 @@ Settings.init = function() {
   this.saveButton = document.getElementById("save_button");
   this.rcEl = document.getElementById("mappings");
   this.editModeEl = document.getElementById("edit_mode");
-  this.blacklistEl = document.getElementById("blacklists");
 
   function autoSize() {
     var stop = document.body.scrollTop;
@@ -161,7 +156,6 @@ Settings.init = function() {
   }
 
   this.rcEl.addEventListener("input", autoSize);
-  this.blacklistEl.addEventListener("input", autoSize);
 
   chrome.runtime.sendMessage({action: "getDefaults"});
 

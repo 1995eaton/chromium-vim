@@ -7,13 +7,11 @@ function parseDomain(url) {
 }
 
 Popup.getBlacklisted = function(callback) {
-  var blacklists = Settings.BLACKLISTS.split("\n").filter(function(e) {
-    return e;
-  });
+  var blacklists = Settings.blacklists.compress();
   this.getActiveTab(function(tab) {
-    var url = parseDomain(tab.url);
+    var url = tab.url;
     for (var i = 0, l = blacklists.length; i < l; ++i) {
-      if (blacklists[i].substring(0, url.length) === url) {
+      if (matchLocation(url, blacklists[i])) {
         callback(true);
       }
     }
@@ -72,23 +70,22 @@ Popup.toggleEnabled = function(obj) {
 };
 
 Popup.toggleBlacklisted = function() {
-  var blacklists = Settings.BLACKLISTS.split("\n").filter(function(e) {
-    return e;
-  });
+  var blacklists = Settings.blacklists.compress();
   this.getActiveTab(function(tab) {
-    var url = parseDomain(tab.url);
+    var url = tab.url;
     var foundMatch = false;
     for (var i = 0, l = blacklists.length; i < l; ++i) {
-      if (blacklists[i].substring(0, url.length) === url) {
+      if (matchLocation(url, blacklists[i])) {
         blacklists.splice(i, 1);
         foundMatch = true;
       }
     }
     if (!foundMatch) {
-      blacklists.push(url);
+      blacklists.push(parseDomain(url));
     }
-    Settings.BLACKLISTS = blacklists.join("\n");
+    Settings.blacklists = blacklists;
     Options.saveSettings({settings: Settings});
+    Options.updateBlacklistsMappings();
   });
 };
 

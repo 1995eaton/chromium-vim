@@ -656,7 +656,7 @@ Command.configureSettings = function(_settings) {
   settings = _settings;
   this.initialLoadStarted = true;
   function checkBlacklist() {
-    var blacklists = settings.BLACKLISTS.split("\n"),
+    var blacklists = settings.blacklists,
         blacklist;
     Command.blacklisted = false;
     for (var i = 0, l = blacklists.length; i < l; i++) {

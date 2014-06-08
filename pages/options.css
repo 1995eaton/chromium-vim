@@ -124,12 +124,6 @@ select {
   opacity: 1;
 }
 
-#blacklists {
-  font-family: monospace;
-  width: 100%;
-  resize: vertical;
-}
-
 a {
   color: #bbb;
   transition: color 0.3s;
