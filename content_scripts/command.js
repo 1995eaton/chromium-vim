@@ -104,7 +104,21 @@ Command.completions = {};
 
 Command.completionStyles = {
   topsites: ["Top Site", "darkcyan"],
-  history:  ["History", "cyan"]
+  history:  ["History", "cyan"],
+  bookmarks: ["Bookmark", "#6d85fd"]
+};
+
+Command.completionOrder = {
+  engines: 5,
+  topsites: 4,
+  bookmarks: 2,
+  history: 3,
+  getImportance: function(item) {
+    if (!this.hasOwnProperty(item)) {
+      return -1;
+    }
+    return this[item];
+  }
 };
 
 Command.updateCompletions = function(useStyles) {
@@ -112,9 +126,13 @@ Command.updateCompletions = function(useStyles) {
   this.dataElements = [];
   this.data.innerHTML = "";
   var key, i;
-  for (key in this.completions) {
-    for (i = 0; i < this.completions[key].length; ++i) {
-      this.completionResults.push([key].concat(this.completions[key][i]));
+  var completionKeys = Object.keys(this.completions).sort(function(a, b) {
+    return this.completionOrder.getImportance(b) - this.completionOrder.getImportance(a);
+  }.bind(this));
+  for (i = 0; i < completionKeys.length; i++) {
+    key = completionKeys[i];
+    for (var j = 0; j < this.completions[key].length; ++j) {
+      this.completionResults.push([key].concat(this.completions[key][j]));
     }
   }
   for (i = 0; i < this.completionResults.length; ++i) {
@@ -224,6 +242,13 @@ Command.complete = function(value) {
         return [e[0], e[1]];
       });
       this.updateCompletions(true);
+
+      if (search.length) {
+        Marks.match(search.join(" "), function(response) {
+          this.completions.bookmarks = response;
+          this.updateCompletions(true);
+        }.bind(this), 2);
+      }
 
       this.historyMode = false;
       this.searchMode = true;

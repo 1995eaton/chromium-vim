@@ -89,7 +89,7 @@ Marks.parse = function(marks) {
   });
 };
 
-Marks.match = function(string, callback) {
+Marks.match = function(string, callback, limit) {
 
   var regexp,
       i,
@@ -105,13 +105,13 @@ Marks.match = function(string, callback) {
 
   for (i = 0, l = this.bookmarks.length; i < l; ++i) {
     if (regexp) {
-      if (regexp.test(this.bookmarks[i].slice(1, 3).join(" "))) {
+      if (regexp.test(this.bookmarks[i].join(" "))) {
         matches.push(this.bookmarks[i]);
       }
     } else if (this.bookmarks[i][1].indexOf(string) === 0) { // Get the most relavent matches first
       matches.push(this.bookmarks[i]);
     }
-    if (matches.length === settings.searchlimit) {
+    if ((limit && matches.length === limit) || matches.length === settings.searchlimit) {
       break;
     }
   }
@@ -121,7 +121,7 @@ Marks.match = function(string, callback) {
       if (this.bookmarks[i][1].indexOf(string) !== -1) { // Go for any match position at this point
         matches.push(this.bookmarks[i]);
       }
-      if (matches.length === settings.searchlimit) {
+      if ((limit && matches.length === limit) || matches.length === settings.searchlimit) {
         break;
       }
     }
