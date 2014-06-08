@@ -41,9 +41,13 @@ Key.fromKeyCode = function(e) {
     if (Array.isArray(convertedKey)) {
       if (!e.ctrlKey && !e.altKey && !e.metaKey) {
         convertedKey = convertedKey[(shiftKey ? 1 : 0)];
-      } else convertedKey = convertedKey[0];
+      } else {
+        convertedKey = convertedKey[0];
+      }
     } else {
-      if (shiftKey) convertedKey = "S-" + convertedKey;
+      if (shiftKey) {
+        convertedKey = "S-" + convertedKey;
+      }
     }
   } else {
     if (keyCode >= 48 && keyCode <= 57) {
@@ -54,15 +58,22 @@ Key.fromKeyCode = function(e) {
       }
     } else {
       convertedKey = String.fromCharCode(keyCode);
-      if (!shiftKey)
+      if (!shiftKey) {
         convertedKey = String.fromCharCode(keyCode).toLowerCase();
+      }
     }
   }
 
   var modifier = "";
-  if (e.ctrlKey) modifier += "-C";
-  if (e.altKey)  modifier += "-A";
-  if (e.metaKey) modifier += "-M";
+  if (e.ctrlKey) {
+    modifier += "-C";
+  }
+  if (e.altKey) {
+    modifier += "-A";
+  }
+  if (e.metaKey) {
+    modifier += "-M";
+  }
 
   if (modifier) {
     modifier = modifier.replace(/^-/, "");
@@ -100,6 +111,7 @@ Key.down = function(e) {
 
   if (Cursor.overlay && settings.autohidecursor) {
     Cursor.overlay.style.display = "block";
+    Cursor.wiggleWindow();
   }
 
   if (Command.active && document.activeElement && document.activeElement.id === "cVim-command-bar-input") {

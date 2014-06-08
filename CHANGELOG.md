@@ -1,7 +1,10 @@
 #cVim Changelog
 
 ## 1.2.53
- * **Important!** cVimrc blacklists are now a part of the cVimrc. See the help guide for the new syntax.
+ * **Important!** cVimrc blacklists are now a part of the cVimrc. Previous blacklists should carry over to the cVimrc text area. New blacklists can be declared like this:
+```viml
+let blacklists = ["https://www.google.com"]
+```
 
 ## 1.2.52
  * Added the ```file``` command
