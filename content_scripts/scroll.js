@@ -56,7 +56,7 @@ Scroll.smoothScrollBy = function(x, y) {
 };
 
 Scroll.scroll = function(type, repeats) {
-  
+
   var stepSize = settings ? settings.scrollstep : 60;
 
   if (settings && settings.smoothscroll) {

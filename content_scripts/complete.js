@@ -2,9 +2,15 @@
 
 String.prototype.validURL = function() {
   var url = this.trimLeft().trimRight();
-  if (url.length === 0) return "chrome://newtab";
-  if (/^\//.test(url)) url = "file://" + url;
-  if (/^(chrome|chrome-extension|file):\/\/\S+$/.test(url)) return url;
+  if (url.length === 0) {
+    return "chrome://newtab";
+  }
+  if (/^\//.test(url)) {
+    url = "file://" + url;
+  }
+  if (/^(chrome|chrome-extension|file):\/\/\S+$/.test(url)) {
+    return url;
+  }
   var pattern = new RegExp("^((https?|ftp):\\/\\/)?"+
   "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|"+
   "((\\d{1,3}\\.){3}\\d{1,3})|"+

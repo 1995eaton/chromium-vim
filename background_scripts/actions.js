@@ -127,16 +127,18 @@ actions.lastTab = function() {
 };
 
 actions.appendHistory = function() {
-  History.append(request.value, request.type);
-  chrome.tabs.query({}, function(tabs) {
-    var hist = {};
-    for (var i = 0; i < History.historyTypes.length; ++i) {
-      hist[History.historyTypes[i]] = localStorage[History.historyTypes[i]].split(",");
-    }
-    tabs.forEach(function(tab) {
-      chrome.tabs.sendMessage(tab.id, {action: "commandHistory", history: hist});
+  if (sender.tab.incognito === false) {
+    History.append(request.value, request.type);
+    chrome.tabs.query({}, function(tabs) {
+      var hist = {};
+      for (var i = 0; i < History.historyTypes.length; ++i) {
+        hist[History.historyTypes[i]] = localStorage[History.historyTypes[i]].split(",");
+      }
+      tabs.forEach(function(tab) {
+        chrome.tabs.sendMessage(tab.id, {action: "commandHistory", history: hist});
+      });
     });
-  });
+  }
 };
 
 actions.pinTab = function() {

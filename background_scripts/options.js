@@ -89,9 +89,8 @@ Options.getDefaults = function(request, sender) {
 
 Options.updateBlacklistsMappings = function() {
   var mappings = Settings.MAPPINGS,
-      configBlacklists = mappings.match(/\n *let +blacklists *= *\[.*\]/),
       i, index;
-  mappings = mappings.split(/\n+/);
+  mappings = mappings.split(/\n/);
   if (Settings.BLACKLISTS) {
     Settings.blacklists = Settings.BLACKLISTS.split(/\n+/);
     delete Settings.BLACKLISTS;

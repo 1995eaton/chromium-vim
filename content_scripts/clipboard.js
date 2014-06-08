@@ -11,8 +11,7 @@ var Clipboard = {
     chrome.runtime.sendMessage({action: "copy", text: this.store});
   },
   paste: function(tabbed) {
-    if (tabbed) return chrome.runtime.sendMessage({action: "openPasteTab"});
-    return chrome.runtime.sendMessage({action: "openPaste"});
+    return chrome.runtime.sendMessage({action: (tabbed ? "openPasteTab" : "openPaste")});
   }
 
 };

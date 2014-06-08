@@ -1,6 +1,6 @@
 var Marks = {};
-Marks.bookmarks        = [];
-Marks.quickMarks       = {};
+Marks.bookmarks = [];
+Marks.quickMarks = {};
 Marks.currentBookmarks = [];
 Marks.files = [];
 

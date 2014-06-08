@@ -63,10 +63,11 @@ History = {
   historyTypes: ["action", "url", "search"],
   searchResults: null,
   append: function(value, type) {
-    if (!localStorage[type] || localStorage[type] === "")
+    if (!localStorage[type] || localStorage[type] === "") {
       localStorage[type] = value;
-    else
+    } else {
       localStorage[type] += "," + value;
+    }
   },
   retrieve: function(type) {
     if (!localStorage[type]) {

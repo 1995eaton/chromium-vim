@@ -70,7 +70,9 @@ Command.history = {
     return !fail;
   },
   cycle: function(type, reverse) {
-    if (this[type].length === 0) return false;
+    if (this[type].length === 0) {
+      return false;
+    }
     var len = this[type].length,
         index = this.index[type];
     if (index === undefined) {
@@ -183,26 +185,31 @@ Command.hideData = function() {
 };
 
 Command.descriptions = [
+  ["open",       "Open a link in the current tab"],
   ["tabopen",    "Open a link in a new tab"],
   ["winopen",    "Open a link in a new window"],
   ["buffers",    "Select from a list of current tabs"],
-  ["closetab",   "Close the current tab"],
-  ["open",       "Open a link in the current tab"],
-  ["nohl",       "Clears the search highlight"],
+  ["history",    "Search through your browser history"],
   ["file",       "Browse local directories"],
   ["set",        "Configure Settings"],
-  ["date",       "Display the current date"],
-  ["mksession",  "Create a saved session of current tabs"],
-  ["delsession", "Delete sessions"],
-  ["qmark",      "Add QuickMarks"],
   ["execute",    "Execute a sequence of keys"],
   ["session",    "Open a saved session in a new window"],
-  ["bookmarks",  "Search through your bookmarks"],
-  ["history",    "Search through your browser history"],
-  ["duplicate",  "Clone the current tab"],
+  ["mksession",  "Create a saved session of current tabs"],
+  ["delsession", "Delete sessions"],
   ["chrome://",  "Opens Chrome urls"],
+  ["duplicate",  "Clone the current tab"],
+  ["settings",   "Open the options page for this extension"],
   ["help",       "Shows the help page"],
-  ["settings",   "Open the options page for this extension"]
+  ["date",       "Display the current date"],
+  ["closetab",   "Close the current tab"],
+  ["stop",       "Stop the current page from loading"],
+  ["stopall",    "Stop all pages in Chrome from loading"],
+  ["undo",       "Reopen the last closed tab"],
+  ["togglepin",  "Toggle the tab's pinned state"],
+  ["nohl",       "Clears the search highlight"],
+  ["viewsource", "View the source for the current document"],
+  ["qmark",      "Add QuickMarks"],
+  ["bookmarks",  "Search through your bookmarks"]
 ];
 
 Command.deleteCompletions = function(completions) {
@@ -308,7 +315,9 @@ Command.complete = function(value) {
   }
 
   if (/^hist(ory)?(\s+)/.test(value)) {
-    if (search.trim() === "") return this.hideData();
+    if (search.trim() === "") {
+      return this.hideData();
+    }
     this.historyMode = true;
     port.postMessage({action: "searchHistory", search: search, limit: settings.searchlimit});
     return;
@@ -379,14 +388,29 @@ Command.execute = function(value, repeats) {
     case "help":
       chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: chrome.extension.getURL("/pages/mappings.html")});
       break;
+    case "stop":
+      window.stop();
+      break;
+    case "stopall":
+      chrome.runtime.sendMessage({action: "cancelAllWebRequests"});
+      break;
+    case "viewsource":
+      chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: "view-source:" + document.URL, noconvert: true});
+      break;
+    case "togglepin":
+      chrome.runtime.sendMessage({action: "pinTab"});
+      break;
+    case "undo":
+      chrome.runtime.sendMessage({action: "openLast"});
+      break;
     case "cl":
     case "closetab":
       chrome.runtime.sendMessage({action: "closeTab", repeats: repeats});
       break;
     default:
-      if (/^chrome:\/\/\S+$/.test(value))
+      if (/^chrome:\/\/\S+$/.test(value)) {
         chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value, noconvert: true});
-      else if (/^bookmarks +/.test(value) && value !== "bookmarks") {
+      } else if (/^bookmarks +/.test(value) && value !== "bookmarks") {
         if (/^\S+\s+\//.test(value)) {
           chrome.runtime.sendMessage({action: "openBookmarkFolder", active: activeTab, path: value.replace(/\S+\s+/, ""), noconvert: true});
         } else {
@@ -402,9 +426,13 @@ Command.execute = function(value, repeats) {
         chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: Complete.convertToLink(value), repeats: repeats, noconvert: true});
       } else if (/^(o|open)$/.test(value.replace(/ .*/, ""))) {
         chrome.runtime.sendMessage({action: "openLink", active: activeTab, url: Complete.convertToLink(value), noconvert: true});
-      } else if (/^buffers +[0-9]+(\s+)?$/.test(value))
-        chrome.runtime.sendMessage({action: "goToTab", index: value.replace(/^.*([0-9]+).*$/, "$1")});
-      else if (/^execute +/.test(value)) {
+      } else if (/^buffers +/.test(value)) {
+        if (Command.completionResults[0]) {
+          chrome.runtime.sendMessage({action: "goToTab", index: Command.completionResults[0][1][0]});
+        } else if (/^buffers +[0-9]+ *$/.test(value)) {
+          chrome.runtime.sendMessage({action: "goToTab", index: +value.replace(/^\S+\s+/, "")});
+        }
+      } else if (/^execute +/.test(value)) {
         var command = value.replace(/^\S+/, "").trim();
         realKeys = "";
         repeats = "";
@@ -418,7 +446,9 @@ Command.execute = function(value, repeats) {
           Status.setMessage("argument required", 1, "error");
           break;
         }
-        if (sessions.indexOf(value) !== -1) sessions.splice(sessions.indexOf(value), 1);
+        if (sessions.indexOf(value) !== -1) {
+          sessions.splice(sessions.indexOf(value), 1);
+        }
         value.split(" ").forEach(function(v) {
           chrome.runtime.sendMessage({action: "deleteSession", name: v});
         });
@@ -432,7 +462,9 @@ Command.execute = function(value, repeats) {
           Status.setMessage("only alphanumeric characters, dashes, and underscores are allowed", 1, "error");
           break;
         }
-        if (sessions.indexOf(value) === -1) sessions.push(value);
+        if (sessions.indexOf(value) === -1) {
+          sessions.push(value);
+        }
         chrome.runtime.sendMessage({action: "createSession", name: value});
       } else if (/^session/.test(value)) {
         value = value.replace(/^\S+(\s+)?/, "").trimAround();
@@ -456,7 +488,7 @@ Command.execute = function(value, repeats) {
           isSet = !/^no/.test(value[0]);
           swapVal = /!$/.test(value[0]);
           value[0] = value[0].replace(/^no|[?!]$/g, "");
-          if (value.length === 1 && (settings[value] === true || settings[value] === false)) {
+          if (value.length === 1 && Boolean(settings[value]) === settings[value]) {
             if (value[0] === "hud" && !isSet) {
               HUD.hide(true);
             }
@@ -464,22 +496,6 @@ Command.execute = function(value, repeats) {
               settings[value[0]] = !settings[value[0]];
             } else {
               settings[value[0]] = isSet;
-            }
-          } else if (value.length === 2) {
-            switch (value[0]) {
-              case "scrollstep":
-                if (!/^[0-9]+$/.test(value[1])) Status.setMessage("invalid integer: '" + (value[1] || "") + "'", 1, "error");
-                else settings.scrollstep = +value[1];
-                break;
-              case "searchlimit":
-                if (!/^[0-9]+$/.test(value[1])) Status.setMessage("invalid integer: " + value, 1, "error");
-                else settings.searchlimit = +value[1];
-                break;
-              case "hintcharacters":
-                value = value[1].split("").unique().join("");
-                if (value.length <= 1) Status.setMessage("two unique hint characters are required", 1, "error");
-                else settings.hintcharacters = value;
-                break;
             }
           }
         }
@@ -535,7 +551,9 @@ Command.show = function(search, value) {
     this.input.value = value;
     this.typed = value;
   }
-  if (Status.active) Status.hide();
+  if (Status.active) {
+    Status.hide();
+  }
   this.bar.style.display = "inline-block";
   setTimeout(function() {
     this.input.focus();
@@ -559,7 +577,9 @@ Command.hide = function() {
   this.history.index = {};
   this.typed = "";
   this.dataElements = [];
-  if (this.data) this.data.style.display = "none";
+  if (this.data) {
+    this.data.style.display = "none";
+  }
 };
 
 Command.onDOMLoad = function() {

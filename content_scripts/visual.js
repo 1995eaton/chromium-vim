@@ -14,7 +14,9 @@ Visual.getTextNodes = function(callback) {
       this.textNodes.push(node);
     }
   }
-  if (callback) return callback();
+  if (callback) {
+    return callback();
+  }
 };
 
 Visual.exit = function() {
@@ -23,13 +25,17 @@ Visual.exit = function() {
   document.designMode   = "off";
   if (!Find.matches.length) {
     HUD.hide();
-  } else HUD.display(Find.index + 1 + " / " + Find.matches.length);
+  } else {
+    HUD.display(Find.index + 1 + " / " + Find.matches.length);
+  }
   return document.body.spellcheck = true;
 };
 
 Visual.focusSearchResult = function(lineMode) {
   var node = Find.getSelectedTextNode();
-  if (node.data.length === 0) return false;
+  if (node.data.length === 0) {
+    return false;
+  }
   this.selection = document.getSelection();
   this.selection.setPosition(node, 0);
   if (lineMode) {
@@ -74,7 +80,9 @@ Visual.selectNode = function(index) {
 };
 
 Visual.scrollIntoView = function() {
-  if (!this.selection.extentNode) return false;
+  if (!this.selection.extentNode) {
+    return false;
+  }
   var extentParent = this.selection.extentNode.parentElement;
   var br = extentParent.getBoundingClientRect();
   if (br.top < 0) {
@@ -171,7 +179,9 @@ Visual.action = function(key) {
       }
       return this.scrollIntoView();
     }
-  } else this.queue = "";
+  } else {
+    this.queue = "";
+  }
   if (key === "v") {
     if (this.lineMode) {
       HUD.setMessage(" -- VISUAL -- ");
@@ -181,7 +191,9 @@ Visual.action = function(key) {
     if (!this.visualModeActive) {
       HUD.setMessage(" -- CARET -- ");
       return Visual.collapse();
-    } else HUD.setMessage(" -- VISUAL -- ");
+    } else {
+      HUD.setMessage(" -- VISUAL -- ");
+    }
   }
   if (key === "V") {
     this.lineMode = !this.lineMode;
@@ -192,7 +204,9 @@ Visual.action = function(key) {
   if (this.lineMode) {
     return this.lineAction(key);
   }
-  if (this.selection.type === "Range") this.visualModeActive = true;
+  if (this.selection.type === "Range") {
+    this.visualModeActive = true;
+  }
   var movementType = ((this.selection.type === "Range" || this.visualModeActive) ? "extend" : "move");
   switch (key) {
     case "l":
@@ -224,8 +238,11 @@ Visual.action = function(key) {
       break;
     case "n":
     case "N":
-      if (key === "N") Mappings.actions.previousSearchResult(1);
-      else Mappings.actions.nextSearchResult(1);
+      if (key === "N") {
+        Mappings.actions.previousSearchResult(1);
+      } else {
+        Mappings.actions.nextSearchResult(1);
+      }
       this.focusSearchResult();
       break;
     case "p":
