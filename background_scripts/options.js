@@ -84,46 +84,32 @@ Options.setDefaults = function() {
 };
 
 Options.getDefaults = function(request, sender) {
-  this.updateBlacklistsMappings();
   chrome.tabs.sendMessage(sender.tab.id, {action: "sendDefaultSettings", settings: defaultSettings});
-};
-
-Options.oldMappings = ["options", "mappings", "blacklists", "gisturl", "commandbarcss"];
-Options.convertOldSettings = function() {
-  for (var i = 0; i < this.oldMappings.length; ++i) {
-    if (Settings[this.oldMappings[i]]) {
-      Settings[this.oldMappings[i].toUpperCase()] = Settings[this.oldMappings[i]];
-      delete Settings[this.oldMappings[i]];
-    }
-  }
 };
 
 Options.updateBlacklistsMappings = function() {
   var mappings = Settings.MAPPINGS,
       configBlacklists = mappings.match(/\n *let +blacklists *= *\[.*\]/),
-      i;
+      i, index;
   mappings = mappings.split(/\n+/);
   if (Settings.BLACKLISTS) {
-    if (configBlacklists) {
-      configBlacklists = "let blacklists = " + configBlacklists[0].replace(/[^=]+= */, "");
-      mappings.push(configBlacklists);
-    }
+    Settings.blacklists = Settings.BLACKLISTS.split(/\n+/);
     delete Settings.BLACKLISTS;
   }
-  if (configBlacklists || Settings.blacklists.length) {
-    for (i = 0; i < mappings.length; ++i) {
-      if (/ *let *blacklists *= */.test(mappings[i])) {
-        mappings.splice(i, 1);
-      }
+  for (i = 0; i < mappings.length; ++i) {
+    if (/ *let *blacklists *= */.test(mappings[i])) {
+      mappings.splice(i, 1);
+      index = i;
     }
-    var blacklists = [];
-    for (i = 0; i < Settings.blacklists.length; i++) {
-      if (blacklists.indexOf(Settings.blacklists[i]) === -1) {
-        blacklists.push("\"" + Settings.blacklists[i] + "\"");
-      }
+  }
+  Settings.blacklists = Settings.blacklists.unique();
+  if (Settings.blacklists.length) {
+    var line = "let blacklists = " + JSON.stringify(Settings.blacklists);
+    if (index) {
+      mappings = mappings.slice(0, index).concat(line).concat(mappings.slice(index));
+    } else {
+      mappings.push(line);
     }
-    configBlacklists = "let blacklists = [" + blacklists.join(", ") + "]";
-    mappings.push(configBlacklists);
   }
   Settings.MAPPINGS = mappings.join("\n");
   Options.saveSettings({settings: Settings});
@@ -133,7 +119,6 @@ Options.updateBlacklistsMappings = function() {
   chrome.storage[storageMethod].get("settings", function(data) {
     if (data.settings) {
       Settings = data.settings;
-      Options.convertOldSettings();
       Quickmarks = Settings.qmarks;
     }
     Options.refreshSettings();
