@@ -23,6 +23,10 @@ String.prototype.validURL = function() {
   }
 };
 
+String.prototype.embedString = function(string) {
+  return this.replace("%s", string);
+};
+
 var Complete = {};
 
 Complete.engines = ["google", "wikipedia", "youtube", "imdb", "amazon", "wolframalpha", "google-image", "ebay", "webster", "wictionary", "urbandictionary", "duckduckgo", "google-trends", "google-finance", "yahoo", "bing"];
@@ -87,22 +91,22 @@ Complete.parseQuery = {
 };
 
 Complete.apis = {
-  wikipedia:      "https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=",
-  google:         "https://www.google.com/complete/search?client=firefox&hl=en&q=",
-  "google-image": "http://www.google.com/complete/search?client=img&hl=en&gs_rn=43&gs_ri=img&ds=i&cp=1&gs_id=8&q=",
-  yahoo:          "https://search.yahoo.com/sugg/gossip/gossip-us-ura/?output=sd1&appid=search.yahoo.com&nresults=10&command=",
-  bing:           "http://api.bing.com/osjson.aspx?query=",
+  wikipedia:      "https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=%s",
+  google:         "https://www.google.com/complete/search?client=firefox&hl=en&q=%s",
+  "google-image": "http://www.google.com/complete/search?client=img&hl=en&gs_rn=43&gs_ri=img&ds=i&cp=1&gs_id=8&q=%s",
+  yahoo:          "https://search.yahoo.com/sugg/gossip/gossip-us-ura/?output=sd1&appid=search.yahoo.com&nresults=10&command=%s",
+  bing:           "http://api.bing.com/osjson.aspx?query=%s",
   imdb:           "http://sg.media-imdb.com/suggests/",
-  amazon:         "http://completion.amazon.com/search/complete?method=completion&search-alias=aps&client=amazon-search-ui&mkt=1&q=",
-  wolframalpha:   "https://www.wolframalpha.com/input/autocomplete.jsp?qr=0&i=",
-  ebay:           "https://autosug.ebay.com/autosug?kwd=",
-  urbandictionary: "http://api.urbandictionary.com/v0/autocomplete?term=",
-  "google-trends": "http://www.google.com/trends/entitiesQuery?tn=10&q=",
-  "google-finance": "https://www.google.com/finance/match?matchtype=matchall&q=",
-  webster:          "http://www.merriam-webster.com/autocomplete?query=",
-  youtube:          "https://clients1.google.com/complete/search?client=youtube&hl=en&gl=us&gs_rn=23&gs_ri=youtube&ds=yt&cp=2&gs_id=d&q=",
-  wictionary:       "http://en.wiktionary.org/w/api.php?action=opensearch&limit=15&format=json&search=",
-  duckduckgo:       "https://duckduckgo.com/ac/?q="
+  amazon:         "http://completion.amazon.com/search/complete?method=completion&search-alias=aps&client=amazon-search-ui&mkt=1&q=%s",
+  wolframalpha:   "https://www.wolframalpha.com/input/autocomplete.jsp?qr=0&i=%s",
+  ebay:           "https://autosug.ebay.com/autosug?kwd=%s",
+  urbandictionary: "http://api.urbandictionary.com/v0/autocomplete?term=%s",
+  "google-trends": "http://www.google.com/trends/entitiesQuery?tn=10&q=%s",
+  "google-finance": "https://www.google.com/finance/match?matchtype=matchall&q=%s",
+  webster:          "http://www.merriam-webster.com/autocomplete?query=%s",
+  youtube:          "https://clients1.google.com/complete/search?client=youtube&hl=en&gl=us&gs_rn=23&gs_ri=youtube&ds=yt&cp=2&gs_id=d&q=%s",
+  wictionary:       "http://en.wiktionary.org/w/api.php?action=opensearch&limit=15&format=json&search=%s",
+  duckduckgo:       "https://duckduckgo.com/ac/?q=%s"
 };
 
 Complete.convertToLink = function(input) {
@@ -133,7 +137,9 @@ Complete.convertToLink = function(input) {
   } else {
     suffix = input.slice(1).join(" ");
   }
-  return prefix + suffix;
+  return (prefix.indexOf("%s") !== -1 ?
+      prefix.embedString(suffix) :
+      prefix + suffix);
 };
 
 Complete.xhr = function(url, callback) {
@@ -148,7 +154,7 @@ Complete.xhr = function(url, callback) {
 };
 
 Complete.wikipedia = function(query, callback) {
-  this.xhr(this.apis.wikipedia + query, function(response) {
+  this.xhr(this.apis.wikipedia.embedString(query), function(response) {
     callback(response[1].map(function(e) {
       return e;
     }));
@@ -156,7 +162,7 @@ Complete.wikipedia = function(query, callback) {
 };
 
 Complete.google = function(query, callback) {
-  this.xhr(this.apis.google + query, function(response) {
+  this.xhr(this.apis.google.embedString(query), function(response) {
     callback(response[1].map(function(e) {
       return e;
     }));
@@ -165,7 +171,7 @@ Complete.google = function(query, callback) {
 
 Complete["google-image"] = function(query, callback) {
   var xhr = new XMLHttpRequest();
-  xhr.open("GET", this.apis["google-image"] + query);
+  xhr.open("GET", this.apis["google-image"].embedString(query));
   xhr.onreadystatechange = function() {
     if (this.readyState === 4 && this.status === 200 && document.activeElement.id === "cVim-command-bar-input" && commandMode) {
       callback(JSON.parse(this.responseText.replace(/^[^\(]+\(|\)$/g, ""))[1].map(function(e) {
@@ -177,7 +183,7 @@ Complete["google-image"] = function(query, callback) {
 };
 
 Complete["google-trends"] = function(query, callback) {
-  this.xhr(this.apis["google-trends"] + encodeURIComponent(query), function(response) {
+  this.xhr(this.apis["google-trends"].embedString(encodeURIComponent(query)), function(response) {
     callback(response.entityList.map(function(e) {
       return [e.title + " - " + e.type, Complete.requestUrls["google-trends"] + encodeURIComponent(e.mid)];
     }));
@@ -185,7 +191,7 @@ Complete["google-trends"] = function(query, callback) {
 };
 
 Complete["google-finance"] = function(query, callback) {
-  this.xhr(this.apis["google-finance"] + encodeURIComponent(query), function(response) {
+  this.xhr(this.apis["google-finance"].embedString(encodeURIComponent(query)), function(response) {
     callback(response.matches.map(function(e) {
       return [e.t + " - " + e.n + " - " + e.e, Complete.requestUrls["google-finance"] + e.e + ":" + e.t];
     }));
@@ -193,7 +199,7 @@ Complete["google-finance"] = function(query, callback) {
 };
 
 Complete.amazon = function(query, callback) {
-  this.xhr(this.apis.amazon + encodeURIComponent(query), function(response) {
+  this.xhr(this.apis.amazon.embedString(encodeURIComponent(query)), function(response) {
     callback(response[1].map(function(e) {
       return e;
     }));
@@ -201,7 +207,7 @@ Complete.amazon = function(query, callback) {
 };
 
 Complete.yahoo = function(query, callback) {
-  this.xhr(this.apis.yahoo + encodeURIComponent(query), function(response) {
+  this.xhr(this.apis.yahoo.embedString(encodeURIComponent(query)), function(response) {
     var _ret = [];
     for (var key in response.r) {
       if (response.r[key].hasOwnProperty("k")) {
@@ -213,7 +219,7 @@ Complete.yahoo = function(query, callback) {
 };
 
 Complete.bing = function(query, callback) {
-  this.xhr(this.apis.bing + query, function(response) {
+  this.xhr(this.apis.bing.embedString(query), function(response) {
     callback(response[1].map(function(e) {
       return e;
     }));
@@ -222,7 +228,7 @@ Complete.bing = function(query, callback) {
 
 Complete.ebay = function(query, callback) {
   var xhr = new XMLHttpRequest();
-  xhr.open("GET", this.apis.ebay + encodeURIComponent(query));
+  xhr.open("GET", this.apis.ebay.embedString(encodeURIComponent(query)));
   xhr.onreadystatechange = function() {
     if (this.readyState === 4 && this.status === 200 && document.activeElement.id === "cVim-command-bar-input" && commandMode) {
       var _ret = JSON.parse(xhr.responseText.replace(/^[^\(]+\(|\)$/g, ""));
@@ -239,7 +245,7 @@ Complete.ebay = function(query, callback) {
 
 Complete.youtube = function(query, callback) {
   var xhr = new XMLHttpRequest();
-  xhr.open("GET", this.apis.youtube + query);
+  xhr.open("GET", this.apis.youtube.embedString(query));
   xhr.onreadystatechange = function() {
     if (this.readyState === 4 && this.status === 200 && document.activeElement.id === "cVim-command-bar-input" && commandMode) {
       var _ret = JSON.parse(xhr.responseText.replace(/^[^\(]+\(|\)$/g, ""));
@@ -252,7 +258,7 @@ Complete.youtube = function(query, callback) {
 };
 
 Complete.wolframalpha = function(query, callback) {
-  this.xhr(this.apis.wolframalpha + encodeURIComponent(query), function(response) {
+  this.xhr(this.apis.wolframalpha.embedString(encodeURIComponent(query)), function(response) {
     callback(response.results.map(function(e) {
       return e.input;
     }));
@@ -260,7 +266,7 @@ Complete.wolframalpha = function(query, callback) {
 };
 
 Complete.webster = function(query, callback) {
-  this.xhr(this.apis.webster + encodeURIComponent(query), function(response) {
+  this.xhr(this.apis.webster.embedString(encodeURIComponent(query)), function(response) {
     callback(response.suggestions.map(function(e) {
       return e;
     }));
@@ -268,7 +274,7 @@ Complete.webster = function(query, callback) {
 };
 
 Complete.wictionary = function(query, callback) {
-  this.xhr(this.apis.wictionary + encodeURIComponent(query), function(response) {
+  this.xhr(this.apis.wictionary.embedString(encodeURIComponent(query)), function(response) {
     callback(response[1].map(function(e) {
       return e;
     }));
@@ -276,15 +282,15 @@ Complete.wictionary = function(query, callback) {
 };
 
 Complete.duckduckgo = function(query, callback) {
-  this.xhr(this.apis.duckduckgo + encodeURIComponent(query), function(response) {
+  this.xhr(this.apis.duckduckgo.embedString(encodeURIComponent(query)), function(response) {
     callback(response.map(function(e) {
-      return e;
-    }));
+      return e.phrase;
+    }).compress());
   });
 };
 
 Complete.urbandictionary = function(query, callback) {
-  this.xhr(this.apis.urbandictionary + encodeURIComponent(query), function(response) {
+  this.xhr(this.apis.urbandictionary.embedString(encodeURIComponent(query)), function(response) {
     callback(response.slice(1).map(function(e) {
       return e;
     }));

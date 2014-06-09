@@ -5,6 +5,17 @@
 ```viml
 let blacklists = ["https://www.google.com"]
 ```
+ * When defining custom search engines, you can now add the string ```%s``` somewhere inside the URL to indicate that the query should be inserted in this place. This is useful for search engines with URLs that have non-standard structures. For instance:
+
+```viml
+" If you search for 'test' using this engine, cVim
+" will open this link -> http://www.example.com/test?type=search
+let searchengine example = "http://www.example.com/%s?type=search"
+
+" In the case below, '%s' is optional. If it is not included, your search query will be appended to the URL
+let searchengine example = "http://www.example.com/search?query="
+let searchengine example = "http://www.example.com/search?query=%s" "This is no different from the above case
+```
 
 ## 1.2.52
  * Added the ```file``` command

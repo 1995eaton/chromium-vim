@@ -629,7 +629,7 @@ Command.init = function(enabled) {
   Mappings.parseCustom(settings.MAPPINGS);
   if (enabled) {
     this.loaded = true;
-    if (settings.searchengines && !Array.isArray(settings.searchengines) && typeof settings.searchengines === "object") {
+    if (settings.searchengines && settings.searchengines.constructor === Object) {
       for (key in settings.searchengines) {
         if (Complete.engines.indexOf(key) === -1 && typeof settings.searchengines[key] === "string") {
           Complete.engines.push(key);

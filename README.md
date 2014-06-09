@@ -47,7 +47,7 @@ let searchlimit = 30
 let scrollstep = 70
 let barposition = "bottom"
 let hintcharacters = "abc123"
-let searchengine dogpile = "http://www.dogpile.com/search/web?q="
+let searchengine dogpile = "http://www.dogpile.com/search/web?q=%s" "If you leave out the '%s' at the end of the URL, your query will be appended to the link. Otherwise, your query will replace the '%s'.
 let completionengines = ["google", "amazon", "imdb", "dogpile"]
 let qmark a = ["http://www.reddit.com", "http://www.google.com", "http://twitter.com"]  "Open all of these in a tab with `gnb` or open one of these with <N>goa where <N>
 let blacklists = ["https://mail.google.com/*", "*://*.reddit.com/*"]
