@@ -47,9 +47,9 @@ let searchlimit = 30
 let scrollstep = 70
 let barposition = "bottom"
 let hintcharacters = "abc123"
-let completionengines = ["google", "amazon", "imdb"]
-let qmark a = ["http://www.reddit.com", "http://www.google.com", "http://twitter.com"]  "Open all of these in a tab with `gnb` or open one of these with <N>goa where <N>
 let searchengine dogpile = "http://www.dogpile.com/search/web?q="
+let completionengines = ["google", "amazon", "imdb", "dogpile"]
+let qmark a = ["http://www.reddit.com", "http://www.google.com", "http://twitter.com"]  "Open all of these in a tab with `gnb` or open one of these with <N>goa where <N>
 let blacklists = ["https://mail.google.com/*", "*://*.reddit.com/*"]
 
 " Mappings
