@@ -37,7 +37,9 @@ var defaultSettings = {
 };
 
 chrome.storage.onChanged.addListener(function(changes) {
-  Settings = changes.settings ? changes.settings.newValue : defaultSettings;
+  if (!changes.hasOwnProperty("sessions")) {
+    Settings = changes.settings ? changes.settings.newValue : defaultSettings;
+  }
 });
 
 Options.refreshSettings = function(callback) {
