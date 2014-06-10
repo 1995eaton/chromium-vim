@@ -13,7 +13,7 @@ var defaultSettings = {
   regexp: true,
   linkanimations: false,
   ignorecase: true,
-  ignorediacritics: true,
+  ignorediacritics: false,
   numerichints: false,
   cncpcompletion: false,
   smartcase: true,

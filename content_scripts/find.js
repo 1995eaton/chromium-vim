@@ -102,7 +102,7 @@ Find.highlight = function(params) {
       containsCap = params.search.search(/[A-Z]/) !== -1,
       useRegex = settings.regexp,
       markBase = document.createElement("mark"),
-      node, regexMatches, mark, mid, data, nodeIterator, matchPosition;
+      node, mark, mid, data, nodeIterator, matchPosition;
 
   markBase.style.backgroundColor = settings.highlight;
 
@@ -116,12 +116,22 @@ Find.highlight = function(params) {
   }
 
   if (useRegex) {
-    try { params.search = new RegExp(params.search, regexMode); }
-    catch(e) { useRegex = false; }
+    try {
+      params.search = new RegExp(params.search, regexMode);
+    } catch(e) {
+      useRegex = false;
+    }
   }
 
   nodeIterator = document.createNodeIterator(params.base, NodeFilter.SHOW_TEXT, { acceptNode: function(node) { // Make sure HTML element isn't a script/style
-    return node.isTextNode();
+    if (!node.data.trim()) {
+      return NodeFilter.FILTER_REJECT;
+    }
+    var nodeName = node.parentNode.localName.toLowerCase();
+    if (nodeName === "script" || nodeName === "style" || nodeName === "noscript" || nodeName === "mark") {
+      return NodeFilter.FILTER_REJECT;
+    }
+    return NodeFilter.FILTER_ACCEPT;
   }}, false);
 
   while (node = nodeIterator.nextNode()) {
@@ -131,13 +141,14 @@ Find.highlight = function(params) {
     } else {
       matchPosition = (containsCap ? node.data.indexOf(params.search) : node.data.toLowerCase().indexOf(params.search));
     }
-    if (matchPosition >= 0) {
-      if (useRegex) {
-        regexMatches = data.match(params.search);
-      }
+    if (matchPosition !== -1) {
       mark = markBase.cloneNode(false);
       mid = node.splitText(matchPosition);
-      mid.splitText(useRegex ? regexMatches[0].length : params.search.length);
+      if (useRegex) {
+        mid.splitText(params.search.exec(data)[0].length);
+      } else {
+        mid.splitText(params.search.length);
+      }
       mark.appendChild(mid.cloneNode(true));
       mid.parentNode.replaceChild(mark, mid);
       this.matches.push(mark);

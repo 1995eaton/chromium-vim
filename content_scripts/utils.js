@@ -210,10 +210,6 @@ HTMLElement.prototype.simulateClick = function() {
   simulateMouseEvents(this, ["mouseover", "mousedown", "mouseup", "click"]);
 };
 
-Node.prototype.isTextNode = function() {
-  return this.nodeType === 3 && !/script|style|noscript|mark/.test(this.parentNode.localName) && this.data.trim() !== "";
-};
-
 String.prototype.rxp = function() {
   return new RegExp(this, Array.prototype.slice.call(arguments));
 };
