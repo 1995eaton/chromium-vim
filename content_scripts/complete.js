@@ -31,6 +31,18 @@ var Complete = {};
 
 Complete.engines = ["google", "wikipedia", "youtube", "imdb", "amazon", "wolframalpha", "google-image", "ebay", "webster", "wictionary", "urbandictionary", "duckduckgo", "google-trends", "google-finance", "yahoo", "bing"];
 
+Complete.aliases = {
+  g: "google"
+};
+
+Complete.hasAlias = function(alias) {
+  return this.aliases.hasOwnProperty(alias);
+};
+
+Complete.getAlias = function(alias) {
+  return this.aliases[alias] || "";
+};
+
 Complete.requestUrls = {
   wikipedia:      "https://en.wikipedia.org/wiki/",
   google:         "https://www.google.com/search?q=",
@@ -117,6 +129,7 @@ Complete.convertToLink = function(input) {
   if (input.length === 0) {
     return "";
   }
+  input[0] = this.getAlias(input[0]) || input[0];
   if (Complete.engines.indexOf(input[0]) !== -1) {
     if (input.length > 1) {
       prefix = Complete.requestUrls[input[0]];

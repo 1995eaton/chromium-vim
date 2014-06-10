@@ -229,7 +229,7 @@ Command.complete = function(value) {
     this.deleteCompletions("engines,bookmarks,complete,chrome,search");
     search = search.split(/ +/).compress();
 
-    if (search.length < 2 || Complete.engines.indexOf(search[0]) === -1) {
+    if ((search.length < 2 || Complete.engines.indexOf(search[0]) === -1) && !Complete.hasAlias(search[0]) || (Complete.hasAlias(search[0]) &&  value.slice(-1) !== " " && search.length < 2)) {
 
       if (Complete.engines.indexOf(search[0]) !== -1) {
         return this.hideData();
@@ -263,6 +263,12 @@ Command.complete = function(value) {
 
     }
 
+    if (search[0] = (Complete.getAlias(search[0]) || search[0])) {
+      if (search.length < 2) {
+        this.hideData();
+        return;
+      }
+    }
     if (Complete.engines.indexOf(search[0]) !== -1 && Complete.hasOwnProperty(search[0])) {
       Complete[search[0]](search.slice(1).join(" "), function(response) {
         this.completions = { search: response };
@@ -629,6 +635,7 @@ Command.init = function(enabled) {
   Mappings.parseCustom(settings.MAPPINGS);
   if (enabled) {
     this.loaded = true;
+
     if (settings.searchengines && settings.searchengines.constructor === Object) {
       for (key in settings.searchengines) {
         if (Complete.engines.indexOf(key) === -1 && typeof settings.searchengines[key] === "string") {
@@ -637,6 +644,14 @@ Command.init = function(enabled) {
         }
       }
     }
+    if (settings.searchaliases && settings.searchaliases.constructor === Object) {
+      for (key in settings.searchaliases) {
+        if (Complete.engines.indexOf(key)) {
+          Complete.aliases[key] = settings.searchaliases[key];
+        }
+      }
+    }
+
     waitForLoad(this.onDOMLoad, this);
     if (settings.autohidecursor) {
       waitForLoad(Cursor.init, Cursor);

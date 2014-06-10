@@ -8,6 +8,7 @@ var defaultSettings = {
   typelinkhintsdelay: 500,
   qmarks: {},
   searchengines: {},
+  searchaliases: {},
   hud: true,
   regexp: true,
   linkanimations: false,

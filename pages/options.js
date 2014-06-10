@@ -25,7 +25,11 @@ Config.let = function(value) {
   assignment = value[0].split(/ +/).compact().slice(1);
   objVal = assignment.shift();
   if (assignment.length) {
-    objVal += "s";
+    if (/^searchaliase?$/.test(objVal)) {
+      objVal += "es";
+    } else {
+      objVal += "s";
+    }
     var key = assignment.pop();
     try {
       value = JSON.parse(value[1]);
