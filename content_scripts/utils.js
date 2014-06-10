@@ -11,6 +11,16 @@ function reverseImagePost(url) {
   return '<html><head><title>cVim reverse image search</title></head><body><form id="f" method="POST" action="https://www.google.com/searchbyimage/upload" enctype="multipart/form-data"><input type="hidden" name="image_content" value="' + url.substring(url.indexOf(",") + 1).replace(/\+/g, "-").replace(/\//g, "_").replace(/\./g, "=") + '"><input type="hidden" name="filename" value=""><input type="hidden" name="image_url" value=""><input type="hidden" name="sbisrc" value=""></form><script>document.getElementById("f").submit();\x3c/script></body></html>';
 }
 
+function attributeTest(node, attributes) {
+  attributes = attributes.split(",");
+  for (var i = 0, l = attributes.length; i < l; i++) {
+    if (node.getAttribute(attributes[i])) {
+      return true;
+    }
+  }
+  return false;
+}
+
 // Based off of the "Search by Image" Chrome Extension by Google
 function googleReverseImage(url, source, c, d) {
   if (void 0 !== url && url.indexOf("data:") === 0) {
@@ -38,15 +48,12 @@ HTMLElement.prototype.isInput = function() {
 
 function getVisibleBoundingRect(node) {
   var computedStyle = getComputedStyle(node);
-  if (computedStyle.opacity === "0" || computedStyle.visibility !== "visible" || computedStyle.display === "none") {
+  if (computedStyle.opacity === "0" || computedStyle.visibility !== "visible" || computedStyle.display === "none" || node.hasAttribute("disabled")) {
     return false;
   }
   var boundingRect = node.getClientRects()[0] || node.getBoundingClientRect();
   if (boundingRect.top > window.innerHeight || boundingRect.left > window.innerWidth) {
     return false;
-  }
-  if (boundingRect.top + boundingRect.height > 10 && boundingRect.left + boundingRect.width > -10) {
-    return boundingRect;
   }
   if (boundingRect.width === 0 || boundingRect.height === 0) {
     var children = node.children;
@@ -62,30 +69,13 @@ function getVisibleBoundingRect(node) {
       return false;
     }
   }
+  if (boundingRect.top + boundingRect.height > 10 && boundingRect.left + boundingRect.width > -10) {
+    return boundingRect;
+  }
   if (boundingRect.top + boundingRect.height < 10 || boundingRect.left + boundingRect.width < -10) {
     return false;
   }
   return boundingRect;
-}
-
-function isClickable(node, type) {
-  var name = node.localName, t;
-  if (type) {
-    if (type.indexOf("yank") !== -1) {
-      return name === "a";
-    } else if (type.indexOf("image") !== -1) {
-      return name === "img";
-    }
-  }
-  if (name === "a" || name === "button" || name === "select" || name === "textarea" || name === "input" || name === "area") {
-    return true;
-  }
-  if (node.getAttribute("onclick") ||
-        node.getAttribute("tabindex") || node.getAttribute("aria-haspopup") ||
-        node.getAttribute("data-cmd") || node.getAttribute("jsaction") ||
-        ((t = node.getAttribute("role")) && (t === "button" || t === "checkbox" || t === "menu"))) {
-    return true;
-  }
 }
 
 HTMLCollection.prototype.toArray = function() {
@@ -106,8 +96,9 @@ HTMLElement.prototype.isVisible = function() {
 Array.prototype.unique = function() {
   var a = [];
   for (var i = 0, l = this.length; i < l; ++i) {
-    if (a.indexOf(this[i]) === -1)
+    if (a.indexOf(this[i]) === -1) {
       a.push(this[i]);
+    }
   }
   return a;
 };
@@ -137,8 +128,9 @@ String.prototype.removeDiacritics = function() {
   for (var y = 0; y < strAccentsLen; y++) {
     if (accents.indexOf(strAccents[y]) !== -1) {
       strAccentsOut[y] = accentsOut.substr(accents.indexOf(strAccents[y]), 1);
-    } else
+    } else {
       strAccentsOut[y] = strAccents[y];
+    }
   }
   strAccentsOut = strAccentsOut.join("");
   return strAccentsOut;
@@ -240,14 +232,15 @@ String.prototype.convertLink = function() {
     return url;
   }
   var pattern = new RegExp("^((https?|ftp):\\/\\/)?"+
-  "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|"+
-  "((\\d{1,3}\\.){3}\\d{1,3})|"+
-  "localhost)" +
-  "(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*"+
-  "(\\?[;&a-z\\d%_.~+=-]*)?"+
-  "(\\#[-a-z\\d_]*)?$","i");
-  if (pattern.test(url))
+    "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|"+
+    "((\\d{1,3}\\.){3}\\d{1,3})|"+
+    "localhost)" +
+    "(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*"+
+    "(\\?[;&a-z\\d%_.~+=-]*)?"+
+    "(\\#[-a-z\\d_]*)?$","i");
+  if (pattern.test(url)) {
     return (/:\/\//.test(url) ? "" : "http://") + url;
+  }
   return "https://www.google.com/search?q=" + url;
 };
 

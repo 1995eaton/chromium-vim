@@ -267,65 +267,65 @@ Hints.handleHint = function(key) {
   }
 };
 
-Hints.evaluateLink = function(link) {
-  if (!link) {
-    return;
-  }
-  isAreaNode = false;
+Hints.evaluateLink = function(link, linkIndex) {
+  var isAreaNode = false,
+      imgParent, linkElement, linkStyle, mapCoordinates;
   if (link.localName === "area" && link.parentNode && link.parentNode.localName === "map") {
-    imgParent = document.querySelectorAll("img[usemap='#" + link.parentNode.name + "'");
-    if (!imgParent.length) {
+    imgParent = document.querySelector("img[usemap='#" + link.parentNode.name + "'");
+    if (!imgParent) {
       return;
     }
-    linkLocation = getVisibleBoundingRect(imgParent[0]);
+    linkLocation = getVisibleBoundingRect(imgParent);
     isAreaNode = true;
   } else {
     linkLocation = getVisibleBoundingRect(link);
   }
-  if (linkLocation) {
-    linkElement = this.linkElementBase.cloneNode(false);
-    linkElement.style.zIndex = this.linkIndex;
-    if (isAreaNode) {
-      if (!/,/.test(link.getAttribute("coords"))) return;
-      mapCoordinates = link.coords.split(",");
-      if (mapCoordinates.length < 2) return;
-      linkElement.style.top = linkLocation.top * this.documentZoom + document.body.scrollTop + parseInt(mapCoordinates[1]) + "px";
-      linkElement.style.left = linkLocation.left * this.documentZoom + document.body.scrollLeft + parseInt(mapCoordinates[0]) + "px";
-    } else {
-      if (linkLocation.top < 0) {
-        linkElement.style.top = document.body.scrollTop+ "px";
-      } else {
-        linkElement.style.top = linkLocation.top * this.documentZoom + document.body.scrollTop + "px";
-      }
-      if (linkLocation.left < 0) {
-        linkElement.style.left = document.body.scrollLeft + "px";
-      } else {
-        if (l.offsetLeft > linkLocation.left) {
-          linkElement.style.left = link.offsetLeft * this.documentZoom + "px";
-        } else {
-          linkElement.style.left = linkLocation.left * this.documentZoom + document.body.scrollLeft + "px";
-        }
-      }
+  if (!linkLocation) {
+    return;
+  }
+  linkElement = this.linkElementBase.cloneNode(false);
+  linkStyle = linkElement.style;
+  linkStyle.zIndex = linkIndex;
+  if (isAreaNode) {
+    mapCoordinates = link.getAttribute("coords").split(",");
+    if (mapCoordinates.length < 2) {
+      return;
     }
-    if (settings && settings.numerichints) {
-      if (!settings.typelinkhints) {
-        this.linkArr.push([linkLocation.bottom * linkLocation.left, linkElement, link]);
-      } else {
-        var textValue = "";
-        var alt = "";
-        if (link.firstElementChild && link.firstElementChild.alt) {
-          textValue = link.firstElementChild.alt;
-          alt = textValue;
-        } else {
-          textValue = link.textContent || link.value || link.alt || "";
-        }
-        this.linkArr.push([linkLocation.left + linkLocation.top, linkElement, link, textValue, alt]);
-      }
+    linkStyle.top = linkLocation.top * this.documentZoom + document.body.scrollTop + parseInt(mapCoordinates[1]) + "px";
+    linkStyle.left = linkLocation.left * this.documentZoom + document.body.scrollLeft + parseInt(mapCoordinates[0]) + "px";
+  } else {
+    if (linkLocation.top < 0) {
+      linkStyle.top = document.body.scrollTop+ "px";
     } else {
-      this.linkArr.push([linkElement, link]);
+      linkStyle.top = linkLocation.top * this.documentZoom + document.body.scrollTop + "px";
+    }
+    if (linkLocation.left < 0) {
+      linkStyle.left = document.body.scrollLeft + "px";
+    } else {
+      if (l.offsetLeft > linkLocation.left) {
+        linkStyle.left = link.offsetLeft * this.documentZoom + "px";
+      } else {
+        linkStyle.left = linkLocation.left * this.documentZoom + document.body.scrollLeft + "px";
+      }
     }
   }
-  this.linkIndex += 1;
+  if (settings && settings.numerichints) {
+    if (!settings.typelinkhints) {
+      this.linkArr.push([linkLocation.bottom * linkLocation.left, linkElement, link]);
+    } else {
+      var textValue = "";
+      var alt = "";
+      if (link.firstElementChild && link.firstElementChild.alt) {
+        textValue = link.firstElementChild.alt;
+        alt = textValue;
+      } else {
+        textValue = link.textContent || link.value || link.alt || "";
+      }
+      this.linkArr.push([linkLocation.left + linkLocation.top, linkElement, link, textValue, alt]);
+    }
+  } else {
+    this.linkArr.push([linkElement, link]);
+  }
 };
 
 Hints.siteFilters = {
@@ -342,10 +342,24 @@ Hints.siteFilters = {
 };
 
 Hints.getLinks = function() {
-  var node, nodes = [];
-  var i;
-  var nodeIterator = document.createNodeIterator(document.body, 1, {acceptNode: function(node) {
-    if (isClickable(node, Hints.type)) {
+  var node, i, l, nodes = [], nodeIterator, name, role;
+  nodeIterator = document.createNodeIterator(document.body, 1, {acceptNode: function(node) {
+    name = node.localName.toLowerCase();
+    if (this.type) {
+      if (this.type.indexOf("yank") !== -1) {
+        return name === "a";
+      } else if (this.type.indexOf("image") !== -1) {
+        return name === "img";
+      }
+    }
+    if (name === "a" || name === "button" || name === "select" || name === "textarea" || name === "input" || name === "area") {
+      return NodeFilter.FILTER_ACCEPT;
+    }
+    if (attributeTest(node, "onclick,tabindex,aria-haspopup,data-cmd,jsaction")) {
+      return NodeFilter.FILTER_ACCEPT;
+    }
+    role = node.getAttribute("role");
+    if (role === "button" || role === "checkbox" || role === "menu") {
       return NodeFilter.FILTER_ACCEPT;
     }
     return NodeFilter.FILTER_REJECT;
@@ -353,14 +367,16 @@ Hints.getLinks = function() {
   while (node = nodeIterator.nextNode()) {
     nodes.push(node);
   }
-  for (i = 0; i < this.siteFilters.domains.length; ++i) {
+  for (i = 0, l = this.siteFilters.domains.length; i < l; i++) {
     if (window.location.origin.indexOf(this.siteFilters.domains[i]) !== -1) {
       nodes = nodes.filter(this.siteFilters[this.siteFilters.domains[i].replace(/\..*/, "")]);
       break;
     }
   }
-  for (i = 0; i < nodes.length; ++i) {
-    this.evaluateLink(nodes[i]);
+  for (i = 0, l = nodes.length; i < l; i++) {
+    if (nodes[i]) {
+      this.evaluateLink(nodes[i], i);
+    }
   }
 };
 
@@ -368,14 +384,13 @@ Hints.generateHintString = function(n, x) {
   var l, len, r;
   l = [];
   len = settings.hintcharacters.length;
-  for (var i = 0; i < x; i++) {
+  for (var i = 0; n >= 0 && i < x; i++) {
     r = n % len;
-    l.unshift(settings.hintcharacters[r]);
+    l.push(settings.hintcharacters[r]);
     n -= r;
     n /= Math.floor(len);
-    if (n < 0) break;
   }
-  return l.join("");
+  return l.reverse().join("");
 };
 
 Hints.create = function(type, multi) {
@@ -393,7 +408,6 @@ Hints.create = function(type, multi) {
   Hints.linkElementBase = document.createElement("div");
   Hints.linkElementBase.cVim = true;
   Hints.linkElementBase.className = "cVim-link-hint";
-  this.linkIndex = 0;
   links = this.getLinks();
   if (type && type.indexOf("multi") !== -1) {
     this.multi = true;
