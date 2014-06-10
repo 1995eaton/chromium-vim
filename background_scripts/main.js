@@ -205,13 +205,17 @@ function requestAction(type, request, sender, callback) {
   }
 }
 
-chrome.extension.onConnect.addListener(function(port) {
+chrome.extension.onConnect.addListener(function(_port) {
+  var port = _port;
   console.assert(port.name === "main");
   port.postMessage({type: "hello"});
   port.onMessage.addListener(function(request) {
     requestAction("port", request, null, function(message) {
       port.postMessage(message);
     });
+  });
+  port.onDisconnect.addListener(function() {
+    port = null;
   });
 });
 
