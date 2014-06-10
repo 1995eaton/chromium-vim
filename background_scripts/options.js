@@ -24,6 +24,7 @@ var defaultSettings = {
   insertmappings: true,
   smoothscroll: true,
   scrollduration: 20,
+  locale: "",
   hintcharacters: "asdfgqwertzxcvb",
   activehighlight: "#ff9632",
   highlight: "#ffff00",

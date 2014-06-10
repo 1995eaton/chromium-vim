@@ -652,6 +652,10 @@ Command.init = function(enabled) {
       }
     }
 
+    if (settings.locale) {
+      Complete.setLocale(settings.locale);
+    }
+
     waitForLoad(this.onDOMLoad, this);
     if (settings.autohidecursor) {
       waitForLoad(Cursor.init, Cursor);

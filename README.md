@@ -29,6 +29,7 @@
 | completionengines                   | array of strings                   | use only the specified search engines                                                     | []                                                                          |
 | blacklists                          | array of strings                   | disable cVim on the sites matching one of the patterns                                    | []                                                                          |
 | highlight                           | string                             | the highlight color in find mode                                                          | "#ffff00"                                                                   |
+| locale                              | string                             | set the locale of the site being completed/searched on (see example configuration below)  | ""                                                                          |
 | activehighlight                     | string                             | the highlight color for the current find match                                            | "#ff9632"                                                                   |
 | qmark &lt;alphanumeric charcter&gt; | string                             | add a persistent QuickMark (e.g. ```let qmark a = ["http://google.com", "http://reddit.com"]```) | none                                                                 |
 | previousmatchpattern                | string (regexp)                    | the pattern looked for when navigating a page's back button                               | ((?!last)(prev(ious)?&#124;back&#124;«&#124;less&#124;&lt;&#124;‹&#124; )+) |
@@ -46,6 +47,7 @@ set typelinkhints
 let searchlimit = 30
 let scrollstep = 70
 let barposition = "bottom"
+let locale = "uk" "Current choices are 'jp' and 'uk'. This allows cVim to use sites like google.co.uk or google.co.jp to search rather than google.com. Support is currently very limited. Let me know if you need a different locale for one of the completion/search engines
 let hintcharacters = "abc123"
 let searchengine dogpile = "http://www.dogpile.com/search/web?q=%s" "If you leave out the '%s' at the end of the URL, your query will be appended to the link. Otherwise, your query will replace the '%s'.
 let completionengines = ["google", "amazon", "imdb", "dogpile"]

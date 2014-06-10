@@ -160,6 +160,12 @@ the command <code>&#39;set&#39; + no&lt;SETTING_NAME&gt;</code> (for example, <c
 <td style="text-align:right">&quot;#ffff00&quot;</td>
 </tr>
 <tr>
+<td>locale</td>
+<td>string</td>
+<td>set the locale of the site being completed/searched on (see example configuration below)</td>
+<td style="text-align:right">&quot;&quot;</td>
+</tr>
+<tr>
 <td>activehighlight</td>
 <td>string</td>
 <td>the highlight color for the current find match</td>
@@ -206,6 +212,7 @@ set typelinkhints
 let searchlimit = 30
 let scrollstep = 70
 let barposition = &quot;bottom&quot;
+let locale = &quot;uk&quot; &quot;Current choices are &#39;jp&#39; and &#39;uk&#39;. This allows cVim to use sites like google.co.uk or google.co.jp to search rather than google.com. Support is currently very limited. Let me know if you need a different locale for one of the completion/search engines
 let hintcharacters = &quot;abc123&quot;
 let searchengine dogpile = &quot;http://www.dogpile.com/search/web?q=%s&quot; &quot;If you leave out the &#39;%s&#39; at the end of the URL, your query will be appended to the link. Otherwise, your query will replace the &#39;%s&#39;.
 let completionengines = [&quot;google&quot;, &quot;amazon&quot;, &quot;imdb&quot;, &quot;dogpile&quot;]

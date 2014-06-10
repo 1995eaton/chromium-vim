@@ -121,6 +121,36 @@ Complete.apis = {
   duckduckgo:       "https://duckduckgo.com/ac/?q=%s"
 };
 
+Complete.locales = {
+  uk: {
+    tld: "co.uk",
+    requestUrls: ["google"],
+    baseUrls: ["google"],
+    apis: ["google"]
+  },
+  jp: {
+    tld: "co.jp",
+    requestUrls: ["google"],
+    baseUrls: ["google"],
+    apis: ["google"]
+  }
+};
+
+Complete.setLocale = function(locale) {
+  if (this.locales.hasOwnProperty(locale)) {
+    locale = this.locales[locale];
+  } else {
+    return;
+  }
+  for (var key in locale) {
+    if (key !== "tld") {
+      for (var i = 0; i < locale[key].length; i++) {
+        this[key][locale[key][i]] = this[key][locale[key][i]].replace(/\.com/, "." + locale.tld);
+      }
+    }
+  }
+};
+
 Complete.convertToLink = function(input) {
   var prefix, suffix;
   input = input.replace(/@%/g, document.URL);
