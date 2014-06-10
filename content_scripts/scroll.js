@@ -1,4 +1,5 @@
 var Scroll = {};
+Scroll.positions = {};
 
 var ease = {
   outSine: function(t, b, c, d) {
@@ -58,6 +59,10 @@ Scroll.smoothScrollBy = function(x, y) {
 Scroll.scroll = function(type, repeats) {
 
   var stepSize = settings ? settings.scrollstep : 60;
+  
+  if (document.body) {
+    this.lastPosition = [document.body.scrollLeft, document.body.scrollTop];
+  }
 
   if (settings && settings.smoothscroll) {
 

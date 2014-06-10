@@ -60,7 +60,9 @@ Mappings.actions   = {
     chrome.runtime.sendMessage({action: "cancelAllWebRequests"});
   },
   percentScroll: function(repeats) {
-    if (Mappings.repeats === "0" || Mappings.repeats === "") repeats = 0;
+    if (Mappings.repeats === "0" || Mappings.repeats === "") {
+      repeats = 0;
+    }
     document.body.scrollTop = (document.body.scrollHeight - document.documentElement.clientHeight) * repeats / 100;
   },
   goToTab: function(repeats) {
@@ -70,15 +72,17 @@ Mappings.actions   = {
     chrome.runtime.sendMessage({action: "hideDownloadsShelf"});
   },
   goToRootUrl: function() {
-    if (window.location.pathname.length !== 0 && window.location.pathname !== "/")
+    if (window.location.pathname.length !== 0 && window.location.pathname !== "/") {
       chrome.runtime.sendMessage({action: "openLink", url: window.location.origin});
+    }
   },
   goUpUrl: function(repeats) {
     var rxp = new RegExp("(\/([^\/])+){0," + repeats + "}(\/)?$");
     if (window.location.pathname.length !== 0 && window.location.pathname !== "/") {
       var match = window.location.pathname.replace(rxp, "");
-      if (match !== window.location.pathname)
+      if (match !== window.location.pathname) {
         chrome.runtime.sendMessage({action: "openLink", url: window.location.origin + match});
+      }
     }
   },
   nextFrame: function(repeats) {
@@ -208,18 +212,21 @@ Mappings.actions   = {
   },
   centerMatchT: function() {
     var documentZoom = parseFloat(document.body.style.zoom) || 1;
-    if (Find.matches.length && Find.matches[Find.index])
+    if (Find.matches.length && Find.matches[Find.index]) {
       window.scrollBy(0, Find.matches[Find.index].getBoundingClientRect().top * documentZoom);
+    }
   },
   centerMatchH: function() {
     var documentZoom = parseFloat(document.body.style.zoom) || 1;
-    if (Find.matches.length && Find.matches[Find.index])
+    if (Find.matches.length && Find.matches[Find.index]) {
       window.scrollBy(0, Find.matches[Find.index].getBoundingClientRect().top * documentZoom + Find.matches[Find.index].offsetHeight - 0.5 * window.innerHeight);
+    }
   },
   centerMatchB: function() {
     var documentZoom = parseFloat(document.body.style.zoom) || 1;
-    if (Find.matches.length && Find.matches[Find.index])
+    if (Find.matches.length && Find.matches[Find.index]) {
       window.scrollBy(0, Find.matches[Find.index].getBoundingClientRect().top * documentZoom + Find.matches[Find.index].offsetHeight * documentZoom - window.innerHeight);
+    }
   },
   scrollDown: function(repeats) {
     Scroll.scroll("down", repeats);
@@ -250,6 +257,26 @@ Mappings.actions   = {
   },
   scrollToRight: function() {
     Scroll.scroll("rightmost");
+  },
+  lastScrollPosition: function() {
+    if (!Scroll.lastPosition) {
+      return;
+    }
+    var currentPosition = [document.body.scrollLeft, document.body.scrollTop];
+    window.scrollTo.apply(null, Scroll.lastPosition);
+    Scroll.lastPosition = currentPosition;
+  },
+  goToMark: function(repeats, queue) {
+    var key = queue.slice(-1);
+    if (Scroll.positions.hasOwnProperty(key)) {
+      Scroll.lastPosition = [document.body.scrollLeft, document.body.scrollTop];
+      window.scrollTo.apply(null, Scroll.positions[key]);
+    } else {
+      Status.setMessage("Mark not set", 1, "error");
+    }
+  },
+  setMark: function(repeats, queue) {
+    Scroll.positions[queue.slice(-1)] = [document.body.scrollLeft, document.body.scrollTop];
   },
   createHint: function() {
     window.setTimeout(function() {
@@ -341,22 +368,25 @@ Mappings.actions   = {
     chrome.runtime.sendMessage({action: "reloadAllTabs", nocache: false, current: true});
   },
   nextSearchResult: function(repeats) {
-    if (Find.matches.length) Find.search(false, repeats);
-    else if (Find.lastSearch !== undefined && typeof Find.lastSearch === "string")
+    if (Find.matches.length) {
+      Find.search(false, repeats);
+    } else if (Find.lastSearch !== undefined && typeof Find.lastSearch === "string") {
       Find.highlight({ base: document.body,
                        search: Find.lastSearch,
                        setIndex: true,
                        executeSearch: true });
+    }
   },
   previousSearchResult: function(repeats) {
-    if (Find.matches.length)
+    if (Find.matches.length) {
       Find.search(true, repeats);
-    else if (Find.lastSearch !== undefined && typeof Find.lastSearch === "string")
+    } else if (Find.lastSearch !== undefined && typeof Find.lastSearch === "string") {
       Find.highlight({ base: document.body,
                        search: Find.lastSearch,
                        setIndex: true,
                        executeSearch: true,
                        reverse: true });
+    }
   },
   nextTab: function(r) {
     chrome.runtime.sendMessage({action: "nextTab", repeats: r});
@@ -382,9 +412,13 @@ Mappings.actions   = {
         this.inputElements.push(allInput[i]);
       }
     }
-    if (this.inputElements.length === 0) return false;
+    if (this.inputElements.length === 0) {
+      return false;
+    }
     this.inputElementsIndex = repeats % this.inputElements.length - 1;
-    if (this.inputElementsIndex < 0) this.inputElementsIndex = 0;
+    if (this.inputElementsIndex < 0) {
+      this.inputElementsIndex = 0;
+    }
     for (i = 0, l = this.inputElements.length; i < l; i++) {
       var br = this.inputElements[i].getBoundingClientRect();
       if (br.top + br.height >= 0 && br.left + br.width >= 0 && br.right - br.width <= document.documentElement.clientWidth && br.top < document.documentElement.clientHeight) {
@@ -412,7 +446,9 @@ Mappings.actions   = {
           this.repeats = "";
           if (/<cr>(\s+)?$/i.test(Mappings.shortCuts[i][1])) {
             Command.execute(Command.input.value, repeats);
-          } else Command.complete(Command.input.value);
+          } else {
+            Command.complete(Command.input.value);
+          }
         }, 0);
         break;
       }
@@ -516,6 +552,9 @@ Mappings.defaults = {
   zoomPageIn:           ["zi"],
   zoomPageOut:          ["zo"],
   zoomOrig:             ["z0"],
+  lastScrollPosition:   ["''"],
+  goToMark:             ["'*"],
+  setMark:              [";*"],
   centerMatchT:         ["zt"],
   centerMatchB:         ["zb"],
   centerMatchH:         ["zz"],
@@ -635,14 +674,18 @@ Mappings.insertFunctions = {
 Mappings.getInsertFunction = function(modifier, callback) {
   var validMapping = false;
   for (var key in this.insertDefaults) {
-    if (typeof this.insertDefaults[key] !== "object") continue;
+    if (typeof this.insertDefaults[key] !== "object") {
+      continue;
+    }
     this.insertDefaults[key].forEach(function(item) {
       if (!validMapping && modifier === item) {
         validMapping = true;
         callback(key);
       }
     });
-    if (validMapping) break;
+    if (validMapping) {
+      break;
+    }
   }
 };
 
@@ -757,12 +800,16 @@ Mappings.parseCustom = function(config) {
 };
 
 Mappings.executeSequence = function(c, r) {
-  if (!c.length) return;
+  if (!c.length) {
+    return;
+  }
   if (/^[0-9]+/.test(c)) {
     r = c.match(/^[0-9]+/)[0];
     c = c.replace(/^[0-9]+/, "");
     this.repeats = r;
-    if (!c.length) return;
+    if (!c.length) {
+      return;
+    }
   }
   var com = c[0];
   this.queue += com;
@@ -786,12 +833,15 @@ Mappings.isValidQueue = function(wildCard) {
 };
 
 Mappings.isValidMapping = function(c) {
-  for (var key in this.defaults)
-    if (Array.isArray(this.defaults[key]) && this.defaults[key].indexOf(c) >= 0) return true;
+  for (var key in this.defaults) {
+    if (Array.isArray(this.defaults[key]) && this.defaults[key].indexOf(c) >= 0) {
+      return true;
+    }
+  }
 };
 
 Mappings.handleEscapeKey = function() {
-  
+
   this.queue = "";
   this.repeats = "";
 
@@ -834,7 +884,7 @@ Mappings.handleEscapeKey = function() {
     Hints.lastHover = null;
     return;
   }
-  
+
   if (Find.matches.length) {
     Find.clear();
     return HUD.hide();
@@ -887,7 +937,9 @@ Mappings.convertToAction = function(c) {
     for (var i = 0, l = this.defaults[key].length; i < l; i++) {
       if (Mappings.queue === this.defaults[key][i].replace(/\*$/, c)) {
         Mappings.validMatch = false;
-        if (/^0?$/.test(Mappings.repeats)) addOne = true;
+        if (/^0?$/.test(Mappings.repeats)) {
+          addOne = true;
+        }
         if (Mappings.actions.hasOwnProperty(key)) {
           if (key === "shortCuts") {
             Mappings.actions[key](Mappings.queue, (addOne ? 1 : +Mappings.repeats));

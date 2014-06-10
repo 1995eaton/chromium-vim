@@ -190,6 +190,7 @@ Command.descriptions = [
   ["winopen",    "Open a link in a new window"],
   ["buffers",    "Select from a list of current tabs"],
   ["history",    "Search through your browser history"],
+  ["bookmarks",  "Search through your bookmarks"],
   ["file",       "Browse local directories"],
   ["set",        "Configure Settings"],
   ["execute",    "Execute a sequence of keys"],
@@ -200,6 +201,7 @@ Command.descriptions = [
   ["duplicate",  "Clone the current tab"],
   ["settings",   "Open the options page for this extension"],
   ["help",       "Shows the help page"],
+  ["changelog",  "Shows the changelog page"],
   ["date",       "Display the current date"],
   ["closetab",   "Close the current tab"],
   ["stop",       "Stop the current page from loading"],
@@ -208,8 +210,7 @@ Command.descriptions = [
   ["togglepin",  "Toggle the tab's pinned state"],
   ["nohl",       "Clears the search highlight"],
   ["viewsource", "View the source for the current document"],
-  ["qmark",      "Add QuickMarks"],
-  ["bookmarks",  "Search through your bookmarks"]
+  ["qmark",      "Add QuickMarks"]
 ];
 
 Command.deleteCompletions = function(completions) {
@@ -384,6 +385,9 @@ Command.execute = function(value, repeats) {
       break;
     case "settings":
       chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: chrome.extension.getURL("/pages/options.html"), repeats: repeats});
+      break;
+    case "changelog":
+      chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: chrome.extension.getURL("/pages/changelog.html"), repeats: repeats});
       break;
     case "date":
       var date = new Date();

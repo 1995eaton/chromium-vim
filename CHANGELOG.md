@@ -16,6 +16,7 @@ let searchengine example = "http://www.example.com/%s?type=search"
 let searchengine example = "http://www.example.com/search?query="
 let searchengine example = "http://www.example.com/search?query=%s" "This is no different from the above case
 ```
+ * Added lastScrollPosition ```''```, goToMark ```'<*>```, and setMark ```;<*>``` mappings
 
 ## 1.2.52
  * Added the ```file``` command

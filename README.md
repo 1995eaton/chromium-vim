@@ -146,6 +146,9 @@ let blacklists = ["*://*/*.pdf <Up> <Down>"]
 | i                       | enter insert mode (escape to exit)                                  | insertMode                    | 
 | r                       | reload the current tab                                              | reloadTab                     | 
 | gR                      | reload the current tab + local cache                                | reloadTabUncached             | 
+| ;&lt;*&gt;              | create mark &lt;*&gt;                                               | setMark                       |
+| ''                      | go to last scroll position                                          | lastScrollPosition            |
+| '&lt;*&gt;              | go to mark &lt;*&gt;                                                | goToMark                      |
 | none                    | reload all tabs                                                     | reloadAllTabs                 | 
 | cr                      | reload all tabs but current                                         | reloadAllButCurrent           | 
 | zi                      | zoom page in                                                        | zoomPageIn                    | 
