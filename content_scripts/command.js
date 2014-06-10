@@ -636,6 +636,11 @@ Command.init = function(enabled) {
   if (enabled) {
     this.loaded = true;
 
+    if (Array.isArray(settings.completionengines) && settings.completionengines.length) {
+      Complete.engines = Complete.engines.filter(function(e) {
+        return settings.completionengines.indexOf(e) !== -1;
+      });
+    }
     if (settings.searchengines && settings.searchengines.constructor === Object) {
       for (key in settings.searchengines) {
         if (Complete.engines.indexOf(key) === -1 && typeof settings.searchengines[key] === "string") {
@@ -666,11 +671,6 @@ Command.init = function(enabled) {
       settings.hintcharacters = settings.hintcharacters.split("").unique().join("");
     }
     Hints.containsUppercase = /[A-Z]/.test(settings.hintcharacters);
-    if (Array.isArray(settings.completionengines) && settings.completionengines.length) {
-      Complete.engines = Complete.engines.filter(function(e) {
-        return settings.completionengines.indexOf(e) !== -1;
-      });
-    }
   } else {
     this.loaded = false;
     if (this.css && this.css.parentNode) {

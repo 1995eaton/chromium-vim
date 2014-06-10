@@ -216,20 +216,28 @@ chrome.extension.onConnect.addListener(function(port) {
 });
 
 chrome.commands.onCommand.addListener(function(command) {
-  if (/^(next|previous)Tab$/.test(command)) {
-    chrome.tabs.query({active: true, currentWindow: true}, function(e) {
-      return getTab({tab: e[0]}, false, (command === "nextTab" ? 1 : -1), false, false);
-    });
-  } else if (command === "nextCompletionResult") {
-    chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
-      chrome.tabs.sendMessage(tab[0].id, {action: "nextCompletionResult"}, function() {
-        chrome.windows.create({url: "chrome://newtab"});
+  switch (command) {
+    case "nextTab":
+    case "previousTab":
+      chrome.tabs.query({active: true, currentWindow: true}, function(e) {
+        return getTab({tab: e[0]}, false, (command === "nextTab" ? 1 : -1), false, false);
       });
-    });
-  } else if (command === "closeTab") {
-    chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
-      chrome.tabs.remove(tab[0].id);
-    });
+      break;
+    case "closeTab":
+      chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
+        chrome.tabs.remove(tab[0].id);
+      });
+      break;
+    case "reloadTab":
+      chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
+        chrome.tabs.reload(tab[0].id);
+      });
+      break;
+    case "newTab":
+      chrome.tabs.create({url: chrome.runtime.getURL("pages/blank.html")});
+      break;
+    default:
+      break;
   }
 });
 

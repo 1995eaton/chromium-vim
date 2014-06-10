@@ -33,6 +33,12 @@
          "suggested_key": {
             "default": "Alt+W"
          }
+      },
+      "reloadTab": {
+        "description": "Reload the current tab"
+      },
+      "newTab": {
+        "description": "Open a new tab to a blank page"
       }
    },
   "browser_action": {
