@@ -227,6 +227,13 @@ chrome.commands.onCommand.addListener(function(command) {
         return getTab({tab: e[0]}, false, (command === "nextTab" ? 1 : -1), false, false);
       });
       break;
+    case "nextCompletionResult":
+      chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
+        chrome.tabs.sendMessage(tab[0].id, {action: "nextCompletionResult"}, function() {
+          chrome.windows.create({url: "chrome://newtab"});
+        });
+      });
+      break;
     case "closeTab":
       chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
         chrome.tabs.remove(tab[0].id);
