@@ -345,10 +345,10 @@ Hints.getLinks = function() {
   var node, i, l, nodes = [], nodeIterator, name, role;
   nodeIterator = document.createNodeIterator(document.body, 1, {acceptNode: function(node) {
     name = node.localName.toLowerCase();
-    if (this.type) {
-      if (this.type.indexOf("yank") !== -1) {
+    if (Hints.type) {
+      if (Hints.type.indexOf("yank") !== -1) {
         return name === "a";
-      } else if (this.type.indexOf("image") !== -1) {
+      } else if (Hints.type.indexOf("image") !== -1) {
         return name === "img";
       }
     }

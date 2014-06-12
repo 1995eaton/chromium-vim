@@ -210,6 +210,7 @@ actions.createSession = function() {
         sessions[request.name][tab.index] = tab;
       }
     });
+    chrome.storage.local.set({sessions: sessions});
     chrome.tabs.sendMessage(sender.tab.id, {
       action: "sessions",
       sessions: Object.keys(sessions).map(function(e) {
