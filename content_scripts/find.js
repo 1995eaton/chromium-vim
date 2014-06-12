@@ -102,7 +102,7 @@ Find.highlight = function(params) {
       containsCap = params.search.search(/[A-Z]/) !== -1,
       useRegex = settings.regexp,
       markBase = document.createElement("mark"),
-      node, mark, mid, data, nodeIterator, matchPosition;
+      node, mark, mid, data, search, nodeIterator, matchPosition;
 
   markBase.style.backgroundColor = settings.highlight;
 
@@ -110,15 +110,22 @@ Find.highlight = function(params) {
     this.lastSearch = params.search;
   }
 
+  search = params.search;
+
   if ((settings.ignorecase || /\/i$/.test(params.search)) && !(settings.smartcase && containsCap)) {
-    params.search = params.search.replace(/\/i$/, "");
+    search = search.replace(/\/i$/, "");
     regexMode = "i";
   }
 
   if (useRegex) {
     try {
-      params.search = new RegExp(params.search, regexMode);
-    } catch(e) {
+      var rxp = new RegExp(search, regexMode);
+      if (rxp.test("") === false) { // Avoid infinite loop
+        search = rxp;
+      } else {
+        useRegex = false;
+      }
+    } catch(e) { // RegExp was invalid
       useRegex = false;
     }
   }
@@ -137,17 +144,17 @@ Find.highlight = function(params) {
   while (node = nodeIterator.nextNode()) {
     data = (settings.ignorediacritics ? node.data.removeDiacritics() : node.data);
     if (useRegex) {
-      matchPosition = data.search(params.search);
+      matchPosition = data.search(search);
     } else {
-      matchPosition = (containsCap ? node.data.indexOf(params.search) : node.data.toLowerCase().indexOf(params.search));
+      matchPosition = (containsCap ? node.data.indexOf(search) : node.data.toLowerCase().indexOf(search));
     }
     if (matchPosition !== -1) {
       mark = markBase.cloneNode(false);
       mid = node.splitText(matchPosition);
       if (useRegex) {
-        mid.splitText(params.search.exec(data)[0].length);
+        mid.splitText(search.exec(data)[0].length);
       } else {
-        mid.splitText(params.search.length);
+        mid.splitText(search.length);
       }
       mark.appendChild(mid.cloneNode(true));
       mid.parentNode.replaceChild(mark, mid);
@@ -167,14 +174,22 @@ Find.highlight = function(params) {
 };
 
 Find.clear = function() {
-  for (var i = 0; i < this.matches.length; i++) {
-    try { // Ignore text nodes that have changed or been removed since last search
-      var parent = this.matches[i].parentNode;
-      parent.replaceChild(this.matches[i].firstChild, this.matches[i]);
-      parent.normalize();
-    } catch(e) {
-      continue;
+  // Not pretty, but this is WAY faster than calling Node.normalize()
+  var nodes = this.matches;
+  for (var i = 0; i < nodes.length; i++) {
+    if (nodes[i] && nodes[i].parentNode) {
+      nodes[i].parentNode.innerHTML = nodes[i].parentNode.innerHTML.replace(/<mark[^>]*>([^<]+)<\/mark>/gi, "$1");
     }
   }
+  // More elegant solution, but 1000's of times slower
+  // for (var i = 0; i < this.matches.length; i++) {
+  //   try { // Ignore text nodes that have changed or been removed since last search
+  //     var parent = this.matches[i].parentNode;
+  //     parent.replaceChild(this.matches[i].firstChild, this.matches[i]);
+  //     parent.normalize();
+  //   } catch(e) {
+  //     continue;
+  //   }
+  // }
   this.matches = [];
 };
