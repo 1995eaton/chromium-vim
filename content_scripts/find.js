@@ -42,6 +42,7 @@ Find.search = function(reverse, repeats, ignoreFocus) {
     this.index = (this.index + (reverse ? -1 : 1) * repeats).mod(this.matches.length);
   }
   if (!this.matches[this.index].isVisible()) {
+    this.matches.splice(this.index, 1);
     this.tries++;
     if (this.tries > this.matches.length) {
       return;
@@ -141,7 +142,10 @@ Find.highlight = function(params) {
     if (nodeName === "script" || nodeName === "style" || nodeName === "noscript" || nodeName === "mark") {
       return NodeFilter.FILTER_REJECT;
     }
-    return NodeFilter.FILTER_ACCEPT;
+    if (isVisible(node.parentNode)) {
+      return NodeFilter.FILTER_ACCEPT;
+    }
+    return NodeFilter.FILTER_REJECT;
   }}, false);
 
   if (useRegex) {

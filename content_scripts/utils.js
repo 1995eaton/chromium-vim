@@ -93,6 +93,13 @@ HTMLElement.prototype.isVisible = function() {
          this.getAttribute("display") !== "none";
 };
 
+function isVisible(el) {
+  return el.offsetParent && !el.disabled &&
+         el.getAttribute("type") !== "hidden" &&
+         getComputedStyle(el).visibility !== "hidden" &&
+         el.getAttribute("display") !== "none";
+}
+
 Array.prototype.unique = function() {
   var a = [];
   for (var i = 0, l = this.length; i < l; ++i) {
