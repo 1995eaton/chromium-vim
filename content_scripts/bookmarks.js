@@ -8,6 +8,9 @@ Marks.filePath = function() {
   var input = Command.input.value.replace(/.*\//, "");
   Command.completions = { files: [] };
   var i, c;
+  if (!this.files) {
+    return;
+  }
   for (i = 0, c = 0; i < this.files.length; ++i) {
     if (this.files[i][0] && this.files[i][0].indexOf(input) === 0) {
       if (!input && this.files[i][0] !== ".." && this.files[i][0][0] === ".") {

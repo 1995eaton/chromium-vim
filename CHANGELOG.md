@@ -17,6 +17,9 @@ let searchengine example = "http://www.example.com/search?query="
 let searchengine example = "http://www.example.com/search?query=%s" "This is no different from the above case
 ```
  * Added lastScrollPosition ```''```, goToMark ```'<*>```, and setMark ```;<*>``` mappings
+ * Find-mode is much, much faster (outperforms Google's search mode when looking for the letter 'a' in a text copy of *The Great Gatsby*)
+ * Several bugfixes
+ * Added searchalias and locale variables (see help file ```:help```)
 
 ## 1.2.52
  * Added the ```file``` command
