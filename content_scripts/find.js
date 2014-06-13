@@ -80,7 +80,9 @@ Find.search = function(reverse, repeats, ignoreFocus) {
   }
   var documentZoom = parseFloat(document.body.style.zoom) || 1;
   if (br.top * documentZoom + br.height * documentZoom > window.innerHeight - paddingBottom) {
-    if (isLink && !reverse) origTop += br.height * documentZoom;
+    if (isLink && !reverse) {
+      origTop += br.height * documentZoom;
+    }
     window.scrollTo(0, origTop + paddingTop + paddingBottom);
     window.scrollBy(0, br.top * documentZoom + br.height * documentZoom - window.innerHeight);
   } else if (br.top < paddingTop) {
@@ -119,8 +121,9 @@ Find.highlight = function(params) {
 
   if (useRegex) {
     try {
-      var rxp = new RegExp(search, regexMode);
-      if (rxp.test("") === false) { // Avoid infinite loop
+      var rxp = new RegExp(search, "g" + regexMode);
+      var mts = rxp.exec(".");
+      if (!mts || (mts && mts[0] !== "")) { // Avoid infinite loop
         search = rxp;
       } else {
         useRegex = false;
@@ -141,26 +144,44 @@ Find.highlight = function(params) {
     return NodeFilter.FILTER_ACCEPT;
   }}, false);
 
-  while (node = nodeIterator.nextNode()) {
-    data = (settings.ignorediacritics ? node.data.removeDiacritics() : node.data);
-    if (useRegex) {
-      matchPosition = data.search(search);
-    } else {
-      matchPosition = (containsCap ? node.data.indexOf(search) : node.data.toLowerCase().indexOf(search));
+  if (useRegex) {
+    var nodes = [];
+    while (node = nodeIterator.nextNode()) {
+      nodes.push(node);
     }
-    if (matchPosition !== -1) {
-      mark = markBase.cloneNode(false);
-      mid = node.splitText(matchPosition);
-      if (useRegex) {
-        mid.splitText(search.exec(data)[0].length);
-      } else {
-        mid.splitText(search.length);
+    for (var i = 0, l = nodes.length; i < l; i++) {
+      node = nodes[i];
+      data = (settings.ignorediacritics ? node.data.removeDiacritics() : node.data);
+      var matches = data.match(search);
+      if (matches) {
+        for (var j = 0, k = matches.length; j < k; j++) {
+          mark = markBase.cloneNode(false);
+          mid = node.splitText(data.indexOf(matches[j]));
+          mid.splitText(matches[j].length);
+          mark.appendChild(mid.cloneNode(true));
+          mid.parentNode.replaceChild(mark, mid);
+          this.matches.push(mark);
+          node = mark.nextSibling;
+          data = node.data;
+        }
       }
-      mark.appendChild(mid.cloneNode(true));
-      mid.parentNode.replaceChild(mark, mid);
-      this.matches.push(mark);
+    }
+  } else {
+    while (node = nodeIterator.nextNode()) {
+      data = (settings.ignorediacritics ? node.data.removeDiacritics() : node.data);
+      matchPosition = (containsCap ? node.data.indexOf(search) : node.data.toLowerCase().indexOf(search));
+      if (matchPosition !== -1) {
+        mark = markBase.cloneNode(false);
+        mid = node.splitText(matchPosition);
+        mid.splitText(search.length);
+        mark.appendChild(mid.cloneNode(true));
+        mid.parentNode.replaceChild(mark, mid);
+        this.matches.push(mark);
+      }
     }
   }
+
+  document.body.normalize();
 
   HUD.display(this.matches.length || "No matches");
 
