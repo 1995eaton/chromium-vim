@@ -1,10 +1,11 @@
-var log;
-log = console.log.bind(console);
 var Hints = {};
 
 Hints.oldValues = [];
 Hints.switchText = function(index) {
-  this.linkArr[index][0].textContent = this.linkArr[index][1].href || (this.linkArr[index][1].getAttribute("onclick") ? "JavaScript: " + this.linkArr[index][1].getAttribute("onclick") : this.linkArr[index][1].localName);
+  this.linkArr[index][0].textContent = this.linkArr[index][1].href ||
+    (this.linkArr[index][1].getAttribute("onclick") ?
+    "JavaScript: " + this.linkArr[index][1].getAttribute("onclick") :
+    this.linkArr[index][1].localName);
 };
 
 Hints.matchPatterns = function(forward) {
@@ -41,10 +42,14 @@ Hints.hideHints = function(reset, multi, useKeyDelay) {
     if (settings.linkanimations) {
       main.addEventListener("transitionend", function() {
         var m = document.getElementById("cVim-link-container");
-        if (m !== null) m.parentNode.removeChild(m);
+        if (m !== null) {
+          m.parentNode.removeChild(m);
+        }
       });
       main.style.opacity = "0";
-    } else document.getElementById("cVim-link-container").parentNode.removeChild(document.getElementById("cVim-link-container"));
+    } else {
+      document.getElementById("cVim-link-container").parentNode.removeChild(document.getElementById("cVim-link-container"));
+    }
   }
   this.linkPreview = false;
   this.numericMatch = undefined;
@@ -114,7 +119,8 @@ Hints.dispatchAction = function(link) {
       chrome.runtime.sendMessage({action: "openLinkWindow", focused: false, url: link.href, noconvert: true});
       break;
     default:
-      if (node === "textarea" || (node === "input" && /^(text|password|email|search)$/i.test(link.type)) || link.getAttribute("contenteditable") === "true") {
+      if (node === "textarea" || (node === "input" && /^(text|password|email|search)$/i.test(link.type)) ||
+          link.getAttribute("contenteditable") === "true") {
         setTimeout(function() {
           link.focus();
           if (link.getAttribute("readonly")) {
@@ -123,7 +129,8 @@ Hints.dispatchAction = function(link) {
         }.bind(this), 0);
         break;
       }
-      if (node === "input" || /button|select/i.test(node) || /^(button|^checkbox|^menu)$/.test(link.getAttribute("role")) || link.getAttribute("jsaction") || link.getAttribute("onclick") || link.getAttribute("role") === "checkbox") {
+      if (node === "input" || /button|select/i.test(node) || /^(button|checkbox|menu)$/.test(link.getAttribute("role")) ||
+          link.getAttribute("jsaction") || link.getAttribute("onclick") || link.getAttribute("role") === "checkbox") {
         window.setTimeout(function() {
           link.simulateClick();
         }, 0);
@@ -439,28 +446,20 @@ Hints.create = function(type, multi) {
     HUD.display("Follow link " + (function() {
       switch (type) {
         case "yank":
-          Hints.yank = true;
           return "(yank)";
         case "multiyank":
-          Hints.multiyank = true;
           return "(multi-yank)";
         case "image":
-          Hints.image = true;
           return "(reverse image)";
         case "tabbed":
-          Hints.tabbed = true;
           return "(tabbed)";
         case "window":
-          Hints.windowOpen = true;
           return "(window)";
         case "hover":
-          Hints.hover = true;
           return "(hover)";
         case "unhover":
-          Hints.unhover = true;
           return "(unhover)";
         case "multi":
-          Hints.multiHint = true;
           return "(multi)";
         default:
           return "";

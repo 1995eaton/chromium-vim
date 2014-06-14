@@ -1,5 +1,8 @@
 #cVim Changelog
 
+## 1.2.54
+ * The ignorediacritics option has been removed due to major performance issues
+
 ## 1.2.53
  * **Important!** cVimrc blacklists are now a part of the cVimrc. Previous blacklists should carry over to the cVimrc text area. New blacklists can be declared like this:
 ```viml

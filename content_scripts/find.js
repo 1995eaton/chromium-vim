@@ -105,7 +105,7 @@ Find.highlight = function(params) {
       containsCap = params.search.search(/[A-Z]/) !== -1,
       useRegex = settings.regexp,
       markBase = document.createElement("mark"),
-      node, mark, mid, data, search, nodeIterator, matchPosition;
+      node, mark, mid, search, nodeIterator, matchPosition;
 
   markBase.style.backgroundColor = settings.highlight;
 
@@ -155,24 +155,21 @@ Find.highlight = function(params) {
     }
     for (var i = 0, l = nodes.length; i < l; i++) {
       node = nodes[i];
-      data = (settings.ignorediacritics ? node.data.removeDiacritics() : node.data);
-      var matches = data.match(search);
+      var matches = node.data.match(search);
       if (matches) {
         for (var j = 0, k = matches.length; j < k; j++) {
           mark = markBase.cloneNode(false);
-          mid = node.splitText(data.indexOf(matches[j]));
+          mid = node.splitText(node.data.indexOf(matches[j]));
           mid.splitText(matches[j].length);
           mark.appendChild(mid.cloneNode(true));
           mid.parentNode.replaceChild(mark, mid);
           this.matches.push(mark);
           node = mark.nextSibling;
-          data = node.data;
         }
       }
     }
   } else {
     while (node = nodeIterator.nextNode()) {
-      data = (settings.ignorediacritics ? node.data.removeDiacritics() : node.data);
       matchPosition = (containsCap ? node.data.indexOf(search) : node.data.toLowerCase().indexOf(search));
       if (matchPosition !== -1) {
         mark = markBase.cloneNode(false);

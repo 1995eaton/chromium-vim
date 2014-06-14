@@ -1,3 +1,5 @@
+var log = console.log.bind(console);
+
 function isValidB64(a) {
   try {
     window.atob(a);
@@ -22,7 +24,7 @@ function attributeTest(node, attributes) {
 }
 
 // Based off of the "Search by Image" Chrome Extension by Google
-function googleReverseImage(url, source, c, d) {
+function googleReverseImage(url, source) {
   if (void 0 !== url && url.indexOf("data:") === 0) {
     if (url.search(/data:image\/(bmp|gif|jpe?g|png|webp|tiff|x-ico)/i) === 0) {
       var commaIndex = url.indexOf(",");
@@ -125,24 +127,6 @@ String.prototype.isBoolean = function() {
   return /^(true|false|0|1)$/i.test(this);
 };
 
-// Stolen from https://gist.github.com/alisterlf/3490957
-String.prototype.removeDiacritics = function() {
-  var strAccents = this.split("");
-  var strAccentsOut = [];
-  var strAccentsLen = strAccents.length;
-  var accents = "ÀÁÂÃÄÅàáâãäåÒÓÔÕÕÖØòóôõöøÈÉÊËèéêëðÇçÐÌÍÎÏìíîïÙÚÛÜùúûüÑñŠšŸÿýŽž";
-  var accentsOut = "AAAAAAaaaaaaOOOOOOOooooooEEEEeeeeeCcDIIIIiiiiUUUUuuuuNnSsYyyZz";
-  for (var y = 0; y < strAccentsLen; y++) {
-    if (accents.indexOf(strAccents[y]) !== -1) {
-      strAccentsOut[y] = accentsOut.substr(accents.indexOf(strAccents[y]), 1);
-    } else {
-      strAccentsOut[y] = strAccents[y];
-    }
-  }
-  strAccentsOut = strAccentsOut.join("");
-  return strAccentsOut;
-};
-
 Number.prototype.mod = function(n) {
   return ((this % n) + n) % n;
 };
@@ -155,39 +139,9 @@ Object.clone = function(obj) {
   return clone;
 };
 
-Object.extend = function() {
-  var _ret = {};
-  for (var i = 0, l = arguments.length; i < l; ++i) {
-    for (var key in arguments[i]) {
-      _ret[key] = arguments[i][key];
-    }
-  }
-  return _ret;
-};
-
 function sameType(a, b) {
   return a.constructor === b.constructor;
 }
-
-Object.flatten = function() {
-	var _ret = {};
-	for (var key in this) {
-		if (this.hasOwnProperty(key)) {
-      if (key !== "qmarks" && key !== "searchengines" && typeof this[key] === "object" && !Array.isArray(this[key])) {
-        var _rec = this[key].flatten();
-        for (var subKey in _rec) {
-          if (!_rec.hasOwnProperty(subKey)) {
-            continue;
-          }
-          _ret[subKey] = _rec[subKey];
-        }
-      } else {
-        _ret[key] = this[key];
-      }
-    }
-  }
-	return _ret;
-};
 
 function simulateMouseEvents(element, events) {
   for (var i = 0; i < events.length; ++i) {
