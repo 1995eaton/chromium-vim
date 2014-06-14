@@ -258,6 +258,16 @@ function waitForLoad(callback, constructor, fullLoad) {
   });
 }
 
+Object.extend = function() {
+  var _ret = {};
+  for (var i = 0, l = arguments.length; i < l; ++i) {
+    for (var key in arguments[i]) {
+      _ret[key] = arguments[i][key];
+    }
+  }
+  return _ret;
+};
+
 Array.prototype.compress = function() {
   return this.filter(function(e) {
     return e;
@@ -267,3 +277,9 @@ Array.prototype.compress = function() {
 Array.prototype.last = function() {
   return this[this.length - 1];
 };
+
+function decodeHTMLEntities(string) {
+  var el = document.createElement("div");
+  el.innerHTML = string;
+  return el.textContent;
+}

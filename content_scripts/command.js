@@ -153,10 +153,10 @@ Command.updateCompletions = function(useStyles) {
     if (this.completionResults[i].length >= 3) {
       var left = document.createElement("span");
       left.className = "cVim-left";
-      left.textContent = this.completionResults[i][1];
+      left.textContent = decodeHTMLEntities(this.completionResults[i][1]);
       var right = document.createElement("span");
       right.className = "cVim-right";
-      right.textContent = this.completionResults[i][2];
+      right.textContent = decodeHTMLEntities(this.completionResults[i][2]);
       if (identifier) {
         left.insertBefore(identifier, left.firstChild);
       }
@@ -165,7 +165,7 @@ Command.updateCompletions = function(useStyles) {
     } else {
       var full = document.createElement("span");
       full.className = "cVim-full";
-      full.textContent = this.completionResults[i][1];
+      full.textContent = decodeHTMLEntities(this.completionResults[i][1]);
       item.appendChild(full);
     }
     this.dataElements.push(item);
@@ -240,6 +240,9 @@ Command.complete = function(value) {
       for (var i = 0, l = Complete.engines.length; i < l; ++i) {
         if (!search[0] || Complete.engines[i].indexOf(search.join(" ")) === 0) {
           this.completions.engines.push([Complete.engines[i], Complete.requestUrls[Complete.engines[i]]]);
+          if (this.completions.engines.length > 4) {
+            break;
+          }
         }
       }
       this.updateCompletions(true);

@@ -29,7 +29,7 @@ String.prototype.embedString = function(string) {
 
 var Complete = {};
 
-Complete.engines = ["google", "wikipedia", "youtube", "imdb", "amazon", "wolframalpha", "google-image", "ebay", "webster", "wictionary", "urbandictionary", "duckduckgo", "google-trends", "google-finance", "yahoo", "bing"];
+Complete.engines = ["google", "wikipedia", "youtube", "imdb", "amazon", "wolframalpha", "google-image", "ebay", "webster", "wictionary", "urbandictionary", "duckduckgo", "answers", "google-trends", "google-finance", "yahoo", "bing"];
 
 Complete.aliases = {
   g: "google"
@@ -49,6 +49,7 @@ Complete.requestUrls = {
   "google-image": "https://www.google.com/search?site=imghp&tbm=isch&source=hp&q=",
   duckduckgo:     "https://duckduckgo.com/?q=",
   yahoo:          "https://search.yahoo.com/search?p=",
+  answers:        "https://answers.yahoo.com/search/search_result?p=",
   bing:           "https://www.bing.com/search?q=",
   imdb:           "http://www.imdb.com/find?s=all&q=",
   amazon:         "http://www.amazon.com/s/?field-keywords=",
@@ -68,6 +69,7 @@ Complete.baseUrls = {
   "google-image": "http://www.google.com/imghp",
   duckduckgo:     "https://duckduckgo.com",
   yahoo:          "https://search.yahoo.com",
+  answers:        "https://answers.yahoo.com",
   bing:           "https://www.bing.com",
   imdb:           "http://www.imdb.com",
   amazon:         "http://www.amazon.com",
@@ -106,7 +108,8 @@ Complete.apis = {
   wikipedia:      "https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=%s",
   google:         "https://www.google.com/complete/search?client=firefox&hl=en&q=%s",
   "google-image": "http://www.google.com/complete/search?client=img&hl=en&gs_rn=43&gs_ri=img&ds=i&cp=1&gs_id=8&q=%s",
-  yahoo:          "https://search.yahoo.com/sugg/gossip/gossip-us-ura/?output=sd1&appid=search.yahoo.com&nresults=10&command=%s",
+  yahoo:          "https://search.yahoo.com/sugg/gossip/gossip-us-ura/?output=sd1&appid=search.yahoo.com&nresults=20&command=%s",
+  answers:        "https://search.yahoo.com/sugg/ss/gossip-us_ss-vertical_ss/?output=sd1&pubid=1307&appid=yanswer&command=%s&nresults=20",
   bing:           "http://api.bing.com/osjson.aspx?query=%s",
   imdb:           "http://sg.media-imdb.com/suggests/",
   amazon:         "http://completion.amazon.com/search/complete?method=completion&search-alias=aps&client=amazon-search-ui&mkt=1&q=%s",
@@ -258,6 +261,15 @@ Complete.yahoo = function(query, callback) {
       }
     }
     callback(_ret);
+  });
+};
+
+Complete.answers = function(query, callback) {
+  this.xhr(this.apis.answers.embedString(encodeURIComponent(query)), function(response) {
+    callback(response.r.map(function(e) {
+      return [e.k, "https://answers.yahoo.com/question/index?qid=" +
+                    e.d.replace(/^\{qid:|,.*/g, "")];
+    }));
   });
 };
 
