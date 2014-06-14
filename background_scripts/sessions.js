@@ -1,5 +1,5 @@
-var Sessions = {};
-var tabHistory = {};
+var Sessions = {},
+    tabHistory = {};
 
 Sessions.onChanged = function() {
   chrome.sessions.getRecentlyClosed(function(sessions) {
@@ -13,20 +13,20 @@ Sessions.onChanged = function() {
 };
 
 Sessions.nativeStepBack = function() {
-  if (this.sessionIndex < this.recentlyClosed.length) {
+  if (this.sessionIndex++ < this.recentlyClosed.length) {
     chrome.sessions.restore(this.recentlyClosed[this.sessionIndex]);
-    this.sessionIndex += 1;
   }
 };
 
 Sessions.stepBack = function(sender) {
   if (Object.keys(tabHistory).length && tabHistory[sender.tab.windowId] !== undefined && tabHistory[sender.tab.windowId].length > 0) {
     var lastTab = tabHistory[sender.tab.windowId].pop();
-    chrome.tabs.create({url: lastTab.url,
-                        active: true,
-                        index: lastTab.index,
-                        pinned: lastTab.pinned,
-                        selected: lastTab.selected
+    chrome.tabs.create({
+      active: true,
+      index: lastTab.index,
+      pinned: lastTab.pinned,
+      selected: lastTab.selected,
+      url: lastTab.url
     });
   }
 };
@@ -49,7 +49,9 @@ Sessions.stepBack = function(sender) {
     chrome.tabs.onRemoved.addListener(function(id) {
       for (var key in Sessions.activeTabs) {
         if (Sessions.activeTabs[key].hasOwnProperty(id)) {
-          if (tabHistory[Sessions.activeTabs[key][id].windowId] === undefined) tabHistory[Sessions.activeTabs[key][id].windowId] = [];
+          if (tabHistory[Sessions.activeTabs[key][id].windowId] === undefined) {
+            tabHistory[Sessions.activeTabs[key][id].windowId] = [];
+          }
           tabHistory[Sessions.activeTabs[key][id].windowId].push(Sessions.activeTabs[key][id]);
           delete Sessions.activeTabs[key][id];
           break;
@@ -59,11 +61,12 @@ Sessions.stepBack = function(sender) {
     chrome.tabs.onUpdated.addListener(function(tab) {
       try {
         chrome.tabs.get(tab, function(updatedTab) {
-          if (Sessions.activeTabs[updatedTab.windowId] === undefined)
+          if (Sessions.activeTabs[updatedTab.windowId] === undefined) {
             Sessions.activeTabs[updatedTab.windowId] = {};
+          }
           Sessions.activeTabs[updatedTab.windowId][updatedTab.id] = updatedTab;
         });
-      } catch (e) {} // Ignore tabs that have already been removed
+      } catch (e) { } // Ignore tabs that have already been removed
     });
   }
 })();

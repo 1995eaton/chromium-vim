@@ -364,13 +364,11 @@ Command.complete = function(value) {
 
 Command.execute = function(value, repeats) {
 
-  var activeTab = true;
-  if (value) {
-    value = value.replace(/&$/, function() {
-      activeTab = false;
-      return "";
-    });
-  }
+  var tab = {
+    active: value === (value = value.replace(/&(\*?)$/, "$1")),
+    pinned: value !== (value = value.replace(/\*$/, ""))
+  };
+
   if (document.activeElement.id !== "cVim-command-bar-input" || !commandMode) {
     this.hideData();
     this.hide();
@@ -384,13 +382,13 @@ Command.execute = function(value, repeats) {
       HUD.hide();
       break;
     case "duplicate":
-      chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: document.URL, repeats: repeats});
+      chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: document.URL, repeats: repeats});
       break;
     case "settings":
-      chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: chrome.extension.getURL("/pages/options.html"), repeats: repeats});
+      chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: chrome.extension.getURL("/pages/options.html"), repeats: repeats});
       break;
     case "changelog":
-      chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: chrome.extension.getURL("/pages/changelog.html"), repeats: repeats});
+      chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: chrome.extension.getURL("/pages/changelog.html"), repeats: repeats});
       break;
     case "date":
       var date = new Date();
@@ -399,7 +397,7 @@ Command.execute = function(value, repeats) {
       Status.setMessage(weekDays[date.getDay()] + ", " + months[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear(), 2);
       break;
     case "help":
-      chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: chrome.extension.getURL("/pages/mappings.html")});
+      chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: chrome.extension.getURL("/pages/mappings.html")});
       break;
     case "stop":
       window.stop();
@@ -408,7 +406,7 @@ Command.execute = function(value, repeats) {
       chrome.runtime.sendMessage({action: "cancelAllWebRequests"});
       break;
     case "viewsource":
-      chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: "view-source:" + document.URL, noconvert: true});
+      chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: "view-source:" + document.URL, noconvert: true});
       break;
     case "togglepin":
       chrome.runtime.sendMessage({action: "pinTab"});
@@ -422,23 +420,23 @@ Command.execute = function(value, repeats) {
       break;
     default:
       if (/^chrome:\/\/\S+$/.test(value)) {
-        chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value, noconvert: true});
+        chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: value, noconvert: true});
       } else if (/^bookmarks +/.test(value) && value !== "bookmarks") {
         if (/^\S+\s+\//.test(value)) {
-          chrome.runtime.sendMessage({action: "openBookmarkFolder", active: activeTab, path: value.replace(/\S+\s+/, ""), noconvert: true});
+          chrome.runtime.sendMessage({action: "openBookmarkFolder", active: tab.active, pinned: tab.pinned, path: value.replace(/\S+\s+/, ""), noconvert: true});
         } else {
-          chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: value.replace(/^b(ook)?marks(\s+)?/, ""), noconvert: true});
+          chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: value.replace(/^b(ook)?marks(\s+)?/, ""), noconvert: true});
         }
       } else if (/^history +/.test(value)) {
-        chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: Complete.convertToLink(value), noconvert: true});
+        chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: Complete.convertToLink(value), noconvert: true});
       } else if (/^file +/.test(value)) {
-        chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: "file://" + value.replace(/\S+ +/, ""), noconvert: true});
+        chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: "file://" + value.replace(/\S+ +/, ""), noconvert: true});
       } else if (/^(winopen|wo)$/.test(value.replace(/ .*/, ""))) {
-        chrome.runtime.sendMessage({action: "openLinkWindow", focused: activeTab, url: Complete.convertToLink(value), repeats: repeats, noconvert: true});
+        chrome.runtime.sendMessage({action: "openLinkWindow", focused: tab.active, pinned: tab.pinned, url: Complete.convertToLink(value), repeats: repeats, noconvert: true});
       } else if (/^(to|tabopen)$/.test(value.replace(/ .*/, ""))) {
-        chrome.runtime.sendMessage({action: "openLinkTab", active: activeTab, url: Complete.convertToLink(value), repeats: repeats, noconvert: true});
+        chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: Complete.convertToLink(value), repeats: repeats, noconvert: true});
       } else if (/^(o|open)$/.test(value.replace(/ .*/, ""))) {
-        chrome.runtime.sendMessage({action: "openLink", active: activeTab, url: Complete.convertToLink(value), noconvert: true});
+        chrome.runtime.sendMessage({action: "openLink", active: tab.active, pinned: tab.pinned, url: Complete.convertToLink(value), noconvert: true});
       } else if (/^buffers +/.test(value)) {
         if (Command.completionResults[0]) {
           chrome.runtime.sendMessage({action: "goToTab", index: Command.completionResults[0][1][0]});
@@ -485,7 +483,7 @@ Command.execute = function(value, repeats) {
           Status.setMessage("session name required", 1, "error");
           break;
         }
-        chrome.runtime.sendMessage({action: "openSession", name: value, sameWindow: !activeTab}, function() {
+        chrome.runtime.sendMessage({action: "openSession", name: value, sameWindow: !tab.active}, function() {
           Status.setMessage("session does not exist", 1, "error");
         });
       } else if (/^set +/.test(value) && value !== "set") {

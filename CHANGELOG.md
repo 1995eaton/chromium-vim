@@ -1,7 +1,9 @@
 #cVim Changelog
 
 ## 1.2.54
- * The ignorediacritics option has been removed due to major performance issues
+ * The ```ignorediacritics``` option has been removed due to its large performance impact
+ * Added the ```*``` modifier to the open group of commands (e.g. ```:tabopen http://www.google.com*``` will open Google in a pinned state)
+   * This can be used in addition to the ```&``` modifier (e.g. ```:tabopen http://www.google.com*&``` or ```:tabopen http://www.google.com&*``` will open Google in a pinned background tab
 
 ## 1.2.53
  * **Important!** cVimrc blacklists are now a part of the cVimrc. Previous blacklists should carry over to the cVimrc text area. New blacklists can be declared like this:

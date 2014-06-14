@@ -1,5 +1,6 @@
 // Search engine completion functions
 
+var GitHub;
 String.prototype.validURL = function() {
   var url = this.trimLeft().trimRight();
   if (url.length === 0) {
@@ -29,7 +30,7 @@ String.prototype.embedString = function(string) {
 
 var Complete = {};
 
-Complete.engines = ["google", "wikipedia", "youtube", "imdb", "amazon", "wolframalpha", "google-image", "ebay", "webster", "wictionary", "urbandictionary", "duckduckgo", "answers", "google-trends", "google-finance", "yahoo", "bing"];
+Complete.engines = ["google", "wikipedia", "youtube", "imdb", "amazon", "github", "xkcd", "wolframalpha", "google-image", "ebay", "webster", "wictionary", "urbandictionary", "duckduckgo", "answers", "google-trends", "google-finance", "yahoo", "bing"];
 
 Complete.aliases = {
   g: "google"
@@ -46,9 +47,11 @@ Complete.getAlias = function(alias) {
 Complete.requestUrls = {
   wikipedia:      "https://en.wikipedia.org/wiki/",
   google:         "https://www.google.com/search?q=",
+  github:         "https://github.com/search?q=",
   "google-image": "https://www.google.com/search?site=imghp&tbm=isch&source=hp&q=",
   duckduckgo:     "https://duckduckgo.com/?q=",
   yahoo:          "https://search.yahoo.com/search?p=",
+  xkcd:           "http://www.google.com/cse?cx=012652707207066138651%3Azudjtuwe28q&ie=UTF-8&q=regex&siteurl=xkcd.com%2F1380%2F&ref=xkcd.com%2F&ss=180137j23765520005j17&oq=regex&gs_l=partner.3.0.0.81229.260484.0.261975.7.6.0.1.1.0.199.624.4j2.6.0.gsnos%2Cn%3D13...0.180137j23765516231j17j3..1ac.1.25.partner..0.7.625.u1TFYzUl0S0#gsc.tab=0&gsc.q=",
   answers:        "https://answers.yahoo.com/search/search_result?p=",
   bing:           "https://www.bing.com/search?q=",
   imdb:           "http://www.imdb.com/find?s=all&q=",
@@ -66,9 +69,11 @@ Complete.requestUrls = {
 Complete.baseUrls = {
   wikipedia:      "https://en.wikipedia.org/wiki/Main_Page",
   google:         "https://www.google.com",
+  github:         "https://github.com/",
   "google-image": "http://www.google.com/imghp",
   duckduckgo:     "https://duckduckgo.com",
   yahoo:          "https://search.yahoo.com",
+  xkcd:           "http://xkcd.com",
   answers:        "https://answers.yahoo.com",
   bing:           "https://www.bing.com",
   imdb:           "http://www.imdb.com",
@@ -107,6 +112,8 @@ Complete.parseQuery = {
 Complete.apis = {
   wikipedia:      "https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=%s",
   google:         "https://www.google.com/complete/search?client=firefox&hl=en&q=%s",
+  github:         "",
+  xkcd:           "http://clients1.google.com/complete/search?client=partner&hl=en&sugexp=gsnos%2Cn%3D13&gs_rn=25&gs_ri=partner&partnerid=012652707207066138651%3Azudjtuwe28q&types=t&ds=cse&cp=4&gs_id=18&json=1&q=%s",
   "google-image": "http://www.google.com/complete/search?client=img&hl=en&gs_rn=43&gs_ri=img&ds=i&cp=1&gs_id=8&q=%s",
   yahoo:          "https://search.yahoo.com/sugg/gossip/gossip-us-ura/?output=sd1&appid=search.yahoo.com&nresults=20&command=%s",
   answers:        "https://search.yahoo.com/sugg/ss/gossip-us_ss-vertical_ss/?output=sd1&pubid=1307&appid=yanswer&command=%s&nresults=20",
@@ -164,6 +171,9 @@ Complete.convertToLink = function(input) {
   }
   input[0] = this.getAlias(input[0]) || input[0];
   if (Complete.engines.indexOf(input[0]) !== -1) {
+    if (input[0] === "github") {
+      return GitHub.parseInput(input.slice(1));
+    }
     if (input.length > 1) {
       prefix = Complete.requestUrls[input[0]];
     } else {
@@ -368,6 +378,61 @@ Complete.imdb = function(query, callback) {
         }
         return [e.l + " - " + e.s, _url];
       }));
+    }
+  };
+  xhr.send();
+};
+
+var GitHubCache = {};
+GitHub = {
+  parseInput: function(input) {
+    log(input);
+    if (input.length === 1) {
+      return "https://github.com/" + input[0].slice(1);
+    }
+    return Complete.requestUrls.github + encodeURIComponent(input.join(" "));
+  }
+};
+
+Complete.github = function(query, callback) {
+  var users = "https://github.com/command_bar/users?q=%s",
+      repos = "https://github.com/command_bar/repos_for/%s";
+  // paths = "https://github.com/command_bar/%user/%repository/paths/%branchname?sha=1&q=";
+  if (query.length <= 1) {
+    return callback([["@&lt;USER&gt;/&lt;REPOSITORY&gt;", "github @"]]);
+  }
+  if (/^@[a-zA-Z_\-0-9]+$/.test(query)) {
+    this.xhr(users.embedString(encodeURIComponent(query.slice(1))), function(response) {
+      return callback(response.results.map(function(e) {
+        return [e.command];
+      }));
+    });
+  } else if (/^@[a-zA-Z_\-0-9]+\/[^ ]*$/.test(query)) {
+
+    var slashPosition = query.indexOf("/");
+
+    if (GitHubCache[query.slice(1, slashPosition)] === void 0) {
+      this.xhr(repos.embedString(encodeURIComponent(query.slice(1, -1))), function(response) {
+        GitHubCache[query.slice(1, slashPosition)] = response.results.map(function(e) {
+          return ["@" + e.command];
+        });
+        return callback(GitHubCache[query.slice(1, slashPosition)]);
+      });
+    } else {
+      return callback(GitHubCache[query.slice(1, slashPosition)].filter(function(e) {
+        return e[0].indexOf(query) === 0;
+      }));
+    }
+
+  }
+};
+
+Complete.xkcd = function(query, callback) {
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", this.apis.xkcd.embedString(encodeURIComponent(query)));
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      callback(JSON.parse(xhr.responseText)[1]);
     }
   };
   xhr.send();

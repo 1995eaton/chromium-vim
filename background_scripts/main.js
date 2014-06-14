@@ -1,17 +1,38 @@
-var sessions = {};
-var Clipboard, History, Bookmarks, Links, Quickmarks, Sites, Frames;
-Frames = {};
-Quickmarks = {};
+var Clipboard,
+    History,
+    Bookmarks,
+    Links,
+    Sites;
+
+var sessions = {},
+    Frames = {},
+    Quickmarks = {},
+    ActiveTabs = {};
+
+chrome.tabs.onActivated.addListener(function(tab) {
+  if (ActiveTabs[tab.windowId] === void 0) {
+    ActiveTabs[tab.windowId] = [];
+  }
+  ActiveTabs[tab.windowId].push(tab.tabId);
+  if (ActiveTabs[tab.windowId].length > 2) {
+    ActiveTabs[tab.windowId].shift();
+  }
+});
+
+chrome.windows.onRemoved.addListener(function(windowId) {
+  delete ActiveTabs[windowId];
+});
 
 Sites = {
   querySites: function(callback) {
     chrome.topSites.get(function(e) {
-      var urls = [], c = 0, l = e.length;
+      var urls = [],
+          c = 0,
+          l = e.length;
       e.map(function(d) {
         chrome.history.getVisits({url: d.url}, function(f) {
           urls.push([d.title, d.url, f.length]);
-          c += 1;
-          if (c === l) {
+          if (++c === l) {
             callback(urls);
           }
         });
@@ -29,8 +50,12 @@ Sites = {
 
 chrome.storage.local.get("sessions", function(s) {
   if (s.sessions === undefined) {
-    chrome.storage.local.set({sessions: {}});
-  } else sessions = s.sessions;
+    chrome.storage.local.set({
+      sessions: {}
+    });
+  } else {
+    sessions = s.sessions;
+  }
 });
 
 Clipboard = {
@@ -173,8 +198,12 @@ Bookmarks = {
     var _ret = [],
     folder = null,
     matchFound = false;
-    if (!initialPath) initialPath = p.replace(/\/[^\/]+$/, "/").replace(/\/+/g, "/");
-    if (typeof p !== "string" || p[0] !== "/") return false;
+    if (!initialPath) {
+      initialPath = p.replace(/\/[^\/]+$/, "/").replace(/\/+/g, "/");
+    }
+    if (typeof p !== "string" || p[0] !== "/") {
+      return false;
+    }
     p = p.split(/\//).filter(function(e) { return e; });
     m.forEach(function(item) {
       if (item.title === p[0]) {
@@ -184,12 +213,16 @@ Bookmarks = {
         _ret.push([item.title, (item.url || "folder"), initialPath]);
       }
       if (p.length === 0) {
-        if (!matchFound) _ret = [];
+        if (!matchFound) {
+          _ret = [];
+        }
         matchFound = true;
         _ret.push([item.title, (item.url || "folder"), initialPath]);
       }
     });
-    if (p.length === 0 || !folder) return callback(_ret);
+    if (p.length === 0 || !folder) {
+      return callback(_ret);
+    }
     p = p.slice(1);
     this.getPath(folder.children, "/" + p.join("/"), callback, initialPath);
   }
@@ -256,6 +289,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
   requestAction("extension", request, sender, callback);
 });
 
-chrome.tabs.onRemoved.addListener(function(tab) {
-  delete Frames[tab.id];
+chrome.tabs.onRemoved.addListener(function(id, removeInfo) {
+  if (ActiveTabs[removeInfo.windowId] !== void 0) {
+    ActiveTabs[removeInfo.windowId] = ActiveTabs[removeInfo.windowId].filter(function(e) {
+      return e !== id;
+    });
+  }
+  delete Frames[id];
 });

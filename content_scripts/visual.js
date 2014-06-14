@@ -165,6 +165,18 @@ Visual.lineAction = function(key) {
   Visual.scrollIntoView();
 };
 
+Visual.movements = {
+  l: ["forward", "character"],
+  h: ["backward", "character"],
+  k: ["backward", "line"],
+  j: ["forward", "line"],
+  w: ["forward", "word"],
+  b: ["backward", "word"],
+  0: ["backward", "lineboundary"],
+  $: ["forward", "lineboundary"],
+  G: ["forward", "documentboundary"]
+};
+
 Visual.action = function(key) {
   this.selection = document.getSelection();
   if (key === "g") {
@@ -207,57 +219,36 @@ Visual.action = function(key) {
   if (this.selection.type === "Range") {
     this.visualModeActive = true;
   }
-  var movementType = ((this.selection.type === "Range" || this.visualModeActive) ? "extend" : "move");
-  switch (key) {
-    case "l":
-      this.selection.modify(movementType, "forward", "character");
-      break;
-    case "h":
-      this.selection.modify(movementType, "backward", "character");
-      break;
-    case "k":
-      this.selection.modify(movementType, "backward", "line");
-      break;
-    case "j":
-      this.selection.modify(movementType, "forward", "line");
-      break;
-    case "w":
-      this.selection.modify(movementType, "forward", "word");
-      break;
-    case "b":
-      this.selection.modify(movementType, "backward", "word");
-      break;
-    case "0":
-      this.selection.modify(movementType, "backward", "lineboundary");
-      break;
-    case "$":
-      this.selection.modify(movementType, "forward", "lineboundary");
-      break;
-    case "G":
-      this.selection.modify(movementType, "forward", "documentboundary");
-      break;
-    case "n":
-    case "N":
-      if (key === "N") {
-        Mappings.actions.previousSearchResult(1);
-      } else {
-        Mappings.actions.nextSearchResult(1);
-      }
-      this.focusSearchResult();
-      break;
-    case "p":
-    case "P":
-      Clipboard.copy(this.selection.toString());
-      document.getSelection().collapseToEnd();
-      Clipboard.paste(key === "P");
-      this.exit();
-      break;
-    case "y":
-      if (movementType === "extend") {
+  var movementType =
+    (this.selection.type === "Range" || this.visualModeActive) ?
+    "extend" : "move";
+  if (this.movements.hasOwnProperty(key)) {
+    this.selection.modify.apply(this.selection, [movementType].concat(this.movements[key]));
+  } else {
+    switch (key) {
+      case "n":
+      case "N":
+        if (key === "N") {
+          Mappings.actions.previousSearchResult(1);
+        } else {
+          Mappings.actions.nextSearchResult(1);
+        }
+        this.focusSearchResult();
+        break;
+      case "p":
+      case "P":
         Clipboard.copy(this.selection.toString());
-        Visual.collapse();
-      }
-      break;
+        document.getSelection().collapseToEnd();
+        Clipboard.paste(key === "P");
+        this.exit();
+        break;
+      case "y":
+        if (movementType === "extend") {
+          Clipboard.copy(this.selection.toString());
+          Visual.collapse();
+        }
+        break;
+    }
   }
   Visual.scrollIntoView();
 };

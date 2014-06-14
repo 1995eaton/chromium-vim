@@ -3,9 +3,9 @@ var storageMethod = "local",
     Options = {};
 
 var defaultSettings = {
-  searchlimit: 20,
-  scrollstep: 75,
-  typelinkhintsdelay: 500,
+  searchlimit: 25,
+  scrollstep: 70,
+  typelinkhintsdelay: 300,
   qmarks: {},
   searchengines: {},
   searchaliases: {},
@@ -71,7 +71,10 @@ Options.sendSettings = function() {
   chrome.tabs.query({}, function(tabs) {
     for (var i = 0; i < tabs.length; ++i) {
       if (tabs[i]) {
-        chrome.tabs.sendMessage(tabs[i].id, {action: "sendSettings", settings: Settings});
+        chrome.tabs.sendMessage(tabs[i].id, {
+          action: "sendSettings",
+          settings: Settings
+        });
       }
     }
   });
@@ -79,7 +82,10 @@ Options.sendSettings = function() {
 
 Options.getSettings = function(request, sender) {
   this.refreshSettings(function() {
-    chrome.tabs.sendMessage(sender.tab.id, {action: "sendSettings", settings: (request.reset ? Options.compressedDefaults : Settings)});
+    chrome.tabs.sendMessage(sender.tab.id, {
+      action: "sendSettings",
+      settings: request.reset ? defaultSettings : Settings
+    });
   });
 };
 
@@ -89,7 +95,10 @@ Options.setDefaults = function() {
 };
 
 Options.getDefaults = function(request, sender) {
-  chrome.tabs.sendMessage(sender.tab.id, {action: "sendDefaultSettings", settings: defaultSettings});
+  chrome.tabs.sendMessage(sender.tab.id, {
+    action: "sendDefaultSettings",
+    settings: defaultSettings
+  });
 };
 
 Options.updateBlacklistsMappings = function() {

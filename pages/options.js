@@ -134,7 +134,8 @@ Settings.syncGist = function() {
     return false;
   }
   var xhr = new XMLHttpRequest();
-  xhr.open("GET", url + (url.indexOf("raw") === -1 ? "/raw" : ""));
+  xhr.open("GET", url + (url.indexOf("raw") === -1 &&
+        url.indexOf("github") !== -1 ? "/raw" : ""));
   xhr.onreadystatechange = function() {
     if (xhr.readyState === 4 && xhr.status === 200) {
       document.getElementById("mappings").value = xhr.responseText;

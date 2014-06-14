@@ -30,7 +30,8 @@ function isRepeat(request) {
 
 actions.openLink = function() {
   chrome.tabs.update({
-    url: url
+    url: url,
+    pinned: request.pinned
   });
 };
 
@@ -38,7 +39,12 @@ actions.openLinkTab = function() {
   if (!sender.tab) {
     chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
       for (var i = 0; i < request.repeats; ++i) {
-        chrome.tabs.create({url: url, active: request.active, index: tab[0].index + 1});
+        chrome.tabs.create({
+          url: url,
+          active: request.active,
+          pinned: request.pinned,
+          index: tab[0].index + 1
+        });
       }
     });
   } else {
@@ -46,6 +52,7 @@ actions.openLinkTab = function() {
       chrome.tabs.create({
         url: url,
         active: request.active,
+        pinned: request.pinned,
         index: sender.tab.index + 1
       });
     }
@@ -239,6 +246,12 @@ actions.deleteSession = function() {
   chrome.storage.local.set({
     sessions: sessions
   });
+};
+
+actions.lastActiveTab = function() {
+  if (ActiveTabs[sender.tab.windowId] !== void 0) {
+    chrome.tabs.update(ActiveTabs[sender.tab.windowId].shift(), {active: true});
+  }
 };
 
 actions.openSession = function() {
