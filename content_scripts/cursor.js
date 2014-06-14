@@ -4,8 +4,10 @@ var Cursor = {}; // Hide the mouse cursor on keydown (Linux)
 // This still doesn't seem to work on new tabs until the mouse is touched
 Cursor.wiggleWindow = function() {
   document.body.style.minHeight = document.documentElement.clientHeight + 2 + "px";
-  document.body.scrollTop += 1;
-  document.body.scrollTop -= 1;
+  var jiggleDirection = +(document.body.scrollHeight - document.body.scrollTop -
+      document.documentElement.clientHeight === 0);
+  document.body.scrollTop -= jiggleDirection;
+  document.body.scrollTop += jiggleDirection;
   document.body.style.minHeight = "";
 };
 
