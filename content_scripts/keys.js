@@ -5,15 +5,41 @@ var Key = {};
 
 Key.numberMap = ")!@#$%^&*(";
 Key.keyMap = {
+  0:   "\\",
   8:   "BS",
   9:   "Tab",
+  12:  "Num",
   13:  "Enter",
+  19:  "Pause",
+  20:  "Caps",
   27:  "Esc",
   32:  "Space",
+  33:  "PageUp",
+  34:  "PageDown",
+  35:  "End",
+  36:  "Home",
   37:  "Left",
   38:  "Up",
   39:  "Right",
   40:  "Down",
+  44:  "Print",
+  45:  "Insert",
+  46:  "Delete",
+  96:  "0",
+  97:  "1",
+  98:  "2",
+  99:  "3",
+  100: "4",
+  101: "5",
+  102: "6",
+  103: "7",
+  104: "8",
+  105: ["9", ""],
+  106: "*",
+  107: "+",
+  109: "-",
+  111: "/",
+  144: "Num",
   186: [";", ":"],
   188: [",", "<"],
   189: ["-", "_"],
@@ -40,14 +66,12 @@ Key.fromKeyCode = function(e) {
     convertedKey = this.keyMap[keyCode.toString()];
     if (Array.isArray(convertedKey)) {
       if (!e.ctrlKey && !e.altKey && !e.metaKey) {
-        convertedKey = convertedKey[(shiftKey ? 1 : 0)];
+        convertedKey = convertedKey[+shiftKey];
       } else {
-        convertedKey = convertedKey[0];
+        convertedKey = (shiftKey ? "S-" : "") + convertedKey[0];
       }
-    } else {
-      if (shiftKey) {
-        convertedKey = "S-" + convertedKey;
-      }
+    } else if (shiftKey) {
+      convertedKey = "S-" + convertedKey;
     }
   } else {
     if (keyCode >= 48 && keyCode <= 57) {
@@ -57,8 +81,9 @@ Key.fromKeyCode = function(e) {
         convertedKey = String.fromCharCode(keyCode);
       }
     } else {
-      convertedKey = String.fromCharCode(keyCode);
-      if (!shiftKey) {
+      if (shiftKey) {
+        convertedKey = String.fromCharCode(keyCode);
+      } else {
         convertedKey = String.fromCharCode(keyCode).toLowerCase();
       }
     }
@@ -86,7 +111,7 @@ Key.fromKeyCode = function(e) {
   if (convertedKey.indexOf("S-") !== -1 || (!modifier && keyCode <= 40 && this.keyMap.hasOwnProperty(keyCode))) {
     convertedKey = "<" + convertedKey + ">";
   }
-  return convertedKey;
+  return convertedKey.replace("<<", "<").replace(">>", ">");
 };
 
 Key.down = function(e) {

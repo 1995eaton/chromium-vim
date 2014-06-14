@@ -13,8 +13,8 @@ Sessions.onChanged = function() {
 };
 
 Sessions.nativeStepBack = function() {
-  if (this.sessionIndex++ < this.recentlyClosed.length) {
-    chrome.sessions.restore(this.recentlyClosed[this.sessionIndex]);
+  if (this.sessionIndex < this.recentlyClosed.length) {
+    chrome.sessions.restore(this.recentlyClosed[this.sessionIndex++]);
   }
 };
 
