@@ -593,16 +593,30 @@ Command.hide = function() {
   }
 };
 
-Command.onDOMLoad = function() {
+Command.insertCSS = function() {
+  if (!settings.COMMANDBARCSS) {
+    return;
+  }
   var head = document.getElementsByTagName("head");
-  if (head.length) { // Use chrome.tabs.insertCSS if document.head does not exist
+  if (!head.length ||
+      !((head.length && window.location.hostname + window.location.pathname === "www.google.com/_/chrome/newtab")
+        || window.location.protocol === "chrome-extension:")) {
+    chrome.runtime.sendMessage({
+      action: "injectCSS",
+      css: settings.COMMANDBARCSS,
+      runAt: "document_start"
+    });
+  }
+  // For some reason, Chrome's own implementation of CSS injection seems to miss some styles.
+  if (head.length) {
     this.css = document.createElement("style");
     this.css.textContent = settings.COMMANDBARCSS;
     head[0].appendChild(this.css);
   }
-  if (!head.length && document.URL.indexOf("chrome") !== 0) {
-    chrome.runtime.sendMessage({action: "injectCSS", css: settings.COMMANDBARCSS, runAt: "document_start"});
-  }
+};
+
+Command.onDOMLoad = function() {
+  this.insertCSS();
   this.onBottom = settings.barposition === "bottom";
   if (this.data !== undefined) {
     this.data.style[(!this.onBottom) ? "bottom" : "top"] = "";

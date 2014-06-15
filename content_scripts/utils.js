@@ -167,20 +167,6 @@ String.prototype.rxp = function() {
   return new RegExp(this, Array.prototype.slice.call(arguments));
 };
 
-String.prototype.parseLocation = function() {
-  var protocolMatch = "^[a-zA-Z0-9\\-]+:(?=\\/\\/)",
-      hostnameMatch = "^[a-zA-Z0-9\\-.]+",
-      pathPattern = "\\/.*";
-  var urlProtocol = (this.match(protocolMatch.rxp()) || [""])[0] || "",
-      urlHostname = (this.substring(urlProtocol.length + 2).match(hostnameMatch.rxp("g")) || [""])[0] || "",
-      urlPath = ((this.substring(urlProtocol.length + 2 + urlHostname.length).match(pathPattern.rxp()) || [""])[0] || "").replace(/[#?].*/, "");
-  return {
-    protocol: urlProtocol,
-    hostname: urlHostname,
-    pathname: urlPath
-  };
-};
-
 String.prototype.convertLink = function() {
   var url = this.trimLeft().trimRight();
   if (url.length === 0) {
@@ -210,9 +196,9 @@ function matchLocation(url, pattern) { // Uses @match syntax
   if (typeof pattern !== "string" || !pattern.trim()) {
     return false;
   }
-  var urlLocation = url.parseLocation(),
-      protocol    = (pattern.match(/.*:\/\//) || [""])[0].slice(0, -2),
+  var protocol = (pattern.match(/.*:\/\//) || [""])[0].slice(0, -2),
       hostname, path, pathMatch, hostMatch;
+  url = new URL(url);
   if (/\*\*/.test(pattern)) {
     console.error("cVim Error: Invalid pattern: \"%s\"", pattern);
     return false;
@@ -222,10 +208,10 @@ function matchLocation(url, pattern) { // Uses @match syntax
     return false;
   }
   pattern = pattern.replace(/.*:\/\//, "");
-  if (protocol !== "*:" && urlLocation.protocol !== protocol) {
+  if (protocol !== "*:" && url.protocol !== protocol) {
     return false;
   }
-  if (urlLocation.protocol !== "file:") {
+  if (url.protocol !== "file:") {
     hostname = pattern.match(/^[^\/]+\//g);
     if (!hostname) {
       console.error("cVim Error: Invalid host in pattern: \"%s\"", pattern);
@@ -233,16 +219,16 @@ function matchLocation(url, pattern) { // Uses @match syntax
     }
     var origHostname = hostname;
     hostname = hostname[0].slice(0, -1).replace(/([.])/g, "\\$1").replace(/\*/g, ".*");
-    hostMatch = urlLocation.hostname.match(new RegExp(hostname, "i"));
-    if (!hostMatch || hostMatch[0].length !== urlLocation.hostname.length) {
+    hostMatch = url.hostname.match(new RegExp(hostname, "i"));
+    if (!hostMatch || hostMatch[0].length !== url.hostname.length) {
       return false;
     }
     pattern = "/" + pattern.slice(origHostname[0].length);
   }
   if (pattern.length) {
     path = pattern.replace(/([.&\\\/\(\)\[\]!?])/g, "\\$1").replace(/\*/g, ".*");
-    pathMatch = urlLocation.pathname.match(new RegExp(path));
-    if (!pathMatch || pathMatch[0].length !== urlLocation.pathname.length) {
+    pathMatch = url.pathname.match(new RegExp(path));
+    if (!pathMatch || pathMatch[0].length !== url.pathname.length) {
       return false;
     }
   }

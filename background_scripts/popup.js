@@ -2,8 +2,8 @@ var Popup = {};
 Popup.active = true;
 
 function parseDomain(url) {
-  var urlLocation = url.parseLocation();
-  return urlLocation.protocol + "//" + urlLocation.hostname + "/*";
+  url = new URL(url);
+  return url.protocol + "//" + url.hostname + "/*";
 }
 
 Popup.getBlacklisted = function(callback) {
