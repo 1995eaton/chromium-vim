@@ -4,6 +4,9 @@
  * The ```ignorediacritics``` option has been removed due to its large performance impact
  * Added the ```*``` modifier to the open group of commands (e.g. ```:tabopen http://www.google.com*``` will open Google in a pinned state)
    * This can be used in addition to the ```&``` modifier (e.g. ```:tabopen http://www.google.com*&``` or ```:tabopen http://www.google.com&*``` will open Google in a pinned background tab
+ * Fixed a CSS style injection bug on some sites
+ * Improved keyboard key support
+ * Added experimental GitHub autocomplete search engine (e.g. ```:tabopen github @1995eaton/```)
 
 ## 1.2.53
  * **Important!** cVimrc blacklists are now a part of the cVimrc. Previous blacklists should carry over to the cVimrc text area. New blacklists can be declared like this:
