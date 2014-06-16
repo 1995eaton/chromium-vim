@@ -24,6 +24,7 @@ var defaultSettings = {
   smoothscroll: true,
   scrollduration: 20,
   locale: "",
+  defaultengine: "google",
   hintcharacters: "asdfgqwertzxcvb",
   activehighlight: "#ff9632",
   highlight: "#ffff00",

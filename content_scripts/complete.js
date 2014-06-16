@@ -186,7 +186,8 @@ Complete.convertToLink = function(input) {
       }
       return input.join(" ");
     }
-    return Complete.requestUrls.google + encodeURIComponent(input.join(" "));
+    return (Complete.requestUrls[settings.defaultengine] ||
+      Complete.requestUrls.google) + encodeURIComponent(input.join(" "));
   }
   if (Complete.parseQuery.hasOwnProperty(input[0])) {
     suffix = Complete.parseQuery[input[0]](input.slice(1).join(" "));
