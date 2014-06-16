@@ -101,6 +101,33 @@ actions.closeTab = function() {
   });
 };
 
+actions.openLastLinkInTab = function() {
+  if (TabHistory[sender.tab.id] === void 0) {
+    return;
+  }
+  var hist = TabHistory[sender.tab.id];
+  if (hist.links[hist.state - request.repeats] !== void 0) {
+    chrome.tabs.create({url: hist.links[hist.state - request.repeats]});
+  }
+};
+
+actions.openNextLinkInTab = function() {
+  if (TabHistory[sender.tab.id] === void 0) {
+    return;
+  }
+  var hist = TabHistory[sender.tab.id];
+  if (hist.links[hist.state + request.repeats] !== void 0) {
+    chrome.tabs.create({url: hist.links[hist.state + request.repeats]});
+  }
+};
+
+actions.getHistoryStates = function() {
+  if (TabHistory[sender.tab.id] === void 0) {
+    return callback({links: []});
+  }
+  callback(TabHistory[sender.tab.id]);
+};
+
 actions.reloadTab = function() {
   chrome.tabs.reload({
     bypassCache: request.nocache

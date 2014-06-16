@@ -2,12 +2,37 @@ var Clipboard,
     History,
     Bookmarks,
     Links,
+    TabHistory,
     Sites;
 
 var sessions = {},
     Frames = {},
     Quickmarks = {},
     ActiveTabs = {};
+
+TabHistory = {
+};
+
+chrome.tabs.onUpdated.addListener(function(id, changeInfo) {
+  if (changeInfo.hasOwnProperty("url")) {
+    if (TabHistory.hasOwnProperty(id)) {
+      if (TabHistory[id].links.indexOf(changeInfo.url) === -1) {
+        if (TabHistory.state !== undefined && TabHistory[id].state + 1 !== TabHistory[id].length) {
+          TabHistory[id].links.splice(TabHistory[id].state);
+        }
+        TabHistory[id].links.push(changeInfo.url);
+        TabHistory[id].state = TabHistory[id].state + 1;
+      } else {
+        TabHistory[id].state = TabHistory[id].links.indexOf(changeInfo.url);
+      }
+    } else {
+      TabHistory[id] = {};
+      TabHistory[id].links = [changeInfo.url];
+      TabHistory[id].state = 0;
+    }
+    log(TabHistory);
+  }
+});
 
 chrome.tabs.onActivated.addListener(function(tab) {
   if (ActiveTabs[tab.windowId] === void 0) {
@@ -294,6 +319,9 @@ chrome.tabs.onRemoved.addListener(function(id, removeInfo) {
     ActiveTabs[removeInfo.windowId] = ActiveTabs[removeInfo.windowId].filter(function(e) {
       return e !== id;
     });
+  }
+  if (TabHistory[id] !== void 0) {
+    delete TabHistory[id];
   }
   delete Frames[id];
 });

@@ -88,6 +88,9 @@ Search.nextResult = function(reverse) {
     case "topsites":
       Command.input.value = Command.input.value.match(/^\S+ /)[0] + Command.completionResults[this.index][2];
       break;
+    case "tabhistory":
+      Command.input.value = "tabhistory " + Command.completionResults[this.index][1];
+      break;
     case "engines":
       Command.input.value = Command.input.value.match(/^\S+ /)[0] + Command.completionResults[this.index][1];
       break;

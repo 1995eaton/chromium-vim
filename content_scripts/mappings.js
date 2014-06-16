@@ -250,6 +250,18 @@ Mappings.actions = {
       window.scrollBy(0, scrollOffset);
     }
   },
+  openLastLinkInTab: function(repeats) {
+    chrome.runtime.sendMessage({
+      action: "openLastLinkInTab",
+      repeats: repeats
+    });
+  },
+  openNextLinkInTab: function(repeats) {
+    chrome.runtime.sendMessage({
+      action: "openNextLinkInTab",
+      repeats: repeats
+    });
+  },
   scrollDown: function(repeats) {
     Scroll.scroll("down", repeats);
   },
@@ -570,6 +582,8 @@ Mappings.defaults = {
   openQuickMark:        ["go*"],
   openQuickMarkTabbed:  ["gn*"],
   cancelWebRequest:     ["gq"],
+  openLastLinkInTab:    ["<C-S-h>", "gh"],
+  openNextLinkInTab:    ["<C-S-l>", "gl"],
   cancelAllWebRequests: ["gQ"],
   createHoverHint:      ["q"],
   toggleImages:         ["ci"],

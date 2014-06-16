@@ -193,6 +193,7 @@ Command.descriptions = [
   ["bookmarks",  "Search through your bookmarks"],
   ["file",       "Browse local directories"],
   ["set",        "Configure Settings"],
+  ["tabhistory", "Open a tab from its history states"],
   ["execute",    "Execute a sequence of keys"],
   ["session",    "Open a saved session in a new window"],
   ["mksession",  "Create a saved session of current tabs"],
@@ -286,6 +287,18 @@ Command.complete = function(value) {
   if (/^chrome:\/\//.test(value)) {
     Search.chromeMatch(search, function(matches) {
       this.completions = { chrome: matches };
+      this.updateCompletions();
+    }.bind(this));
+    return;
+  }
+
+  if (/^tabhistory +/.test(value)) {
+    chrome.runtime.sendMessage({action: "getHistoryStates"}, function(response) {
+      this.completions = {
+        tabhistory: response.links.filter(function(e) {
+          return e.indexOf(value.replace(/\S+\s+/, "")) !== -1;
+        })
+      };
       this.updateCompletions();
     }.bind(this));
     return;
@@ -433,7 +446,7 @@ Command.execute = function(value, repeats) {
         chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: "file://" + value.replace(/\S+ +/, ""), noconvert: true});
       } else if (/^(winopen|wo)$/.test(value.replace(/ .*/, ""))) {
         chrome.runtime.sendMessage({action: "openLinkWindow", focused: tab.active, pinned: tab.pinned, url: Complete.convertToLink(value), repeats: repeats, noconvert: true});
-      } else if (/^(to|tabopen)$/.test(value.replace(/ .*/, ""))) {
+      } else if (/^(to|tabopen|tabhistory)$/.test(value.replace(/ .*/, ""))) {
         chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: Complete.convertToLink(value), repeats: repeats, noconvert: true});
       } else if (/^(o|open)$/.test(value.replace(/ .*/, ""))) {
         chrome.runtime.sendMessage({action: "openLink", active: tab.active, pinned: tab.pinned, url: Complete.convertToLink(value), noconvert: true});
