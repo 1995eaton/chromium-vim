@@ -108,7 +108,9 @@ let blacklists = ["*://*/*.pdf <Up> <Down>"]
 | h                       | scroll left                                                         | scrollLeft                    | 
 | l                       | scroll right                                                        | scrollRight                   | 
 | d                       | scroll half-page down                                               | scrollPageDown                | 
+| unmapped                | scroll full-page down                                               | scrollFullPageDown            |
 | u, e                    | scroll half-page up                                                 | scrollPageUp                  | 
+| unmapped                | scroll full-page up                                                 | scrollFullPageUp              |
 | gg                      | scroll top the top of the page                                      | scrollToTop                   | 
 | G                       | scroll to the bottom of the page                                    | scrollToBottom                | 
 | 0                       | scroll to the left of the page                                      | scrollToLeft                  | 

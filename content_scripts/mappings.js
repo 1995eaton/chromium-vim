@@ -271,8 +271,14 @@ Mappings.actions = {
   scrollPageDown: function(repeats) {
     Scroll.scroll("pageDown", repeats);
   },
+  scrollFullPageDown: function(repeats) {
+    Scroll.scroll("fullPageDown", repeats);
+  },
   scrollPageUp: function(repeats) {
     Scroll.scroll("pageUp", repeats);
+  },
+  scrollFullPageUp: function(repeats) {
+    Scroll.scroll("fullPageUp", repeats);
   },
   scrollLeft: function(repeats) {
     Scroll.scroll("left", repeats);
@@ -551,7 +557,9 @@ Mappings.defaults = {
   scrollDown:           ["s", "j"],
   scrollUp:             ["w", "k"],
   scrollPageUp:         ["e", "u"],
+  scrollFullPageUp:     [],
   scrollPageDown:       ["d"],
+  scrollFullPageDown:   [],
   scrollToTop:          ["gg"],
   scrollToBottom:       ["G"],
   scrollLeft:           ["h"],
