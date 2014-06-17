@@ -18,17 +18,17 @@ Marks.filePath = function() {
       }
       Command.completions.files.push([this.files[i][0], this.files[i][1]]);
       c++;
-      if (c >= settings.searchlimit) {
+      if (c > settings.searchlimit) {
         break;
       }
     }
   }
-  if (c < settings.searchlimit && !input) {
+  if (c <= settings.searchlimit && !input) {
     for (i = 0; i < this.files.length; ++i) {
       if (this.files[i] !== ".." && this.files[i][0] === ".") {
         Command.completions.files.push([this.files[i][0], !this.files[i][1]]);
         c++;
-        if (c >= settings.searchlimit) {
+        if (c > settings.searchlimit) {
           break;
         }
       }
@@ -99,7 +99,7 @@ Marks.match = function(string, callback, limit) {
       matches = [];
 
   if (string.trim() === "") {
-    return callback(this.bookmarks.slice(0, settings.searchlimit));
+    return callback(this.bookmarks.slice(0, settings.searchlimit + 1));
   }
 
   try {
@@ -114,17 +114,17 @@ Marks.match = function(string, callback, limit) {
     } else if (this.bookmarks[i][1].indexOf(string) === 0) { // Get the most relavent matches first
       matches.push(this.bookmarks[i]);
     }
-    if ((limit && matches.length === limit) || matches.length === settings.searchlimit) {
+    if ((limit && matches.length === limit) || matches.length > settings.searchlimit) {
       break;
     }
   }
 
-  if (matches.length < settings.searchlimit && !regexp) {
+  if (matches.length <= settings.searchlimit && !regexp) {
     for (i = 0, l = this.bookmarks.length; i < l; ++i) {
       if (this.bookmarks[i][1].indexOf(string) !== -1) { // Go for any match position at this point
         matches.push(this.bookmarks[i]);
       }
-      if ((limit && matches.length === limit) || matches.length === settings.searchlimit) {
+      if ((limit && matches.length === limit) || matches.length > settings.searchlimit) {
         break;
       }
     }

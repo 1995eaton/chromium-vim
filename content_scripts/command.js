@@ -374,9 +374,11 @@ Command.complete = function(value) {
     return;
   }
 
-  this.completions = { complete: this.descriptions.filter(function(element) {
-    return value === element[0].slice(0, value.length);
-  }) };
+  this.completions = {
+    complete: this.descriptions.filter(function(element) {
+      return value === element[0].slice(0, value.length);
+    })
+  };
   this.updateCompletions();
 };
 

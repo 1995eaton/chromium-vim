@@ -143,6 +143,9 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
     case "deleteBackWord":
       if (!insertMode && document.activeElement.isInput()) {
         Mappings.insertFunctions.deleteWord();
+        if (document.activeElement.id === "cVim-command-bar-input") {
+          Command.complete(Command.input.value);
+        }
       }
       break;
     case "getFilePath":
