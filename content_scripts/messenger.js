@@ -106,6 +106,8 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
     case "sendSettings":
       if (!Command.initialLoadStarted) {
         Command.configureSettings(request.settings);
+      } else {
+        settings = request.settings;
       }
       break;
     case "confirm":
