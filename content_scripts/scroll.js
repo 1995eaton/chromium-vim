@@ -77,13 +77,13 @@ Scroll.scroll = function(type, repeats) {
         Scroll.smoothScrollBy(0, repeats * window.innerHeight / 2);
         break;
       case "fullPageDown":
-        Scroll.smoothScrollBy(0, repeats * window.innerHeight);
+        Scroll.smoothScrollBy(0, repeats * window.innerHeight * 0.85);
         break;
       case "pageUp":
         Scroll.smoothScrollBy(0, -repeats * window.innerHeight / 2);
         break;
       case "fullPageUp":
-        Scroll.smoothScrollBy(0, -repeats * window.innerHeight);
+        Scroll.smoothScrollBy(0, -repeats * window.innerHeight * 0.85);
         break;
       case "top":
         Scroll.smoothScrollBy(0, -document.body.scrollTop - 10);
@@ -120,13 +120,13 @@ Scroll.scroll = function(type, repeats) {
         scrollBy(0, repeats * window.innerHeight / 2);
         break;
       case "fullPageDown":
-        scrollBy(0, repeats * window.innerHeight);
+        scrollBy(0, repeats * window.innerHeight * 0.85);
         break;
       case "pageUp":
         scrollBy(0, -repeats * window.innerHeight / 2);
         break;
       case "fullPageUp":
-        scrollBy(0, -repeats * window.innerHeight);
+        scrollBy(0, -repeats * window.innerHeight * 0.85);
         break;
       case "top":
         scrollTo(0, 0);
