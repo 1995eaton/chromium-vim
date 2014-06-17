@@ -190,33 +190,36 @@ Command.hideData = function() {
 };
 
 Command.descriptions = [
-  ["open",       "Open a link in the current tab"],
-  ["tabopen",    "Open a link in a new tab"],
-  ["winopen",    "Open a link in a new window"],
-  ["buffers",    "Select from a list of current tabs"],
-  ["history",    "Search through your browser history"],
-  ["bookmarks",  "Search through your bookmarks"],
-  ["file",       "Browse local directories"],
-  ["set",        "Configure Settings"],
-  ["tabhistory", "Open a tab from its history states"],
-  ["execute",    "Execute a sequence of keys"],
-  ["session",    "Open a saved session in a new window"],
-  ["mksession",  "Create a saved session of current tabs"],
-  ["delsession", "Delete sessions"],
-  ["chrome://",  "Opens Chrome urls"],
-  ["duplicate",  "Clone the current tab"],
-  ["settings",   "Open the options page for this extension"],
-  ["help",       "Shows the help page"],
-  ["changelog",  "Shows the changelog page"],
-  ["date",       "Display the current date"],
-  ["closetab",   "Close the current tab"],
-  ["stop",       "Stop the current page from loading"],
-  ["stopall",    "Stop all pages in Chrome from loading"],
-  ["undo",       "Reopen the last closed tab"],
-  ["togglepin",  "Toggle the tab's pinned state"],
-  ["nohl",       "Clears the search highlight"],
-  ["viewsource", "View the source for the current document"],
-  ["qmark",      "Add QuickMarks"]
+  ["open",         "Open a link in the current tab"],
+  ["tabnew",       "Open a link in a new tab"],
+  ["tabnext",      "Switch to the next open tab"],
+  ["tabprevious",  "Switch to the previous open tab"],
+  ["winopen",      "Open a link in a new window"],
+  ["buffers",      "Select from a list of current tabs"],
+  ["history",      "Search through your browser history"],
+  ["bookmarks",    "Search through your bookmarks"],
+  ["file",         "Browse local directories"],
+  ["set",          "Configure Settings"],
+  ["tabhistory",   "Open a tab from its history states"],
+  ["execute",      "Execute a sequence of keys"],
+  ["session",      "Open a saved session in a new window"],
+  ["mksession",    "Create a saved session of current tabs"],
+  ["delsession",   "Delete sessions"],
+  ["chrome://",    "Opens Chrome urls"],
+  ["duplicate",    "Clone the current tab"],
+  ["settings",     "Open the options page for this extension"],
+  ["help",         "Shows the help page"],
+  ["changelog",    "Shows the changelog page"],
+  ["date",         "Display the current date"],
+  ["quit",         "Close the current tab"],
+  ["qall",         "Close the current window"],
+  ["stop",         "Stop the current page from loading"],
+  ["stopall",      "Stop all pages in Chrome from loading"],
+  ["undo",         "Reopen the last closed tab"],
+  ["togglepin",    "Toggle the tab's pinned state"],
+  ["nohl",         "Clears the search highlight"],
+  ["viewsource",   "View the source for the current document"],
+  ["qmark",        "Add QuickMarks"]
 ];
 
 Command.deleteCompletions = function(completions) {
@@ -231,7 +234,7 @@ Command.complete = function(value) {
   this.typed = this.input.value;
   var search = value.replace(/^(chrome:\/\/|\S+ +)/, "");
 
-  if (/^(tabopen|to|open|o|wo|winopen)(\s+)/.test(value)) {
+  if (/^(tabnew|tabedit|tabe|tabopen|to|open|o|wo|winopen)(\s+)/.test(value)) {
 
     this.deleteCompletions("engines,bookmarks,complete,chrome,search");
     search = search.split(/ +/).compress();
@@ -387,10 +390,8 @@ Command.execute = function(value, repeats) {
     pinned: value !== (value = value.replace(/\*$/, ""))
   };
 
-  if (document.activeElement.id !== "cVim-command-bar-input" || !commandMode) {
-    this.hideData();
-    this.hide();
-  }
+  this.hideData();
+  this.hide();
 
   this.history.index = {};
 
@@ -432,9 +433,25 @@ Command.execute = function(value, repeats) {
     case "undo":
       chrome.runtime.sendMessage({action: "openLast"});
       break;
-    case "cl":
-    case "closetab":
+    case "tabnext":
+    case "tabn":
+      chrome.runtime.sendMessage({action: "nextTab"});
+      break;
+    case "tabprevious":
+    case "tabp":
+    case "tabN":
+      chrome.runtime.sendMessage({action: "previousTab"});
+      break;
+    case "tabprevious":
+      break;
+    case "q":
+    case "quit":
+    case "exit":
       chrome.runtime.sendMessage({action: "closeTab", repeats: repeats});
+      break;
+    case "qa":
+    case "qall":
+      chrome.runtime.sendMessage({action: "closeWindow"});
       break;
     default:
       if (/^chrome:\/\/\S+$/.test(value)) {
@@ -451,7 +468,7 @@ Command.execute = function(value, repeats) {
         chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: "file://" + value.replace(/\S+ +/, ""), noconvert: true});
       } else if (/^(winopen|wo)$/.test(value.replace(/ .*/, ""))) {
         chrome.runtime.sendMessage({action: "openLinkWindow", focused: tab.active, pinned: tab.pinned, url: Complete.convertToLink(value), repeats: repeats, noconvert: true});
-      } else if (/^(to|tabopen|tabhistory)$/.test(value.replace(/ .*/, ""))) {
+      } else if (/^(tabnew|tabedit|tabe|to|tabopen|tabhistory)$/.test(value.replace(/ .*/, ""))) {
         chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: Complete.convertToLink(value), repeats: repeats, noconvert: true});
       } else if (/^(o|open)$/.test(value.replace(/ .*/, ""))) {
         chrome.runtime.sendMessage({action: "openLink", active: tab.active, pinned: tab.pinned, url: Complete.convertToLink(value), noconvert: true});
@@ -556,8 +573,6 @@ Command.execute = function(value, repeats) {
         chrome.runtime.sendMessage({action: "updateMarks", marks: Marks.quickMarks});
       }
   }
-  this.hideData();
-  this.hide();
 };
 
 Command.show = function(search, value) {

@@ -96,9 +96,15 @@ actions.closeTab = function() {
     if (request.repeats > sortedIds.length - base) {
       base -= request.repeats - (sortedIds.length - base);
     }
-    if (base < 0) base = 0;
+    if (base < 0) {
+      base = 0;
+    }
     chrome.tabs.remove(sortedIds.slice(base, base + request.repeats));
   });
+};
+
+actions.closeWindow = function() {
+  chrome.windows.remove(sender.tab.windowId);
 };
 
 actions.openLastLinkInTab = function() {

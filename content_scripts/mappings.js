@@ -539,14 +539,14 @@ Mappings.actions = {
 };
 
 Mappings.shortCuts = [
-  ["a",  ":tabopen google "],
+  ["a",  ":tabnew google "],
   ["zr", ":chrome://restart&<CR>"],
   ["o",  ":open "],
   ["O",  ":open @%"],
   ["b",  ":bookmarks "],
-  ["t",  ":tabopen "],
+  ["t",  ":tabnew "],
   ["I",  ":history "],
-  ["T",  ":tabopen @%"],
+  ["T",  ":tabnew @%"],
   ["B",  ":buffers "],
   ["gd", ":chrome://downloads<cr>"],
   ["ge", ":chrome://extensions<cr>"]

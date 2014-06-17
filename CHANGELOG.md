@@ -1,5 +1,8 @@
 #cVim Changelog
 
+## 1.2.55
+ * In order to make cVim as "vim-like" as possible, some commands have been added, and others have changed (the old ones will continue to work). `:tabopen` is now `:tabnew` and `:closetab` is now `:quit`
+
 ## 1.2.54
  * The ```ignorediacritics``` option has been removed due to its large performance impact
  * Added the ```*``` modifier to the open group of commands (e.g. ```:tabopen http://www.google.com*``` will open Google in a pinned state)
