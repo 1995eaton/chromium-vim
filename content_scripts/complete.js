@@ -30,7 +30,7 @@ String.prototype.embedString = function(string) {
 
 var Complete = {};
 
-Complete.engines = ["google", "wikipedia", "youtube", "imdb", "amazon", "github", "xkcd", "wolframalpha", "google-image", "ebay", "webster", "wictionary", "urbandictionary", "duckduckgo", "answers", "google-trends", "google-finance", "yahoo", "bing"];
+Complete.engines = ["google", "wikipedia", "youtube", "imdb", "amazon", "google-maps", "github", "xkcd", "wolframalpha", "google-image", "ebay", "webster", "wictionary", "urbandictionary", "duckduckgo", "answers", "google-trends", "google-finance", "yahoo", "bing"];
 
 Complete.aliases = {
   g: "google"
@@ -49,6 +49,7 @@ Complete.requestUrls = {
   google:         "https://www.google.com/search?q=",
   github:         "https://github.com/search?q=",
   "google-image": "https://www.google.com/search?site=imghp&tbm=isch&source=hp&q=",
+  "google-maps":  "https://www.google.com/maps/search/",
   duckduckgo:     "https://duckduckgo.com/?q=",
   yahoo:          "https://search.yahoo.com/search?p=",
   xkcd:           "http://www.google.com/cse?cx=012652707207066138651%3Azudjtuwe28q&ie=UTF-8&q=regex&siteurl=xkcd.com%2F1380%2F&ref=xkcd.com%2F&ss=180137j23765520005j17&oq=regex&gs_l=partner.3.0.0.81229.260484.0.261975.7.6.0.1.1.0.199.624.4j2.6.0.gsnos%2Cn%3D13...0.180137j23765516231j17j3..1ac.1.25.partner..0.7.625.u1TFYzUl0S0#gsc.tab=0&gsc.q=",
@@ -71,6 +72,7 @@ Complete.baseUrls = {
   google:         "https://www.google.com",
   github:         "https://github.com/",
   "google-image": "http://www.google.com/imghp",
+  "google-maps":  "https://www.google.com/maps/preview",
   duckduckgo:     "https://duckduckgo.com",
   yahoo:          "https://search.yahoo.com",
   xkcd:           "http://xkcd.com",
@@ -123,6 +125,7 @@ Complete.apis = {
   wolframalpha:   "https://www.wolframalpha.com/input/autocomplete.jsp?qr=0&i=%s",
   ebay:           "https://autosug.ebay.com/autosug?kwd=%s",
   urbandictionary: "http://api.urbandictionary.com/v0/autocomplete?term=%s",
+  "google-maps":   "https://www.google.com/s?tbm=map&fp=1&gs_ri=maps&source=hp&suggest=p&authuser=0&hl=en&pf=p&tch=1&ech=2&q=%s",
   "google-trends": "http://www.google.com/trends/entitiesQuery?tn=10&q=%s",
   "google-finance": "https://www.google.com/finance/match?matchtype=matchall&q=%s",
   webster:          "http://www.merriam-webster.com/autocomplete?query=%s",
@@ -224,6 +227,27 @@ Complete.google = function(query, callback) {
       return e;
     }));
   });
+};
+
+Complete["google-maps"] = function(query, callback) {
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", this.apis["google-maps"].embedString(query));
+  xhr.onreadystatechange = function() {
+    if (this.readyState === 4 && this.status === 200) {
+      var data = JSON.parse(JSON.parse(JSON.stringify(this.responseText.replace(/\/\*[^\*]+\*\//g, "")))).d;
+      data = data.replace(/^[^,]+,/, "")
+                 .replace(/\n\][^\]]+\][^\]]+$/, "")
+                 .replace(/,+/g, ",")
+                 .replace(/\n/g, "")
+                 .replace(/\[,/g, "[");
+      data = JSON.parse(data);
+      data = data.map(function(e) {
+        return e[0][0][0];
+      });
+      callback(data);
+    }
+  };
+  xhr.send();
 };
 
 Complete["google-image"] = function(query, callback) {
