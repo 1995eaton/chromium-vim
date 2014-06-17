@@ -118,6 +118,7 @@ let blacklists = ["*://*/*.pdf <Up> <Down>"]
 | 0                         | scroll to the left of the page                                        | scrollToLeft                    |
 | $                         | scroll to the right of the page                                       | scrollToRight                   |
 | gi                        | go to first input box                                                 | goToInput                       |
+| gI                        | go to the last focused input box by `gi`                              | goToLastInput                   |
 | zz                        | center page to current search match (middle)                          | centerMatchH                    |
 | zt                        | center page to current search match (top)                             | centerMatchT                    |
 | zb                        | center page to current search match (bottom)                          | centerMatchB                    |

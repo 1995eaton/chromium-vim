@@ -419,6 +419,11 @@ Mappings.actions = {
       noconvert: true
     });
   },
+  goToLastInput: function() {
+    if (this.inputElements && this.inputElements[this.inputElementsIndex]) {
+      this.inputElements[this.inputElementsIndex].focus();
+    }
+  },
   goToInput: function(repeats) {
     this.inputElements = [];
     var allInput = document.querySelectorAll("input,textarea"),
@@ -573,6 +578,7 @@ Mappings.defaults = {
   hideDownloadsShelf:   ["gj"],
   createTabbedHint:     ["F"],
   goToInput:            ["gi"],
+  goToLastInput:        ["gI"],
   nextTab:              ["K", "R", "gt"],
   nextFrame:            ["gf"],
   rootFrame:            ["gF"],

@@ -92,7 +92,7 @@ Hints.dispatchAction = function(link) {
   switch (this.type) {
     case "yank":
     case "multiyank":
-      Clipboard.copy(link.href, this.multi);
+      Clipboard.copy(link.href || link.value || link.getAttribute("placeholder"), this.multi);
       break;
     case "image":
     case "multiimage":
@@ -354,7 +354,7 @@ Hints.getLinks = function() {
     name = node.localName.toLowerCase();
     if (Hints.type) {
       if (Hints.type.indexOf("yank") !== -1) {
-        return name === "a";
+        return name === "a" || name === "textarea" || name === "input";
       } else if (Hints.type.indexOf("image") !== -1) {
         return name === "img";
       }
