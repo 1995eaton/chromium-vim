@@ -22,9 +22,16 @@ Mappings.actions = {
     if (Find.matches.length) {
       Visual.focusSearchResult();
     } else {
-      Visual.selection.setPosition(Visual.closestNode(), 0);
-      HUD.display(" -- CARET -- ");
-      Visual.scrollIntoView();
+      var closestNode = Visual.closestNode();
+      if (closestNode) {
+        Visual.selection.setPosition(Visual.closestNode(), 0);
+        HUD.display(" -- CARET -- ");
+        Visual.scrollIntoView();
+      } else {
+        Visual.lineMode = false;
+        Visual.visualModeActive = false;
+        Visual.exit();
+      }
     }
   },
   toggleVisualLineMode: function() {
