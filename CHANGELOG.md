@@ -4,6 +4,7 @@
  * In order to make cVim as "vim-like" as possible, some commands have been added, and others have changed (the old ones will continue to work). `:tabopen` is now `:tabnew` and `:closetab` is now `:quit`
  * The `C-z` toggleCvim mapping is now `A-z` due to conflicts with the default undo-text Chrome shortcut.
  * Added `goToLastInput` command (`gI`)
+ * The yank-link hint mode binding has changed from `Y` to `gy`
  * Yank link hint mode will now copy text box values/placeholders in addition to link URLs.
 
 ## 1.2.54

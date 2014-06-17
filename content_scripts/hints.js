@@ -92,7 +92,11 @@ Hints.dispatchAction = function(link) {
   switch (this.type) {
     case "yank":
     case "multiyank":
-      Clipboard.copy(link.href || link.value || link.getAttribute("placeholder"), this.multi);
+      var text = link.href || link.value || link.getAttribute("placeholder");
+      if (text && this.type !== "multiyank") {
+        Clipboard.copy(text, this.multi);
+        Status.setMessage(text, 2);
+      }
       break;
     case "image":
     case "multiimage":

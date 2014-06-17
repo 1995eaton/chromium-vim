@@ -132,7 +132,7 @@ let blacklists = ["*://*/*.pdf <Up> <Down>"]
 | mf                        | open multiple links                                                   | createMultiHint                 |
 | mr                        | reverse image search multiple links                                   | multiReverseImage               |
 | my                        | yank multiple links (open the list of links with P)                   | multiYankUrl                    |
-| Y                         | copy url from link to clipboard                                       | yankUrl                         |
+| gy                        | copy url from link to clipboard                                       | yankUrl                         |
 | gr                        | reverse image search (google images)                                  | reverseImage                    |
 | ;                         | change the link hint focus                                            |                                 |
 | **QuickMarks**            |                                                                       |                                 |

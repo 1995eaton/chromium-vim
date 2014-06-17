@@ -329,7 +329,7 @@ Mappings.actions = {
   },
   yankDocumentUrl: function() {
     Clipboard.copy(document.URL);
-    Status.setMessage("URL yanked to clipboard: " + document.URL, 2);
+    Status.setMessage(document.URL, 2);
   },
   openPaste: function() {
     Clipboard.paste(false);
@@ -598,7 +598,7 @@ Mappings.defaults = {
   goToSource:           ["gs"],
   goToRootUrl:          ["gU"],
   goUpUrl:              ["gu"],
-  yankUrl:              ["Y"],
+  yankUrl:              ["gy"],
   multiYankUrl:         ["my"],
   yankDocumentUrl:      ["yy"],
   openPaste:            ["p"],
