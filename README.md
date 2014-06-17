@@ -59,7 +59,7 @@ let blacklists = ["https://mail.google.com/*", "*://*.reddit.com/*"]
 " Mappings
 
 map j scrollUp "This remaps the default 'j' mapping
-map gb :buffers<Space> "You can use <Space>, which is interpreted as a literal " " character, to enter buffer completion mode
+map gb :buffer<Space> "You can use <Space>, which is interpreted as a literal " " character, to enter buffer completion mode
 unmap k "The unmaps the default 'k' mapping
 
 map f F "This remaps the default 'f' mapping to the current 'F' mapping
@@ -181,7 +181,7 @@ let blacklists = ["*://*/*.pdf <Up> <Down>"]
 | &lt;N&gt;%                | switch to tab &lt;N&gt;                                               | goToTab                         |
 | H, S                      | go back                                                               | goBack                          |
 | L, D                      | go forward                                                            | goForward                       |
-| B                         | search for another active tab                                         | :buffers                        |
+| B                         | search for another active tab                                         | :buffer                         |
 | &lt;                      | move current tab left                                                 | moveTabLeft                     |
 | &gt;                      | move current tab right                                                | moveTabRight                    |
 | ]]                        | click the "next" link on the page (see nextmatchpattern above)        | nextMatchPattern                |
@@ -231,7 +231,7 @@ let blacklists = ["*://*/*.pdf <Up> <Down>"]
 | :settings                                   | open the settings page                                                                 |
 | :nohl                                       | clear the highlighted text from the last search                                        |
 | :execute                                    | execute a sequence of keys (Useful for mappings. For example, "map j :execute 2j<CR>") |
-| :buffers (autocomplete)                     | change to a different tab                                                              |
+| :buffer (autocomplete)                      | change to a different tab                                                              |
 | :mksession                                  | create a new session from the current tabs in the active window                        |
 | :delsession (autocomplete)                  | delete a saved session                                                                 |
 | :session (autocomplete)                     | open the tabs from a saved session in a new window                                     |
