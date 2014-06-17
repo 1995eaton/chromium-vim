@@ -22,6 +22,9 @@ Command.setup = function() {
   this.bar.appendChild(this.modeIdentifier);
   this.bar.appendChild(this.input);
   this.bar.spellcheck = false;
+  this.input.addEventListener("blur", function() { // Possible fix for #43
+    Command.hide.call(Command);
+  });
   try {
     document.lastChild.appendChild(this.bar);
     document.lastChild.appendChild(this.statusBar);

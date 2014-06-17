@@ -58,7 +58,6 @@ Scroll.smoothScrollBy = function(x, y) {
 
 Scroll.scroll = function(type, repeats) {
 
-  log(settings.fullpagescrollpercent);
   var stepSize = settings ? settings.scrollstep : 60;
   
   if (document.body) {
