@@ -365,7 +365,7 @@ Complete.urbandictionary = function(query, callback) {
 
 Complete.imdb = function(query, callback) {
   var xhr = new XMLHttpRequest();
-  xhr.open("GET", this.apis.imdb + query[0] + "/" + query.replace(" ", "_") + ".json");
+  xhr.open("GET", this.apis.imdb + query[0] + "/" + query.replace(/ /g, "_") + ".json");
   xhr.onreadystatechange = function() {
     if (this.readyState === 4 && this.status === 200 && document.activeElement.id === "cVim-command-bar-input" && commandMode) {
       var _ret = JSON.parse(xhr.responseText.replace(/^[^\(]+\(|\)$/g, ""));
