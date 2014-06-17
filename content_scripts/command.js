@@ -195,7 +195,7 @@ Command.descriptions = [
   ["tabnext",      "Switch to the next open tab"],
   ["tabprevious",  "Switch to the previous open tab"],
   ["winopen",      "Open a link in a new window"],
-  ["buffers",      "Select from a list of current tabs"],
+  ["buffer",      "Select from a list of current tabs"],
   ["history",      "Search through your browser history"],
   ["bookmarks",    "Search through your bookmarks"],
   ["file",         "Browse local directories"],
@@ -312,9 +312,9 @@ Command.complete = function(value) {
     return;
   }
 
-  if (/^buffers(\s+)/.test(value)) {
+  if (/^buffer(\s+)/.test(value)) {
     search = value.replace(/^\S+\s+/, "");
-    port.postMessage({action: "getBuffers"});
+    port.postMessage({action: "getBuffer"});
     return;
   }
 
@@ -535,14 +535,14 @@ Command.execute = function(value, repeats) {
     });
   }
 
-  if (/^buffers +/.test(value)) {
+  if (/^buffer +/.test(value)) {
     if (Command.completionResults[0]) {
       return chrome.runtime.sendMessage({
         action: "goToTab",
         index: Command.completionResults[0][1][0]
       });
     }
-    if (/^buffers +[0-9]+ *$/.test(value)) {
+    if (/^buffer +[0-9]+ *$/.test(value)) {
       chrome.runtime.sendMessage({
         action: "goToTab",
         index: +value.replace(/^\S+\s+/, "")
