@@ -194,7 +194,7 @@ Command.descriptions = [
   ["tabnew",       "Open a link in a new tab"],
   ["tabnext",      "Switch to the next open tab"],
   ["tabprevious",  "Switch to the previous open tab"],
-  ["winopen",      "Open a link in a new window"],
+  ["new",      "Open a link in a new window"],
   ["buffer",      "Select from a list of current tabs"],
   ["history",      "Search through your browser history"],
   ["bookmarks",    "Search through your bookmarks"],
@@ -234,7 +234,7 @@ Command.complete = function(value) {
   this.typed = this.input.value;
   var search = value.replace(/^(chrome:\/\/|\S+ +)/, "");
 
-  if (/^(tabnew|tabedit|tabe|tabopen|to|open|o|wo|winopen)(\s+)/.test(value)) {
+  if (/^(tabnew|tabedit|tabe|tabopen|to|open|o|wo|new|winopen)(\s+)/.test(value)) {
 
     this.deleteCompletions("engines,bookmarks,complete,chrome,search");
     search = search.split(/ +/).compress();
@@ -502,7 +502,7 @@ Command.execute = function(value, repeats) {
     });
   }
 
-  if (/^(winopen|wo)$/.test(value.replace(/ .*/, ""))) {
+  if (/^(new|winopen|wo)$/.test(value.replace(/ .*/, ""))) {
     return chrome.runtime.sendMessage({
       action: "openLinkWindow",
       focused: tab.active,

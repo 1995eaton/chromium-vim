@@ -221,7 +221,8 @@ let blacklists = ["*://*/*.pdf <Up> <Down>"]
 
 | Command                                     | Description                                                                            |
 | ------------------------------------------- | -------------------------------------------------------------------------------------- |
-| :tabnew (autocomplete)                      | open a new tab with the typed/completed url/google search                              |
+| :tabnew (autocomplete)                      | open a new tab with the typed/completed search                                         |
+| :new (autocomplete)                         | open a new window with the typed/completed search                                      |
 | :open (autocomplete)                        | open the typed/completed url/google search                                             |
 | :history (autocomplete)                     | search through browser history                                                         |
 | :bookmarks (autocomplete)                   | search through bookmarks                                                               |
