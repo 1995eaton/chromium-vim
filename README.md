@@ -174,6 +174,8 @@ let blacklists = ["*://*/*.pdf <Up> <Down>"]
 | gt, K, R                  | navigate to the next tab                                              | nextTab                         |
 | gT, J, E                  | navigate to the previous tab                                          | previousTab                     |
 | g0, g$                    | go to the first/last tab                                              | firstTab, lastTab               |
+| &lt;C-S-h&gt;, gh         | open the last URL in the current tab's history in a new tab           | openLastLinkInTab               |
+| &lt;C-S-l&gt;, gl         | open the next URL from the current tab's history in a new tab         | openNextLinkInTab               |
 | x                         | close the current tab                                                 | quit                            |
 | X                         | open the last closed tab                                              | lastClosedTab                   |
 | t                         | :tabnew                                                               | :tabnew                         |
@@ -225,6 +227,7 @@ let blacklists = ["*://*/*.pdf <Up> <Down>"]
 | :bookmarks /&lt;folder&gt; (autocomplete)   | browse bookmarks by folder/open all bookmarks from folder                              |
 | :set (autocomplete)                         | temporarily change a cVim setting                                                      |
 | :chrome:// (autocomplete)                   | open a chrome:// url                                                                   |
+| :tabhistory (autocomplete)                  | browse the different history states of the current tab                                 |
 | :quit                                       | close the current tab                                                                  |
 | :date                                       | display the current date                                                               |
 | :file (autocomplete) [expirimental]         | open a local file                                                                      |
