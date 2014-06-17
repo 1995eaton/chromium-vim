@@ -1,9 +1,6 @@
-var addListeners, removeListeners;
-var insertMode, commandMode, settings;
-
+var addListeners, removeListeners, insertMode, commandMode, settings;
 var Key = {};
 
-Key.numberMap = ")!@#$%^&*(";
 Key.keyMap = {
   0:   "\\",
   8:   "BS",
@@ -25,6 +22,16 @@ Key.keyMap = {
   44:  "Print",
   45:  "Insert",
   46:  "Delete",
+  48:  ["0", ")"],
+  49:  ["1", "!"],
+  50:  ["2", "@"],
+  51:  ["3", "#"],
+  52:  ["4", "$"],
+  53:  ["5", "%"],
+  54:  ["6", "^"],
+  55:  ["7", "&"],
+  56:  ["8", "*"],
+  57:  ["9", "("],
   96:  "0",
   97:  "1",
   98:  "2",
@@ -53,78 +60,58 @@ Key.keyMap = {
   222: ["'", "\""]
 };
 
-for (var i = 112; i < 123; ++i) {
-  Key.keyMap[i] = "F" + (i - 111).toString();
-}
-
-Key.fromKeyCode = function(e) {
-  var keyCode  = e.which;
-  var shiftKey = e.shiftKey;
-  this.shiftKey = e.shiftKey;
-  var convertedKey;
-  if (this.keyMap.hasOwnProperty(keyCode.toString())) {
-    convertedKey = this.keyMap[keyCode.toString()];
-    if (Array.isArray(convertedKey)) {
-      if (!e.ctrlKey && !e.altKey && !e.metaKey) {
-        convertedKey = convertedKey[+shiftKey];
-      } else {
-        convertedKey = (shiftKey ? "S-" : "") + convertedKey[0];
+Key.fromKeyCode = function(event) {
+  var key, map;
+  var modifiers = [
+    event.ctrlKey  ? "C" : "",
+    event.altKey   ? "A" : "",
+    event.metaKey  ? "M" : "",
+    event.shiftKey ? "S" : ""
+  ];
+  var hasModifier = event.ctrlKey || event.altKey || event.metaKey;
+  if (this.keyMap.hasOwnProperty(event.which.toString())) {
+    map = this.keyMap[event.which.toString()];
+    if (Array.isArray(map)) {
+      if (!hasModifier) {
+        modifiers.splice(modifiers.indexOf("S"), 1);
       }
-    } else if (shiftKey) {
-      convertedKey = "S-" + convertedKey;
-    }
-  } else {
-    if (keyCode >= 48 && keyCode <= 57) {
-      if (shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
-        convertedKey = this.numberMap[keyCode - 48];
-      } else {
-        convertedKey = String.fromCharCode(keyCode);
-      }
+      key = map[+(event.shiftKey && !hasModifier)];
     } else {
-      if (shiftKey) {
-        convertedKey = String.fromCharCode(keyCode);
-      } else {
-        convertedKey = String.fromCharCode(keyCode).toLowerCase();
-      }
+      key = map;
+    }
+  } else if (/^F[0-9]+$/.test(event.keyIdentifier)) {
+    key = event.keyIdentifier;
+  } else {
+    key = String.fromCharCode(event.which).toLowerCase();
+    if (event.shiftKey && !hasModifier) {
+      key = key.toUpperCase();
     }
   }
-
-  var modifier = "";
-  if (e.ctrlKey) {
-    modifier += "-C";
+  modifiers = modifiers.compress();
+  if (modifiers.length && hasModifier) {
+    return "<" + modifiers.join("-") + "-" + key + ">";
   }
-  if (e.altKey) {
-    modifier += "-A";
+  if (typeof this.keyMap[event.which.toString()] === "string") {
+    return "<" + (event.shiftKey ? "S-" : "") + key + ">";
   }
-  if (e.metaKey) {
-    modifier += "-M";
-  }
-
-  if (modifier) {
-    modifier = modifier.replace(/^-/, "");
-    convertedKey = "<" + modifier + "-" +
-      ((shiftKey && !this.keyMap.hasOwnProperty(keyCode)) ?
-       "S-" : "") +
-      (!this.keyMap.hasOwnProperty(keyCode) ? convertedKey.toLowerCase() : convertedKey) + ">";
-  }
-
-  if (convertedKey.indexOf("S-") !== -1 || (!modifier && keyCode <= 40 && this.keyMap.hasOwnProperty(keyCode))) {
-    convertedKey = "<" + convertedKey + ">";
-  }
-  return convertedKey.replace("<<", "<").replace(">>", ">");
+  return key;
 };
 
 Key.down = function(e) {
 
+  var asciiKey, escapeKey, validMapping, isInput;
+
   if (Hints.active) {
     e.stopPropagation();
     if (e.which === 18) {
-      return Hints.changeFocus();
+      Hints.changeFocus();
     } else if (e.which === 191) {
       e.preventDefault();
-      return document.getElementById("cVim-link-container").style.opacity = "0";
+      document.getElementById("cVim-link-container").style.opacity = "0";
     }
+    return;
   }
+
   if (Hints.keyDelay) {
     e.stopPropagation();
     return e.preventDefault();
@@ -143,15 +130,13 @@ Key.down = function(e) {
     e.stopPropagation();
   }
 
-  var asciiKey = Key.fromKeyCode(e);
+  asciiKey = Key.fromKeyCode(e);
 
   if (!asciiKey) {
     return false;
   }
 
-  var keyType = {
-    escape: /^<(Esc|C-\[)>$/.test(asciiKey)
-  };
+  escapeKey = /^<(Esc|C-\[)>$/.test(asciiKey);
 
   if (Visual.caretModeActive || Visual.visualModeActive) {
     e.stopPropagation();
@@ -159,7 +144,7 @@ Key.down = function(e) {
     if (e.which === 8) {
       e.preventDefault();
     }
-    if (keyType.escape) {
+    if (escapeKey) {
       Visual.lineMode = false;
       if (Visual.visualModeActive === false) {
         return Visual.exit();
@@ -171,9 +156,10 @@ Key.down = function(e) {
     return Visual.action(asciiKey.replace(/^<BS>$/, "h").replace(/^<Space>$/, "l"));
   }
 
-  if (keyType.escape) {
+  if (escapeKey) {
     return Mappings.handleEscapeKey();
   }
+
   if (insertMode) {
     return false;
   }
@@ -192,7 +178,7 @@ Key.down = function(e) {
     return;
   }
 
-  var isInput = document.activeElement && document.activeElement.isInput();
+  isInput = document.activeElement && document.activeElement.isInput();
 
   if (!isInput) {
     if (Mappings.convertToAction(asciiKey)) {
@@ -201,7 +187,7 @@ Key.down = function(e) {
     }
   }
 
-  var validMapping = Mappings.isValidMapping(asciiKey);
+  validMapping = Mappings.isValidMapping(asciiKey);
   if (!isInput && e.which > 40 && e.which !== 91 && e.which !== 123 && e.which !== 191) { // Let sites use their own JavaScript listeners if
     if ((Mappings.queue.length && Mappings.validMatch) || validMapping) {                 // cVim isn't using the key
       e.stopPropagation();
@@ -211,21 +197,9 @@ Key.down = function(e) {
     }
   }
 
-  if (settings && settings.insertmappings && document.activeElement && document.activeElement.isInput() && !keyType.escape && asciiKey !== "" && !(settings.cncpcompletion && asciiKey === "<C-p>" && document.activeElement.id === "cVim-command-bar-input")) { // Handle textbox shortcuts
-    Mappings.insertCommand(asciiKey, function() {
-      e.preventDefault();
-      if (document.activeElement.id === "cVim-command-bar-input" && Command.type !== "search") {
-        window.setTimeout(function() {
-          Command.complete(Command.input.value);
-        }, 0);
-      }
-    });
-  }
 
   if (commandMode && document.activeElement.id === "cVim-command-bar-input") {
-
     switch (asciiKey) {
-
       case "<Tab>": // Tab navigation/completion
       case "<S-Tab>":
         if (Command.type === "action") {
@@ -238,7 +212,7 @@ Key.down = function(e) {
           e.preventDefault();
           Mappings.actions.previousCompletionResult();
         }
-        break;
+        return;
 
       case "<Up>": // Command history navigation/search
       case "<Down>":
@@ -251,32 +225,46 @@ Key.down = function(e) {
         e.preventDefault();
         document.activeElement.blur();
 
-        if (!(Command.history[Command.type].length > 0 && Command.history[Command.type].slice(-1)[0] === Command.input.value)) { // Push the executed command to history
+        if (!(Command.history[Command.type].length > 0 && Command.history[Command.type].slice(-1)[0] === Command.input.value)) {
           Command.history[Command.type].push(Command.input.value);
-          chrome.runtime.sendMessage({action: "appendHistory", value: Command.input.value, type: Command.type});
+          chrome.runtime.sendMessage({
+            action: "appendHistory",
+            value: Command.input.value,
+            type: Command.type
+          });
         }
 
         if (Command.type === "action") {
-          Command.execute(Command.input.value + (e.ctrlKey ? "&" : ""), 1);
+          var inputValue = Command.input.value + (e.ctrlKey ? "&":"");
+          Command.hide(function() {
+            Command.execute(inputValue, 1);
+          });
           break;
         }
 
-        if (Command.input.value !== "" && (Command.input.value !== Find.lastSearch || !Find.matches.length)) {
-          Find.clear();
-          Find.highlight({ base: document.body,
-                           search: Command.input.value,
-                           setIndex: true,
-                           executeSearch: false,
-                           reverse: asciiKey === "<C-Enter>",
-                           saveSearch: true });
+        if (Command.input.value) {
+          if (Command.input.value !== Find.lastSearch || !Find.matches.length) {
+            Find.clear();
+            Find.highlight({
+              base: document.body,
+              search: Command.input.value,
+              setIndex: true,
+              executeSearch: false,
+              reverse: asciiKey === "<C-Enter>",
+              saveSearch: true
+            });
+          }
         }
+
         Command.hide();
         Find.index = Command.modeIdentifier.textContent === "/" ? -1 : 1;
         Find.setIndex();
         Find.search(Command.modeIdentifier.textContent === "?", 1, true);
-        chrome.runtime.sendMessage({action: "updateLastSearch", value: Find.lastSearch});
+        chrome.runtime.sendMessage({
+          action: "updateLastSearch",
+          value: Find.lastSearch
+        });
         break;
-
       default:
         if (asciiKey === "<BS>" && Command.input.value.length === 0) {
           Command.hide();
@@ -286,19 +274,34 @@ Key.down = function(e) {
         setTimeout(function() {
           Command.history.reset = true;
           if (Command.type === "action") {
-            Command.complete(Command.input.value);
-          } else if ((settings.incsearch && (Command.input.value !== Find.lastSearch || !Find.highlights.length)) && Command.input.value.length > 2) {
-            Find.clear();
-            Find.highlight({ base: document.body,
-                             search: Command.input.value});
-            Find.index = Command.modeIdentifier.textContent === "/" ? -1 : 1;
-            Find.setIndex();
-            Find.search(Command.modeIdentifier.textContent === "?", 1, true);
+            return Command.complete(Command.input.value);
+          }
+          if (Command.input.value.length > 2) {
+            if (settings.incsearch && (Command.input.value !== Find.lastSearch || !Find.highlights.length)) {
+              Find.clear();
+              Find.highlight({
+                base: document.body,
+                search: Command.input.value
+              });
+              Find.index = Command.modeIdentifier.textContent === "/" ? -1 : 1;
+              Find.setIndex();
+              Find.search(Command.modeIdentifier.textContent === "?", 1, true);
+            }
           }
         }, 0);
         break;
     }
+  }
 
+  if (settings.insertmappings && isInput) {
+    Mappings.insertCommand(asciiKey, function() {
+      e.preventDefault();
+      if (document.activeElement.id === "cVim-command-bar-input" && Command.type !== "search") {
+        window.setTimeout(function() {
+          Command.complete(Command.input.value);
+        }, 0);
+      }
+    });
   }
 
 };

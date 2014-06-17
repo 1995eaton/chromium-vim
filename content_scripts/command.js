@@ -390,189 +390,278 @@ Command.execute = function(value, repeats) {
     pinned: value !== (value = value.replace(/\*$/, ""))
   };
 
-  this.hide(function() {
+  this.history.index = {};
 
-    this.history.index = {};
+  switch (value) {
+    case "nohl":
+      Find.clear();
+      HUD.hide();
+      break;
+    case "duplicate":
+      chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: document.URL, repeats: repeats});
+      break;
+    case "settings":
+      chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: chrome.extension.getURL("/pages/options.html"), repeats: repeats});
+      break;
+    case "changelog":
+      chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: chrome.extension.getURL("/pages/changelog.html"), repeats: repeats});
+      break;
+    case "date":
+      var date = new Date();
+      var weekDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      Status.setMessage(weekDays[date.getDay()] + ", " + months[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear(), 2);
+      break;
+    case "help":
+      chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: chrome.extension.getURL("/pages/mappings.html")});
+      break;
+    case "stop":
+      window.stop();
+      break;
+    case "stopall":
+      chrome.runtime.sendMessage({action: "cancelAllWebRequests"});
+      break;
+    case "viewsource":
+      chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: "view-source:" + document.URL, noconvert: true});
+      break;
+    case "togglepin":
+      chrome.runtime.sendMessage({action: "pinTab"});
+      break;
+    case "undo":
+      chrome.runtime.sendMessage({action: "openLast"});
+      break;
+    case "tabnext":
+    case "tabn":
+      chrome.runtime.sendMessage({action: "nextTab"});
+      break;
+    case "tabprevious":
+    case "tabp":
+    case "tabN":
+      chrome.runtime.sendMessage({action: "previousTab"});
+      break;
+    case "tabprevious":
+      break;
+    case "q":
+    case "quit":
+    case "exit":
+      chrome.runtime.sendMessage({action: "closeTab", repeats: repeats});
+      break;
+    case "qa":
+    case "qall":
+      chrome.runtime.sendMessage({action: "closeWindow"});
+      break;
+    default:
+      break;
+  }
 
-    switch (value) {
-      case "nohl":
-        Find.clear();
-        HUD.hide();
-        break;
-      case "duplicate":
-        chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: document.URL, repeats: repeats});
-        break;
-      case "settings":
-        chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: chrome.extension.getURL("/pages/options.html"), repeats: repeats});
-        break;
-      case "changelog":
-        chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: chrome.extension.getURL("/pages/changelog.html"), repeats: repeats});
-        break;
-      case "date":
-        var date = new Date();
-        var weekDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-        var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        Status.setMessage(weekDays[date.getDay()] + ", " + months[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear(), 2);
-        break;
-      case "help":
-        chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: chrome.extension.getURL("/pages/mappings.html")});
-        break;
-      case "stop":
-        window.stop();
-        break;
-      case "stopall":
-        chrome.runtime.sendMessage({action: "cancelAllWebRequests"});
-        break;
-      case "viewsource":
-        chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: "view-source:" + document.URL, noconvert: true});
-        break;
-      case "togglepin":
-        chrome.runtime.sendMessage({action: "pinTab"});
-        break;
-      case "undo":
-        chrome.runtime.sendMessage({action: "openLast"});
-        break;
-      case "tabnext":
-      case "tabn":
-        chrome.runtime.sendMessage({action: "nextTab"});
-        break;
-      case "tabprevious":
-      case "tabp":
-      case "tabN":
-        chrome.runtime.sendMessage({action: "previousTab"});
-        break;
-      case "tabprevious":
-        break;
-      case "q":
-      case "quit":
-      case "exit":
-        chrome.runtime.sendMessage({action: "closeTab", repeats: repeats});
-        break;
-      case "qa":
-      case "qall":
-        chrome.runtime.sendMessage({action: "closeWindow"});
-        break;
-      default:
-        if (/^chrome:\/\/\S+$/.test(value)) {
-          chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: value, noconvert: true});
-        } else if (/^bookmarks +/.test(value) && value !== "bookmarks") {
-          if (/^\S+\s+\//.test(value)) {
-            chrome.runtime.sendMessage({action: "openBookmarkFolder", active: tab.active, pinned: tab.pinned, path: value.replace(/\S+\s+/, ""), noconvert: true});
-          } else {
-            chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: value.replace(/^b(ook)?marks(\s+)?/, ""), noconvert: true});
-          }
-        } else if (/^history +/.test(value)) {
-          chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: Complete.convertToLink(value), noconvert: true});
-        } else if (/^file +/.test(value)) {
-          chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: "file://" + value.replace(/\S+ +/, ""), noconvert: true});
-        } else if (/^(winopen|wo)$/.test(value.replace(/ .*/, ""))) {
-          chrome.runtime.sendMessage({action: "openLinkWindow", focused: tab.active, pinned: tab.pinned, url: Complete.convertToLink(value), repeats: repeats, noconvert: true});
-        } else if (/^(tabnew|tabedit|tabe|to|tabopen|tabhistory)$/.test(value.replace(/ .*/, ""))) {
-          chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: Complete.convertToLink(value), repeats: repeats, noconvert: true});
-        } else if (/^(o|open)$/.test(value.replace(/ .*/, ""))) {
-          chrome.runtime.sendMessage({action: "openLink", active: tab.active, pinned: tab.pinned, url: Complete.convertToLink(value), noconvert: true});
-        } else if (/^buffers +/.test(value)) {
-          if (Command.completionResults[0]) {
-            chrome.runtime.sendMessage({action: "goToTab", index: Command.completionResults[0][1][0]});
-          } else if (/^buffers +[0-9]+ *$/.test(value)) {
-            chrome.runtime.sendMessage({action: "goToTab", index: +value.replace(/^\S+\s+/, "")});
-          }
-        } else if (/^execute +/.test(value)) {
-          var command = value.replace(/^\S+/, "").trim();
-          realKeys = "";
-          repeats = "";
-          Command.hideData();
-          Command.hide();
-          Mappings.executeSequence(command);
-          return;
-        } else if (/^delsession/.test(value)) {
-          value = value.replace(/^\S+(\s+)?/, "").trimAround();
-          if (value === "") {
-            Status.setMessage("argument required", 1, "error");
-            break;
-          }
-          if (sessions.indexOf(value) !== -1) {
-            sessions.splice(sessions.indexOf(value), 1);
-          }
-          value.split(" ").forEach(function(v) {
-            chrome.runtime.sendMessage({action: "deleteSession", name: v});
-          });
-          port.postMessage({action: "getSessionNames"});
-        } else if (/^mksession/.test(value)) {
-          value = value.replace(/^\S+(\s+)?/, "").trimAround();
-          if (value === "") {
-            Status.setMessage("session name required", 1, "error");
-            break;
-          } else if (/[^a-zA-Z0-9_-]/.test(value)) {
-            Status.setMessage("only alphanumeric characters, dashes, and underscores are allowed", 1, "error");
-            break;
-          }
-          if (sessions.indexOf(value) === -1) {
-            sessions.push(value);
-          }
-          chrome.runtime.sendMessage({action: "createSession", name: value});
-        } else if (/^session/.test(value)) {
-          value = value.replace(/^\S+(\s+)?/, "").trimAround();
-          if (value === "") {
-            Status.setMessage("session name required", 1, "error");
-            break;
-          }
-          chrome.runtime.sendMessage({action: "openSession", name: value, sameWindow: !tab.active}, function() {
-            Status.setMessage("session does not exist", 1, "error");
-          });
-        } else if (/^set +/.test(value) && value !== "set") {
-          value = value.replace(/^set +/, "").split(/[ =]+/);
-          var isSet, swapVal;
-          var isQuery = /\?$/.test(value[0]);
-          value[0] = value[0].replace(/\?$/, "");
-          if (!settings.hasOwnProperty(value[0].replace(/^no|!$/g, ""))) {
-            Status.setMessage("unknown option: " + value[0], 1, "error");
-          } else if (isQuery) {
-            Status.setMessage(value + ": " + settings[value[0]], 1);
-          } else {
-            isSet = !/^no/.test(value[0]);
-            swapVal = /!$/.test(value[0]);
-            value[0] = value[0].replace(/^no|[?!]$/g, "");
-            if (value.length === 1 && Boolean(settings[value]) === settings[value]) {
-              if (value[0] === "hud" && !isSet) {
-                HUD.hide(true);
-              }
-              if (swapVal) {
-                settings[value[0]] = !settings[value[0]];
-              } else {
-                settings[value[0]] = isSet;
-              }
-            }
-          }
-        } else if (/^qmark\s+/.test(value)) {
-          value = value.replace(/\S+\s+/, "").split(/\s+/).compress();
-          if (value.length !== 2) {
-            Status.setMessage("two arguments are required", 1, "error");
-          } else if (value[0].length !== 1) {
-            Status.setMessage("argument must be an ASCI letter or digit", 1, "error");
-          } else {
-            if (Marks.quickMarks.hasOwnProperty(value[0])) {
-              if (Marks.quickMarks[value[0]].indexOf(value[1]) !== -1) {
-                Marks.quickMarks[value[0]].splice(Marks.quickMarks[value[0]].indexOf(value[1]), 1);
-                if (Marks.quickMarks[value[0]].length === 0) {
-                  Status.setMessage("QuickMark \"" + value[0] + "\" removed", 1);
-                  delete Marks.quickMarks[value[0]];
-                } else {
-                  Status.setMessage("URL removed from existing QuickMark \"" + value[0] + "\"", 1);
-                }
-              } else {
-                Status.setMessage("URL added to existing QuickMark \"" + value[0] + "\"", 1);
-                Marks.quickMarks[value[0]].push(value[1]);
-              }
-            } else {
-              Status.setMessage("New QuickMark \"" + value[0] + "\" added", 1);
-              Marks.quickMarks[value[0]] = [value[1]];
-            }
-          }
-          chrome.runtime.sendMessage({action: "updateMarks", marks: Marks.quickMarks});
-        }
+  if (/^chrome:\/\/\S+$/.test(value)) {
+    return chrome.runtime.sendMessage({
+      action: "openLinkTab",
+      active: tab.active,
+      pinned: tab.pinned,
+      url: value,
+      noconvert: true
+    });
+  }
+
+  if (/^bookmarks +/.test(value) && value !== "bookmarks") {
+    if (/^\S+\s+\//.test(value)) {
+      return chrome.runtime.sendMessage({
+        action: "openBookmarkFolder",
+        active: tab.active,
+        pinned: tab.pinned,
+        path: value.replace(/\S+\s+/, ""),
+        noconvert: true
+      });
     }
-  }.bind(this));
+    return chrome.runtime.sendMessage({
+      action: "openLinkTab",
+      active: tab.active,
+      pinned: tab.pinned,
+      url: value.replace(/^b(ook)?marks(\s+)?/, ""),
+      noconvert: true
+    });
+  }
+
+  if (/^history +/.test(value)) {
+    return chrome.runtime.sendMessage({
+      action: "openLinkTab",
+      active: tab.active,
+      pinned: tab.pinned,
+      url: Complete.convertToLink(value),
+      noconvert: true
+    });
+  }
+
+  if (/^file +/.test(value)) {
+    return chrome.runtime.sendMessage({
+      action: "openLinkTab",
+      active: tab.active,
+      pinned: tab.pinned,
+      url: "file://" + value.replace(/\S+ +/, ""),
+      noconvert: true
+    });
+  }
+
+  if (/^(winopen|wo)$/.test(value.replace(/ .*/, ""))) {
+    return chrome.runtime.sendMessage({
+      action: "openLinkWindow",
+      focused: tab.active,
+      pinned: tab.pinned,
+      url: Complete.convertToLink(value),
+      repeats: repeats,
+      noconvert: true
+    });
+  }
+
+  if (/^(tabnew|tabedit|tabe|to|tabopen|tabhistory)$/.test(value.replace(/ .*/, ""))) {
+    return chrome.runtime.sendMessage({
+      action: "openLinkTab",
+      active: tab.active,
+      pinned: tab.pinned,
+      url: Complete.convertToLink(value),
+      repeats: repeats,
+      noconvert: true
+    });
+  }
+
+  if (/^(o|open)$/.test(value.replace(/ .*/, ""))) {
+    return chrome.runtime.sendMessage({
+      action: "openLink",
+      active: tab.active,
+      pinned: tab.pinned,
+      url: Complete.convertToLink(value),
+      noconvert: true
+    });
+  }
+
+  if (/^buffers +/.test(value)) {
+    if (Command.completionResults[0]) {
+      return chrome.runtime.sendMessage({
+        action: "goToTab",
+        index: Command.completionResults[0][1][0]
+      });
+    }
+    if (/^buffers +[0-9]+ *$/.test(value)) {
+      chrome.runtime.sendMessage({
+        action: "goToTab",
+        index: +value.replace(/^\S+\s+/, "")
+      });
+    }
+    return;
+  }
+
+  if (/^execute +/.test(value)) {
+    var command = value.replace(/^\S+/, "").trim();
+    realKeys = "";
+    repeats = "";
+    Command.hide();
+    return Mappings.executeSequence(command);
+  }
+
+  if (/^delsession/.test(value)) {
+    value = value.replace(/^\S+(\s+)?/, "").trimAround();
+    if (value === "") {
+      return Status.setMessage("argument required", 1, "error");
+    }
+    if (sessions.indexOf(value) !== -1) {
+      sessions.splice(sessions.indexOf(value), 1);
+    }
+    value.split(" ").forEach(function(v) {
+      chrome.runtime.sendMessage({action: "deleteSession", name: v});
+    });
+    return port.postMessage({action: "getSessionNames"});
+  }
+
+  if (/^mksession/.test(value)) {
+    value = value.replace(/^\S+(\s+)?/, "").trimAround();
+    if (value === "") {
+      return Status.setMessage("session name required", 1, "error");
+    }
+    if (/[^a-zA-Z0-9_-]/.test(value)) {
+      return Status.setMessage("only alphanumeric characters, dashes, and underscores are allowed", 1, "error");
+    }
+    if (sessions.indexOf(value) === -1) {
+      sessions.push(value);
+    }
+    chrome.runtime.sendMessage({
+      action: "createSession",
+      name: value
+    });
+    return;
+  }
+
+  if (/^session/.test(value)) {
+    value = value.replace(/^\S+(\s+)?/, "").trimAround();
+    if (value === "") {
+      return Status.setMessage("session name required", 1, "error");
+    }
+    return chrome.runtime.sendMessage({
+      action: "openSession",
+      name: value,
+      sameWindow: !tab.active
+    }, function() {
+      Status.setMessage("session does not exist", 1, "error");
+    });
+  }
+
+  if (/^set +/.test(value) && value !== "set") {
+    value = value.replace(/^set +/, "").split(/[ =]+/);
+    var isSet, swapVal,
+        isQuery = /\?$/.test(value[0]);
+    value[0] = value[0].replace(/\?$/, "");
+    if (!settings.hasOwnProperty(value[0].replace(/^no|!$/g, ""))) {
+      return Status.setMessage("unknown option: " + value[0], 1, "error");
+    }
+
+    if (isQuery) {
+      return Status.setMessage(value + ": " + settings[value[0]], 1);
+    }
+
+    isSet    = !/^no/.test(value[0]);
+    swapVal  = /!$/.test(value[0]);
+    value[0] = value[0].replace(/^no|[?!]$/g, "");
+
+    if (value.length === 1 && Boolean(settings[value]) === settings[value]) {
+      if (value[0] === "hud" && !isSet) {
+        HUD.hide(true);
+      }
+      if (swapVal) {
+        return settings[value[0]] = !settings[value[0]];
+      }
+      settings[value[0]] = isSet;
+    }
+    return;
+  }
+
+  if (/^qmark\s+/.test(value)) {
+    value = value.replace(/\S+\s+/, "").split(/\s+/).compress();
+    if (value.length !== 2) {
+      return Status.setMessage("two arguments are required", 1, "error");
+    }
+    if (value[0].length !== 1) {
+      return Status.setMessage("argument must be an ASCI letter or digit", 1, "error");
+    }
+    if (Marks.quickMarks.hasOwnProperty(value[0])) {
+      if (Marks.quickMarks[value[0]].indexOf(value[1]) !== -1) {
+        Marks.quickMarks[value[0]].splice(Marks.quickMarks[value[0]].indexOf(value[1]), 1);
+        if (Marks.quickMarks[value[0]].length === 0) {
+          Status.setMessage("QuickMark \"" + value[0] + "\" removed", 1);
+          delete Marks.quickMarks[value[0]];
+        } else {
+          Status.setMessage("URL removed from existing QuickMark \"" + value[0] + "\"", 1);
+        }
+      } else {
+        Status.setMessage("URL added to existing QuickMark \"" + value[0] + "\"", 1);
+        Marks.quickMarks[value[0]].push(value[1]);
+      }
+    } else {
+      Status.setMessage("New QuickMark \"" + value[0] + "\" added", 1);
+      Marks.quickMarks[value[0]] = [value[1]];
+    }
+    return chrome.runtime.sendMessage({action: "updateMarks", marks: Marks.quickMarks});
+  }
+
 };
 
 Command.show = function(search, value) {
@@ -605,15 +694,17 @@ Command.show = function(search, value) {
 };
 
 Command.hide = function(callback) {
-  if (!commandMode || !this.domElementsLoaded) {
-    return false;
-  }
   document.activeElement.blur();
   this.hideData();
   if (this.bar) {
     this.bar.style.display = "none";
   }
-  this.input.value = "";
+  if (this.input) {
+    this.input.value = "";
+  }
+  if (this.data) {
+    this.data.style.display = "none";
+  }
   this.historyMode = false;
   this.active = false;
   commandMode = false;
@@ -621,9 +712,6 @@ Command.hide = function(callback) {
   this.history.index = {};
   this.typed = "";
   this.dataElements = [];
-  if (this.data) {
-    this.data.style.display = "none";
-  }
   if (callback) {
     callback();
   }
