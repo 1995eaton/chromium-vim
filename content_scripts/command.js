@@ -314,7 +314,7 @@ Command.complete = function(value) {
 
   if (/^buffer(\s+)/.test(value)) {
     search = value.replace(/^\S+\s+/, "");
-    port.postMessage({action: "getBuffer"});
+    port.postMessage({action: "getBuffers"});
     return;
   }
 
