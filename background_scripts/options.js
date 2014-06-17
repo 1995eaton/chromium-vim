@@ -5,6 +5,7 @@ var storageMethod = "local",
 var defaultSettings = {
   searchlimit: 25,
   scrollstep: 70,
+  fullpagescrollpercent: 85,
   typelinkhintsdelay: 300,
   qmarks: {},
   searchengines: {},
