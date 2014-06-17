@@ -249,9 +249,6 @@ Command.complete = function(value) {
       for (var i = 0, l = Complete.engines.length; i < l; ++i) {
         if (!search[0] || Complete.engines[i].indexOf(search.join(" ")) === 0) {
           this.completions.engines.push([Complete.engines[i], Complete.requestUrls[Complete.engines[i]]]);
-          if (this.completions.engines.length > 4) {
-            break;
-          }
         }
       }
       this.updateCompletions(true);
