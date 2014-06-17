@@ -218,8 +218,7 @@ Command.descriptions = [
   ["undo",         "Reopen the last closed tab"],
   ["togglepin",    "Toggle the tab's pinned state"],
   ["nohl",         "Clears the search highlight"],
-  ["viewsource",   "View the source for the current document"],
-  ["qmark",        "Add QuickMarks"]
+  ["viewsource",   "View the source for the current document"]
 ];
 
 Command.deleteCompletions = function(completions) {
@@ -631,34 +630,6 @@ Command.execute = function(value, repeats) {
       settings[value[0]] = isSet;
     }
     return;
-  }
-
-  if (/^qmark\s+/.test(value)) {
-    value = value.replace(/\S+\s+/, "").split(/\s+/).compress();
-    if (value.length !== 2) {
-      return Status.setMessage("two arguments are required", 1, "error");
-    }
-    if (value[0].length !== 1) {
-      return Status.setMessage("argument must be an ASCI letter or digit", 1, "error");
-    }
-    if (Marks.quickMarks.hasOwnProperty(value[0])) {
-      if (Marks.quickMarks[value[0]].indexOf(value[1]) !== -1) {
-        Marks.quickMarks[value[0]].splice(Marks.quickMarks[value[0]].indexOf(value[1]), 1);
-        if (Marks.quickMarks[value[0]].length === 0) {
-          Status.setMessage("QuickMark \"" + value[0] + "\" removed", 1);
-          delete Marks.quickMarks[value[0]];
-        } else {
-          Status.setMessage("URL removed from existing QuickMark \"" + value[0] + "\"", 1);
-        }
-      } else {
-        Status.setMessage("URL added to existing QuickMark \"" + value[0] + "\"", 1);
-        Marks.quickMarks[value[0]].push(value[1]);
-      }
-    } else {
-      Status.setMessage("New QuickMark \"" + value[0] + "\" added", 1);
-      Marks.quickMarks[value[0]] = [value[1]];
-    }
-    return chrome.runtime.sendMessage({action: "updateMarks", marks: Marks.quickMarks});
   }
 
 };
