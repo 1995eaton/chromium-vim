@@ -30,7 +30,6 @@ chrome.tabs.onUpdated.addListener(function(id, changeInfo) {
       TabHistory[id].links = [changeInfo.url];
       TabHistory[id].state = 0;
     }
-    log(TabHistory);
   }
 });
 
