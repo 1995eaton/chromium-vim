@@ -23,7 +23,9 @@ Command.setup = function() {
   this.bar.appendChild(this.input);
   this.bar.spellcheck = false;
   this.input.addEventListener("blur", function() { // Possible fix for #43
-    Command.hide.call(Command);
+    window.setTimeout(function() {
+      Command.hide.call(Command);
+    }, 0);
   });
   try {
     document.lastChild.appendChild(this.bar);
