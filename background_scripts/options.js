@@ -22,6 +22,7 @@ var defaultSettings = {
   typelinkhints: false,
   autofocus: true,
   insertmappings: true,
+  defaultnewtabpage: false,
   smoothscroll: true,
   scrollduration: 20,
   locale: "",

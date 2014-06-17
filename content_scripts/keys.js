@@ -109,7 +109,6 @@ Key.down = function(e) {
       e.preventDefault();
       document.getElementById("cVim-link-container").style.opacity = "0";
     }
-    return;
   }
 
   if (Hints.keyDelay) {
