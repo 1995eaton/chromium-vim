@@ -17,7 +17,7 @@ callAction = function(action, config) {
   } else if (request.url) {
     url = request.url;
   } else {
-    url = "../pages/blank.html";
+    url = "chrome://newtab";
   }
   actions[action]();
 };
