@@ -180,37 +180,6 @@ Mappings.actions = {
       }
     }
   },
-  toggleDimDisplay: function() {
-    if (this.isDim === undefined) {
-      this.isDim = false;
-    }
-    this.isDim = !this.isDim;
-    function clearDimOverlay() {
-      var e;
-      while (e = document.getElementById("cVim-display-dim")) {
-        e.parentNode.removeChild(e);
-      }
-    }
-    clearDimOverlay();
-    if (this.isDim) {
-      var e = document.createElement("div");
-      e.id = "cVim-display-dim";
-      e.style.position = "fixed";
-      e.style.left = "0";
-      e.style.right = "0";
-      e.style.top = "0";
-      e.style.bottom = "0";
-      e.style.zIndex = "999999";
-      e.style.pointerEvents = "none";
-      e.style.webkitTransform = "translateZ(0)";
-      e.style.backgroundColor = "rgba(175, 77, 0, 0.15)";
-      try {
-        document.lastChild.appendChild(e);
-      } catch (ex) {
-        document.body.appendChild(e);
-      }
-    }
-  },
   zoomPageIn: function(repeats) {
     document.body.style.zoom =
       (+document.body.style.zoom ? parseFloat(document.body.style.zoom) : 1) + 0.1 * repeats;
@@ -598,7 +567,6 @@ Mappings.defaults = {
   cancelAllWebRequests: ["gQ"],
   createHoverHint:      ["q"],
   toggleImages:         ["ci"],
-  toggleDimDisplay:     ["cc"],
   createUnhoverHint:    ["Q"],
   lastTab:              ["g$"],
   lastClosedTab:        ["X"],
