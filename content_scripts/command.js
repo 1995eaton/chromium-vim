@@ -634,11 +634,13 @@ Command.insertCSS = function() {
   if (!head.length ||
       !((head.length && window.location.hostname + window.location.pathname === "www.google.com/_/chrome/newtab")
         || window.location.protocol === "chrome-extension:")) {
-    chrome.runtime.sendMessage({
-      action: "injectCSS",
-      css: settings.COMMANDBARCSS,
-      runAt: "document_start"
-    });
+    if (window.location.protocol !== "chrome:") {
+      chrome.runtime.sendMessage({
+        action: "injectCSS",
+        css: settings.COMMANDBARCSS,
+        runAt: "document_start"
+      });
+    }
   }
   // For some reason, Chrome's own implementation of CSS injection seems to miss some styles.
   if (head.length) {

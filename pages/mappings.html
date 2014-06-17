@@ -47,9 +47,9 @@ the command <code>&#39;set&#39; + no&lt;SETTING_NAME&gt;</code> (for example, <c
 </tr>
 <tr>
 <td>fullpagescrollpercent</td>
-<td>float &gt; 0.00</td>
+<td>integer</td>
 <td>set the percent of the page to be scrolled by when using the scrollFullPageUp and scrollFullPageDown commands</td>
-<td style="text-align:right">0.85</td>
+<td style="text-align:right">85</td>
 </tr>
 <tr>
 <td>hud</td>
@@ -222,7 +222,7 @@ let locale = &quot;uk&quot; &quot;Current choices are &#39;jp&#39; and &#39;uk&#
 let hintcharacters = &quot;abc123&quot;
 let searchengine dogpile = &quot;http://www.dogpile.com/search/web?q=%s&quot; &quot;If you leave out the &#39;%s&#39; at the end of the URL, your query will be appended to the link. Otherwise, your query will replace the &#39;%s&#39;.
 let completionengines = [&quot;google&quot;, &quot;amazon&quot;, &quot;imdb&quot;, &quot;dogpile&quot;]
-let searchalias g = &quot;google&quot; &quot;Create a shortcut for search engines. For example, typing &#39;:tabopen g example&#39; would act the same way as &#39;:tabopen google example&#39;
+let searchalias g = &quot;google&quot; &quot;Create a shortcut for search engines. For example, typing &#39;:tabnew g example&#39; would act the same way as &#39;:tabnew google example&#39;
 let qmark a = [&quot;http://www.reddit.com&quot;, &quot;http://www.google.com&quot;, &quot;http://twitter.com&quot;]  &quot;Open all of these in a tab with `gnb` or open one of these with &lt;N&gt;goa where &lt;N&gt;
 let blacklists = [&quot;https://mail.google.com/*&quot;, &quot;*://*.reddit.com/*&quot;]
 
@@ -448,8 +448,8 @@ and the blacklists setting would have look like this:<pre><code class="lang-viml
 </tr>
 <tr>
 <td>a</td>
-<td style="text-align:left">alias to &quot;:tabopen google &quot;</td>
-<td style="text-align:left">:tabopen google</td>
+<td style="text-align:left">alias to &quot;:tabnew google &quot;</td>
+<td style="text-align:left">:tabnew google</td>
 </tr>
 <tr>
 <td>:</td>
@@ -624,7 +624,7 @@ and the blacklists setting would have look like this:<pre><code class="lang-viml
 <tr>
 <td>x</td>
 <td style="text-align:left">close the current tab</td>
-<td style="text-align:left">closeTab</td>
+<td style="text-align:left">quit</td>
 </tr>
 <tr>
 <td>X</td>
@@ -633,13 +633,13 @@ and the blacklists setting would have look like this:<pre><code class="lang-viml
 </tr>
 <tr>
 <td>t</td>
-<td style="text-align:left">:tabopen</td>
-<td style="text-align:left">:tabopen</td>
+<td style="text-align:left">:tabnew</td>
+<td style="text-align:left">:tabnew</td>
 </tr>
 <tr>
 <td>T</td>
-<td style="text-align:left">:tabopen &lt;CURRENT URL&gt;</td>
-<td style="text-align:left">:tabopen @%</td>
+<td style="text-align:left">:tabnew &lt;CURRENT URL&gt;</td>
+<td style="text-align:left">:tabnew @%</td>
 </tr>
 <tr>
 <td>O</td>
@@ -828,7 +828,7 @@ and the blacklists setting would have look like this:<pre><code class="lang-viml
 </thead>
 <tbody>
 <tr>
-<td>:tabopen (autocomplete)</td>
+<td>:tabnew (autocomplete)</td>
 <td>open a new tab with the typed/completed url/google search</td>
 </tr>
 <tr>
@@ -856,7 +856,7 @@ and the blacklists setting would have look like this:<pre><code class="lang-viml
 <td>open a chrome:// url</td>
 </tr>
 <tr>
-<td>:closetab</td>
+<td>:quit</td>
 <td>close the current tab</td>
 </tr>
 <tr>
@@ -903,7 +903,7 @@ and the blacklists setting would have look like this:<pre><code class="lang-viml
 </table>
 <h1 id="tips">Tips</h1>
 <ul>
-<li>You can specify whether you activate the tab (:tabopen, :bookmarks, :history, etc) by appending an ampersand (&amp;) to the end of the url</li>
+<li>You can specify whether you activate the tab (:tabnew, :bookmarks, :history, etc) by appending an ampersand (&amp;) to the end of the url</li>
 <li>You can use @% in &quot;open&quot; commands to specify the current URL. For example, &quot;:open @%&quot; would essentially refresh the current page.</li>
 <li>Prepend a number to the command to repeat that command N times</li>
 <li>Use the up/down arrows in command/find mode to navigate through previously executed commands/searches -- you can also use this to search for previously executed commands starting with a certain combination of letters (for example, entering &quot;ta&quot; in the command bar and pressing the up arrow will search command history for all matches beginning with &quot;ta&quot;</li>
