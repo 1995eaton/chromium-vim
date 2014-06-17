@@ -551,7 +551,7 @@ Mappings.defaults = {
   pinTab:               ["gp"],
   moveTabRight:         [">"],
   moveTabLeft:          ["<"],
-  toggleCvim:           ["<C-z>"],
+  toggleCvim:           ["<A-z>"],
   goBack:               ["H", "S"],
   reverseImage:         ["gr"],
   multiReverseImage:    ["mr"],

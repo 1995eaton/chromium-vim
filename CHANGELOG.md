@@ -2,6 +2,7 @@
 
 ## 1.2.55
  * In order to make cVim as "vim-like" as possible, some commands have been added, and others have changed (the old ones will continue to work). `:tabopen` is now `:tabnew` and `:closetab` is now `:quit`
+ * The `C-z` toggleCvim mapping is now `A-z` due to conflicts with the default undo-text Chrome shortcut.
 
 ## 1.2.54
  * The ```ignorediacritics``` option has been removed due to its large performance impact
