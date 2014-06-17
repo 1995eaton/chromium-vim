@@ -500,7 +500,10 @@ Mappings.actions = {
           this.queue = "";
           this.repeats = "";
           if (/<cr>(\s+)?$/i.test(Mappings.shortCuts[i][1])) {
-            Command.execute(Command.input.value, repeats);
+            var inputValue = Command.input.value;
+            Command.hide(function() {
+              Command.execute(inputValue, repeats);
+            });
           } else {
             Command.complete(Command.input.value);
           }
