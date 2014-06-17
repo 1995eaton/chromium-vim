@@ -259,7 +259,7 @@ Key.down = function(e) {
         Find.index = Command.modeIdentifier.textContent === "/" ? -1 : 1;
         Find.setIndex();
         Find.search(Command.modeIdentifier.textContent === "?", 1, true);
-        chrome.runtime.sendMessage({
+        port.postMessage({
           action: "updateLastSearch",
           value: Find.lastSearch
         });

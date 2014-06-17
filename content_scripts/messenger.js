@@ -9,6 +9,7 @@ port.onMessage.addListener(function(response) {
       port.postMessage({action: "getSessionNames"});
       port.postMessage({action: "getTopSites"});
       port.postMessage({action: "retrieveAllHistory"});
+      port.postMessage({action: "sendLastSearch"});
       break;
     case "commandHistory":
       for (key in response.history) {
@@ -139,8 +140,12 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
         callback(true);
       }
       break;
+    case "deleteBackWord":
+      if (!insertMode && document.activeElement.isInput()) {
+        Mappings.insertFunctions.deleteWord();
+      }
+      break;
     case "getFilePath":
-      var search = Command.input.value.replace(/.*\//, "");
       var parsed = request.data;
       Marks.files = parsed;
       Marks.filePath();

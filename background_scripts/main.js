@@ -291,6 +291,11 @@ chrome.commands.onCommand.addListener(function(command) {
         });
       });
       break;
+    case "deleteBackWord":
+      chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
+        chrome.tabs.sendMessage(tab[0].id, {action: "deleteBackWord"});
+      });
+      break;
     case "closeTab":
       chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
         chrome.tabs.remove(tab[0].id);

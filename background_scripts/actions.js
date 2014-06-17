@@ -212,7 +212,9 @@ actions.moveTabLeft = function() {
 
 actions.openPasteTab = function() {
   var paste = Clipboard.paste();
-  if (!paste) return;
+  if (!paste) {
+    return;
+  }
   paste = paste.split("\n").filter(function(e) { return e.trim(); });
   if (paste.length && paste[0].convertLink() !== paste[0]) {
     paste = encodeURIComponent(paste.join("\n"));
@@ -233,7 +235,9 @@ actions.openPasteTab = function() {
 
 actions.openPaste = function() {
   var paste = Clipboard.paste();
-  if (!paste) return;
+  if (!paste) {
+    return;
+  }
   paste = paste.split("\n")[0];
   chrome.tabs.update({
     url: paste.convertLink()
@@ -268,9 +272,13 @@ actions.openBookmarkFolder = function() {
         action: "confirm",
         message: "Open " + e.length + " tabs?"
       }, function(response) {
-        if (response) Links.multiOpen(e);
+        if (response) {
+          Links.multiOpen(e);
+        }
       });
-    } else Links.multiOpen(e);
+    } else {
+      Links.multiOpen(e);
+    }
   });
 };
 
@@ -379,20 +387,28 @@ actions.updateMarks = function() {
   });
 };
 
-actions.updateLastSearch = function() {
-  var search = request.value;
-  if (!search) {
-    return false;
+
+// Port actions
+
+actions.sendLastSearch = function() {
+  if (!this.lastSearch) {
+    return;
   }
   chrome.tabs.query({}, function(tabs) {
     tabs.forEach(function(tab) {
-      chrome.tabs.sendMessage(tab.id, {action: "updateLastSearch", value: search});
+      chrome.tabs.sendMessage(tab.id, {action: "updateLastSearch", value: actions.lastSearch});
     });
   });
 };
 
-
-// Port actions
+actions.updateLastSearch = function() {
+  var search = request.value;
+  if (!search) {
+    return;
+  }
+  this.lastSearch = request.value;
+  this.sendLastSearch();
+};
 
 actions.injectCSS = function() {
   chrome.tabs.insertCSS(sender.tab.id, {code: request.css});

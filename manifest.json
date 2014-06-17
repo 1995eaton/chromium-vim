@@ -28,6 +28,9 @@
           "default": "Ctrl+N"
         }
       },
+      "deleteBackWord": {
+        "description": "Let Chrome use <C-w> for the deleteBackWord insert mapping"
+      },
       "closeTab": {
          "description": "Close the current tab",
          "suggested_key": {
