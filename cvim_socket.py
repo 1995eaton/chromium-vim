@@ -33,15 +33,15 @@ class cvimHandler(http.server.BaseHTTPRequestHandler):
         self.send_header("Content-type", "text/html")
         self.end_headers()
     def do_POST(self):
-        content_length = int(self.headers["Content-Length"])
-        post_body = self.rfile.read(content_length).decode("utf8")
+        self.send_response(200)
+        self.end_headers()
+        if self.headers["Host"] != "127.0.0.1:" + str(PORT_NUMBER):
+            return print("cVim Warning: Connection from outside IP blocked -> " +
+                    self.headers["Host"])
+        post_body = self.rfile.read(int(self.headers["Content-Length"])).decode("utf8")
         with open(TMP_FILE, "w") as tmp_file:
             tmp_file.write(post_body)
-        proc = subprocess.Popen(COMMAND.format(TMP_FILE).split())
-        proc.wait()
-        self.send_response(200)
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.end_headers()
+        proc = subprocess.Popen(COMMAND.format(TMP_FILE).split()).wait()
         with open(TMP_FILE, "r") as tmp_file:
             self.wfile.write(bytes(tmp_file.read(), "utf8"))
         os.remove(TMP_FILE)
