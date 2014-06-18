@@ -907,14 +907,6 @@ Mappings.isValidQueue = function(wildCard) {
   }
 };
 
-Mappings.isValidMapping = function(c) {
-  for (var key in this.defaults) {
-    if (Array.isArray(this.defaults[key]) && this.defaults[key].indexOf(c) >= 0) {
-      return true;
-    }
-  }
-};
-
 Mappings.handleEscapeKey = function() {
 
   this.queue = "";

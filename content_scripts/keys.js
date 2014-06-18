@@ -180,22 +180,15 @@ Key.down = function(e) {
   isInput = document.activeElement && document.activeElement.isInput();
 
   if (!isInput) {
+    if (Mappings.queue.length) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     if (Mappings.convertToAction(asciiKey)) {
       e.preventDefault();
       return e.stopPropagation();
     }
   }
-
-  validMapping = Mappings.isValidMapping(asciiKey);
-  if (!isInput && e.which > 40 && e.which !== 91 && e.which !== 123 && e.which !== 191) { // Let sites use their own JavaScript listeners if
-    if ((Mappings.queue.length && Mappings.validMatch) || validMapping) {                 // cVim isn't using the key
-      e.stopPropagation();
-    }
-    if (!commandMode && validMapping) {
-      e.preventDefault();
-    }
-  }
-
 
   if (commandMode && document.activeElement.id === "cVim-command-bar-input") {
     switch (asciiKey) {
