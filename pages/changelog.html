@@ -16,6 +16,14 @@
   <script src="../content_scripts/search.js"></script>
   <script src="../content_scripts/status.js"></script>
   <script src="../content_scripts/visual.js"></script></head><h1 id="cvim-changelog">cVim Changelog</h1>
+<h2 id="1-2-56">1.2.56</h2>
+<ul>
+<li>Awesome new feature! It&#39;s now possible to use Vim to edit text boxes. All that is needed is a python script that can be found here: <a href="https://github.com/1995eaton/chromium-vim/blob/master/cvim_socket.py">https://github.com/1995eaton/chromium-vim/blob/master/cvim_socket.py</a><ul>
+<li>To get things running, just run the script: <code>python cvim_socket.py</code> and press <code>&lt;C-i&gt;</code> inside a text box.</li>
+</ul>
+</li>
+<li>As a result of the above, the insert mapping <code>&lt;C-i&gt;</code> (beginningOfLine) is now <code>&lt;C-a&gt;</code>.</li>
+</ul>
 <h2 id="1-2-55">1.2.55</h2>
 <ul>
 <li>In order to make cVim as &quot;vim-like&quot; as possible, some commands have been added, and others have changed (the old ones will continue to work). <code>:tabopen</code> is now <code>:tabnew</code> and <code>:closetab</code> is now <code>:quit</code></li>
