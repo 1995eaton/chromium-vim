@@ -628,7 +628,8 @@ Mappings.shortCutsClone = Object.clone(Mappings.shortCuts);
 Mappings.insertDefaults = {
   deleteWord:        ["<C-y>"],
   deleteForwardWord: ["<C-p>"],
-  beginningOfLine:   ["<C-i>"],
+  beginningOfLine:   ["<C-a>"],
+  editWithVim:       ["<C-i>"],
   endOfLine:         ["<C-e>"],
   deleteToBeginning: ["<C-u>"],
   deleteToEnd:       ["<C-o>"],
@@ -639,6 +640,20 @@ Mappings.insertDefaults = {
 };
 
 Mappings.insertFunctions = {
+  editWithVim: function() {
+    if (this.externalVimReq) {
+      this.externalVimReq.abort();
+    }
+    this.externalVimReq = new XMLHttpRequest();
+    var textbox = document.activeElement;
+    this.externalVimReq.open("POST", "http://127.0.0.1:8001");
+    this.externalVimReq.onreadystatechange = function() {
+      if (this.readyState === 4 && this.status === 200) {
+        textbox.value = this.responseText;
+      }
+    };
+    this.externalVimReq.send(textbox.value);
+  },
   deleteWord: function() {
     var ae = document.activeElement;
     var left  = ae.value.slice(0, ae.selectionStart),
