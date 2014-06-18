@@ -272,6 +272,33 @@ and the blacklists setting would have look like this:<pre><code class="lang-viml
 <li>It is also possible to unmap default bindings with <code>unmap &lt;KEY&gt;</code> and insert bindings with <code>iunmap &lt;KEY&gt;</code></li>
 <li>To unmap all default keybindings, use <code>unmapAll</code>. To unmap all default insert bindings, use <code>iunmapAll</code></li>
 </ul>
+<h3 id="tabs">Tabs</h3>
+<ul>
+<li>Commands that open links (<code>:tabnew</code> and <code>:open</code>) have three different properties<ul>
+<li><code>!</code> =&gt; Open in a new tab</li>
+<li><code>&amp;</code> =&gt; Open in a new tab (inactive/unfocused)</li>
+<li><code>*</code> =&gt; Pin the tab</li>
+</ul>
+</li>
+<li>The use of these properties are best explained with examples:</li>
+</ul>
+<pre><code class="lang-viml">:open! google&lt;CR&gt; &quot;This is the same as :tabnew google&lt;CR&gt;
+:open google!&lt;CR&gt; &quot;This is another way of writing the above (these flags can can be added to either the base command or the end of the final command)
+
+:open&amp; google&lt;CR&gt; &quot;This will open Google in a new inactive tab
+
+:open&amp;* google&lt;CR&gt; &quot;The will open Google in a new inactive, pinned tab
+:tabnew google&amp;*&lt;CR&gt; &quot;Once again, this will do the same thing as the above command
+:open google&amp;*&lt;CR&gt; &quot;Again, same as above
+
+:open google!&amp; &quot;Here, the &amp; flag will cancel out the ! flag, opening Google in a new inactive tab
+
+&quot;More examples
+:bookmarks my_bookmark.com&amp; &quot;inactive,new tab
+:bookmarks&amp;* my_bookmark.com &quot;inactive,pinned,new tab
+:bookmarks! my_bookmark.com &quot;new tab
+:bookmarks my_bookmark.com &quot;same tab
+</code></pre>
 <h1 id="keybindings">Keybindings</h1>
 <table>
 <thead>
@@ -937,7 +964,6 @@ and the blacklists setting would have look like this:<pre><code class="lang-viml
 </table>
 <h1 id="tips">Tips</h1>
 <ul>
-<li>You can specify whether you activate the tab (:tabnew, :bookmarks, :history, etc) by appending an ampersand (&amp;) to the end of the url</li>
 <li>You can use @% in &quot;open&quot; commands to specify the current URL. For example, &quot;:open @%&quot; would essentially refresh the current page.</li>
 <li>Prepend a number to the command to repeat that command N times</li>
 <li>Use the up/down arrows in command/find mode to navigate through previously executed commands/searches -- you can also use this to search for previously executed commands starting with a certain combination of letters (for example, entering &quot;ta&quot; in the command bar and pressing the up arrow will search command history for all matches beginning with &quot;ta&quot;</li>

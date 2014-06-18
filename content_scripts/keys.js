@@ -227,7 +227,7 @@ Key.down = function(e) {
         }
 
         if (Command.type === "action") {
-          var inputValue = Command.input.value + (e.ctrlKey ? "&":"");
+          var inputValue = Command.input.value + (e.ctrlKey ? "&!":"");
           Command.hide(function() {
             Command.execute(inputValue, 1);
           });

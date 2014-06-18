@@ -29,10 +29,21 @@ function isRepeat(request) {
 // Normal extension connections
 
 actions.openLink = function() {
-  chrome.tabs.update({
-    url: url,
-    pinned: request.pinned
-  });
+  if (request.tab.tabbed) {
+    for (var i = 0; i < request.repeats; ++i) {
+      chrome.tabs.create({
+        url: url,
+        active: request.tab.active,
+        pinned: request.tab.pinned,
+        index: sender.tab.index + 1
+      });
+    }
+  } else {
+    chrome.tabs.update({
+      url: url,
+      pinned: request.tab.pinned
+    });
+  }
 };
 
 actions.openLinkTab = function() {
@@ -84,7 +95,7 @@ actions.openLinkWindow = function() {
   for (var i = 0; i < request.repeats; ++i) {
     chrome.windows.create({
       url: url,
-      focused: request.active
+      focused: request.tab.active
     });
   }
 };

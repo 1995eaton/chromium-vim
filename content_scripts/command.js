@@ -231,6 +231,7 @@ Command.deleteCompletions = function(completions) {
 Command.complete = function(value) {
   Search.index = null;
   this.typed = this.input.value;
+  value = value.replace(/(^[^\s&!*]+)[&!*]*/, "$1");
   var search = value.replace(/^(chrome:\/\/|\S+ +)/, "");
 
   if (/^(tabnew|tabedit|tabe|tabopen|to|open|o|wo|new|winopen)(\s+)/.test(value)) {
@@ -383,10 +384,27 @@ Command.complete = function(value) {
 
 Command.execute = function(value, repeats) {
 
+  // Match commands like ":tabnew*&! search" before commands like ":tabnew search&*!"
+  // e.g. :tabnew& google asdf* => opens a new pinned tab
+  // ! == whether to open in a new tab or not
+  // & == whether the tab will be active
+  // * == whether the tab will be pinned
   var tab = {
-    active: value === (value = value.replace(/&(\*?)$/, "$1")),
-    pinned: value !== (value = value.replace(/\*$/, ""))
+    active: value === (value = value.replace(/(^[^\s&]+)&([*!]*)/, "$1$2")),
+    pinned: value !== (value = value.replace(/(^[^\s*]+)\*([!]*)/, "$1$2")),
+    tabbed: value !== (value = value.replace(/(^[^\s!]+)!/, "$1"))
   };
+  var glob = {
+    active: value === (value = value.replace(/&([*!]*)$/, "$1")),
+    pinned: value !== (value = value.replace(/\*([!]*)$/, "$1")),
+    tabbed: value !== (value = value.replace(/!$/, ""))
+  };
+  tab.active = tab.active && glob.active;
+  tab.pinned = tab.pinned || glob.pinned;
+  tab.tabbed = tab.tabbed || glob.tabbed;
+  if (!tab.active && !tab.tabbed) {
+    tab.tabbed = true;
+  }
 
   this.history.index = {};
 
@@ -396,13 +414,16 @@ Command.execute = function(value, repeats) {
       HUD.hide();
       break;
     case "duplicate":
-      chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: document.URL, repeats: repeats});
+      tab.tabbed = true;
+      chrome.runtime.sendMessage({action: "openLink", tab: tab, url: document.URL, repeats: repeats});
       break;
     case "settings":
-      chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: chrome.extension.getURL("/pages/options.html"), repeats: repeats});
+      tab.tabbed = true;
+      chrome.runtime.sendMessage({action: "openLink", tab: tab, url: chrome.extension.getURL("/pages/options.html"), repeats: repeats});
       break;
     case "changelog":
-      chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: chrome.extension.getURL("/pages/changelog.html"), repeats: repeats});
+      tab.tabbed = true;
+      chrome.runtime.sendMessage({action: "openLink", tab: tab, url: chrome.extension.getURL("/pages/changelog.html"), repeats: repeats});
       break;
     case "date":
       var date = new Date();
@@ -411,7 +432,8 @@ Command.execute = function(value, repeats) {
       Status.setMessage(weekDays[date.getDay()] + ", " + months[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear(), 2);
       break;
     case "help":
-      chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: chrome.extension.getURL("/pages/mappings.html")});
+      tab.tabbed = true;
+      chrome.runtime.sendMessage({action: "openLink", tab: tab, url: chrome.extension.getURL("/pages/mappings.html")});
       break;
     case "stop":
       window.stop();
@@ -420,7 +442,7 @@ Command.execute = function(value, repeats) {
       chrome.runtime.sendMessage({action: "cancelAllWebRequests"});
       break;
     case "viewsource":
-      chrome.runtime.sendMessage({action: "openLinkTab", active: tab.active, pinned: tab.pinned, url: "view-source:" + document.URL, noconvert: true});
+      chrome.runtime.sendMessage({action: "openLink", tab: tab, url: "view-source:" + document.URL, noconvert: true});
       break;
     case "togglepin":
       chrome.runtime.sendMessage({action: "pinTab"});
@@ -454,38 +476,33 @@ Command.execute = function(value, repeats) {
 
   if (/^chrome:\/\/\S+$/.test(value)) {
     return chrome.runtime.sendMessage({
-      action: "openLinkTab",
-      active: tab.active,
-      pinned: tab.pinned,
+      action: "openLink",
+      tab: tab,
       url: value,
       noconvert: true
     });
   }
 
-  if (/^bookmarks +/.test(value) && value !== "bookmarks") {
+  if (/^bookmarks +/.test(value) && !/^\S+\s*$/.test(value)) {
     if (/^\S+\s+\//.test(value)) {
       return chrome.runtime.sendMessage({
         action: "openBookmarkFolder",
-        active: tab.active,
-        pinned: tab.pinned,
         path: value.replace(/\S+\s+/, ""),
         noconvert: true
       });
     }
     return chrome.runtime.sendMessage({
-      action: "openLinkTab",
-      active: tab.active,
-      pinned: tab.pinned,
-      url: value.replace(/^b(ook)?marks(\s+)?/, ""),
+      action: "openLink",
+      tab: tab,
+      url: value.replace(/^\S+\s+/, ""),
       noconvert: true
     });
   }
 
-  if (/^history +/.test(value)) {
+  if (/^history +/.test(value) && !/^\S+\s*$/.test(value)) {
     return chrome.runtime.sendMessage({
-      action: "openLinkTab",
-      active: tab.active,
-      pinned: tab.pinned,
+      action: "openLink",
+      tab: tab,
       url: Complete.convertToLink(value),
       noconvert: true
     });
@@ -493,19 +510,17 @@ Command.execute = function(value, repeats) {
 
   if (/^file +/.test(value)) {
     return chrome.runtime.sendMessage({
-      action: "openLinkTab",
-      active: tab.active,
-      pinned: tab.pinned,
+      action: "openLink",
+      tab: tab,
       url: "file://" + value.replace(/\S+ +/, ""),
       noconvert: true
     });
   }
 
-  if (/^(new|winopen|wo)$/.test(value.replace(/ .*/, ""))) {
+  if (/^(new|winopen|wo)$/.test(value.replace(/ .*/, "")) && !/^\S+\s*$/.test(value)) {
     return chrome.runtime.sendMessage({
       action: "openLinkWindow",
-      focused: tab.active,
-      pinned: tab.pinned,
+      tab: tab,
       url: Complete.convertToLink(value),
       repeats: repeats,
       noconvert: true
@@ -513,21 +528,20 @@ Command.execute = function(value, repeats) {
   }
 
   if (/^(tabnew|tabedit|tabe|to|tabopen|tabhistory)$/.test(value.replace(/ .*/, ""))) {
+    tab.tabbed = true;
     return chrome.runtime.sendMessage({
-      action: "openLinkTab",
-      active: tab.active,
-      pinned: tab.pinned,
+      action: "openLink",
+      tab: tab,
       url: Complete.convertToLink(value),
       repeats: repeats,
       noconvert: true
     });
   }
 
-  if (/^(o|open)$/.test(value.replace(/ .*/, ""))) {
+  if (/^(o|open)$/.test(value.replace(/ .*/, "")) && !/^\S+\s*$/.test(value)) {
     return chrome.runtime.sendMessage({
       action: "openLink",
-      active: tab.active,
-      pinned: tab.pinned,
+      tab: tab,
       url: Complete.convertToLink(value),
       noconvert: true
     });

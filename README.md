@@ -100,6 +100,32 @@ let blacklists = ["*://*/*.pdf <Up> <Down>"]
  * It is also possible to unmap default bindings with ```unmap <KEY>``` and insert bindings with ```iunmap <KEY>```
  * To unmap all default keybindings, use ```unmapAll```. To unmap all default insert bindings, use ```iunmapAll```
 
+###Tabs
+ * Commands that open links (`:tabnew` and `:open`) have three different properties
+  * `!` => Open in a new tab
+  * `&` => Open in a new tab (inactive/unfocused)
+  * `*` => Pin the tab
+ * The use of these properties are best explained with examples:
+
+```viml
+:open! google<CR> "This is the same as :tabnew google<CR>
+:open google!<CR> "This is another way of writing the above (these flags can can be added to either the base command or the end of the final command)
+
+:open& google<CR> "This will open Google in a new inactive tab
+
+:open&* google<CR> "The will open Google in a new inactive, pinned tab
+:tabnew google&*<CR> "Once again, this will do the same thing as the above command
+:open google&*<CR> "Again, same as above
+
+:open google!& "Here, the & flag will cancel out the ! flag, opening Google in a new inactive tab
+
+"More examples
+:bookmarks my_bookmark.com& "inactive,new tab
+:bookmarks&* my_bookmark.com "inactive,pinned,new tab
+:bookmarks! my_bookmark.com "new tab
+:bookmarks my_bookmark.com "same tab
+```
+
 
 #Keybindings
 
@@ -245,7 +271,6 @@ let blacklists = ["*://*/*.pdf <Up> <Down>"]
 
 #Tips
 
- * You can specify whether you activate the tab (:tabnew, :bookmarks, :history, etc) by appending an ampersand (&) to the end of the url
  * You can use @% in "open" commands to specify the current URL. For example, ":open @%" would essentially refresh the current page.
  * Prepend a number to the command to repeat that command N times
  * Use the up/down arrows in command/find mode to navigate through previously executed commands/searches -- you can also use this to search for previously executed commands starting with a certain combination of letters (for example, entering "ta" in the command bar and pressing the up arrow will search command history for all matches beginning with "ta"

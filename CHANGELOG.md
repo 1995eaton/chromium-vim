@@ -1,6 +1,7 @@
 #cVim Changelog
 
 ## 1.2.56
+ * **Important!** The behavior of commands that open links (`:open`, `:tabnew`, `:history`, etc) has changed. See [the mappings page](./mappings.html#tabs) for more information.
  * Awesome new feature! It's now possible to use Vim to edit text boxes. All that is needed is a python script that can be found here: https://github.com/1995eaton/chromium-vim/blob/master/cvim_socket.py
   * To get things running, just run the script: `python cvim_socket.py` and press `<C-i>` inside a text box.
  * As a result of the above, the insert mapping `<C-i>` (beginningOfLine) is now `<C-a>`.

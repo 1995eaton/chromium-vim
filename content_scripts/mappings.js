@@ -537,8 +537,8 @@ Mappings.shortCuts = [
   ["I",  ":history "],
   ["T",  ":tabnew @%"],
   ["B",  ":buffer "],
-  ["gd", ":chrome://downloads<cr>"],
-  ["ge", ":chrome://extensions<cr>"]
+  ["gd", ":chrome://downloads!<cr>"],
+  ["ge", ":chrome://extensions!<cr>"]
 ];
 
 Mappings.defaults = {
