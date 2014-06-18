@@ -135,7 +135,7 @@ Key.down = function(e) {
     return false;
   }
 
-  escapeKey = /^<(Esc|C-\[)>$/.test(asciiKey);
+  escapeKey = asciiKey === "<Esc>" || asciiKey === "<C-[>";
 
   if (Visual.caretModeActive || Visual.visualModeActive) {
     e.stopPropagation();
