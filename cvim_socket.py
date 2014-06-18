@@ -16,7 +16,12 @@ PORT_NUMBER = 8001
 TMP_FILE = "/tmp/cvim-tmp"
 TMP_SCRIPT_FILE = "/tmp/cvim-tmp-script.sh"
 
+# For some reason, we must run the script from a separate file
+# when using urxvt... it seems to work fine without the script
+# if I use xterm, but I like urxvt better.
 SCRIPT_COMMAND = "vim $1"
+# So essentially, the command below turns into:
+#   urxvt -e sh -c 'vim $TMP_FILE'
 COMMAND = "urxvt -e " + TMP_SCRIPT_FILE + " {}"
 
 def cleanup():
