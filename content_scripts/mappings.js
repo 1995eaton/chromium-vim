@@ -649,7 +649,7 @@ Mappings.insertFunctions = {
     this.externalVimReq.open("POST", "http://127.0.0.1:8001");
     this.externalVimReq.onreadystatechange = function() {
       if (this.readyState === 4 && this.status === 200) {
-        textbox.value = this.responseText;
+        textbox.value = this.responseText.replace(/\n$/, ""); // Avoid ending newline
       }
     };
     this.externalVimReq.send(textbox.value);
