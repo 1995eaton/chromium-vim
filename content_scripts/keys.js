@@ -292,7 +292,7 @@ Key.down = function(e) {
     }
   }
 
-  if (settings.insertmappings && isInput) {
+  if (settings && settings.insertmappings && isInput) {
     Mappings.insertCommand(asciiKey, function() {
       e.preventDefault();
       if (document.activeElement.id === "cVim-command-bar-input" && Command.type !== "search") {

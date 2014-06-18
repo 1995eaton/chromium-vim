@@ -235,13 +235,13 @@ function matchLocation(url, pattern) { // Uses @match syntax
   return true;
 }
 
-function waitForLoad(callback, constructor, fullLoad) {
-  if (!fullLoad && document.readyState === "complete" || document.readyState === "interactive") {
+function waitForLoad(callback, constructor) {
+  if ((document.readyState === "interactive" || document.readyState === "complete") && document.activeElement) {
     return callback.call(constructor);
   }
-  document.addEventListener("DOMContentLoaded", function() {
-    callback.call(constructor);
-  });
+  window.setTimeout(function() {
+    waitForLoad(callback, constructor);
+  }, 5);
 }
 
 Object.extend = function() {

@@ -140,8 +140,8 @@ Hints.dispatchAction = function(link) {
         }, 0);
         break;
       }
-      if (link.getAttribute("target") !== "_top" && (this.type === "tabbed" || this.type === "multi")) {
-        chrome.runtime.sendMessage({action: "openLinkTab", active: false, url: link.href, noconvert: true});
+      if (link.getAttribute("target") !== "_top" && (/tabbed/.test(this.type) || this.type === "multi")) {
+        chrome.runtime.sendMessage({action: "openLinkTab", active: this.type === "tabbedActive", url: link.href, noconvert: true});
       } else {
         if (link.getAttribute("href")) {
           link.click();
@@ -456,6 +456,7 @@ Hints.create = function(type, multi) {
         case "image":
           return "(reverse image)";
         case "tabbed":
+        case "tabbedActive":
           return "(tabbed)";
         case "window":
           return "(window)";

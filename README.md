@@ -125,6 +125,7 @@ let blacklists = ["*://*/*.pdf <Up> <Down>"]
 | **Link Hints**            |                                                                       |                                 |
 | f                         | open link in current tab                                              | createHint                      |
 | F                         | open link in new tab                                                  | createTabbedHint                |
+| unmapped                  | open link in new tab (active)                                         | createActiveTabbedHint          |
 | W                         | open link in new window                                               | createHintWindow                |
 | A                         | repeat last hint command                                              | openLastHint                    |
 | q                         | trigger a hover event (mouseover + mouseenter)                        | createHoverHint                 |
