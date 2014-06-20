@@ -352,7 +352,8 @@ Hints.siteFilters = {
 };
 
 Hints.getLinks = function() {
-  var node, nodeIterator, name, role, i, applicableFiltersLength, filterCatch,
+  var node, nodeIterator, name, role, applicableFiltersLength, filterCatch,
+      i = 0,
       applicableFilters = [];
 
   nodeIterator = document.createNodeIterator(document.body, 1, {
