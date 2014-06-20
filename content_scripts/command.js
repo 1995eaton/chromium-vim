@@ -631,8 +631,8 @@ Command.execute = function(value, repeats) {
     }
 
     isSet    = !/^no/.test(value[0]);
-    swapVal  = /!$/.test(value[0]);
-    value[0] = value[0].replace(/^no|[?!]$/g, "");
+    swapVal  = tab.tabbed;
+    value[0] = value[0].replace(/^no|\?$/g, "");
 
     if (value.length === 1 && Boolean(settings[value]) === settings[value]) {
       if (value[0] === "hud" && !isSet) {

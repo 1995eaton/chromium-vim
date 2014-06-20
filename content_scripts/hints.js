@@ -372,9 +372,10 @@ Hints.getLinks = function() {
       if (attributeTest(node, "onclick,tabindex,aria-haspopup,data-cmd,jsaction")) {
         return NodeFilter.FILTER_ACCEPT;
       }
-      role = node.getAttribute("role");
-      if (role === "button" || role === "checkbox" || role === "menu") {
-        return NodeFilter.FILTER_ACCEPT;
+      if (role = node.getAttribute("role")) {
+        if (role === "button" || role === "checkbox" || role.indexOf("menu") === 0) {
+          return NodeFilter.FILTER_ACCEPT;
+        }
       }
       return NodeFilter.FILTER_REJECT;
     }
@@ -402,9 +403,9 @@ Hints.getLinks = function() {
 };
 
 Hints.generateHintString = function(n, x) {
-  var l, len, r;
-  l = [];
-  len = settings.hintcharacters.length;
+  var len = settings.hintcharacters.length,
+      l = [],
+      r;
   for (var i = 0; n >= 0 && i < x; i++) {
     r = n % len;
     l.push(settings.hintcharacters[r]);
