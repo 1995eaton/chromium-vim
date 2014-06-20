@@ -28,6 +28,7 @@ var defaultSettings = {
   locale: "",
   defaultengine: "google",
   hintcharacters: "asdfgqwertzxcvb",
+  homedirectory: "",
   activehighlight: "#ff9632",
   highlight: "#ffff00",
   completionengines: [],
