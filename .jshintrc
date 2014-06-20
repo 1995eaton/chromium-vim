@@ -17,7 +17,6 @@
     "smarttabs": true,
     "indent": 2,
     "white": false,
-    "quotmark": "double",
     "unused": true,
     "laxbreak": true,
     "globals"   : {
