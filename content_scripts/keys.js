@@ -99,15 +99,15 @@ Key.fromKeyCode = function(event) {
 
 Key.down = function(e) {
 
-  var asciiKey, escapeKey, validMapping, isInput;
+  var asciiKey, escapeKey, isInput;
 
   if (Hints.active) {
     e.stopPropagation();
     if (e.which === 18) {
-      Hints.changeFocus();
+      return Hints.changeFocus();
     } else if (e.which === 191) {
       e.preventDefault();
-      document.getElementById("cVim-link-container").style.opacity = "0";
+      return document.getElementById("cVim-link-container").style.opacity = "0";
     }
   }
 
