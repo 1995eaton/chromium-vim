@@ -340,53 +340,62 @@ Hints.evaluateLink = function(link, linkIndex) {
 };
 
 Hints.siteFilters = {
-  domains: ["reddit.com"],
-  reddit: function(node) {
+  "reddit.com": function(node) {
     if (node.localName === "a" && !node.getAttribute("href")) {
       return false;
     }
     if (node.getAttribute("onclick") && node.getAttribute("onclick").indexOf("click_thing") === 0) {
       return false;
     }
-    return node;
+    return true;
   }
 };
 
 Hints.getLinks = function() {
-  var node, i, l, nodes = [], nodeIterator, name, role;
-  nodeIterator = document.createNodeIterator(document.body, 1, {acceptNode: function(node) {
-    name = node.localName.toLowerCase();
-    if (Hints.type) {
-      if (Hints.type.indexOf("yank") !== -1) {
-        return name === "a" || name === "textarea" || name === "input";
-      } else if (Hints.type.indexOf("image") !== -1) {
-        return name === "img";
+  var node, nodeIterator, name, role, i, applicableFiltersLength, filterCatch,
+      applicableFilters = [];
+
+  nodeIterator = document.createNodeIterator(document.body, 1, {
+    acceptNode: function(node) {
+      name = node.localName.toLowerCase();
+      if (Hints.type) {
+        if (Hints.type.indexOf("yank") !== -1) {
+          return name === "a" || name === "textarea" || name === "input";
+        } else if (Hints.type.indexOf("image") !== -1) {
+          return name === "img";
+        }
+      }
+      if (name === "a" || name === "button" || name === "select" || name === "textarea" || name === "input" || name === "area") {
+        return NodeFilter.FILTER_ACCEPT;
+      }
+      if (attributeTest(node, "onclick,tabindex,aria-haspopup,data-cmd,jsaction")) {
+        return NodeFilter.FILTER_ACCEPT;
+      }
+      role = node.getAttribute("role");
+      if (role === "button" || role === "checkbox" || role === "menu") {
+        return NodeFilter.FILTER_ACCEPT;
+      }
+      return NodeFilter.FILTER_REJECT;
+    }
+  });
+
+  for (var key in this.siteFilters) {
+    if (window.location.origin.indexOf(key) !== -1) {
+      applicableFilters.push(this.siteFilters[key]);
+    }
+  }
+  applicableFiltersLength = applicableFilters.length;
+
+  while (node = nodeIterator.nextNode()) {
+    filterCatch = false;
+    for (var j = 0; j < applicableFiltersLength; j++) {
+      if (!applicableFilters[j](node)) {
+        filterCatch = true;
+        break;
       }
     }
-    if (name === "a" || name === "button" || name === "select" || name === "textarea" || name === "input" || name === "area") {
-      return NodeFilter.FILTER_ACCEPT;
-    }
-    if (attributeTest(node, "onclick,tabindex,aria-haspopup,data-cmd,jsaction")) {
-      return NodeFilter.FILTER_ACCEPT;
-    }
-    role = node.getAttribute("role");
-    if (role === "button" || role === "checkbox" || role === "menu") {
-      return NodeFilter.FILTER_ACCEPT;
-    }
-    return NodeFilter.FILTER_REJECT;
-  }});
-  while (node = nodeIterator.nextNode()) {
-    nodes.push(node);
-  }
-  for (i = 0, l = this.siteFilters.domains.length; i < l; i++) {
-    if (window.location.origin.indexOf(this.siteFilters.domains[i]) !== -1) {
-      nodes = nodes.filter(this.siteFilters[this.siteFilters.domains[i].replace(/\..*/, "")]);
-      break;
-    }
-  }
-  for (i = 0, l = nodes.length; i < l; i++) {
-    if (nodes[i]) {
-      this.evaluateLink(nodes[i], i);
+    if (!filterCatch) {
+      this.evaluateLink(node, i++);
     }
   }
 };
