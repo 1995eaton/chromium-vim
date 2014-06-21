@@ -96,7 +96,7 @@ Visual.enterLineMode = function() {
   this.selection = document.getSelection();
   this.firstLine = true;
   var base = this.textNodes[this.textNodes.indexOf(this.selection.baseNode)];
-  if (base === undefined) {
+  if (base === void 0) {
     HUD.setMessage(" -- VISUAL -- ");
     return this.lineMode = false;
   }

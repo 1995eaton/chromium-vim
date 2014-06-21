@@ -123,7 +123,7 @@ Search.nextResult = function(reverse) {
       Command.input.value = Command.input.value.match(/^\S+/)[0] + " " + Command.completionResults[this.index][1][0];
       break;
     case "complete":
-      if (Command.completionResults[this.index][1] !== undefined) {
+      if (Command.completionResults[this.index][1] !== void 0) {
         Command.input.value = Command.completionResults[this.index][1];
       }
       break;

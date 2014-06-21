@@ -17,7 +17,7 @@ chrome.tabs.onUpdated.addListener(function(id, changeInfo) {
   if (changeInfo.hasOwnProperty("url")) {
     if (TabHistory.hasOwnProperty(id)) {
       if (TabHistory[id].links.indexOf(changeInfo.url) === -1) {
-        if (TabHistory.state !== undefined && TabHistory[id].state + 1 !== TabHistory[id].length) {
+        if (TabHistory.state !== void 0 && TabHistory[id].state + 1 !== TabHistory[id].length) {
           TabHistory[id].links.splice(TabHistory[id].state);
         }
         TabHistory[id].links.push(changeInfo.url);
@@ -73,7 +73,7 @@ Sites = {
 };
 
 chrome.storage.local.get("sessions", function(s) {
-  if (s.sessions === undefined) {
+  if (s.sessions === void 0) {
     chrome.storage.local.set({
       sessions: {}
     });

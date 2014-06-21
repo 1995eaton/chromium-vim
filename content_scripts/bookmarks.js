@@ -38,7 +38,7 @@ Marks.filePath = function() {
 };
 
 Marks.addQuickMark = function(ch) {
-  if (this.quickMarks[ch] === undefined) {
+  if (this.quickMarks[ch] === void 0) {
     Status.setMessage("New QuickMark \"" + ch + "\" added", 1);
     this.quickMarks[ch] = [document.URL];
   } else if (this.quickMarks[ch].indexOf(document.URL) === -1) {

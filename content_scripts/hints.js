@@ -44,7 +44,7 @@ Hints.hideHints = function(reset, multi, useKeyDelay) {
     }
   }
   this.linkPreview = false;
-  this.numericMatch = undefined;
+  this.numericMatch = void 0;
   this.active = reset;
   this.currentString = "";
   this.linkArr = [];

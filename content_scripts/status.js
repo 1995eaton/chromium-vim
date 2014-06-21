@@ -4,7 +4,7 @@ Status.defaultTimeout = 3;
 Status.setMessage = function(message, timeout, type) {
   window.clearTimeout(this.delay);
   this.hide();
-  if (timeout === undefined) {
+  if (timeout === void 0) {
     timeout = this.defaultTimeout;
   }
   this.active = true;

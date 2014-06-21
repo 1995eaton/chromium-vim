@@ -71,7 +71,7 @@ actions.openLinkTab = function() {
 };
 
 actions.addFrame = function() {
-  if (Frames[sender.tab.id] === undefined) {
+  if (Frames[sender.tab.id] === void 0) {
     Frames[sender.tab.id] = {
       length: 1,
       index: 0
@@ -261,7 +261,7 @@ actions.createSession = function() {
     currentWindow: true
   }, function(tabs) {
     tabs.forEach(function(tab) {
-      if (tab && tab.index !== undefined) {
+      if (tab && tab.index !== void 0) {
         sessions[request.name][tab.index] = tab;
       }
     });
@@ -482,7 +482,7 @@ actions.getSessionNames = function() {
 actions.retrieveAllHistory = function() {
   var hist = {};
   for (var i = 0; i < History.historyTypes.length; ++i) {
-    if (localStorage[History.historyTypes[i]] === undefined) {
+    if (localStorage[History.historyTypes[i]] === void 0) {
       localStorage[History.historyTypes[i]] = "";
     }
     hist[History.historyTypes[i]] = localStorage[History.historyTypes[i]].split(",");

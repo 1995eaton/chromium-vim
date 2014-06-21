@@ -165,7 +165,7 @@ Mappings.actions = {
         }
       }
     }
-    this.imagesDisabled = (this.imagesDisabled === undefined ? true : !this.imagesDisabled);
+    this.imagesDisabled = (this.imagesDisabled === void 0 ? true : !this.imagesDisabled);
     for (i = 0, l = this.images.length; i < l; ++i) {
       if (this.images[i][2].localName === "img") {
         this.images[i][2].style.opacity = (this.imagesDisabled ? "0" : this.images[i][1]);
@@ -393,7 +393,7 @@ Mappings.actions = {
   nextSearchResult: function(repeats) {
     if (Find.matches.length) {
       Find.search(false, repeats);
-    } else if (Find.lastSearch !== undefined && typeof Find.lastSearch === "string") {
+    } else if (Find.lastSearch !== void 0 && typeof Find.lastSearch === "string") {
       Find.highlight({ base: document.body,
                        search: Find.lastSearch,
                        setIndex: true,
@@ -403,7 +403,7 @@ Mappings.actions = {
   previousSearchResult: function(repeats) {
     if (Find.matches.length) {
       Find.search(true, repeats);
-    } else if (Find.lastSearch !== undefined && typeof Find.lastSearch === "string") {
+    } else if (Find.lastSearch !== void 0 && typeof Find.lastSearch === "string") {
       Find.highlight({ base: document.body,
                        search: Find.lastSearch,
                        setIndex: true,

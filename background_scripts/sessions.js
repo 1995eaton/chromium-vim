@@ -19,7 +19,7 @@ Sessions.nativeStepBack = function() {
 };
 
 Sessions.stepBack = function(sender) {
-  if (Object.keys(tabHistory).length && tabHistory[sender.tab.windowId] !== undefined && tabHistory[sender.tab.windowId].length > 0) {
+  if (Object.keys(tabHistory).length && tabHistory[sender.tab.windowId] !== void 0 && tabHistory[sender.tab.windowId].length > 0) {
     var lastTab = tabHistory[sender.tab.windowId].pop();
     chrome.tabs.create({
       active: true,
@@ -49,7 +49,7 @@ Sessions.stepBack = function(sender) {
     chrome.tabs.onRemoved.addListener(function(id) {
       for (var key in Sessions.activeTabs) {
         if (Sessions.activeTabs[key].hasOwnProperty(id)) {
-          if (tabHistory[Sessions.activeTabs[key][id].windowId] === undefined) {
+          if (tabHistory[Sessions.activeTabs[key][id].windowId] === void 0) {
             tabHistory[Sessions.activeTabs[key][id].windowId] = [];
           }
           tabHistory[Sessions.activeTabs[key][id].windowId].push(Sessions.activeTabs[key][id]);
@@ -61,7 +61,7 @@ Sessions.stepBack = function(sender) {
     chrome.tabs.onUpdated.addListener(function(tab) {
       try {
         chrome.tabs.get(tab, function(updatedTab) {
-          if (Sessions.activeTabs[updatedTab.windowId] === undefined) {
+          if (Sessions.activeTabs[updatedTab.windowId] === void 0) {
             Sessions.activeTabs[updatedTab.windowId] = {};
           }
           Sessions.activeTabs[updatedTab.windowId][updatedTab.id] = updatedTab;

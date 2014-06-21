@@ -49,7 +49,7 @@ chrome.storage.onChanged.addListener(function(changes) {
 
 Options.refreshSettings = function(callback) {
   for (var key in defaultSettings) {
-    if (Settings[key] === undefined) {
+    if (Settings[key] === void 0) {
       Settings[key] = defaultSettings[key];
     }
   }

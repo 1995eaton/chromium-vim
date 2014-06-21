@@ -80,7 +80,7 @@ Command.history = {
     }
     var len = this[type].length,
         index = this.index[type];
-    if (index === undefined) {
+    if (index === void 0) {
       index = len;
     }
     var lastIndex = index;
@@ -733,7 +733,7 @@ Command.insertCSS = function() {
 Command.onDOMLoad = function() {
   this.insertCSS();
   this.onBottom = settings.barposition === "bottom";
-  if (this.data !== undefined) {
+  if (this.data !== void 0) {
     this.data.style[(!this.onBottom) ? "bottom" : "top"] = "";
     this.data.style[(this.onBottom) ? "bottom" : "top"] = "20px";
   }
