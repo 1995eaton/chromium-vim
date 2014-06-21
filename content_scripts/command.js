@@ -242,7 +242,12 @@ Command.complete = function(value) {
     this.deleteCompletions('engines,bookmarks,complete,chrome,search');
     search = search.split(/ +/).compress();
 
-    if ((search.length < 2 || Complete.engines.indexOf(search[0]) === -1) && !Complete.hasAlias(search[0]) || (Complete.hasAlias(search[0]) &&  value.slice(-1) !== ' ' && search.length < 2)) {
+    if ((search.length < 2 ||
+         Complete.engines.indexOf(search[0]) === -1) &&
+        !Complete.hasAlias(search[0]) ||
+        (Complete.hasAlias(search[0]) &&
+         value.slice(-1) !== ' ' && search.length < 2))
+    {
 
       if (Complete.engines.indexOf(search[0]) !== -1) {
         return this.hideData();
@@ -272,7 +277,11 @@ Command.complete = function(value) {
 
       this.historyMode = false;
       this.searchMode = true;
-      return port.postMessage({action: 'searchHistory', search: value.replace(/^\S+\s+/, ''), limit: settings.searchlimit});
+      return port.postMessage({
+        action: 'searchHistory',
+        search: value.replace(/^\S+\s+/, ''),
+        limit: settings.searchlimit
+      });
 
     }
 
@@ -350,18 +359,33 @@ Command.complete = function(value) {
       return this.hideData();
     }
     this.historyMode = true;
-    port.postMessage({action: 'searchHistory', search: search, limit: settings.searchlimit});
+    port.postMessage({
+      action: 'searchHistory',
+      search: search,
+      limit: settings.searchlimit
+    });
     return;
   }
 
   if (/^file +/.test(value)) {
-    if ((search.slice(-1) === '/' && Marks.lastSearchLength < search.length) || Marks.lastSearchLength > search.length || !(Marks.lastFileSearch && Marks.lastFileSearch.replace(/[^\/]+$/, '') === search) && (search.slice(-1) === '/' && !(Marks.lastFileSearch && Marks.lastFileSearch.slice(-1) === '/'))) {
+    if ((search.slice(-1) === '/' &&
+         Marks.lastSearchLength < search.length) ||
+        Marks.lastSearchLength > search.length ||
+        !(Marks.lastFileSearch &&
+          Marks.lastFileSearch.replace(/[^\/]+$/, '') === search) &&
+        (search.slice(-1) === '/' &&
+         !(Marks.lastFileSearch &&
+           Marks.lastFileSearch.slice(-1) === '/')))
+    {
       Marks.lastFileSearch = search;
       Marks.lastSearchLength = search.length;
       if (settings.homedirectory) {
         search = search.replace('~', settings.homedirectory);
       }
-      return chrome.runtime.sendMessage({action: 'getFilePath', path: search});
+      return chrome.runtime.sendMessage({
+        action: 'getFilePath',
+        path: search
+      });
     } else {
       Marks.lastFileSearch = search;
       return Marks.filePath();
@@ -421,15 +445,30 @@ Command.execute = function(value, repeats) {
       break;
     case 'duplicate':
       tab.tabbed = true;
-      chrome.runtime.sendMessage({action: 'openLink', tab: tab, url: document.URL, repeats: repeats});
+      chrome.runtime.sendMessage({
+        action: 'openLink',
+        tab: tab,
+        url: document.URL,
+        repeats: repeats
+      });
       break;
     case 'settings':
       tab.tabbed = true;
-      chrome.runtime.sendMessage({action: 'openLink', tab: tab, url: chrome.extension.getURL('/pages/options.html'), repeats: repeats});
+      chrome.runtime.sendMessage({
+        action: 'openLink',
+        tab: tab,
+        url: chrome.extension.getURL('/pages/options.html'),
+        repeats: repeats
+      });
       break;
     case 'changelog':
       tab.tabbed = true;
-      chrome.runtime.sendMessage({action: 'openLink', tab: tab, url: chrome.extension.getURL('/pages/changelog.html'), repeats: repeats});
+      chrome.runtime.sendMessage({
+        action: 'openLink',
+        tab: tab,
+        url: chrome.extension.getURL('/pages/changelog.html'),
+        repeats: repeats
+      });
       break;
     case 'date':
       var date = new Date();
@@ -439,7 +478,11 @@ Command.execute = function(value, repeats) {
       break;
     case 'help':
       tab.tabbed = true;
-      chrome.runtime.sendMessage({action: 'openLink', tab: tab, url: chrome.extension.getURL('/pages/mappings.html')});
+      chrome.runtime.sendMessage({
+        action: 'openLink',
+        tab: tab,
+        url: chrome.extension.getURL('/pages/mappings.html')
+      });
       break;
     case 'stop':
       window.stop();
@@ -448,7 +491,12 @@ Command.execute = function(value, repeats) {
       chrome.runtime.sendMessage({action: 'cancelAllWebRequests'});
       break;
     case 'viewsource':
-      chrome.runtime.sendMessage({action: 'openLink', tab: tab, url: 'view-source:' + document.URL, noconvert: true});
+      chrome.runtime.sendMessage({
+        action: 'openLink',
+        tab: tab,
+        url: 'view-source:' + document.URL,
+        noconvert: true
+      });
       break;
     case 'togglepin':
       chrome.runtime.sendMessage({action: 'pinTab'});
@@ -470,7 +518,10 @@ Command.execute = function(value, repeats) {
     case 'q':
     case 'quit':
     case 'exit':
-      chrome.runtime.sendMessage({action: 'closeTab', repeats: repeats});
+      chrome.runtime.sendMessage({
+        action: 'closeTab',
+        repeats: repeats
+      });
       break;
     case 'qa':
     case 'qall':
