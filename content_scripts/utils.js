@@ -13,16 +13,6 @@ function reverseImagePost(url) {
   return '<html><head><title>cVim reverse image search</title></head><body><form id="f" method="POST" action="https://www.google.com/searchbyimage/upload" enctype="multipart/form-data"><input type="hidden" name="image_content" value="' + url.substring(url.indexOf(",") + 1).replace(/\+/g, "-").replace(/\//g, "_").replace(/\./g, "=") + '"><input type="hidden" name="filename" value=""><input type="hidden" name="image_url" value=""><input type="hidden" name="sbisrc" value=""></form><script>document.getElementById("f").submit();\x3c/script></body></html>';
 }
 
-function attributeTest(node, attributes) {
-  attributes = attributes.split(",");
-  for (var i = 0, l = attributes.length; i < l; i++) {
-    if (node.getAttribute(attributes[i])) {
-      return true;
-    }
-  }
-  return false;
-}
-
 // Based off of the "Search by Image" Chrome Extension by Google
 function googleReverseImage(url, source) {
   if (void 0 !== url && url.indexOf("data:") === 0) {
@@ -62,7 +52,7 @@ function getVisibleBoundingRect(node) {
     var visibleChildNode = false;
     for (var i = 0, l = children.length; i < l; ++i) {
       boundingRect = children[i].getClientRects()[0] || children[i].getBoundingClientRect();
-      if (boundingRect.width || boundingRect.height) {
+      if (boundingRect.width > 1 && boundingRect.height > 1) {
         visibleChildNode = true;
         break;
       }
@@ -70,9 +60,6 @@ function getVisibleBoundingRect(node) {
     if (visibleChildNode === false) {
       return false;
     }
-  }
-  if (boundingRect.top + boundingRect.height > 10 && boundingRect.left + boundingRect.width > -10) {
-    return boundingRect;
   }
   if (boundingRect.top + boundingRect.height < 10 || boundingRect.left + boundingRect.width < -10) {
     return false;

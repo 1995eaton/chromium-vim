@@ -355,7 +355,7 @@ Hints.getLinks = function() {
       if (name === "a" || name === "button" || name === "select" || name === "textarea" || name === "input" || name === "area") {
         return NodeFilter.FILTER_ACCEPT;
       }
-      if (attributeTest(node, "onclick,tabindex,aria-haspopup,data-cmd,jsaction")) {
+      if (node.getAttribute("onclick") || node.getAttribute("tabindex") || node.getAttribute("aria-haspopup") || node.getAttribute("data-cmd") || node.getAttribute("jsaction")) {
         return NodeFilter.FILTER_ACCEPT;
       }
       if (role = node.getAttribute("role")) {
