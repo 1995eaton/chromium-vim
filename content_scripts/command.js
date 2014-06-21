@@ -515,7 +515,7 @@ Command.execute = function(value, repeats) {
     return chrome.runtime.sendMessage({
       action: "openLink",
       tab: tab,
-      url: "file://" + value.replace(/\S+ +/, ""),
+      url: "file://" + value.replace(/\S+ +/, "").replace(/^~/, settings.homedirectory),
       noconvert: true
     });
   }
