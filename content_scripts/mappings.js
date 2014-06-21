@@ -457,7 +457,8 @@ Mappings.actions = {
       if (br.top + br.height >= 0 &&
           br.left + br.width >= 0 &&
           br.right - br.width <= document.documentElement.clientWidth &&
-          br.top < document.documentElement.clientHeight) {
+          br.top < document.documentElement.clientHeight)
+      {
         this.inputElementsIndex = i;
         break;
       }

@@ -86,9 +86,13 @@ actions.focusFrame = function() {
   if (request.isRoot) {
     Frames[sender.tab.id].index = 0;
   } else {
-    Frames[sender.tab.id].index = (Frames[sender.tab.id].index + request.repeats).mod(Frames[sender.tab.id].length);
+    Frames[sender.tab.id].index = (Frames[sender.tab.id].index +
+        request.repeats).mod(Frames[sender.tab.id].length);
   }
-  chrome.tabs.sendMessage(sender.tab.id, {action: 'focusFrame', index: Frames[sender.tab.id].index});
+  chrome.tabs.sendMessage(sender.tab.id, {
+    action: 'focusFrame',
+    index: Frames[sender.tab.id].index
+  });
 };
 
 actions.openLinkWindow = function() {
@@ -154,7 +158,11 @@ actions.reloadTab = function() {
 actions.reloadAllTabs = function() {
   chrome.tabs.query({}, function(tabs) {
     tabs.forEach(function(tab) {
-      if (!/^chrome:\/\//.test(tab.url) && !(!request.current && tab.id === sender.tab.id && tab.windowId === sender.tab.windowId)) {
+      if (!/^chrome:\/\//.test(tab.url) &&
+          !(!request.current &&
+          tab.id === sender.tab.id &&
+          tab.windowId === sender.tab.windowId))
+      {
         chrome.tabs.reload(tab.id);
       }
     });

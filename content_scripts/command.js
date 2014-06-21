@@ -87,7 +87,8 @@ Command.history = {
     index += reverse? -1 : 1;
     if (Command.typed && Command.typed.trim()) {
       while (this.setInfo(type, index)) {
-        if (this[type][index].substring(0, Command.typed.length) === Command.typed) {
+        if (this[type][index]
+            .substring(0, Command.typed.length) === Command.typed) {
           break;
         }
         index += reverse? -1 : 1;
@@ -132,9 +133,10 @@ Command.updateCompletions = function(useStyles) {
   this.completionResults = [];
   this.dataElements = [];
   this.data.innerHTML = '';
-  var key, i;
+  var key, identifier, item, i;
   var completionKeys = Object.keys(this.completions).sort(function(a, b) {
-    return this.completionOrder.getImportance(b) - this.completionOrder.getImportance(a);
+    return this.completionOrder.getImportance(b) -
+           this.completionOrder.getImportance(a);
   }.bind(this));
   for (i = 0; i < completionKeys.length; i++) {
     key = completionKeys[i];
@@ -146,14 +148,15 @@ Command.updateCompletions = function(useStyles) {
     if (i > settings.searchlimit) {
       break;
     }
-    var item = document.createElement('div');
+    item = document.createElement('div');
     item.className = 'cVim-completion-item';
-    var identifier;
-    if (useStyles && this.completionStyles.hasOwnProperty(this.completionResults[i][0])) {
-      var styles = this.completionStyles[this.completionResults[i][0]];
-      identifier = document.createElement('span');
-      identifier.style.color = styles[1];
-      identifier.textContent = styles[0] + ': ';
+    if (useStyles) {
+      if (this.completionStyles.hasOwnProperty(this.completionResults[i][0])) {
+        var styles = this.completionStyles[this.completionResults[i][0]];
+        identifier = document.createElement('span');
+        identifier.style.color = styles[1];
+        identifier.textContent = styles[0] + ': ';
+      }
     }
     if (this.completionResults[i].length >= 3) {
       var left = document.createElement('span');
@@ -712,7 +715,8 @@ Command.insertCSS = function() {
   var head = document.getElementsByTagName('head');
   if (!head.length ||
       !((head.length && window.location.hostname + window.location.pathname === 'www.google.com/_/chrome/newtab')
-        || window.location.protocol === 'chrome-extension:')) {
+        || window.location.protocol === 'chrome-extension:'))
+  {
     if (window.location.protocol !== 'chrome:') {
       chrome.runtime.sendMessage({
         action: 'injectCSS',

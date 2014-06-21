@@ -1,6 +1,5 @@
 {
     "esnext": true,
-    "bitwise": true,
     "camelcase": true,
     "curly": true,
     "boss": true,
@@ -13,6 +12,7 @@
     "noarg": true,
     "multistr": true,
     "undef": true,
+    "quotmark": "single",
     "strict": false,
     "trailing": true,
     "smarttabs": true,
