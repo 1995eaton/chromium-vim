@@ -32,9 +32,9 @@ Sessions.stepBack = function(sender) {
 };
 
 (function() {
-  if (chrome.hasOwnProperty("sessions")) {
+  if (chrome.hasOwnProperty('sessions')) {
     Sessions.nativeSessions = true;
-    if (chrome.sessions.hasOwnProperty("onchanged")) { // Chromium version 35 doesn't have this listener, but supports chrome.sessions
+    if (chrome.sessions.hasOwnProperty('onchanged')) { // Chromium version 35 doesn't have this listener, but supports chrome.sessions
       chrome.sessions.onChanged.addListener(function() {
         Sessions.onChanged();
       });

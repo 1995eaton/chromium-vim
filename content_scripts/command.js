@@ -5,24 +5,24 @@ Command.dataElements = [];
 Command.matches = [];
 
 Command.setup = function() {
-  this.bar = document.createElement("div");
-  this.bar.id = "cVim-command-bar";
+  this.bar = document.createElement('div');
+  this.bar.id = 'cVim-command-bar';
   this.bar.cVim = true;
-  this.bar.style[(this.onBottom) ? "bottom" : "top"] = "0";
-  this.input = document.createElement("input");
-  this.input.type = "text";
-  this.input.id = "cVim-command-bar-input";
+  this.bar.style[(this.onBottom) ? 'bottom' : 'top'] = '0';
+  this.input = document.createElement('input');
+  this.input.type = 'text';
+  this.input.id = 'cVim-command-bar-input';
   this.input.cVim = true;
-  this.statusBar = document.createElement("div");
-  this.statusBar.id = "cVim-status-bar";
-  this.statusBar.style[(this.onBottom) ? "bottom" : "top"] = "0";
-  this.modeIdentifier = document.createElement("span");
-  this.modeIdentifier.id = "cVim-command-bar-mode";
+  this.statusBar = document.createElement('div');
+  this.statusBar.id = 'cVim-status-bar';
+  this.statusBar.style[(this.onBottom) ? 'bottom' : 'top'] = '0';
+  this.modeIdentifier = document.createElement('span');
+  this.modeIdentifier.id = 'cVim-command-bar-mode';
   this.modeIdentifier.cVim = true;
   this.bar.appendChild(this.modeIdentifier);
   this.bar.appendChild(this.input);
   this.bar.spellcheck = false;
-  this.input.addEventListener("blur", function() { // Possible fix for #43
+  this.input.addEventListener('blur', function() { // Possible fix for #43
     window.setTimeout(function() {
       Command.hide.call(Command);
     }, 0);
@@ -35,8 +35,8 @@ Command.setup = function() {
     document.body.appendChild(this.statusBar);
   }
   if (!this.data) {
-    this.data = document.createElement("div");
-    this.data.id = "cVim-command-bar-search-results";
+    this.data = document.createElement('div');
+    this.data.id = 'cVim-command-bar-search-results';
     this.data.cVim = true;
     try {
       document.lastChild.appendChild(this.data);
@@ -47,11 +47,11 @@ Command.setup = function() {
     if (this.onBottom) {
       this.barPaddingTop = 0;
       this.barPaddingBottom = this.barHeight;
-      this.data.style.bottom = this.barHeight + "px";
+      this.data.style.bottom = this.barHeight + 'px';
     } else {
       this.barPaddingBottom = 0;
       this.barPaddingTop = this.barHeight;
-      this.data.style.top = this.barHeight + "px";
+      this.data.style.top = this.barHeight + 'px';
     }
   }
 };
@@ -102,7 +102,7 @@ Command.history = {
     if (this.index[type] !== this[type].length) {
       Command.input.value = this[type][this.index[type]];
     } else {
-      Command.input.value = Command.typed || "";
+      Command.input.value = Command.typed || '';
     }
   }
 };
@@ -110,9 +110,9 @@ Command.history = {
 Command.completions = {};
 
 Command.completionStyles = {
-  topsites: ["Top Site", "darkcyan"],
-  history:  ["History", "cyan"],
-  bookmarks: ["Bookmark", "#6d85fd"]
+  topsites: ['Top Site', 'darkcyan'],
+  history:  ['History', 'cyan'],
+  bookmarks: ['Bookmark', '#6d85fd']
 };
 
 Command.completionOrder = {
@@ -131,7 +131,7 @@ Command.completionOrder = {
 Command.updateCompletions = function(useStyles) {
   this.completionResults = [];
   this.dataElements = [];
-  this.data.innerHTML = "";
+  this.data.innerHTML = '';
   var key, i;
   var completionKeys = Object.keys(this.completions).sort(function(a, b) {
     return this.completionOrder.getImportance(b) - this.completionOrder.getImportance(a);
@@ -146,21 +146,21 @@ Command.updateCompletions = function(useStyles) {
     if (i > settings.searchlimit) {
       break;
     }
-    var item = document.createElement("div");
-    item.className = "cVim-completion-item";
+    var item = document.createElement('div');
+    item.className = 'cVim-completion-item';
     var identifier;
     if (useStyles && this.completionStyles.hasOwnProperty(this.completionResults[i][0])) {
       var styles = this.completionStyles[this.completionResults[i][0]];
-      identifier = document.createElement("span");
+      identifier = document.createElement('span');
       identifier.style.color = styles[1];
-      identifier.textContent = styles[0] + ": ";
+      identifier.textContent = styles[0] + ': ';
     }
     if (this.completionResults[i].length >= 3) {
-      var left = document.createElement("span");
-      left.className = "cVim-left";
+      var left = document.createElement('span');
+      left.className = 'cVim-left';
       left.textContent = decodeHTMLEntities(this.completionResults[i][1]);
-      var right = document.createElement("span");
-      right.className = "cVim-right";
+      var right = document.createElement('span');
+      right.className = 'cVim-right';
       right.textContent = decodeHTMLEntities(this.completionResults[i][2]);
       if (identifier) {
         left.insertBefore(identifier, left.firstChild);
@@ -168,15 +168,15 @@ Command.updateCompletions = function(useStyles) {
       item.appendChild(left);
       item.appendChild(right);
     } else {
-      var full = document.createElement("span");
-      full.className = "cVim-full";
+      var full = document.createElement('span');
+      full.className = 'cVim-full';
       full.textContent = decodeHTMLEntities(this.completionResults[i][1]);
       item.appendChild(full);
     }
     this.dataElements.push(item);
     this.data.appendChild(item);
   }
-  this.data.style.display = "block";
+  this.data.style.display = 'block';
 };
 
 Command.hideData = function() {
@@ -184,45 +184,45 @@ Command.hideData = function() {
   Search.lastActive = null;
   this.dataElements.length = 0;
   if (this.data) {
-    this.data.innerHTML = "";
+    this.data.innerHTML = '';
     Search.index = null;
   }
 };
 
 Command.descriptions = [
-  ["open",         "Open a link in the current tab"],
-  ["tabnew",       "Open a link in a new tab"],
-  ["tabnext",      "Switch to the next open tab"],
-  ["tabprevious",  "Switch to the previous open tab"],
-  ["new",      "Open a link in a new window"],
-  ["buffer",      "Select from a list of current tabs"],
-  ["history",      "Search through your browser history"],
-  ["bookmarks",    "Search through your bookmarks"],
-  ["file",         "Browse local directories"],
-  ["set",          "Configure Settings"],
-  ["tabhistory",   "Open a tab from its history states"],
-  ["execute",      "Execute a sequence of keys"],
-  ["session",      "Open a saved session in a new window"],
-  ["mksession",    "Create a saved session of current tabs"],
-  ["delsession",   "Delete sessions"],
-  ["chrome://",    "Opens Chrome urls"],
-  ["duplicate",    "Clone the current tab"],
-  ["settings",     "Open the options page for this extension"],
-  ["help",         "Shows the help page"],
-  ["changelog",    "Shows the changelog page"],
-  ["date",         "Display the current date"],
-  ["quit",         "Close the current tab"],
-  ["qall",         "Close the current window"],
-  ["stop",         "Stop the current page from loading"],
-  ["stopall",      "Stop all pages in Chrome from loading"],
-  ["undo",         "Reopen the last closed tab"],
-  ["togglepin",    "Toggle the tab's pinned state"],
-  ["nohl",         "Clears the search highlight"],
-  ["viewsource",   "View the source for the current document"]
+  ['open',         'Open a link in the current tab'],
+  ['tabnew',       'Open a link in a new tab'],
+  ['tabnext',      'Switch to the next open tab'],
+  ['tabprevious',  'Switch to the previous open tab'],
+  ['new',      'Open a link in a new window'],
+  ['buffer',      'Select from a list of current tabs'],
+  ['history',      'Search through your browser history'],
+  ['bookmarks',    'Search through your bookmarks'],
+  ['file',         'Browse local directories'],
+  ['set',          'Configure Settings'],
+  ['tabhistory',   'Open a tab from its history states'],
+  ['execute',      'Execute a sequence of keys'],
+  ['session',      'Open a saved session in a new window'],
+  ['mksession',    'Create a saved session of current tabs'],
+  ['delsession',   'Delete sessions'],
+  ['chrome://',    'Opens Chrome urls'],
+  ['duplicate',    'Clone the current tab'],
+  ['settings',     'Open the options page for this extension'],
+  ['help',         'Shows the help page'],
+  ['changelog',    'Shows the changelog page'],
+  ['date',         'Display the current date'],
+  ['quit',         'Close the current tab'],
+  ['qall',         'Close the current window'],
+  ['stop',         'Stop the current page from loading'],
+  ['stopall',      'Stop all pages in Chrome from loading'],
+  ['undo',         'Reopen the last closed tab'],
+  ['togglepin',    'Toggle the tab\'s pinned state'],
+  ['nohl',         'Clears the search highlight'],
+  ['viewsource',   'View the source for the current document']
 ];
 
 Command.deleteCompletions = function(completions) {
-  completions = completions.split(",");
+  completions = completions.split(',');
   for (var i = 0, l = completions.length; i < l; ++i) {
     this.completions[completions[i]] = [];
   }
@@ -231,15 +231,15 @@ Command.deleteCompletions = function(completions) {
 Command.complete = function(value) {
   Search.index = null;
   this.typed = this.input.value;
-  value = value.replace(/(^[^\s&!*]+)[&!*]*/, "$1");
-  var search = value.replace(/^(chrome:\/\/|\S+ +)/, "");
+  value = value.replace(/(^[^\s&!*]+)[&!*]*/, '$1');
+  var search = value.replace(/^(chrome:\/\/|\S+ +)/, '');
 
   if (/^(tabnew|tabedit|tabe|tabopen|to|open|o|wo|new|winopen)(\s+)/.test(value)) {
 
-    this.deleteCompletions("engines,bookmarks,complete,chrome,search");
+    this.deleteCompletions('engines,bookmarks,complete,chrome,search');
     search = search.split(/ +/).compress();
 
-    if ((search.length < 2 || Complete.engines.indexOf(search[0]) === -1) && !Complete.hasAlias(search[0]) || (Complete.hasAlias(search[0]) &&  value.slice(-1) !== " " && search.length < 2)) {
+    if ((search.length < 2 || Complete.engines.indexOf(search[0]) === -1) && !Complete.hasAlias(search[0]) || (Complete.hasAlias(search[0]) &&  value.slice(-1) !== ' ' && search.length < 2)) {
 
       if (Complete.engines.indexOf(search[0]) !== -1) {
         return this.hideData();
@@ -247,21 +247,21 @@ Command.complete = function(value) {
 
       this.completions.engines = [];
       for (var i = 0, l = Complete.engines.length; i < l; ++i) {
-        if (!search[0] || Complete.engines[i].indexOf(search.join(" ")) === 0) {
+        if (!search[0] || Complete.engines[i].indexOf(search.join(' ')) === 0) {
           this.completions.engines.push([Complete.engines[i], Complete.requestUrls[Complete.engines[i]]]);
         }
       }
       this.updateCompletions(true);
 
       this.completions.topsites = Search.topSites.filter(function(e) {
-        return (e[0] + " " + e[1]).toLowerCase().indexOf(search.slice(0).join(" ").toLowerCase()) !== -1;
+        return (e[0] + ' ' + e[1]).toLowerCase().indexOf(search.slice(0).join(' ').toLowerCase()) !== -1;
       }).slice(0, 5).map(function(e) {
         return [e[0], e[1]];
       });
       this.updateCompletions(true);
 
       if (search.length) {
-        Marks.match(search.join(" "), function(response) {
+        Marks.match(search.join(' '), function(response) {
           this.completions.bookmarks = response;
           this.updateCompletions(true);
         }.bind(this), 2);
@@ -269,7 +269,7 @@ Command.complete = function(value) {
 
       this.historyMode = false;
       this.searchMode = true;
-      return port.postMessage({action: "searchHistory", search: value.replace(/^\S+\s+/, ""), limit: settings.searchlimit});
+      return port.postMessage({action: 'searchHistory', search: value.replace(/^\S+\s+/, ''), limit: settings.searchlimit});
 
     }
 
@@ -280,7 +280,7 @@ Command.complete = function(value) {
       }
     }
     if (Complete.engines.indexOf(search[0]) !== -1 && Complete.hasOwnProperty(search[0])) {
-      Complete[search[0]](search.slice(1).join(" "), function(response) {
+      Complete[search[0]](search.slice(1).join(' '), function(response) {
         this.completions = { search: response };
         this.updateCompletions();
       }.bind(this));
@@ -298,10 +298,10 @@ Command.complete = function(value) {
   }
 
   if (/^tabhistory +/.test(value)) {
-    chrome.runtime.sendMessage({action: "getHistoryStates"}, function(response) {
+    chrome.runtime.sendMessage({action: 'getHistoryStates'}, function(response) {
       this.completions = {
         tabhistory: response.links.filter(function(e) {
-          return e.indexOf(value.replace(/\S+\s+/, "")) !== -1;
+          return e.indexOf(value.replace(/\S+\s+/, '')) !== -1;
         })
       };
       this.updateCompletions();
@@ -310,8 +310,8 @@ Command.complete = function(value) {
   }
 
   if (/^buffer(\s+)/.test(value)) {
-    search = value.replace(/^\S+\s+/, "");
-    port.postMessage({action: "getBuffers"});
+    search = value.replace(/^\S+\s+/, '');
+    port.postMessage({action: 'getBuffers'});
     return;
   }
 
@@ -321,7 +321,7 @@ Command.complete = function(value) {
         var regexp;
         var isValidRegex = true;
         try {
-          regexp = new RegExp(search, "i");
+          regexp = new RegExp(search, 'i');
         } catch (ex) {
           isValidRegex = false;
         }
@@ -343,22 +343,22 @@ Command.complete = function(value) {
   }
 
   if (/^hist(ory)?(\s+)/.test(value)) {
-    if (search.trim() === "") {
+    if (search.trim() === '') {
       return this.hideData();
     }
     this.historyMode = true;
-    port.postMessage({action: "searchHistory", search: search, limit: settings.searchlimit});
+    port.postMessage({action: 'searchHistory', search: search, limit: settings.searchlimit});
     return;
   }
 
   if (/^file +/.test(value)) {
-    if ((search.slice(-1) === "/" && Marks.lastSearchLength < search.length) || Marks.lastSearchLength > search.length || !(Marks.lastFileSearch && Marks.lastFileSearch.replace(/[^\/]+$/, "") === search) && (search.slice(-1) === "/" && !(Marks.lastFileSearch && Marks.lastFileSearch.slice(-1) === "/"))) {
+    if ((search.slice(-1) === '/' && Marks.lastSearchLength < search.length) || Marks.lastSearchLength > search.length || !(Marks.lastFileSearch && Marks.lastFileSearch.replace(/[^\/]+$/, '') === search) && (search.slice(-1) === '/' && !(Marks.lastFileSearch && Marks.lastFileSearch.slice(-1) === '/'))) {
       Marks.lastFileSearch = search;
       Marks.lastSearchLength = search.length;
       if (settings.homedirectory) {
-        search = search.replace("~", settings.homedirectory);
+        search = search.replace('~', settings.homedirectory);
       }
-      return chrome.runtime.sendMessage({action: "getFilePath", path: search});
+      return chrome.runtime.sendMessage({action: 'getFilePath', path: search});
     } else {
       Marks.lastFileSearch = search;
       return Marks.filePath();
@@ -367,7 +367,7 @@ Command.complete = function(value) {
 
   if (/^b(ook)?marks(\s+)/.test(value)) {
     this.completions = {};
-    if (search[0] === "/") {
+    if (search[0] === '/') {
       return Marks.matchPath(search);
     }
     Marks.match(search, function(response) {
@@ -387,20 +387,20 @@ Command.complete = function(value) {
 
 Command.execute = function(value, repeats) {
 
-  // Match commands like ":tabnew*&! search" before commands like ":tabnew search&*!"
+  // Match commands like ':tabnew*&! search' before commands like ':tabnew search&*!'
   // e.g. :tabnew& google asdf* => opens a new pinned tab
   // ! == whether to open in a new tab or not
   // & == whether the tab will be active
   // * == whether the tab will be pinned
   var tab = {
-    active: value === (value = value.replace(/(^[^\s&]+)&([*!]*)/, "$1$2")),
-    pinned: value !== (value = value.replace(/(^[^\s*]+)\*([!]*)/, "$1$2")),
-    tabbed: value !== (value = value.replace(/(^[^\s!]+)!/, "$1"))
+    active: value === (value = value.replace(/(^[^\s&]+)&([*!]*)/, '$1$2')),
+    pinned: value !== (value = value.replace(/(^[^\s*]+)\*([!]*)/, '$1$2')),
+    tabbed: value !== (value = value.replace(/(^[^\s!]+)!/, '$1'))
   };
   var glob = {
-    active: value === (value = value.replace(/&([*!]*)$/, "$1")),
-    pinned: value !== (value = value.replace(/\*([!]*)$/, "$1")),
-    tabbed: value !== (value = value.replace(/!$/, ""))
+    active: value === (value = value.replace(/&([*!]*)$/, '$1')),
+    pinned: value !== (value = value.replace(/\*([!]*)$/, '$1')),
+    tabbed: value !== (value = value.replace(/!$/, ''))
   };
   tab.active = tab.active && glob.active;
   tab.pinned = tab.pinned || glob.pinned;
@@ -412,66 +412,66 @@ Command.execute = function(value, repeats) {
   this.history.index = {};
 
   switch (value) {
-    case "nohl":
+    case 'nohl':
       Find.clear();
       HUD.hide();
       break;
-    case "duplicate":
+    case 'duplicate':
       tab.tabbed = true;
-      chrome.runtime.sendMessage({action: "openLink", tab: tab, url: document.URL, repeats: repeats});
+      chrome.runtime.sendMessage({action: 'openLink', tab: tab, url: document.URL, repeats: repeats});
       break;
-    case "settings":
+    case 'settings':
       tab.tabbed = true;
-      chrome.runtime.sendMessage({action: "openLink", tab: tab, url: chrome.extension.getURL("/pages/options.html"), repeats: repeats});
+      chrome.runtime.sendMessage({action: 'openLink', tab: tab, url: chrome.extension.getURL('/pages/options.html'), repeats: repeats});
       break;
-    case "changelog":
+    case 'changelog':
       tab.tabbed = true;
-      chrome.runtime.sendMessage({action: "openLink", tab: tab, url: chrome.extension.getURL("/pages/changelog.html"), repeats: repeats});
+      chrome.runtime.sendMessage({action: 'openLink', tab: tab, url: chrome.extension.getURL('/pages/changelog.html'), repeats: repeats});
       break;
-    case "date":
+    case 'date':
       var date = new Date();
-      var weekDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-      var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-      Status.setMessage(weekDays[date.getDay()] + ", " + months[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear(), 2);
+      var weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      Status.setMessage(weekDays[date.getDay()] + ', ' + months[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear(), 2);
       break;
-    case "help":
+    case 'help':
       tab.tabbed = true;
-      chrome.runtime.sendMessage({action: "openLink", tab: tab, url: chrome.extension.getURL("/pages/mappings.html")});
+      chrome.runtime.sendMessage({action: 'openLink', tab: tab, url: chrome.extension.getURL('/pages/mappings.html')});
       break;
-    case "stop":
+    case 'stop':
       window.stop();
       break;
-    case "stopall":
-      chrome.runtime.sendMessage({action: "cancelAllWebRequests"});
+    case 'stopall':
+      chrome.runtime.sendMessage({action: 'cancelAllWebRequests'});
       break;
-    case "viewsource":
-      chrome.runtime.sendMessage({action: "openLink", tab: tab, url: "view-source:" + document.URL, noconvert: true});
+    case 'viewsource':
+      chrome.runtime.sendMessage({action: 'openLink', tab: tab, url: 'view-source:' + document.URL, noconvert: true});
       break;
-    case "togglepin":
-      chrome.runtime.sendMessage({action: "pinTab"});
+    case 'togglepin':
+      chrome.runtime.sendMessage({action: 'pinTab'});
       break;
-    case "undo":
-      chrome.runtime.sendMessage({action: "openLast"});
+    case 'undo':
+      chrome.runtime.sendMessage({action: 'openLast'});
       break;
-    case "tabnext":
-    case "tabn":
-      chrome.runtime.sendMessage({action: "nextTab"});
+    case 'tabnext':
+    case 'tabn':
+      chrome.runtime.sendMessage({action: 'nextTab'});
       break;
-    case "tabprevious":
-    case "tabp":
-    case "tabN":
-      chrome.runtime.sendMessage({action: "previousTab"});
+    case 'tabprevious':
+    case 'tabp':
+    case 'tabN':
+      chrome.runtime.sendMessage({action: 'previousTab'});
       break;
-    case "tabprevious":
+    case 'tabprevious':
       break;
-    case "q":
-    case "quit":
-    case "exit":
-      chrome.runtime.sendMessage({action: "closeTab", repeats: repeats});
+    case 'q':
+    case 'quit':
+    case 'exit':
+      chrome.runtime.sendMessage({action: 'closeTab', repeats: repeats});
       break;
-    case "qa":
-    case "qall":
-      chrome.runtime.sendMessage({action: "closeWindow"});
+    case 'qa':
+    case 'qall':
+      chrome.runtime.sendMessage({action: 'closeWindow'});
       break;
     default:
       break;
@@ -479,7 +479,7 @@ Command.execute = function(value, repeats) {
 
   if (/^chrome:\/\/\S+$/.test(value)) {
     return chrome.runtime.sendMessage({
-      action: "openLink",
+      action: 'openLink',
       tab: tab,
       url: value,
       noconvert: true
@@ -489,22 +489,22 @@ Command.execute = function(value, repeats) {
   if (/^bookmarks +/.test(value) && !/^\S+\s*$/.test(value)) {
     if (/^\S+\s+\//.test(value)) {
       return chrome.runtime.sendMessage({
-        action: "openBookmarkFolder",
-        path: value.replace(/\S+\s+/, ""),
+        action: 'openBookmarkFolder',
+        path: value.replace(/\S+\s+/, ''),
         noconvert: true
       });
     }
     return chrome.runtime.sendMessage({
-      action: "openLink",
+      action: 'openLink',
       tab: tab,
-      url: value.replace(/^\S+\s+/, ""),
+      url: value.replace(/^\S+\s+/, ''),
       noconvert: true
     });
   }
 
   if (/^history +/.test(value) && !/^\S+\s*$/.test(value)) {
     return chrome.runtime.sendMessage({
-      action: "openLink",
+      action: 'openLink',
       tab: tab,
       url: Complete.convertToLink(value),
       noconvert: true
@@ -513,16 +513,16 @@ Command.execute = function(value, repeats) {
 
   if (/^file +/.test(value)) {
     return chrome.runtime.sendMessage({
-      action: "openLink",
+      action: 'openLink',
       tab: tab,
-      url: "file://" + value.replace(/\S+ +/, "").replace(/^~/, settings.homedirectory),
+      url: 'file://' + value.replace(/\S+ +/, '').replace(/^~/, settings.homedirectory),
       noconvert: true
     });
   }
 
-  if (/^(new|winopen|wo)$/.test(value.replace(/ .*/, "")) && !/^\S+\s*$/.test(value)) {
+  if (/^(new|winopen|wo)$/.test(value.replace(/ .*/, '')) && !/^\S+\s*$/.test(value)) {
     return chrome.runtime.sendMessage({
-      action: "openLinkWindow",
+      action: 'openLinkWindow',
       tab: tab,
       url: Complete.convertToLink(value),
       repeats: repeats,
@@ -530,10 +530,10 @@ Command.execute = function(value, repeats) {
     });
   }
 
-  if (/^(tabnew|tabedit|tabe|to|tabopen|tabhistory)$/.test(value.replace(/ .*/, ""))) {
+  if (/^(tabnew|tabedit|tabe|to|tabopen|tabhistory)$/.test(value.replace(/ .*/, ''))) {
     tab.tabbed = true;
     return chrome.runtime.sendMessage({
-      action: "openLink",
+      action: 'openLink',
       tab: tab,
       url: Complete.convertToLink(value),
       repeats: repeats,
@@ -541,9 +541,9 @@ Command.execute = function(value, repeats) {
     });
   }
 
-  if (/^(o|open)$/.test(value.replace(/ .*/, "")) && !/^\S+\s*$/.test(value)) {
+  if (/^(o|open)$/.test(value.replace(/ .*/, '')) && !/^\S+\s*$/.test(value)) {
     return chrome.runtime.sendMessage({
-      action: "openLink",
+      action: 'openLink',
       tab: tab,
       url: Complete.convertToLink(value),
       noconvert: true
@@ -553,92 +553,91 @@ Command.execute = function(value, repeats) {
   if (/^buffer +/.test(value)) {
     if (Command.completionResults[0]) {
       return chrome.runtime.sendMessage({
-        action: "goToTab",
+        action: 'goToTab',
         index: Command.completionResults[0][1][0]
       });
     }
     if (/^buffer +[0-9]+ *$/.test(value)) {
       chrome.runtime.sendMessage({
-        action: "goToTab",
-        index: +value.replace(/^\S+\s+/, "")
+        action: 'goToTab',
+        index: +value.replace(/^\S+\s+/, '')
       });
     }
     return;
   }
 
   if (/^execute +/.test(value)) {
-    var command = value.replace(/^\S+/, "").trim();
-    realKeys = "";
-    repeats = "";
+    var command = value.replace(/^\S+/, '').trim();
+    repeats = '';
     Command.hide();
     return Mappings.executeSequence(command);
   }
 
   if (/^delsession/.test(value)) {
-    value = value.replace(/^\S+(\s+)?/, "").trimAround();
-    if (value === "") {
-      return Status.setMessage("argument required", 1, "error");
+    value = value.replace(/^\S+(\s+)?/, '').trimAround();
+    if (value === '') {
+      return Status.setMessage('argument required', 1, 'error');
     }
     if (sessions.indexOf(value) !== -1) {
       sessions.splice(sessions.indexOf(value), 1);
     }
-    value.split(" ").forEach(function(v) {
-      chrome.runtime.sendMessage({action: "deleteSession", name: v});
+    value.split(' ').forEach(function(v) {
+      chrome.runtime.sendMessage({action: 'deleteSession', name: v});
     });
-    return port.postMessage({action: "getSessionNames"});
+    return port.postMessage({action: 'getSessionNames'});
   }
 
   if (/^mksession/.test(value)) {
-    value = value.replace(/^\S+(\s+)?/, "").trimAround();
-    if (value === "") {
-      return Status.setMessage("session name required", 1, "error");
+    value = value.replace(/^\S+(\s+)?/, '').trimAround();
+    if (value === '') {
+      return Status.setMessage('session name required', 1, 'error');
     }
     if (/[^a-zA-Z0-9_-]/.test(value)) {
-      return Status.setMessage("only alphanumeric characters, dashes, and underscores are allowed", 1, "error");
+      return Status.setMessage('only alphanumeric characters, dashes, and underscores are allowed', 1, 'error');
     }
     if (sessions.indexOf(value) === -1) {
       sessions.push(value);
     }
     chrome.runtime.sendMessage({
-      action: "createSession",
+      action: 'createSession',
       name: value
     });
     return;
   }
 
   if (/^session/.test(value)) {
-    value = value.replace(/^\S+(\s+)?/, "").trimAround();
-    if (value === "") {
-      return Status.setMessage("session name required", 1, "error");
+    value = value.replace(/^\S+(\s+)?/, '').trimAround();
+    if (value === '') {
+      return Status.setMessage('session name required', 1, 'error');
     }
     return chrome.runtime.sendMessage({
-      action: "openSession",
+      action: 'openSession',
       name: value,
       sameWindow: !tab.active
     }, function() {
-      Status.setMessage("session does not exist", 1, "error");
+      Status.setMessage('session does not exist', 1, 'error');
     });
   }
 
-  if (/^set +/.test(value) && value !== "set") {
-    value = value.replace(/^set +/, "").split(/[ =]+/);
+  if (/^set +/.test(value) && value !== 'set') {
+    value = value.replace(/^set +/, '').split(/[ =]+/);
     var isSet, swapVal,
         isQuery = /\?$/.test(value[0]);
-    value[0] = value[0].replace(/\?$/, "");
-    if (!settings.hasOwnProperty(value[0].replace(/^no|!$/g, ""))) {
-      return Status.setMessage("unknown option: " + value[0], 1, "error");
+    value[0] = value[0].replace(/\?$/, '');
+    if (!settings.hasOwnProperty(value[0].replace(/^no|!$/g, ''))) {
+      return Status.setMessage('unknown option: ' + value[0], 1, 'error');
     }
 
     if (isQuery) {
-      return Status.setMessage(value + ": " + settings[value[0]], 1);
+      return Status.setMessage(value + ': ' + settings[value[0]], 1);
     }
 
     isSet    = !/^no/.test(value[0]);
     swapVal  = tab.tabbed;
-    value[0] = value[0].replace(/^no|\?$/g, "");
+    value[0] = value[0].replace(/^no|\?$/g, '');
 
     if (value.length === 1 && Boolean(settings[value]) === settings[value]) {
-      if (value[0] === "hud" && !isSet) {
+      if (value[0] === 'hud' && !isSet) {
         HUD.hide(true);
       }
       if (swapVal) {
@@ -655,17 +654,17 @@ Command.show = function(search, value) {
   if (!this.domElementsLoaded) {
     return false;
   }
-  this.type = "";
+  this.type = '';
   this.active = true;
   if (document.activeElement) {
     document.activeElement.blur();
   }
   if (search) {
-    this.type = "search";
+    this.type = 'search';
     this.modeIdentifier.innerHTML = search;
   } else {
-    this.type = "action";
-    this.modeIdentifier.innerHTML = ":";
+    this.type = 'action';
+    this.modeIdentifier.innerHTML = ':';
   }
   if (value) {
     this.input.value = value;
@@ -674,7 +673,7 @@ Command.show = function(search, value) {
   if (Status.active) {
     Status.hide();
   }
-  this.bar.style.display = "inline-block";
+  this.bar.style.display = 'inline-block';
   setTimeout(function() {
     this.input.focus();
   }.bind(this), 0);
@@ -686,20 +685,20 @@ Command.hide = function(callback) {
   }
   this.hideData();
   if (this.bar) {
-    this.bar.style.display = "none";
+    this.bar.style.display = 'none';
   }
   if (this.input) {
-    this.input.value = "";
+    this.input.value = '';
   }
   if (this.data) {
-    this.data.style.display = "none";
+    this.data.style.display = 'none';
   }
   this.historyMode = false;
   this.active = false;
   commandMode = false;
   Search.index = null;
   this.history.index = {};
-  this.typed = "";
+  this.typed = '';
   this.dataElements = [];
   if (callback) {
     callback();
@@ -710,21 +709,21 @@ Command.insertCSS = function() {
   if (!settings.COMMANDBARCSS) {
     return;
   }
-  var head = document.getElementsByTagName("head");
+  var head = document.getElementsByTagName('head');
   if (!head.length ||
-      !((head.length && window.location.hostname + window.location.pathname === "www.google.com/_/chrome/newtab")
-        || window.location.protocol === "chrome-extension:")) {
-    if (window.location.protocol !== "chrome:") {
+      !((head.length && window.location.hostname + window.location.pathname === 'www.google.com/_/chrome/newtab')
+        || window.location.protocol === 'chrome-extension:')) {
+    if (window.location.protocol !== 'chrome:') {
       chrome.runtime.sendMessage({
-        action: "injectCSS",
+        action: 'injectCSS',
         css: settings.COMMANDBARCSS,
-        runAt: "document_start"
+        runAt: 'document_start'
       });
     }
   }
   // For some reason, Chrome's own implementation of CSS injection seems to miss some styles.
   if (head.length) {
-    this.css = document.createElement("style");
+    this.css = document.createElement('style');
     this.css.textContent = settings.COMMANDBARCSS;
     head[0].appendChild(this.css);
   }
@@ -732,10 +731,10 @@ Command.insertCSS = function() {
 
 Command.onDOMLoad = function() {
   this.insertCSS();
-  this.onBottom = settings.barposition === "bottom";
+  this.onBottom = settings.barposition === 'bottom';
   if (this.data !== void 0) {
-    this.data.style[(!this.onBottom) ? "bottom" : "top"] = "";
-    this.data.style[(this.onBottom) ? "bottom" : "top"] = "20px";
+    this.data.style[(!this.onBottom) ? 'bottom' : 'top'] = '';
+    this.data.style[(this.onBottom) ? 'bottom' : 'top'] = '20px';
   }
   if (!settings.autofocus) {
     var manualFocus = false;
@@ -749,13 +748,13 @@ Command.onDOMLoad = function() {
         window.clearInterval(initialFocus);
       }
     }, 5);
-    var initialKeyDown = document.addEventListener("keydown", function() {
+    var initialKeyDown = document.addEventListener('keydown', function() {
       manualFocus = true;
-      document.removeEventListener("keydown", initialKeyDown, true);
+      document.removeEventListener('keydown', initialKeyDown, true);
     }, true);
-    var initialMouseDown = document.addEventListener("mousedown", function() {
+    var initialMouseDown = document.addEventListener('mousedown', function() {
       manualFocus = true;
-      document.removeEventListener("mousedown", initialMouseDown, true);
+      document.removeEventListener('mousedown', initialMouseDown, true);
     }, true);
   }
   this.setup();
@@ -777,7 +776,7 @@ Command.init = function(enabled) {
     }
     if (settings.searchengines && settings.searchengines.constructor === Object) {
       for (key in settings.searchengines) {
-        if (Complete.engines.indexOf(key) === -1 && typeof settings.searchengines[key] === "string") {
+        if (Complete.engines.indexOf(key) === -1 && typeof settings.searchengines[key] === 'string') {
           Complete.engines.push(key);
           Complete.requestUrls[key] = settings.searchengines[key];
         }
@@ -801,15 +800,15 @@ Command.init = function(enabled) {
     }
     Scroll.smoothScroll = settings.smoothscroll;
     Scroll.stepSize = +settings.scrollstep;
-    if (settings.hintcharacters.split("").unique().length > 1) {
-      settings.hintcharacters = settings.hintcharacters.split("").unique().join("");
+    if (settings.hintcharacters.split('').unique().length > 1) {
+      settings.hintcharacters = settings.hintcharacters.split('').unique().join('');
     }
   } else {
     this.loaded = false;
     if (this.css && this.css.parentNode) {
       this.css.parentNode.removeChild(this.css);
     }
-    var links = document.getElementById("cVim-link-container");
+    var links = document.getElementById('cVim-link-container');
     if (Cursor.overlay && Cursor.overlay.parentNode) {
       Cursor.overlay.parentNode.removeChild(Cursor.overlay);
     }
@@ -839,9 +838,9 @@ Command.configureSettings = function(_settings) {
       if (matchLocation(document.URL, blacklist[0])) {
         if (blacklist.length > 1) {
           var unmaps      = blacklist.slice(1),
-            unmapString = "";
+            unmapString = '';
           for (var j = 0, q = unmaps.length; j < q; ++j) {
-            unmapString += "\nunmap " + unmaps[j];
+            unmapString += '\nunmap ' + unmaps[j];
           }
           Mappings.siteSpecificBlacklists += unmapString;
           break;
@@ -852,7 +851,7 @@ Command.configureSettings = function(_settings) {
   }
   function loadMain() {
     Command.loaded = true;
-    chrome.runtime.sendMessage({action: "setIconEnabled"});
+    chrome.runtime.sendMessage({action: 'setIconEnabled'});
     Command.init(true);
   }
   Search.settings = Object.keys(settings).filter(function(e) {
@@ -861,7 +860,7 @@ Command.configureSettings = function(_settings) {
   removeListeners();
   settings.searchlimit = +settings.searchlimit;
   if (!checkBlacklist()) {
-    chrome.runtime.sendMessage({action: "getActiveState"}, function(response) {
+    chrome.runtime.sendMessage({action: 'getActiveState'}, function(response) {
       if (response) {
         addListeners();
         loadMain();
@@ -875,5 +874,5 @@ Command.configureSettings = function(_settings) {
 };
 
 if (!Command.loaded) {
-  chrome.runtime.sendMessage({action: "getSettings"});
+  chrome.runtime.sendMessage({action: 'getSettings'});
 }

@@ -14,7 +14,7 @@ TabHistory = {
 };
 
 chrome.tabs.onUpdated.addListener(function(id, changeInfo) {
-  if (changeInfo.hasOwnProperty("url")) {
+  if (changeInfo.hasOwnProperty('url')) {
     if (TabHistory.hasOwnProperty(id)) {
       if (TabHistory[id].links.indexOf(changeInfo.url) === -1) {
         if (TabHistory.state !== void 0 && TabHistory[id].state + 1 !== TabHistory[id].length) {
@@ -72,7 +72,7 @@ Sites = {
   }
 };
 
-chrome.storage.local.get("sessions", function(s) {
+chrome.storage.local.get('sessions', function(s) {
   if (s.sessions === void 0) {
     chrome.storage.local.set({
       sessions: {}
@@ -84,9 +84,9 @@ chrome.storage.local.get("sessions", function(s) {
 
 Clipboard = {
   createTextArea: function() {
-    var t = document.createElement("textarea");
-    t.style.position = "absolute";
-    t.style.left = "-100%";
+    var t = document.createElement('textarea');
+    t.style.position = 'absolute';
+    t.style.left = '-100%';
     return t;
   },
   copy: function(text) {
@@ -94,14 +94,14 @@ Clipboard = {
     t.value = text;
     document.body.appendChild(t);
     t.select();
-    document.execCommand("Copy");
+    document.execCommand('Copy');
     document.body.removeChild(t);
   },
   paste: function(text) {
     var t = this.createTextArea();
     document.body.appendChild(t);
     t.focus();
-    document.execCommand("Paste");
+    document.execCommand('Paste');
     text = t.value;
     document.body.removeChild(t);
     return text;
@@ -109,20 +109,20 @@ Clipboard = {
 };
 
 History = {
-  historyTypes: ["action", "url", "search"],
+  historyTypes: ['action', 'url', 'search'],
   searchResults: null,
   append: function(value, type) {
-    if (!localStorage[type] || localStorage[type] === "") {
+    if (!localStorage[type] || localStorage[type] === '') {
       localStorage[type] = value;
     } else {
-      localStorage[type] += "," + value;
+      localStorage[type] += ',' + value;
     }
   },
   retrieve: function(type) {
     if (!localStorage[type]) {
-      localStorage[type] = "";
+      localStorage[type] = '';
     }
-    return [type, localStorage[type].split(",")];
+    return [type, localStorage[type].split(',')];
   },
   retrieveSearchHistory: function(search, limit, callback) {
     chrome.history.search({text: search, maxResults: limit}, function(results) {
@@ -155,7 +155,7 @@ Files = {
   sendRequest: function(path, callback) {
     var xhr;
     xhr = new XMLHttpRequest();
-    xhr.open("GET", "file://" + path);
+    xhr.open('GET', 'file://' + path);
     xhr.onreadystatechange = function() {
       if (xhr.readyState === 4) {
         callback(xhr.responseText);
@@ -165,19 +165,19 @@ Files = {
   },
 
   parseHTML: function(data) {
-    var matches = data.match(/addRow\("[^)]+"\)/g);
+    var matches = data.match(/addRow\('[^)]+'\)/g);
     var results = [];
     if (matches) {
       for (var i = 0, l = matches.length; i < l; ++i) {
-        var m = JSON.parse(matches[i].replace(/[^(]+\(/, "[").slice(0, -1) + "]");
-        results.push([m[0], (m[2] ? "Directory" : "File (" + m[3] + ")")]);
+        var m = JSON.parse(matches[i].replace(/[^(]+\(/, '[').slice(0, -1) + ']');
+        results.push([m[0], (m[2] ? 'Directory' : 'File (' + m[3] + ')')]);
       }
     }
     return results;
   },
 
   getPath: function(path, callback) {
-    path = path.replace(/[^\/]*$/, "");
+    path = path.replace(/[^\/]*$/, '');
     if (!path) {
       return;
     }
@@ -203,7 +203,7 @@ Bookmarks = {
     }
   },
   getFolderLinks: function(path, callback) {
-    path = path.split("/").filter(function(e) { return e; });
+    path = path.split('/').filter(function(e) { return e; });
     chrome.bookmarks.getTree(function(tree) {
       var dir = tree[0];
       while (dir = Bookmarks.containsFolder(path[0], dir)) {
@@ -223,9 +223,9 @@ Bookmarks = {
     folder = null,
     matchFound = false;
     if (!initialPath) {
-      initialPath = p.replace(/\/[^\/]+$/, "/").replace(/\/+/g, "/");
+      initialPath = p.replace(/\/[^\/]+$/, '/').replace(/\/+/g, '/');
     }
-    if (typeof p !== "string" || p[0] !== "/") {
+    if (typeof p !== 'string' || p[0] !== '/') {
       return false;
     }
     p = p.split(/\//).filter(function(e) { return e; });
@@ -234,21 +234,21 @@ Bookmarks = {
         folder = item;
       }
       if (p[0] && item.title.substring(0, p[0].length).toLowerCase() === p[0].toLowerCase()) {
-        _ret.push([item.title, (item.url || "folder"), initialPath]);
+        _ret.push([item.title, (item.url || 'folder'), initialPath]);
       }
       if (p.length === 0) {
         if (!matchFound) {
           _ret = [];
         }
         matchFound = true;
-        _ret.push([item.title, (item.url || "folder"), initialPath]);
+        _ret.push([item.title, (item.url || 'folder'), initialPath]);
       }
     });
     if (p.length === 0 || !folder) {
       return callback(_ret);
     }
     p = p.slice(1);
-    this.getPath(folder.children, "/" + p.join("/"), callback, initialPath);
+    this.getPath(folder.children, '/' + p.join('/'), callback, initialPath);
   }
 };
 
@@ -264,10 +264,10 @@ function requestAction(type, request, sender, callback) {
 
 chrome.extension.onConnect.addListener(function(_port) {
   var port = _port;
-  console.assert(port.name === "main");
-  port.postMessage({type: "hello"});
+  console.assert(port.name === 'main');
+  port.postMessage({type: 'hello'});
   port.onMessage.addListener(function(request) {
-    requestAction("port", request, null, function(message) {
+    requestAction('port', request, null, function(message) {
       port.postMessage(message);
     });
   });
@@ -278,36 +278,36 @@ chrome.extension.onConnect.addListener(function(_port) {
 
 chrome.commands.onCommand.addListener(function(command) {
   switch (command) {
-    case "nextTab":
-    case "previousTab":
+    case 'nextTab':
+    case 'previousTab':
       chrome.tabs.query({active: true, currentWindow: true}, function(e) {
-        return getTab({tab: e[0]}, false, (command === "nextTab" ? 1 : -1), false, false);
+        return getTab({tab: e[0]}, false, (command === 'nextTab' ? 1 : -1), false, false);
       });
       break;
-    case "nextCompletionResult":
+    case 'nextCompletionResult':
       chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
-        chrome.tabs.sendMessage(tab[0].id, {action: "nextCompletionResult"}, function() {
-          chrome.windows.create({url: "chrome://newtab"});
+        chrome.tabs.sendMessage(tab[0].id, {action: 'nextCompletionResult'}, function() {
+          chrome.windows.create({url: 'chrome://newtab'});
         });
       });
       break;
-    case "deleteBackWord":
+    case 'deleteBackWord':
       chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
-        chrome.tabs.sendMessage(tab[0].id, {action: "deleteBackWord"});
+        chrome.tabs.sendMessage(tab[0].id, {action: 'deleteBackWord'});
       });
       break;
-    case "closeTab":
+    case 'closeTab':
       chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
         chrome.tabs.remove(tab[0].id);
       });
       break;
-    case "reloadTab":
+    case 'reloadTab':
       chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
         chrome.tabs.reload(tab[0].id);
       });
       break;
-    case "newTab":
-      chrome.tabs.create({url: chrome.runtime.getURL("pages/blank.html")});
+    case 'newTab':
+      chrome.tabs.create({url: chrome.runtime.getURL('pages/blank.html')});
       break;
     default:
       break;
@@ -315,7 +315,7 @@ chrome.commands.onCommand.addListener(function(command) {
 });
 
 chrome.runtime.onMessage.addListener(function(request, sender, callback) {
-  requestAction("extension", request, sender, callback);
+  requestAction('extension', request, sender, callback);
 });
 
 chrome.tabs.onRemoved.addListener(function(id, removeInfo) {

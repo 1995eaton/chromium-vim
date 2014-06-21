@@ -14,7 +14,7 @@ function reverseImagePost(url) {
 }
 
 function attributeTest(node, attributes) {
-  attributes = attributes.split(",");
+  attributes = attributes.split(',');
   for (var i = 0, l = attributes.length; i < l; i++) {
     if (node.getAttribute(attributes[i])) {
       return true;
@@ -23,34 +23,34 @@ function attributeTest(node, attributes) {
   return false;
 }
 
-// Based off of the "Search by Image" Chrome Extension by Google
+// Based off of the 'Search by Image' Chrome Extension by Google
 function googleReverseImage(url, source) {
-  if (void 0 !== url && url.indexOf("data:") === 0) {
+  if (void 0 !== url && url.indexOf('data:') === 0) {
     if (url.search(/data:image\/(bmp|gif|jpe?g|png|webp|tiff|x-ico)/i) === 0) {
-      var commaIndex = url.indexOf(",");
+      var commaIndex = url.indexOf(',');
       if (commaIndex !== -1 && isValidB64(url.substring(commaIndex + 1))) {
-        return "data:text/html;charset=utf-8;base64," + window.btoa(reverseImagePost(url, source));
+        return 'data:text/html;charset=utf-8;base64,' + window.btoa(reverseImagePost(url, source));
       }
     }
   } else {
-    if (url.indexOf("file://") === 0 || url.indexOf("chrome") === 0) {
-      chrome.runtime.sendMessage({action: "urlToBase64", url: url});
+    if (url.indexOf('file://') === 0 || url.indexOf('chrome') === 0) {
+      chrome.runtime.sendMessage({action: 'urlToBase64', url: url});
       return;
     }
-    return "https://www.google.com/searchbyimage?image_url=" + url;
+    return 'https://www.google.com/searchbyimage?image_url=' + url;
   }
 }
 
 HTMLElement.prototype.isInput = function() {
   return (
-      (this.localName === "textarea" || this.localName === "input" || this.getAttribute("contenteditable") === "true") && !this.disabled &&
-      !/button|radio|file|image|checkbox|submit/i.test(this.getAttribute("type"))
+      (this.localName === 'textarea' || this.localName === 'input' || this.getAttribute('contenteditable') === 'true') && !this.disabled &&
+      !/button|radio|file|image|checkbox|submit/i.test(this.getAttribute('type'))
   );
 };
 
 function getVisibleBoundingRect(node) {
   var computedStyle = getComputedStyle(node);
-  if (computedStyle.opacity === "0" || computedStyle.visibility !== "visible" || computedStyle.display === "none" || node.hasAttribute("disabled")) {
+  if (computedStyle.opacity === '0' || computedStyle.visibility !== 'visible' || computedStyle.display === 'none' || node.hasAttribute('disabled')) {
     return false;
   }
   var boundingRect = node.getClientRects()[0] || node.getBoundingClientRect();
@@ -90,16 +90,16 @@ HTMLCollection.prototype.toArray = function() {
 
 HTMLElement.prototype.isVisible = function() {
   return this.offsetParent && !this.disabled &&
-         this.getAttribute("type") !== "hidden" &&
-         getComputedStyle(this).visibility !== "hidden" &&
-         this.getAttribute("display") !== "none";
+         this.getAttribute('type') !== 'hidden' &&
+         getComputedStyle(this).visibility !== 'hidden' &&
+         this.getAttribute('display') !== 'none';
 };
 
 function isVisible(el) {
   return el.offsetParent && !el.disabled &&
-         el.getAttribute("type") !== "hidden" &&
-         getComputedStyle(el).visibility !== "hidden" &&
-         el.getAttribute("display") !== "none";
+         el.getAttribute('type') !== 'hidden' &&
+         getComputedStyle(el).visibility !== 'hidden' &&
+         el.getAttribute('display') !== 'none';
 }
 
 Array.prototype.unique = function() {
@@ -113,14 +113,14 @@ Array.prototype.unique = function() {
 };
 
 String.prototype.trimAround = function() {
-  return this.replace(/^(\s+)?(.*\S)?(\s+)?$/g, "$2");
+  return this.replace(/^(\s+)?(.*\S)?(\s+)?$/g, '$2');
 };
 
 String.prototype.escape = function() {
-  return this.replace(/&/g, "&amp;")
-             .replace(/"/g, "&quot;")
-             .replace(/</g, "&lt;")
-             .replace(/>/g, "&gt;");
+  return this.replace(/&/g, '&amp;')
+             .replace(/'/g, '&quot;')
+             .replace(/</g, '&lt;')
+             .replace(/>/g, '&gt;');
 };
 
 String.prototype.isBoolean = function() {
@@ -145,22 +145,22 @@ function sameType(a, b) {
 
 function simulateMouseEvents(element, events) {
   for (var i = 0; i < events.length; ++i) {
-    var ev = document.createEvent("MouseEvents");
+    var ev = document.createEvent('MouseEvents');
     ev.initMouseEvent(events[i], true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
     element.dispatchEvent(ev);
   }
 }
 
 HTMLElement.prototype.hover = function() {
-  simulateMouseEvents(this, ["mouseover", "mouseenter"]);
+  simulateMouseEvents(this, ['mouseover', 'mouseenter']);
 };
 
 HTMLElement.prototype.unhover = function() {
-  simulateMouseEvents(this, ["mouseout", "mouseleave"]);
+  simulateMouseEvents(this, ['mouseout', 'mouseleave']);
 };
 
 HTMLElement.prototype.simulateClick = function() {
-  simulateMouseEvents(this, ["mouseover", "mousedown", "mouseup", "click"]);
+  simulateMouseEvents(this, ['mouseover', 'mousedown', 'mouseup', 'click']);
 };
 
 String.prototype.rxp = function() {
@@ -170,63 +170,63 @@ String.prototype.rxp = function() {
 String.prototype.convertLink = function() {
   var url = this.trimLeft().trimRight();
   if (url.length === 0) {
-    return "chrome://newtab";
+    return 'chrome://newtab';
   }
   if (/^\//.test(url)) {
-    url = "file://" + url;
+    url = 'file://' + url;
   }
   if (/^(chrome|chrome-extension|file):\/\/\S+$/.test(url)) {
     return url;
   }
-  var pattern = new RegExp("^((https?|ftp):\\/\\/)?"+
-    "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|"+
-    "((\\d{1,3}\\.){3}\\d{1,3})|"+
-    "localhost)" +
-    "(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*"+
-    "(\\?[;&a-z\\d%_.~+=-]*)?"+
-    "(\\#[-a-z\\d_]*)?$","i");
+  var pattern = new RegExp('^((https?|ftp):\\/\\/)?'+
+    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+
+    '((\\d{1,3}\\.){3}\\d{1,3})|'+
+    'localhost)' +
+    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+
+    '(\\?[;&a-z\\d%_.~+=-]*)?'+
+    '(\\#[-a-z\\d_]*)?$','i');
   if (pattern.test(url)) {
-    return (/:\/\//.test(url) ? "" : "http://") + url;
+    return (/:\/\//.test(url) ? '' : 'http://') + url;
   }
-  return "https://www.google.com/search?q=" + url;
+  return 'https://www.google.com/search?q=' + url;
 };
 
 function matchLocation(url, pattern) { // Uses @match syntax
   // See https://code.google.com/p/chromium/codesearch#chromium/src/extensions/common/url_pattern.h&sq=package:chromium
-  if (typeof pattern !== "string" || !pattern.trim()) {
+  if (typeof pattern !== 'string' || !pattern.trim()) {
     return false;
   }
-  var protocol = (pattern.match(/.*:\/\//) || [""])[0].slice(0, -2),
+  var protocol = (pattern.match(/.*:\/\//) || [''])[0].slice(0, -2),
       hostname, path, pathMatch, hostMatch;
   url = new URL(url);
   if (/\*\*/.test(pattern)) {
-    console.error("cVim Error: Invalid pattern: \"%s\"", pattern);
+    console.error('cVim Error: Invalid pattern: "%s"', pattern);
     return false;
   }
   if (!protocol.length) {
-    console.error("cVim Error: Invalid protocol in pattern: \"%s\"", pattern);
+    console.error('cVim Error: Invalid protocol in pattern: "%s"', pattern);
     return false;
   }
-  pattern = pattern.replace(/.*:\/\//, "");
-  if (protocol !== "*:" && url.protocol !== protocol) {
+  pattern = pattern.replace(/.*:\/\//, '');
+  if (protocol !== '*:' && url.protocol !== protocol) {
     return false;
   }
-  if (url.protocol !== "file:") {
+  if (url.protocol !== 'file:') {
     hostname = pattern.match(/^[^\/]+\//g);
     if (!hostname) {
-      console.error("cVim Error: Invalid host in pattern: \"%s\"", pattern);
+      console.error('cVim Error: Invalid host in pattern: "%s"', pattern);
       return false;
     }
     var origHostname = hostname;
-    hostname = hostname[0].slice(0, -1).replace(/([.])/g, "\\$1").replace(/\*/g, ".*");
-    hostMatch = url.hostname.match(new RegExp(hostname, "i"));
+    hostname = hostname[0].slice(0, -1).replace(/([.])/g, '\\$1').replace(/\*/g, '.*');
+    hostMatch = url.hostname.match(new RegExp(hostname, 'i'));
     if (!hostMatch || hostMatch[0].length !== url.hostname.length) {
       return false;
     }
-    pattern = "/" + pattern.slice(origHostname[0].length);
+    pattern = '/' + pattern.slice(origHostname[0].length);
   }
   if (pattern.length) {
-    path = pattern.replace(/([.&\\\/\(\)\[\]!?])/g, "\\$1").replace(/\*/g, ".*");
+    path = pattern.replace(/([.&\\\/\(\)\[\]!?])/g, '\\$1').replace(/\*/g, '.*');
     pathMatch = url.pathname.match(new RegExp(path));
     if (!pathMatch || pathMatch[0].length !== url.pathname.length) {
       return false;
@@ -236,7 +236,7 @@ function matchLocation(url, pattern) { // Uses @match syntax
 }
 
 function waitForLoad(callback, constructor) {
-  if ((document.readyState === "interactive" || document.readyState === "complete") && document.activeElement) {
+  if ((document.readyState === 'interactive' || document.readyState === 'complete') && document.activeElement) {
     return callback.call(constructor);
   }
   window.setTimeout(function() {
@@ -265,7 +265,7 @@ Array.prototype.last = function() {
 };
 
 function decodeHTMLEntities(string) {
-  var el = document.createElement("div");
+  var el = document.createElement('div');
   el.innerHTML = string;
   return el.textContent;
 }

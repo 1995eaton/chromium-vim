@@ -14,21 +14,21 @@ Config.validPrefixes = [/^ *let( +[a-zA-Z0-9_]+){1,2} *= */,
 
 Config.set = function(value) {
   value = value.split(/ +/).compact().pop();
-  this._ret[value.replace(/^no/, "")] = value.indexOf("no") !== 0;
+  this._ret[value.replace(/^no/, '')] = value.indexOf('no') !== 0;
 };
 
 Config.let = function(value) {
   var _ret, objVal, assignment;
-  value = value.split("=");
-  value = [value[0], value.slice(1).join("=")];
+  value = value.split('=');
+  value = [value[0], value.slice(1).join('=')];
 
   assignment = value[0].split(/ +/).compact().slice(1);
   objVal = assignment.shift();
   if (assignment.length) {
     if (/^searchaliase?$/.test(objVal)) {
-      objVal += "es";
+      objVal += 'es';
     } else {
-      objVal += "s";
+      objVal += 's';
     }
     var key = assignment.pop();
     try {
@@ -54,11 +54,11 @@ Config.let = function(value) {
 };
 
 Config.parseLine = function(value) {
-  value = value.replace(/(["\]]) *"[^"\]]*$/, "$1");
+  value = value.replace(/(['\]]) *'[^'\]]*$/, '$1');
   for (var i = 0, l = this.validPrefixes.length; i < l; ++i) {
     if (this.validPrefixes[i].test(value)) {
       var prefix = value.match(/[a-zA-Z0-9_]+/)[0];
-      this[prefix](value, "string");
+      this[prefix](value, 'string');
     }
   }
 };
@@ -90,7 +90,7 @@ Settings.checkConfig = function(config) {
 
 Settings.loadrc = function (config) {
   this.rcEl.value = config.MAPPINGS;
-  this.rcEl.style.height = this.rcEl.scrollHeight + "px";
+  this.rcEl.style.height = this.rcEl.scrollHeight + 'px';
   if (this.cssEl) {
     this.cssEl.setValue(config.COMMANDBARCSS);
   }
@@ -111,34 +111,34 @@ Settings.saveSettings = function() {
   this.settings.COMMANDBARCSS = this.cssEl.getValue();
   this.settings.GISTURL = this.gistUrl.value;
   this.settings.MAPPINGS = this.rcEl.value;
-  this.saveButton.value = "Saved";
-  chrome.runtime.sendMessage({action: "saveSettings", settings: Settings.settings, sendSettings: true});
+  this.saveButton.value = 'Saved';
+  chrome.runtime.sendMessage({action: 'saveSettings', settings: Settings.settings, sendSettings: true});
   setTimeout(function () {
-    this.saveButton.value = "Save";
+    this.saveButton.value = 'Save';
   }.bind(this), 3000);
 };
 
 Settings.editMode = function (e) {
   if (this.cssEl) {
-    if (e.target.value === "Vim") {
-      this.cssEl.setOption("keyMap", "vim");
+    if (e.target.value === 'Vim') {
+      this.cssEl.setOption('keyMap', 'vim');
     } else {
-      this.cssEl.setOption("keyMap", "default");
+      this.cssEl.setOption('keyMap', 'default');
     }
   }
 };
 
 Settings.syncGist = function() {
   var url = this.gistUrl.value;
-  if (url.trim() === "") {
+  if (url.trim() === '') {
     return false;
   }
   var xhr = new XMLHttpRequest();
-  xhr.open("GET", url + (url.indexOf("raw") === -1 &&
-        url.indexOf("github") !== -1 ? "/raw" : ""));
+  xhr.open('GET', url + (url.indexOf('raw') === -1 &&
+        url.indexOf('github') !== -1 ? '/raw' : ''));
   xhr.onreadystatechange = function() {
     if (xhr.readyState === 4 && xhr.status === 200) {
-      document.getElementById("mappings").value = xhr.responseText;
+      document.getElementById('mappings').value = xhr.responseText;
     }
   };
   xhr.send();
@@ -149,51 +149,51 @@ Settings.init = function() {
   document.body.spellcheck = false;
   this.initialLoad = true;
 
-  this.saveButton = document.getElementById("save_button");
-  this.rcEl = document.getElementById("mappings");
-  this.editModeEl = document.getElementById("edit_mode");
+  this.saveButton = document.getElementById('save_button');
+  this.rcEl = document.getElementById('mappings');
+  this.editModeEl = document.getElementById('edit_mode');
 
   function autoSize() {
     var stop = document.body.scrollTop;
-    this.style.height = "";
-    this.style.height = this.scrollHeight + "px";
+    this.style.height = '';
+    this.style.height = this.scrollHeight + 'px';
     document.body.scrollTop = stop;
   }
 
-  this.rcEl.addEventListener("input", autoSize);
+  this.rcEl.addEventListener('input', autoSize);
 
-  chrome.runtime.sendMessage({action: "getDefaults"});
+  chrome.runtime.sendMessage({action: 'getDefaults'});
 
-  this.editModeEl.addEventListener("change", this.editMode.bind(this), false);
-  this.saveButton.addEventListener("click", this.saveSettings.bind(this), false);
-  document.getElementById("reset_button").addEventListener("click", this.resetSettings.bind(this), false);
-  document.getElementById("clearHistory").addEventListener("click", function() {
-    localStorage.search = "";
-    localStorage.url    = "";
-    localStorage.action = "";
+  this.editModeEl.addEventListener('change', this.editMode.bind(this), false);
+  this.saveButton.addEventListener('click', this.saveSettings.bind(this), false);
+  document.getElementById('reset_button').addEventListener('click', this.resetSettings.bind(this), false);
+  document.getElementById('clearHistory').addEventListener('click', function() {
+    localStorage.search = '';
+    localStorage.url    = '';
+    localStorage.action = '';
   });
-  this.gistUrl = document.getElementById("gistUrl");
-  document.getElementById("gistSync").addEventListener("click", this.syncGist.bind(this));
-  this.gistPlaceHolder = "https://gist.github.com/1995eaton/9e68803bf1f1e7524340";
-  this.gistUrl.addEventListener("focus", function() {
-    this.setAttribute("placeholder", "");
+  this.gistUrl = document.getElementById('gistUrl');
+  document.getElementById('gistSync').addEventListener('click', this.syncGist.bind(this));
+  this.gistPlaceHolder = 'https://gist.github.com/1995eaton/9e68803bf1f1e7524340';
+  this.gistUrl.addEventListener('focus', function() {
+    this.setAttribute('placeholder', '');
   });
-  this.gistUrl.addEventListener("blur", function() {
-    this.setAttribute("placeholder", Settings.gistPlaceHolder);
+  this.gistUrl.addEventListener('blur', function() {
+    this.setAttribute('placeholder', Settings.gistPlaceHolder);
   });
 
 };
 
-document.addEventListener("DOMContentLoaded", Settings.init.bind(Settings));
+document.addEventListener('DOMContentLoaded', Settings.init.bind(Settings));
 
 chrome.extension.onMessage.addListener(function(request) {
-  if (request.action === "sendSettings") {
+  if (request.action === 'sendSettings') {
     if (Settings.initialLoad) {
-      Settings.cssEl = CodeMirror.fromTextArea(document.getElementById("commandBarCSS"), {lineNumbers: true});
+      Settings.cssEl = CodeMirror.fromTextArea(document.getElementById('commandBarCSS'), {lineNumbers: true});
       Settings.initialLoad = false;
       Settings.loadrc(request.settings);
     }
-  } else if (request.action === "sendDefaultSettings") {
+  } else if (request.action === 'sendDefaultSettings') {
     Settings.settings = request.settings;
     Settings.defaults = Object.clone(request.settings);
     Settings.checkConfig(Config.parse());

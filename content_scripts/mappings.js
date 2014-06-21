@@ -1,7 +1,7 @@
 var Mappings = {
-  repeats: "",
-  queue: "",
-  siteSpecificBlacklists: ""
+  repeats: '',
+  queue: '',
+  siteSpecificBlacklists: ''
 };
 
 Mappings.actions = {
@@ -14,9 +14,9 @@ Mappings.actions = {
     Visual.getTextNodes();
     Visual.lineMode = false;
     document.body.spellcheck = false;
-    document.designMode = "on";
+    document.designMode = 'on';
     Visual.selection = document.getSelection();
-    if (document.getSelection().type === "Range") {
+    if (document.getSelection().type === 'Range') {
       return false;
     }
     if (Find.matches.length) {
@@ -25,7 +25,7 @@ Mappings.actions = {
       var closestNode = Visual.closestNode();
       if (closestNode) {
         Visual.selection.setPosition(Visual.closestNode(), 0);
-        HUD.display(" -- CARET -- ");
+        HUD.display(' -- CARET -- ');
         Visual.scrollIntoView();
       } else {
         Visual.lineMode = false;
@@ -42,9 +42,9 @@ Mappings.actions = {
     Visual.getTextNodes();
     Visual.lineMode = true;
     document.body.spellcheck = false;
-    document.designMode = "on";
+    document.designMode = 'on';
     Visual.selection = document.getSelection();
-    if (document.getSelection().type === "Range") {
+    if (document.getSelection().type === 'Range') {
       return false;
     }
     if (Find.matches.length) {
@@ -64,85 +64,85 @@ Mappings.actions = {
     window.stop();
   },
   cancelAllWebRequests: function() {
-    chrome.runtime.sendMessage({action: "cancelAllWebRequests"});
+    chrome.runtime.sendMessage({action: 'cancelAllWebRequests'});
   },
   percentScroll: function(repeats) {
-    if (Mappings.repeats === "0" || Mappings.repeats === "") {
+    if (Mappings.repeats === '0' || Mappings.repeats === '') {
       repeats = 0;
     }
     document.body.scrollTop =
       (document.body.scrollHeight - document.documentElement.clientHeight) * repeats / 100;
   },
   goToTab: function(repeats) {
-    chrome.runtime.sendMessage({action: "goToTab", index: repeats - 1});
+    chrome.runtime.sendMessage({action: 'goToTab', index: repeats - 1});
   },
   hideDownloadsShelf: function() {
-    chrome.runtime.sendMessage({action: "hideDownloadsShelf"});
+    chrome.runtime.sendMessage({action: 'hideDownloadsShelf'});
   },
   goToRootUrl: function() {
-    if (window.location.pathname.length !== 0 && window.location.pathname !== "/") {
-      chrome.runtime.sendMessage({action: "openLink", url: window.location.origin});
+    if (window.location.pathname.length !== 0 && window.location.pathname !== '/') {
+      chrome.runtime.sendMessage({action: 'openLink', url: window.location.origin});
     }
   },
   goUpUrl: function(repeats) {
-    var rxp = new RegExp("(\/([^\/])+){0," + repeats + "}(\/)?$");
-    if (window.location.pathname.length !== 0 && window.location.pathname !== "/") {
-      var match = window.location.pathname.replace(rxp, "");
+    var rxp = new RegExp('(\/([^\/])+){0,' + repeats + '}(\/)?$');
+    if (window.location.pathname.length !== 0 && window.location.pathname !== '/') {
+      var match = window.location.pathname.replace(rxp, '');
       if (match !== window.location.pathname) {
-        chrome.runtime.sendMessage({action: "openLink", url: window.location.origin + match});
+        chrome.runtime.sendMessage({action: 'openLink', url: window.location.origin + match});
       }
     }
   },
   nextFrame: function(repeats) {
-    chrome.runtime.sendMessage({action: "focusFrame", repeats: repeats});
+    chrome.runtime.sendMessage({action: 'focusFrame', repeats: repeats});
   },
   rootFrame: function() {
-    chrome.runtime.sendMessage({action: "focusFrame", isRoot: true});
+    chrome.runtime.sendMessage({action: 'focusFrame', isRoot: true});
   },
   closeTab: function(repeats) {
-    chrome.runtime.sendMessage({action: "closeTab", repeats: repeats});
+    chrome.runtime.sendMessage({action: 'closeTab', repeats: repeats});
   },
   pinTab: function() {
-    chrome.runtime.sendMessage({action: "pinTab"});
+    chrome.runtime.sendMessage({action: 'pinTab'});
   },
   firstTab: function() {
-    chrome.runtime.sendMessage({action: "firstTab"});
+    chrome.runtime.sendMessage({action: 'firstTab'});
   },
   lastTab: function() {
-    chrome.runtime.sendMessage({action: "lastTab"});
+    chrome.runtime.sendMessage({action: 'lastTab'});
   },
   lastClosedTab: function() {
-    chrome.runtime.sendMessage({action: "openLast"});
+    chrome.runtime.sendMessage({action: 'openLast'});
   },
   moveTabRight: function(repeats) {
-    chrome.runtime.sendMessage({action: "moveTabRight", repeats: repeats});
+    chrome.runtime.sendMessage({action: 'moveTabRight', repeats: repeats});
   },
   moveTabLeft: function(repeats) {
-    chrome.runtime.sendMessage({action: "moveTabLeft", repeats: repeats});
+    chrome.runtime.sendMessage({action: 'moveTabLeft', repeats: repeats});
   },
   lastActiveTab: function() {
-    chrome.runtime.sendMessage({action: "lastActiveTab"});
+    chrome.runtime.sendMessage({action: 'lastActiveTab'});
   },
   reverseImage: function() {
-    if (document.body.childNodes.length === 1 && document.body.firstChild.localName === "img") {
+    if (document.body.childNodes.length === 1 && document.body.firstChild.localName === 'img') {
       if (document.body.firstChild.src) {
         return chrome.runtime.sendMessage({
-          action: "openLinkTab",
+          action: 'openLinkTab',
           active: false,
-          url: "https://www.google.com/searchbyimage?image_url=" +
+          url: 'https://www.google.com/searchbyimage?image_url=' +
                 document.body.firstChild.src,
           noconvert: true
         });
       }
     } else {
       window.setTimeout(function() {
-        Hints.create("image");
+        Hints.create('image');
       }, 0);
     }
   },
   multiReverseImage: function() {
     window.setTimeout(function() {
-      Hints.create("multiimage");
+      Hints.create('multiimage');
     }, 0);
   },
   toggleImages: function() {
@@ -152,13 +152,13 @@ Mappings.actions = {
       var el;
       while (el = walker.nextNode()) {
         var computedStyle = getComputedStyle(el, null);
-        if (el.localName === "img" || computedStyle.getPropertyValue("background-image") !== "none") {
-          var opacity = computedStyle.getPropertyValue("opacity");
-          var bimg = computedStyle.getPropertyValue("background-image");
-          if (opacity === "1") {
+        if (el.localName === 'img' || computedStyle.getPropertyValue('background-image') !== 'none') {
+          var opacity = computedStyle.getPropertyValue('opacity');
+          var bimg = computedStyle.getPropertyValue('background-image');
+          if (opacity === '1') {
             opacity = null;
           }
-          if (bimg === "none") {
+          if (bimg === 'none') {
             bimg = null;
           }
           this.images.push([opacity, bimg, el]);
@@ -167,12 +167,12 @@ Mappings.actions = {
     }
     this.imagesDisabled = (this.imagesDisabled === void 0 ? true : !this.imagesDisabled);
     for (i = 0, l = this.images.length; i < l; ++i) {
-      if (this.images[i][2].localName === "img") {
-        this.images[i][2].style.opacity = (this.imagesDisabled ? "0" : this.images[i][1]);
+      if (this.images[i][2].localName === 'img') {
+        this.images[i][2].style.opacity = (this.imagesDisabled ? '0' : this.images[i][1]);
       }
       if (this.images[i][1] !== null) {
         if (this.imagesDisabled) {
-          this.images[i][2].style.backgroundImage = "none";
+          this.images[i][2].style.backgroundImage = 'none';
         } else {
           this.images[i][2].style.backgroundImage = this.images[i][1];
         }
@@ -181,7 +181,7 @@ Mappings.actions = {
   },
   toggleImageZoom: function() {
     if (/\.[a-z]+\s+\(\d+×\d+\)/.test(document.title)) {
-      var images = document.getElementsByTagName("img");
+      var images = document.getElementsByTagName('img');
       if (images.length) {
         images[0].simulateClick();
       }
@@ -196,7 +196,7 @@ Mappings.actions = {
       (+document.body.style.zoom ? parseFloat(document.body.style.zoom) : 1) - 0.1 * repeats;
   },
   zoomOrig: function() {
-    document.body.style.zoom = "1";
+    document.body.style.zoom = '1';
   },
   centerMatchT: function() {
     var documentZoom = parseFloat(document.body.style.zoom) || 1;
@@ -228,51 +228,51 @@ Mappings.actions = {
   },
   openLastLinkInTab: function(repeats) {
     chrome.runtime.sendMessage({
-      action: "openLastLinkInTab",
+      action: 'openLastLinkInTab',
       repeats: repeats
     });
   },
   openNextLinkInTab: function(repeats) {
     chrome.runtime.sendMessage({
-      action: "openNextLinkInTab",
+      action: 'openNextLinkInTab',
       repeats: repeats
     });
   },
   scrollDown: function(repeats) {
-    Scroll.scroll("down", repeats);
+    Scroll.scroll('down', repeats);
   },
   scrollUp: function(repeats) {
-    Scroll.scroll("up", repeats);
+    Scroll.scroll('up', repeats);
   },
   scrollPageDown: function(repeats) {
-    Scroll.scroll("pageDown", repeats);
+    Scroll.scroll('pageDown', repeats);
   },
   scrollFullPageDown: function(repeats) {
-    Scroll.scroll("fullPageDown", repeats);
+    Scroll.scroll('fullPageDown', repeats);
   },
   scrollPageUp: function(repeats) {
-    Scroll.scroll("pageUp", repeats);
+    Scroll.scroll('pageUp', repeats);
   },
   scrollFullPageUp: function(repeats) {
-    Scroll.scroll("fullPageUp", repeats);
+    Scroll.scroll('fullPageUp', repeats);
   },
   scrollLeft: function(repeats) {
-    Scroll.scroll("left", repeats);
+    Scroll.scroll('left', repeats);
   },
   scrollRight: function(repeats) {
-    Scroll.scroll("right", repeats);
+    Scroll.scroll('right', repeats);
   },
   scrollToTop: function() {
-    Scroll.scroll("top");
+    Scroll.scroll('top');
   },
   scrollToBottom: function() {
-    Scroll.scroll("bottom");
+    Scroll.scroll('bottom');
   },
   scrollToLeft: function() {
-    Scroll.scroll("leftmost");
+    Scroll.scroll('leftmost');
   },
   scrollToRight: function() {
-    Scroll.scroll("rightmost");
+    Scroll.scroll('rightmost');
   },
   lastScrollPosition: function() {
     if (!Scroll.lastPosition) {
@@ -288,7 +288,7 @@ Mappings.actions = {
       Scroll.lastPosition = [document.body.scrollLeft, document.body.scrollTop];
       window.scrollTo.apply(null, Scroll.positions[key]);
     } else {
-      Status.setMessage("Mark not set", 1, "error");
+      Status.setMessage('Mark not set', 1, 'error');
     }
   },
   setMark: function(repeats, queue) {
@@ -301,42 +301,42 @@ Mappings.actions = {
   },
   createTabbedHint: function() {
     window.setTimeout(function() {
-      Hints.create("tabbed");
+      Hints.create('tabbed');
     }, 0);
   },
   createActiveTabbedHint: function() {
     window.setTimeout(function() {
-      Hints.create("tabbedActive");
+      Hints.create('tabbedActive');
     }, 0);
   },
   createMultiHint: function() {
     window.setTimeout(function() {
-      Hints.create("multi");
+      Hints.create('multi');
     }, 0);
   },
   createHintWindow: function() {
     window.setTimeout(function() {
-      Hints.create("window");
+      Hints.create('window');
     }, 0);
   },
   createHoverHint: function() {
     window.setTimeout(function() {
-      Hints.create("hover");
+      Hints.create('hover');
     }, 0);
   },
   createUnhoverHint: function() {
     window.setTimeout(function() {
-      Hints.create("unhover");
+      Hints.create('unhover');
     }, 0);
   },
   yankUrl: function() {
     window.setTimeout(function() {
-      Hints.create("yank");
+      Hints.create('yank');
     }, 0);
   },
   multiYankUrl: function() {
     window.setTimeout(function() {
-      Hints.create("multiyank");
+      Hints.create('multiyank');
     }, 0);
   },
   yankDocumentUrl: function() {
@@ -353,14 +353,14 @@ Mappings.actions = {
   },
   nextCompletionResult: function() {
     commandMode &&
-    document.activeElement.id === "cVim-command-bar-input" &&
-    Command.type === "action" &&
+    document.activeElement.id === 'cVim-command-bar-input' &&
+    Command.type === 'action' &&
     Search.nextResult(false);
   },
   previousCompletionResult: function() {
     commandMode &&
-    document.activeElement.id === "cVim-command-bar-input" &&
-    Command.type === "action" &&
+    document.activeElement.id === 'cVim-command-bar-input' &&
+    Command.type === 'action' &&
     Search.nextResult(true);
   },
   addQuickMark: function(repeats, queue) {
@@ -374,26 +374,26 @@ Mappings.actions = {
   },
   insertMode: function() {
     if (Command.domElementsLoaded) {
-      HUD.display(" -- INSERT -- ");
+      HUD.display(' -- INSERT -- ');
       insertMode = true;
     }
   },
   reloadTab: function() {
-    chrome.runtime.sendMessage({action: "reloadTab", nocache: false});
+    chrome.runtime.sendMessage({action: 'reloadTab', nocache: false});
   },
   reloadTabUncached: function() {
-    chrome.runtime.sendMessage({action: "reloadTab", nocache: true});
+    chrome.runtime.sendMessage({action: 'reloadTab', nocache: true});
   },
   reloadAllButCurrent: function() {
-    chrome.runtime.sendMessage({action: "reloadAllTabs", nocache: false, current: false});
+    chrome.runtime.sendMessage({action: 'reloadAllTabs', nocache: false, current: false});
   },
   reloadAllTabs: function() {
-    chrome.runtime.sendMessage({action: "reloadAllTabs", nocache: false, current: true});
+    chrome.runtime.sendMessage({action: 'reloadAllTabs', nocache: false, current: true});
   },
   nextSearchResult: function(repeats) {
     if (Find.matches.length) {
       Find.search(false, repeats);
-    } else if (Find.lastSearch !== void 0 && typeof Find.lastSearch === "string") {
+    } else if (Find.lastSearch !== void 0 && typeof Find.lastSearch === 'string') {
       Find.highlight({ base: document.body,
                        search: Find.lastSearch,
                        setIndex: true,
@@ -403,7 +403,7 @@ Mappings.actions = {
   previousSearchResult: function(repeats) {
     if (Find.matches.length) {
       Find.search(true, repeats);
-    } else if (Find.lastSearch !== void 0 && typeof Find.lastSearch === "string") {
+    } else if (Find.lastSearch !== void 0 && typeof Find.lastSearch === 'string') {
       Find.highlight({ base: document.body,
                        search: Find.lastSearch,
                        setIndex: true,
@@ -412,10 +412,10 @@ Mappings.actions = {
     }
   },
   nextTab: function(r) {
-    chrome.runtime.sendMessage({action: "nextTab", repeats: r});
+    chrome.runtime.sendMessage({action: 'nextTab', repeats: r});
   },
   previousTab: function(r) {
-    chrome.runtime.sendMessage({action: "previousTab", repeats: r});
+    chrome.runtime.sendMessage({action: 'previousTab', repeats: r});
   },
   goBack: function(repeats) {
     history.go(-1 * repeats);
@@ -425,9 +425,9 @@ Mappings.actions = {
   },
   goToSource: function() {
     chrome.runtime.sendMessage({
-      action: "openLinkTab",
+      action: 'openLinkTab',
       active: true,
-      url: "view-source:" + document.URL,
+      url: 'view-source:' + document.URL,
       noconvert: true
     });
   },
@@ -438,10 +438,10 @@ Mappings.actions = {
   },
   goToInput: function(repeats) {
     this.inputElements = [];
-    var allInput = document.querySelectorAll("input,textarea"),
-        i;
+    var allInput = document.querySelectorAll('input,textarea'),
+        i, l;
     for (i = 0, l = allInput.length; i < l; i++) {
-      if (allInput[i].isInput() && allInput[i].isVisible() && allInput[i].id !== "cVim-command-bar-input") {
+      if (allInput[i].isInput() && allInput[i].isVisible() && allInput[i].id !== 'cVim-command-bar-input') {
         this.inputElements.push(allInput[i]);
       }
     }
@@ -465,7 +465,7 @@ Mappings.actions = {
     this.inputFocused = true;
     this.inputElements[this.inputElementsIndex].focus();
     document.activeElement.select();
-    if (!document.activeElement.getAttribute("readonly")) {
+    if (!document.activeElement.getAttribute('readonly')) {
       document.getSelection().collapseToEnd();
     }
   },
@@ -479,12 +479,12 @@ Mappings.actions = {
         return window.setTimeout(function() {
           Command.show(false,
             Mappings.shortCuts[i][1]
-                    .replace(/^:/, "")
-                    .replace(/<cr>(\s+)?$/i, "")
-                    .replace(/<space>/ig, " ")
+                    .replace(/^:/, '')
+                    .replace(/<cr>(\s+)?$/i, '')
+                    .replace(/<space>/ig, ' ')
           );
-          this.queue = "";
-          this.repeats = "";
+          this.queue = '';
+          this.repeats = '';
           if (/<cr>(\s+)?$/i.test(Mappings.shortCuts[i][1])) {
             var inputValue = Command.input.value;
             Command.hide(function() {
@@ -506,7 +506,7 @@ Mappings.actions = {
     commandMode = true;
     Find.previousMatches = Find.matches.length > 0;
     Find.swap = false;
-    return Command.show("/");
+    return Command.show('/');
   },
   openSearchBarReverse: function() {
     Command.hide();
@@ -517,7 +517,7 @@ Mappings.actions = {
     }
     Find.previousMatches = Find.matches.length > 0;
     Find.swap = true;
-    return Command.show("?");
+    return Command.show('?');
   },
   openCommandBar: function() {
     Command.hide();
@@ -528,102 +528,102 @@ Mappings.actions = {
 };
 
 Mappings.shortCuts = [
-  ["a",  ":tabnew google "],
-  ["zr", ":chrome://restart&<CR>"],
-  ["o",  ":open "],
-  ["O",  ":open @%"],
-  ["b",  ":bookmarks "],
-  ["t",  ":tabnew "],
-  ["I",  ":history "],
-  ["T",  ":tabnew @%"],
-  ["B",  ":buffer "],
-  ["gd", ":chrome://downloads!<cr>"],
-  ["ge", ":chrome://extensions!<cr>"]
+  ['a',  ':tabnew google '],
+  ['zr', ':chrome://restart&<CR>'],
+  ['o',  ':open '],
+  ['O',  ':open @%'],
+  ['b',  ':bookmarks '],
+  ['t',  ':tabnew '],
+  ['I',  ':history '],
+  ['T',  ':tabnew @%'],
+  ['B',  ':buffer '],
+  ['gd', ':chrome://downloads!<cr>'],
+  ['ge', ':chrome://extensions!<cr>']
 ];
 
 Mappings.defaults = {
-  closeTab:                ["x"],
-  scrollDown:              ["s", "j"],
-  scrollUp:                ["w", "k"],
-  scrollPageUp:            ["e", "u"],
+  closeTab:                ['x'],
+  scrollDown:              ['s', 'j'],
+  scrollUp:                ['w', 'k'],
+  scrollPageUp:            ['e', 'u'],
   scrollFullPageUp:        [],
-  scrollPageDown:          ["d"],
+  scrollPageDown:          ['d'],
   scrollFullPageDown:      [],
-  scrollToTop:             ["gg"],
-  scrollToBottom:          ["G"],
-  scrollLeft:              ["h"],
-  scrollRight:             ["l"],
-  scrollToLeft:            ["0"],
-  scrollToRight:           ["$"],
-  insertMode:              ["i"],
-  reloadTab:               ["r"],
+  scrollToTop:             ['gg'],
+  scrollToBottom:          ['G'],
+  scrollLeft:              ['h'],
+  scrollRight:             ['l'],
+  scrollToLeft:            ['0'],
+  scrollToRight:           ['$'],
+  insertMode:              ['i'],
+  reloadTab:               ['r'],
   reloadAllTabs:           [],
-  reloadAllButCurrent:     ["cr"],
-  reloadTabUncached:       ["gR"],
-  createHint:              ["f"],
-  createMultiHint:         ["mf"],
-  nextMatchPattern:        ["]]"],
-  previousMatchPattern:    ["[["],
-  createHintWindow:        ["W"],
-  pinTab:                  ["gp"],
-  moveTabRight:            [">"],
-  moveTabLeft:             ["<"],
-  toggleCvim:              ["<A-z>"],
-  goBack:                  ["H", "S"],
-  reverseImage:            ["gr"],
-  multiReverseImage:       ["mr"],
-  goForward:               ["L", "D"],
-  firstTab:                ["g0"],
-  addQuickMark:            ["M*"],
-  openLastHint:            ["A"],
-  openQuickMark:           ["go*"],
-  openQuickMarkTabbed:     ["gn*"],
-  cancelWebRequest:        ["gq"],
-  openLastLinkInTab:       ["<C-S-h>", "gh"],
-  openNextLinkInTab:       ["<C-S-l>", "gl"],
-  cancelAllWebRequests:    ["gQ"],
-  createHoverHint:         ["q"],
-  toggleImages:            ["ci"],
-  createUnhoverHint:       ["Q"],
-  lastTab:                 ["g$"],
-  lastClosedTab:           ["X"],
-  hideDownloadsShelf:      ["gj"],
-  createTabbedHint:        ["F"],
+  reloadAllButCurrent:     ['cr'],
+  reloadTabUncached:       ['gR'],
+  createHint:              ['f'],
+  createMultiHint:         ['mf'],
+  nextMatchPattern:        [']]'],
+  previousMatchPattern:    ['[['],
+  createHintWindow:        ['W'],
+  pinTab:                  ['gp'],
+  moveTabRight:            ['>'],
+  moveTabLeft:             ['<'],
+  toggleCvim:              ['<A-z>'],
+  goBack:                  ['H', 'S'],
+  reverseImage:            ['gr'],
+  multiReverseImage:       ['mr'],
+  goForward:               ['L', 'D'],
+  firstTab:                ['g0'],
+  addQuickMark:            ['M*'],
+  openLastHint:            ['A'],
+  openQuickMark:           ['go*'],
+  openQuickMarkTabbed:     ['gn*'],
+  cancelWebRequest:        ['gq'],
+  openLastLinkInTab:       ['<C-S-h>', 'gh'],
+  openNextLinkInTab:       ['<C-S-l>', 'gl'],
+  cancelAllWebRequests:    ['gQ'],
+  createHoverHint:         ['q'],
+  toggleImages:            ['ci'],
+  createUnhoverHint:       ['Q'],
+  lastTab:                 ['g$'],
+  lastClosedTab:           ['X'],
+  hideDownloadsShelf:      ['gj'],
+  createTabbedHint:        ['F'],
   createActiveTabbedHint:  [],
-  goToInput:               ["gi"],
-  goToLastInput:           ["gI"],
-  nextTab:                 ["K", "R", "gt"],
-  nextFrame:               ["gf"],
-  rootFrame:               ["gF"],
-  lastActiveTab:           ["g'"],
-  percentScroll:           ["g%"],
-  goToTab:                 ["%"],
-  toggleImageZoom:         ["z<Enter>"],
-  zoomPageIn:              ["zi"],
-  zoomPageOut:             ["zo"],
-  zoomOrig:                ["z0"],
-  lastScrollPosition:      ["''"],
-  goToMark:                ["'*"],
-  setMark:                 [";*"],
-  centerMatchT:            ["zt"],
-  centerMatchB:            ["zb"],
-  centerMatchH:            ["zz"],
-  goToSource:              ["gs"],
-  goToRootUrl:             ["gU"],
-  goUpUrl:                 ["gu"],
-  yankUrl:                 ["gy"],
-  multiYankUrl:            ["my"],
-  yankDocumentUrl:         ["yy"],
-  openPaste:               ["p"],
-  toggleVisualMode:        ["v"],
-  toggleVisualLineMode:    ["V"],
-  openPasteTab:            ["P"],
-  previousTab:             ["J", "E", "gT"],
-  nextSearchResult:        ["n"],
-  previousSearchResult:    ["N"],
-  openSearchBar:           ["/"],
-  openSearchBarReverse:    ["?"],
-  openCommandBar:          [":"],
+  goToInput:               ['gi'],
+  goToLastInput:           ['gI'],
+  nextTab:                 ['K', 'R', 'gt'],
+  nextFrame:               ['gf'],
+  rootFrame:               ['gF'],
+  lastActiveTab:           ['g\''],
+  percentScroll:           ['g%'],
+  goToTab:                 ['%'],
+  toggleImageZoom:         ['z<Enter>'],
+  zoomPageIn:              ['zi'],
+  zoomPageOut:             ['zo'],
+  zoomOrig:                ['z0'],
+  lastScrollPosition:      ['\'\''],
+  goToMark:                ['\'*'],
+  setMark:                 [';*'],
+  centerMatchT:            ['zt'],
+  centerMatchB:            ['zb'],
+  centerMatchH:            ['zz'],
+  goToSource:              ['gs'],
+  goToRootUrl:             ['gU'],
+  goUpUrl:                 ['gu'],
+  yankUrl:                 ['gy'],
+  multiYankUrl:            ['my'],
+  yankDocumentUrl:         ['yy'],
+  openPaste:               ['p'],
+  toggleVisualMode:        ['v'],
+  toggleVisualLineMode:    ['V'],
+  openPasteTab:            ['P'],
+  previousTab:             ['J', 'E', 'gT'],
+  nextSearchResult:        ['n'],
+  previousSearchResult:    ['N'],
+  openSearchBar:           ['/'],
+  openSearchBarReverse:    ['?'],
+  openCommandBar:          [':'],
   shortCuts:               []
 };
 
@@ -632,17 +632,17 @@ Mappings.defaultsClone = Object.clone(Mappings.defaults);
 Mappings.shortCutsClone = Object.clone(Mappings.shortCuts);
 
 Mappings.insertDefaults = {
-  deleteWord:        ["<C-y>"],
-  deleteForwardWord: ["<C-p>"],
-  beginningOfLine:   ["<C-a>"],
-  editWithVim:       ["<C-i>"],
-  endOfLine:         ["<C-e>"],
-  deleteToBeginning: ["<C-u>"],
-  deleteToEnd:       ["<C-o>"],
-  forwardChar:       ["<C-f>"],
-  backwardChar:      ["<C-b>"],
-  forwardWord:       ["<C-l>"],
-  backwardWord:      ["<C-h>"]
+  deleteWord:        ['<C-y>'],
+  deleteForwardWord: ['<C-p>'],
+  beginningOfLine:   ['<C-a>'],
+  editWithVim:       ['<C-i>'],
+  endOfLine:         ['<C-e>'],
+  deleteToBeginning: ['<C-u>'],
+  deleteToEnd:       ['<C-o>'],
+  forwardChar:       ['<C-f>'],
+  backwardChar:      ['<C-b>'],
+  forwardWord:       ['<C-l>'],
+  backwardWord:      ['<C-h>']
 };
 
 Mappings.insertFunctions = {
@@ -652,10 +652,10 @@ Mappings.insertFunctions = {
     }
     this.externalVimReq = new XMLHttpRequest();
     var textbox = document.activeElement;
-    this.externalVimReq.open("POST", "http://127.0.0.1:8001");
+    this.externalVimReq.open('POST', 'http://127.0.0.1:8001');
     this.externalVimReq.onreadystatechange = function() {
       if (this.readyState === 4 && this.status === 200) {
-        textbox.value = this.responseText.replace(/\n$/, ""); // Avoid ending newline
+        textbox.value = this.responseText.replace(/\n$/, ''); // Avoid ending newline
       }
     };
     this.externalVimReq.send(textbox.value);
@@ -664,7 +664,7 @@ Mappings.insertFunctions = {
     var ae = document.activeElement;
     var left  = ae.value.slice(0, ae.selectionStart),
     right = ae.value.slice(ae.selectionStart);
-    left = left.replace(/([a-zA-Z_]+|[^a-zA-Z\s]+)?( +)?$/, "");
+    left = left.replace(/([a-zA-Z_]+|[^a-zA-Z\s]+)?( +)?$/, '');
     var sstart = ae.selectionStart;
     var alen = ae.value.length;
     ae.value = left + right;
@@ -706,9 +706,9 @@ Mappings.insertFunctions = {
     return true;
   },
   forwardWord: function() {
-    var aval = (document.activeElement.value + " ")
+    var aval = (document.activeElement.value + ' ')
                  .slice(document.activeElement.selectionStart, -1);
-    var diff = aval.length - aval.replace(/^([a-zA-Z_]+|[^a-zA-Z\s]+)( +)?/, "").length;
+    var diff = aval.length - aval.replace(/^([a-zA-Z_]+|[^a-zA-Z\s]+)( +)?/, '').length;
     if (diff === 0) {
       document.activeElement.selectionStart = document.activeElement.value.length;
     } else {
@@ -718,7 +718,7 @@ Mappings.insertFunctions = {
   },
   backwardWord: function() {
     var aval = document.activeElement.value.slice(0, document.activeElement.selectionStart);
-    var diff = aval.length - aval.replace(/([a-zA-Z_]+|[^a-zA-Z\s]+)( +)?$/, "").length;
+    var diff = aval.length - aval.replace(/([a-zA-Z_]+|[^a-zA-Z\s]+)( +)?$/, '').length;
     document.activeElement.selectionStart -= diff;
     document.activeElement.selectionEnd   -= diff;
     return true;
@@ -731,7 +731,7 @@ Mappings.insertFunctions = {
     }
     var s = document.activeElement.value.slice(0, start);
     var e = document.activeElement.value.slice(start);
-    e = e.replace(/^([a-zA-Z_]+|\s+|[^\sa-zA-Z]+)(\s+)?/, "");
+    e = e.replace(/^([a-zA-Z_]+|\s+|[^\sa-zA-Z]+)(\s+)?/, '');
     document.activeElement.value = s + e;
     document.activeElement.selectionStart = s.length;
     document.activeElement.selectionEnd = s.length;
@@ -742,7 +742,7 @@ Mappings.insertFunctions = {
 Mappings.getInsertFunction = function(modifier, callback) {
   var validMapping = false;
   for (var key in this.insertDefaults) {
-    if (typeof this.insertDefaults[key] !== "object") {
+    if (typeof this.insertDefaults[key] !== 'object') {
       continue;
     }
     this.insertDefaults[key].forEach(function(item) {
@@ -759,7 +759,7 @@ Mappings.getInsertFunction = function(modifier, callback) {
 
 Mappings.insertCommand = function(modifier, callback) {
   this.getInsertFunction(modifier, function(func) {
-    if (func && document.activeElement.hasOwnProperty("value")) {
+    if (func && document.activeElement.hasOwnProperty('value')) {
       callback(Mappings.insertFunctions[func]());
     }
   });
@@ -787,7 +787,7 @@ Mappings.indexFromKeybinding = function(keybinding) {
 Mappings.parseCustom = function(config) {
   config += this.siteSpecificBlacklists;
   config = config.split(/\n+/).map(function(item) {
-    return item.replace(/(\s+)?".*/, "")
+    return item.replace(/(\s+)?'.*/, '')
                .split(/ +/)
                .map(function(e) {
                   return e.trimAround();
@@ -804,14 +804,14 @@ Mappings.parseCustom = function(config) {
     }
 
     if (mapping.length === 1) {
-      if (mapping[0] === "unmapAll") {
+      if (mapping[0] === 'unmapAll') {
         for (key in Mappings.defaults) {
           if (Array.isArray(Mappings.defaults[key])) {
             Mappings.defaults[key] = [];
           }
         }
         Mappings.shortCuts = [];
-      } else if (mapping[0] === "iunmapAll") {
+      } else if (mapping[0] === 'iunmapAll') {
         for (key in Mappings.insertDefaults) {
           if (Array.isArray(Mappings.insertDefaults[key])) {
             Mappings.insertDefaults[key] = [];
@@ -821,7 +821,7 @@ Mappings.parseCustom = function(config) {
       return;
     }
 
-    if (mapping[0] === "map" || mapping[0] === "remap") {
+    if (mapping[0] === 'map' || mapping[0] === 'remap') {
       var fromKey = Mappings.indexFromKeybinding(mapping[2]);
       for (key in Mappings.defaults) {
         if (Array.isArray(Mappings.defaults[key])) {
@@ -834,8 +834,8 @@ Mappings.parseCustom = function(config) {
           }
         }
       }
-      if (mapping[2][0] === ":") {
-        return Mappings.shortCuts.push([mapping[1], mapping.slice(2).join(" ")]);
+      if (mapping[2][0] === ':') {
+        return Mappings.shortCuts.push([mapping[1], mapping.slice(2).join(' ')]);
       }
       if (Object.keys(Mappings.defaults).indexOf(mapping[2]) !== -1) {
         return Mappings.defaults[mapping[2]].push(mapping[1]);
@@ -843,7 +843,7 @@ Mappings.parseCustom = function(config) {
       return;
     }
 
-    if (mapping[0] === "imap") {
+    if (mapping[0] === 'imap') {
       mapping.shift();
       if (Mappings.insertDefaults.hasOwnProperty(mapping[1])) {
         return Mappings.insertDefaults[mapping[1]].push(mapping[0]);
@@ -852,10 +852,10 @@ Mappings.parseCustom = function(config) {
     }
 
     if (mapping.length === 2) {
-      if (mapping[0] === "iunmap") {
+      if (mapping[0] === 'iunmap') {
         return Mappings.removeMapping(Mappings.insertDefaults, mapping[1]);
       }
-      if (mapping[0] === "unmap") {
+      if (mapping[0] === 'unmap') {
         Mappings.removeMapping(Mappings.defaults, mapping[1]);
         Mappings.shortCuts = Mappings.shortCuts.filter(function(item) {
           return item[0] !== mapping[1];
@@ -880,7 +880,7 @@ Mappings.executeSequence = function(c, r) {
   }
   if (/^[0-9]+/.test(c)) {
     r = c.match(/^[0-9]+/)[0];
-    c = c.replace(/^[0-9]+/, "");
+    c = c.replace(/^[0-9]+/, '');
     this.repeats = r;
     if (!c.length) {
       return;
@@ -896,7 +896,7 @@ Mappings.executeSequence = function(c, r) {
 };
 
 Mappings.isValidQueue = function(wildCard) {
-  var wild, key, i;
+  var wild, key, i, l;
   for (key in this.defaults) {
     for (i = 0, l = this.defaults[key].length; i < l; i++) {
       wild = this.defaults[key][i].replace(/\*$/, wildCard);
@@ -909,11 +909,11 @@ Mappings.isValidQueue = function(wildCard) {
 
 Mappings.handleEscapeKey = function() {
 
-  this.queue = "";
-  this.repeats = "";
+  this.queue = '';
+  this.repeats = '';
 
   if (commandMode) {
-    if (Command.type === "search") {
+    if (Command.type === 'search') {
       document.body.scrollTop = Command.lastScrollTop;
       if (Find.previousMatches && Command.input.value && Find.lastSearch && Find.lastSearch !== Command.input.value) {
         Find.clear();
@@ -959,43 +959,43 @@ Mappings.handleEscapeKey = function() {
 };
 
 Mappings.convertToAction = function(c) {
-  if (c === "<Esc>" || c === "<C-[>") {
+  if (c === '<Esc>' || c === '<C-[>') {
     return this.handleEscapeKey();
   }
   var addOne = false;
-  if (!c || c.trim() === "") {
+  if (!c || c.trim() === '') {
     return false;
   }
   if (Hints.active) {
-    if (settings.numerichints && c === "<Enter>") {
+    if (settings.numerichints && c === '<Enter>') {
       if (Hints.numericMatch) {
         return Hints.dispatchAction(Hints.numericMatch);
       }
       return Hints.hideHints(false);
     }
     if (settings.typelinkhints) {
-      if (c === ";") {
+      if (c === ';') {
         Hints.changeFocus();
       } else {
-        Hints.handleHint(c.replace("<Space>", " "));
+        Hints.handleHint(c.replace('<Space>', ' '));
       }
       return true;
     }
-    if (c === "<Space>") {
+    if (c === '<Space>') {
       Hints.hideHints(false);
       return true;
     }
-    return (c === ";" ? Hints.changeFocus() : Hints.handleHint(c));
+    return (c === ';' ? Hints.changeFocus() : Hints.handleHint(c));
   }
-  if (/^[0-9]$/.test(c) && !(c === "0" && Mappings.repeats === "") && Mappings.queue.length === 0) {
+  if (/^[0-9]$/.test(c) && !(c === '0' && Mappings.repeats === '') && Mappings.queue.length === 0) {
     return Mappings.repeats += c;
   }
 
   Mappings.queue += c;
   for (var key in this.defaults) {
     if (!this.isValidQueue(c)) {
-      Mappings.queue = "";
-      Mappings.repeats = "";
+      Mappings.queue = '';
+      Mappings.repeats = '';
       Mappings.validMatch = false;
       return false;
     }
@@ -1008,14 +1008,14 @@ Mappings.convertToAction = function(c) {
           addOne = true;
         }
         if (Mappings.actions.hasOwnProperty(key)) {
-          if (key === "shortCuts") {
+          if (key === 'shortCuts') {
             Mappings.actions[key](Mappings.queue, (addOne ? 1 : +Mappings.repeats));
           } else {
             Mappings.actions[key]((addOne ? 1 : +Mappings.repeats), Mappings.queue);
           }
         }
-        Mappings.queue = "";
-        Mappings.repeats = "";
+        Mappings.queue = '';
+        Mappings.repeats = '';
       }
     }
   }
