@@ -1,13 +1,5 @@
 var Hints = {};
 
-Hints.oldValues = [];
-Hints.switchText = function(index) {
-  this.linkArr[index][0].textContent = this.linkArr[index][1].href ||
-    (this.linkArr[index][1].getAttribute("onclick") ?
-    "JavaScript: " + this.linkArr[index][1].getAttribute("onclick") :
-    this.linkArr[index][1].localName);
-};
-
 Hints.matchPatterns = function(forward) {
   var pattern = new RegExp("^" + (forward ? settings.nextmatchpattern : settings.previousmatchpattern) + "$", "gi");
   var nodeIterator = document.createNodeIterator(document.body, 4, null, false);
@@ -253,14 +245,8 @@ Hints.handleHintFeedback = function() {
     this.hideHints(false, false, true);
   }
   if (linksFound === 1) {
-    if (Key.shiftKey && !(settings.numerichints && settings.typelinkhints) && !Hints.containsUppercase) {
-      this.linkPreview = true;
-      this.currentIndex = index;
-      this.switchText(index);
-    } else {
-      this.dispatchAction(this.linkArr[index][1]);
-      this.hideHints(false);
-    }
+    this.dispatchAction(this.linkArr[index][1]);
+    this.hideHints(false);
   }
 
 };

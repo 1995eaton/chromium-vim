@@ -804,7 +804,6 @@ Command.init = function(enabled) {
     if (settings.hintcharacters.split("").unique().length > 1) {
       settings.hintcharacters = settings.hintcharacters.split("").unique().join("");
     }
-    Hints.containsUppercase = /[A-Z]/.test(settings.hintcharacters);
   } else {
     this.loaded = false;
     if (this.css && this.css.parentNode) {
