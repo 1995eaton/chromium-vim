@@ -5,7 +5,7 @@ Marks.currentBookmarks = [];
 Marks.files = [];
 
 Marks.filePath = function() {
-  var input = Command.input.value.replace(/.*\//, '');
+  var input = Command.input.value.replace(/.*\//, "");
   Command.completions = { files: [] };
   var i, c;
   if (!this.files) {
@@ -13,7 +13,7 @@ Marks.filePath = function() {
   }
   for (i = 0, c = 0; i < this.files.length; ++i) {
     if (this.files[i][0] && this.files[i][0].indexOf(input) === 0) {
-      if (!input && this.files[i][0] !== '..' && this.files[i][0][0] === '.') {
+      if (!input && this.files[i][0] !== ".." && this.files[i][0][0] === ".") {
         continue;
       }
       Command.completions.files.push([this.files[i][0], this.files[i][1]]);
@@ -25,7 +25,7 @@ Marks.filePath = function() {
   }
   if (c <= settings.searchlimit && !input) {
     for (i = 0; i < this.files.length; ++i) {
-      if (this.files[i] !== '..' && this.files[i][0] === '.') {
+      if (this.files[i] !== ".." && this.files[i][0] === ".") {
         Command.completions.files.push([this.files[i][0], !this.files[i][1]]);
         c++;
         if (c > settings.searchlimit) {
@@ -39,44 +39,44 @@ Marks.filePath = function() {
 
 Marks.addQuickMark = function(ch) {
   if (this.quickMarks[ch] === void 0) {
-    Status.setMessage('New QuickMark "' + ch + '" added', 1);
+    Status.setMessage("New QuickMark \"" + ch + "\" added", 1);
     this.quickMarks[ch] = [document.URL];
   } else if (this.quickMarks[ch].indexOf(document.URL) === -1) {
-    Status.setMessage('Current URL added to QuickMark "' + ch + '"', 1);
+    Status.setMessage("Current URL added to QuickMark \"" + ch + "\"", 1);
     this.quickMarks[ch].push(document.URL);
   } else {
     this.quickMarks[ch].splice(this.quickMarks[ch].indexOf(document.URL));
     if (this.quickMarks[ch].length === 0) {
-      Status.setMessage('Quickmark "' + ch + '" removed', 1);
+      Status.setMessage("Quickmark \"" + ch + "\" removed", 1);
       delete this.quickMarks[ch];
     } else {
-      Status.setMessage('Current URL removed from existing QuickMark "' + ch + '"', 1);
+      Status.setMessage("Current URL removed from existing QuickMark \"" + ch + "\"", 1);
     }
   }
-  chrome.runtime.sendMessage({action: 'updateMarks', marks: this.quickMarks});
+  chrome.runtime.sendMessage({action: "updateMarks", marks: this.quickMarks});
 };
 
 Marks.openQuickMark = function(ch, tabbed, repeats) {
   if (!this.quickMarks.hasOwnProperty(ch)) {
-    return Status.setMessage('mark not set', 1, 'error');
+    return Status.setMessage("mark not set", 1, "error");
   }
   if (tabbed) {
     if (repeats !== 1) {
       if (this.quickMarks[ch][repeats - 1]) {
-        chrome.runtime.sendMessage({action: 'openLinkTab', url: this.quickMarks[ch][repeats - 1]});
+        chrome.runtime.sendMessage({action: "openLinkTab", url: this.quickMarks[ch][repeats - 1]});
       } else {
-        chrome.runtime.sendMessage({action: 'openLinkTab', url: this.quickMarks[ch][0]});
+        chrome.runtime.sendMessage({action: "openLinkTab", url: this.quickMarks[ch][0]});
       }
     } else {
       for (var i = 0, l = this.quickMarks[ch].length; i < l; ++i) {
-        chrome.runtime.sendMessage({action: 'openLinkTab', url: this.quickMarks[ch][i]});
+        chrome.runtime.sendMessage({action: "openLinkTab", url: this.quickMarks[ch][i]});
       }
     }
   } else {
     if (this.quickMarks[ch][repeats - 1]) {
-      chrome.runtime.sendMessage({action: 'openLink', url: this.quickMarks[ch][repeats - 1]});
+      chrome.runtime.sendMessage({action: "openLink", url: this.quickMarks[ch][repeats - 1]});
     } else {
-      chrome.runtime.sendMessage({action: 'openLink', url: this.quickMarks[ch][0]});
+      chrome.runtime.sendMessage({action: "openLink", url: this.quickMarks[ch][0]});
     }
   }
 };
@@ -95,20 +95,20 @@ Marks.parse = function(marks) {
 Marks.match = function(string, callback, limit) {
 
   var regexp,
-      i, l,
+      i,
       matches = [];
 
-  if (string.trim() === '') {
+  if (string.trim() === "") {
     return callback(this.bookmarks.slice(0, settings.searchlimit + 1));
   }
 
   try {
-    regexp = new RegExp(string, 'i');
+    regexp = new RegExp(string, "i");
   } catch (e) {}
 
   for (i = 0, l = this.bookmarks.length; i < l; ++i) {
     if (regexp) {
-      if (regexp.test(this.bookmarks[i].join(' '))) {
+      if (regexp.test(this.bookmarks[i].join(" "))) {
         matches.push(this.bookmarks[i]);
       }
     } else if (this.bookmarks[i][1].indexOf(string) === 0) { // Get the most relavent matches first
@@ -135,5 +135,5 @@ Marks.match = function(string, callback, limit) {
 };
 
 Marks.matchPath = function(path) {
-  port.postMessage({action: 'getBookmarkPath', path: path});
+  port.postMessage({action: "getBookmarkPath", path: path});
 };

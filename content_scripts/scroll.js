@@ -67,40 +67,40 @@ Scroll.scroll = function(type, repeats) {
   if (settings && settings.smoothscroll) {
 
     switch (type) {
-      case 'down':
+      case "down":
         Scroll.smoothScrollBy(0, repeats * stepSize);
         break;
-      case 'up':
+      case "up":
         Scroll.smoothScrollBy(0, -repeats * stepSize);
         break;
-      case 'pageDown':
+      case "pageDown":
         Scroll.smoothScrollBy(0, repeats * window.innerHeight / 2);
         break;
-      case 'fullPageDown':
+      case "fullPageDown":
         Scroll.smoothScrollBy(0, repeats * window.innerHeight * (settings.fullpagescrollpercent / 100 || 0.85));
         break;
-      case 'pageUp':
+      case "pageUp":
         Scroll.smoothScrollBy(0, -repeats * window.innerHeight / 2);
         break;
-      case 'fullPageUp':
+      case "fullPageUp":
         Scroll.smoothScrollBy(0, -repeats * window.innerHeight * (settings.fullpagescrollpercent / 100 || 0.85));
         break;
-      case 'top':
+      case "top":
         Scroll.smoothScrollBy(0, -document.body.scrollTop - 10);
         break;
-      case 'bottom':
+      case "bottom":
         Scroll.smoothScrollBy(0, document.body.scrollHeight - document.body.scrollTop - window.innerHeight + 10);
         break;
-      case 'left':
+      case "left":
         Scroll.smoothScrollBy(repeats * -stepSize / 2, 0);
         break;
-      case 'right':
+      case "right":
         Scroll.smoothScrollBy(repeats * stepSize / 2, 0);
         break;
-      case 'leftmost':
+      case "leftmost":
         Scroll.smoothScrollBy(-document.body.scrollLeft - 10, 0);
         break;
-      case 'rightmost':
+      case "rightmost":
         Scroll.smoothScrollBy(document.body.scrollWidth - document.body.scrollLeft - window.innerWidth + 20, 0);
         break;
       default:
@@ -110,40 +110,40 @@ Scroll.scroll = function(type, repeats) {
   } else {
 
     switch (type) {
-      case 'down':
+      case "down":
         scrollBy(0, repeats * stepSize);
         break;
-      case 'up':
+      case "up":
         scrollBy(0, -repeats * stepSize);
         break;
-      case 'pageDown':
+      case "pageDown":
         scrollBy(0, repeats * window.innerHeight / 2);
         break;
-      case 'fullPageDown':
+      case "fullPageDown":
         scrollBy(0, repeats * window.innerHeight * (settings.fullpagescrollpercent / 100 || 0.85));
         break;
-      case 'pageUp':
+      case "pageUp":
         scrollBy(0, -repeats * window.innerHeight / 2);
         break;
-      case 'fullPageUp':
+      case "fullPageUp":
         scrollBy(0, -repeats * window.innerHeight * (settings.fullpagescrollpercent / 100 || 0.85));
         break;
-      case 'top':
+      case "top":
         scrollTo(0, 0);
         break;
-      case 'bottom':
+      case "bottom":
         scrollTo(0, document.body.scrollHeight);
         break;
-      case 'left':
+      case "left":
         scrollBy(-repeats * stepSize, 0);
         break;
-      case 'right':
+      case "right":
         scrollBy(repeats * stepSize, 0);
         break;
-      case 'leftmost':
+      case "leftmost":
         scrollTo(0, document.body.scrollTop);
         break;
-      case 'rightmost':
+      case "rightmost":
         scrollTo(document.body.scrollWidth - document.documentElement.offsetWidth, document.body.scrollTop);
         break;
       default:
