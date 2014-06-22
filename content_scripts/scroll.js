@@ -35,6 +35,12 @@ Scroll.smoothScrollBy = function(x, y) {
       delta = 0;
 
   this.isScrolling = true;
+  if (document.body.scrollTop + y < 0) {
+    y = -document.body.scrollTop - 5;
+  } else if (document.body.scrollTop + document.documentElement.clientHeight + y > document.body.scrollHeight) {
+    y = document.body.scrollHeight - document.documentElement.clientHeight - document.body.scrollTop + 5;
+  }
+
   function animLoop() {
 
     if (isVertical) {
