@@ -642,9 +642,11 @@ Command.execute = function(value, repeats) {
         HUD.hide(true);
       }
       if (swapVal) {
-        return settings[value[0]] = !settings[value[0]];
+        settings[value[0]] = !settings[value[0]];
+      } else {
+        settings[value[0]] = isSet;
       }
-      settings[value[0]] = isSet;
+      chrome.runtime.sendMessage({action: "syncSettings", settings: settings});
     }
     return;
   }

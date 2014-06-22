@@ -82,6 +82,13 @@ actions.addFrame = function() {
   callback(Frames[sender.tab.id].length - 1);
 };
 
+actions.syncSettings = function() {
+  for (var key in request.settings) {
+    Settings[key] = request.settings[key];
+  }
+  Options.sendSettings();
+};
+
 actions.focusFrame = function() {
   if (request.isRoot) {
     Frames[sender.tab.id].index = 0;
