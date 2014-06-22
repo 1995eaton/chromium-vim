@@ -72,7 +72,7 @@ map <C-u> rootFrame
 map <M-h> previousTab
 map <C-d> scrollPageDown
 map <C-e> scrollPageUp
-iunmap <C-y> deleteWord
+iunmap <C-y>
 imap <C-m> deleteWord
 map X :execute gTx<CR> "Close the current tab and move to the one before it
 ```

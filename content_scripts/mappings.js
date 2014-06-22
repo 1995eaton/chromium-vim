@@ -353,15 +353,15 @@ Mappings.actions = {
   },
   nextCompletionResult: function() {
     commandMode &&
-    document.activeElement.id === "cVim-command-bar-input" &&
-    Command.type === "action" &&
-    Search.nextResult(false);
+        document.activeElement.id === "cVim-command-bar-input" &&
+        Command.type === "action" &&
+        Search.nextResult(false);
   },
   previousCompletionResult: function() {
     commandMode &&
-    document.activeElement.id === "cVim-command-bar-input" &&
-    Command.type === "action" &&
-    Search.nextResult(true);
+        document.activeElement.id === "cVim-command-bar-input" &&
+        Command.type === "action" &&
+        Search.nextResult(true);
   },
   addQuickMark: function(repeats, queue) {
     Marks.addQuickMark(queue.slice(-1));
@@ -394,21 +394,25 @@ Mappings.actions = {
     if (Find.matches.length) {
       Find.search(false, repeats);
     } else if (Find.lastSearch !== void 0 && typeof Find.lastSearch === "string") {
-      Find.highlight({ base: document.body,
-                       search: Find.lastSearch,
-                       setIndex: true,
-                       executeSearch: true });
+      Find.highlight({
+        base: document.body,
+        search: Find.lastSearch,
+        setIndex: true,
+        executeSearch: true
+      });
     }
   },
   previousSearchResult: function(repeats) {
     if (Find.matches.length) {
       Find.search(true, repeats);
     } else if (Find.lastSearch !== void 0 && typeof Find.lastSearch === "string") {
-      Find.highlight({ base: document.body,
-                       search: Find.lastSearch,
-                       setIndex: true,
-                       executeSearch: true,
-                       reverse: true });
+      Find.highlight({
+        base: document.body,
+        search: Find.lastSearch,
+        setIndex: true,
+        executeSearch: true,
+        reverse: true
+      });
     }
   },
   nextTab: function(r) {
@@ -661,34 +665,36 @@ Mappings.insertFunctions = {
     this.externalVimReq.send(textbox.value);
   },
   deleteWord: function() {
-    var ae = document.activeElement;
-    var left  = ae.value.slice(0, ae.selectionStart),
-    right = ae.value.slice(ae.selectionStart);
-    left = left.replace(/([a-zA-Z_]+|[^a-zA-Z\s]+)?( +)?$/, "");
-    var sstart = ae.selectionStart;
-    var alen = ae.value.length;
-    ae.value = left + right;
-    if (sstart < alen) {
-      ae.selectionStart -= ae.value.length - left.length;
-      ae.selectionEnd = ae.selectionStart;
+    var activeElement = document.activeElement,
+        left = activeElement.value.slice(0, activeElement.selectionStart),
+        right = activeElement.value.slice(activeElement.selectionStart);
+    if (activeElement.id === "cVim-command-bar-input") {
+      left = left.replace(/ *[^\/ ]*\/*\s*$/, "");
+    } else {
+      left = left.replace(/([a-zA-Z_]+|[^a-zA-Z\s]+)?( +)?$/, "");
+    }
+    activeElement.value = left + right;
+    if (activeElement.selectionStart < activeElement.value.length) {
+      activeElement.selectionStart -= activeElement.value.length - left.length;
+      activeElement.selectionEnd = activeElement.selectionStart;
     }
     return true;
   },
   beginningOfLine: function() {
     document.activeElement.selectionStart = 0;
-    document.activeElement.selectionEnd   = 0;
+    document.activeElement.selectionEnd = 0;
     return true;
   },
   endOfLine: function() {
     document.activeElement.selectionStart = document.activeElement.value.length;
-    document.activeElement.selectionEnd   = document.activeElement.selectionStart;
+    document.activeElement.selectionEnd = document.activeElement.selectionStart;
     return true;
   },
   deleteToBeginning: function() {
     document.activeElement.value =
       document.activeElement.value.slice(document.activeElement.selectionStart - 1, -1);
     document.activeElement.selectionStart = 0;
-    document.activeElement.selectionEnd   = 0;
+    document.activeElement.selectionEnd = 0;
     return true;
   },
   deleteToEnd: function() {
@@ -702,12 +708,11 @@ Mappings.insertFunctions = {
   },
   backwardChar: function() {
     document.activeElement.selectionStart -= 1;
-    document.activeElement.selectionEnd   -= 1;
+    document.activeElement.selectionEnd -= 1;
     return true;
   },
   forwardWord: function() {
-    var aval = (document.activeElement.value + " ")
-                 .slice(document.activeElement.selectionStart, -1);
+    var aval = (document.activeElement.value + " ").slice(document.activeElement.selectionStart, -1);
     var diff = aval.length - aval.replace(/^([a-zA-Z_]+|[^a-zA-Z\s]+)( +)?/, "").length;
     if (diff === 0) {
       document.activeElement.selectionStart = document.activeElement.value.length;
@@ -720,7 +725,7 @@ Mappings.insertFunctions = {
     var aval = document.activeElement.value.slice(0, document.activeElement.selectionStart);
     var diff = aval.length - aval.replace(/([a-zA-Z_]+|[^a-zA-Z\s]+)( +)?$/, "").length;
     document.activeElement.selectionStart -= diff;
-    document.activeElement.selectionEnd   -= diff;
+    document.activeElement.selectionEnd -= diff;
     return true;
   },
   deleteForwardWord: function() {
