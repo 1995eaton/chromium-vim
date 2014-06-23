@@ -96,6 +96,17 @@ port.onMessage.addListener(function(response) {
 
 chrome.extension.onMessage.addListener(function(request, sender, callback) {
   switch (request.action) {
+    case "getWindows":
+      if (request.windows && Command.active === true) {
+        Command.completions = {
+          windows: Object.keys(request.windows).map(function(e, i) {
+            var tlen = request.windows[e].length.toString();
+            return [(i+1).toString() + " (" + tlen + (tlen === "1" ? " Tab)" : " Tabs)"),  request.windows[e].join(", "), e];
+          })
+        };
+        Command.updateCompletions();
+      }
+      break;
     case "commandHistory":
       for (var key in request.history) {
         Command.history[key] = request.history[key];

@@ -102,6 +102,9 @@ Search.nextResult = function(reverse) {
         Command.input.value = value.slice(0, 2).join(" ") + " " + Command.completionResults[this.index][1];
       }
       break;
+    case "windows":
+      Command.input.value = Command.input.value.match(/^\S+/)[0] + " " + Command.completionResults[this.index][1].replace(/ .*/, "");
+      break;
     case "sessions":
       Command.input.value = Command.input.value.match(/^\S+/)[0] + " " + Command.completionResults[this.index][1];
       break;

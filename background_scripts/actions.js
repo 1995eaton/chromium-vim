@@ -121,6 +121,45 @@ actions.closeTab = function() {
   });
 };
 
+actions.getWindows = function() {
+  var _ret = {};
+  chrome.windows.getAll(function(info) {
+    info = info.filter(function(e) {
+      return e.type === "normal" && e.id !== sender.tab.windowId;
+    }).map(function(e) {
+      _ret[e.id] = [];
+      return e.id;
+    });
+    chrome.tabs.query({}, function(tabs) {
+      tabs = tabs.filter(function(e) {
+        return info.indexOf(e.windowId) !== -1;
+      });
+      for (var i = 0; i < tabs.length; i++) {
+        if (_ret.hasOwnProperty(tabs[i].windowId)) {
+          _ret[tabs[i].windowId].push(tabs[i].title);
+        }
+      }
+      chrome.tabs.sendMessage(sender.tab.id, {action: "getWindows", windows: _ret});
+    });
+  });
+};
+
+actions.moveTab = function() {
+  chrome.windows.getAll(function(info) {
+    info = info.filter(function(e) {
+      return e.type === "normal" && e.id !== sender.tab.windowId;
+    }).map(function(e) {
+      return e.id;
+    });
+    if (info.indexOf(parseInt(request.windowId)) !== -1) {
+      chrome.tabs.move(sender.tab.id, {
+        windowId: parseInt(request.windowId),
+        index: -1
+      });
+    }
+  });
+};
+
 actions.closeWindow = function() {
   chrome.windows.remove(sender.tab.windowId);
 };

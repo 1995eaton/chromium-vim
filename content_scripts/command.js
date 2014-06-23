@@ -205,6 +205,7 @@ Command.descriptions = [
   ["session",      "Open a saved session in a new window"],
   ["mksession",    "Create a saved session of current tabs"],
   ["delsession",   "Delete sessions"],
+  ["tabattach",    "Move current tab to another window"],
   ["chrome://",    "Opens Chrome urls"],
   ["duplicate",    "Clone the current tab"],
   ["settings",     "Open the options page for this extension"],
@@ -306,6 +307,12 @@ Command.complete = function(value) {
       };
       this.updateCompletions();
     }.bind(this));
+    return;
+  }
+
+  if (/^taba(ttach)? +/.test(value)) {
+    chrome.runtime.sendMessage({action: "getWindows"});
+    this.completions = { };
     return;
   }
 
@@ -509,6 +516,16 @@ Command.execute = function(value, repeats) {
       url: Complete.convertToLink(value),
       noconvert: true
     });
+  }
+
+  if (/^taba(ttach)? +/.test(value) && !/^\S+\s*$/.test(value)) {
+    var windowId;
+    if (windowId = this.completionResults[parseInt(value.replace(/^\S+ */, "")) - 1]) {
+      return chrome.runtime.sendMessage({
+        action: "moveTab",
+        windowId: windowId[3]
+      });
+    }
   }
 
   if (/^file +/.test(value)) {
