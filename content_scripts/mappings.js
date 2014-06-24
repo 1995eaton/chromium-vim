@@ -71,7 +71,7 @@ Mappings.actions = {
       repeats = 0;
     }
     document.body.scrollTop =
-      (document.body.scrollHeight - document.documentElement.clientHeight) * repeats / 100;
+      (document.body.scrollHeight - window.innerHeight) * repeats / 100;
   },
   goToTab: function(repeats) {
     chrome.runtime.sendMessage({action: "goToTab", index: repeats - 1});
@@ -460,8 +460,8 @@ Mappings.actions = {
       var br = this.inputElements[i].getBoundingClientRect();
       if (br.top + br.height >= 0 &&
           br.left + br.width >= 0 &&
-          br.right - br.width <= document.documentElement.clientWidth &&
-          br.top < document.documentElement.clientHeight) {
+          br.right - br.width <= window.innerWidth &&
+          br.top < window.innerHeight) {
         this.inputElementsIndex = i;
         break;
       }
