@@ -13,7 +13,7 @@ Files.sendRequest = function(path, callback) {
 };
 
 Files.parseHTML = function(data) {
-  var matches = data.match(/addRow\('[^)]+'\)/g);
+  var matches = data.match(/addRow\("[^)]+"\)/g);
   var results = [];
   if (matches) {
     for (var i = 0, l = matches.length; i < l; ++i) {

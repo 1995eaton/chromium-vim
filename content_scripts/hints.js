@@ -85,7 +85,7 @@ Hints.dispatchAction = function(link) {
     case 'yank':
     case 'multiyank':
       var text = link.href || link.value || link.getAttribute('placeholder');
-      if (text && this.type !== 'multiyank') {
+      if (text) {
         Clipboard.copy(text, this.multi);
         Status.setMessage(text, 2);
       }
