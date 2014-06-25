@@ -1,5 +1,4 @@
 var Clipboard,
-    History,
     Links,
     TabHistory,
     Sites;
@@ -104,29 +103,6 @@ Clipboard = {
     text = t.value;
     document.body.removeChild(t);
     return text;
-  }
-};
-
-History = {
-  historyTypes: ['action', 'url', 'search'],
-  searchResults: null,
-  append: function(value, type) {
-    if (!localStorage[type] || localStorage[type] === '') {
-      localStorage[type] = value;
-    } else {
-      localStorage[type] += ',' + value;
-    }
-  },
-  retrieve: function(type) {
-    if (!localStorage[type]) {
-      localStorage[type] = '';
-    }
-    return [type, localStorage[type].split(',')];
-  },
-  retrieveSearchHistory: function(search, limit, callback) {
-    chrome.history.search({text: search, maxResults: limit}, function(results) {
-      callback(results);
-    });
   }
 };
 
