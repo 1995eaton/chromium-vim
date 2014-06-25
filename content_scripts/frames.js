@@ -3,15 +3,7 @@ var Frames = {};
 Frames.focus = function() {
   window.focus();
   var outline = document.createElement('div');
-  outline.style.position = 'fixed';
-  outline.style.width = '100%';
-  outline.style.height = '100%';
-  outline.style.left = '0';
-  outline.style.top = '0';
-  outline.style.right = '0';
-  outline.style.zIndex = '9999999999';
-  outline.style.boxSizing = 'border-box';
-  outline.style.border = '3px solid yellow';
+  outline.id = 'cVim-frames-outline';
   document.body.appendChild(outline);
   window.setTimeout(function() {
     document.body.removeChild(outline);
