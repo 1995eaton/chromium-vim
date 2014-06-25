@@ -17,7 +17,7 @@ callAction = function(action, config) {
   } else if (request.url) {
     url = request.url;
   } else {
-    url = Settings.defaultnewtabpage ? "chrome://newtab" : "../pages/blank.html";
+    url = Settings.defaultnewtabpage ? 'chrome://newtab' : '../pages/blank.html';
   }
   actions[action]();
 };
@@ -95,7 +95,7 @@ actions.focusFrame = function() {
   } else {
     Frames[sender.tab.id].index = (Frames[sender.tab.id].index + request.repeats).mod(Frames[sender.tab.id].length);
   }
-  chrome.tabs.sendMessage(sender.tab.id, {action: "focusFrame", index: Frames[sender.tab.id].index});
+  chrome.tabs.sendMessage(sender.tab.id, {action: 'focusFrame', index: Frames[sender.tab.id].index});
 };
 
 actions.openLinkWindow = function() {
@@ -125,7 +125,7 @@ actions.getWindows = function() {
   var _ret = {};
   chrome.windows.getAll(function(info) {
     info = info.filter(function(e) {
-      return e.type === "normal" && e.id !== sender.tab.windowId;
+      return e.type === 'normal' && e.id !== sender.tab.windowId;
     }).map(function(e) {
       _ret[e.id] = [];
       return e.id;
@@ -139,7 +139,7 @@ actions.getWindows = function() {
           _ret[tabs[i].windowId].push(tabs[i].title);
         }
       }
-      chrome.tabs.sendMessage(sender.tab.id, {action: "getWindows", windows: _ret});
+      chrome.tabs.sendMessage(sender.tab.id, {action: 'getWindows', windows: _ret});
     });
   });
 };
@@ -147,7 +147,7 @@ actions.getWindows = function() {
 actions.moveTab = function() {
   chrome.windows.getAll(function(info) {
     info = info.filter(function(e) {
-      return e.type === "normal" && e.id !== sender.tab.windowId;
+      return e.type === 'normal' && e.id !== sender.tab.windowId;
     }).map(function(e) {
       return e.id;
     });
@@ -229,10 +229,10 @@ actions.appendHistory = function() {
     chrome.tabs.query({}, function(tabs) {
       var hist = {};
       for (var i = 0; i < History.historyTypes.length; ++i) {
-        hist[History.historyTypes[i]] = localStorage[History.historyTypes[i]].split(",");
+        hist[History.historyTypes[i]] = localStorage[History.historyTypes[i]].split(',');
       }
       tabs.forEach(function(tab) {
-        chrome.tabs.sendMessage(tab.id, {action: "commandHistory", history: hist});
+        chrome.tabs.sendMessage(tab.id, {action: 'commandHistory', history: hist});
       });
     });
   }
@@ -272,9 +272,9 @@ actions.openPasteTab = function() {
   if (!paste) {
     return;
   }
-  paste = paste.split("\n").filter(function(e) { return e.trim(); });
+  paste = paste.split('\n').filter(function(e) { return e.trim(); });
   if (paste.length && paste[0].convertLink() !== paste[0]) {
-    paste = encodeURIComponent(paste.join("\n"));
+    paste = encodeURIComponent(paste.join('\n'));
     return chrome.tabs.create({
       url: paste.convertLink(),
       index: sender.tab.index + 1
@@ -295,7 +295,7 @@ actions.openPaste = function() {
   if (!paste) {
     return;
   }
-  paste = paste.split("\n")[0];
+  paste = paste.split('\n')[0];
   chrome.tabs.update({
     url: paste.convertLink()
   });
@@ -313,10 +313,10 @@ actions.createSession = function() {
     });
     chrome.storage.local.set({sessions: sessions});
     chrome.tabs.sendMessage(sender.tab.id, {
-      action: "sessions",
+      action: 'sessions',
       sessions: Object.keys(sessions).map(function(e) {
         return [e, Object.keys(sessions[e]).length.toString() +
-          " tab" + (Object.keys(sessions[e]).length === 1 ? "" : "s")];
+          ' tab' + (Object.keys(sessions[e]).length === 1 ? '' : 's')];
       })
     });
   });
@@ -326,8 +326,8 @@ actions.openBookmarkFolder = function() {
   Bookmarks.getFolderLinks(request.path, function(e) {
     if (e.length > 5) {
       chrome.tabs.sendMessage(sender.tab.id, {
-        action: "confirm",
-        message: "Open " + e.length + " tabs?"
+        action: 'confirm',
+        message: 'Open ' + e.length + ' tabs?'
       }, function(response) {
         if (response) {
           Links.multiOpen(e);
@@ -359,7 +359,7 @@ actions.openSession = function() {
     });
     if (!request.sameWindow) {
       chrome.windows.create({
-        url: "chrome://newtab",
+        url: 'chrome://newtab',
       }, function(tabInfo) {
         chrome.tabs.update(tabInfo.tabs[0].id,
           {url: tabs[0].url, pinned: tabs[0].pinned}
@@ -403,10 +403,10 @@ actions.getBuffers = function() {
   }, function(tabs) {
     var t = [];
     for (var i = 0, l = tabs.length; i < l; ++i) {
-      t.push([i + ": " + tabs[i].title, tabs[i].url]);
+      t.push([i + ': ' + tabs[i].title, tabs[i].url]);
     }
     chrome.tabs.sendMessage(sender.tab.id, {
-      action: "showBuffers",
+      action: 'showBuffers',
       buffers: t
     });
   });
@@ -423,7 +423,7 @@ actions.isNewInstall = function() {
 actions.cancelAllWebRequests = function() {
   chrome.tabs.query({currentWindow: true}, function(tabs) {
     tabs.forEach(function(tab) {
-      chrome.tabs.sendMessage(tab.id, {action: "cancelAllWebRequests"});
+      chrome.tabs.sendMessage(tab.id, {action: 'cancelAllWebRequests'});
     });
   });
 };
@@ -438,7 +438,7 @@ actions.updateMarks = function() {
   chrome.tabs.query({currentWindow: true}, function(tabs) {
     for (var i = 0, l = tabs.length; i < l; ++i) {
       if (tabs[i].id !== sender.tab.id) {
-        chrome.tabs.sendMessage(tabs[i].id, {action: "updateMarks", marks: request.marks});
+        chrome.tabs.sendMessage(tabs[i].id, {action: 'updateMarks', marks: request.marks});
       }
     }
   });
@@ -453,7 +453,7 @@ actions.sendLastSearch = function() {
   }
   chrome.tabs.query({}, function(tabs) {
     tabs.forEach(function(tab) {
-      chrome.tabs.sendMessage(tab.id, {action: "updateLastSearch", value: actions.lastSearch});
+      chrome.tabs.sendMessage(tab.id, {action: 'updateLastSearch', value: actions.lastSearch});
     });
   });
 };
@@ -474,37 +474,37 @@ actions.injectCSS = function() {
 actions.urlToBase64 = function() {
   var img = new Image();
   img.onload = function () {
-    var canvas = document.createElement("canvas");
+    var canvas = document.createElement('canvas');
     canvas.width = this.width;
     canvas.height = this.height;
-    var context = canvas.getContext("2d");
+    var context = canvas.getContext('2d');
     context.drawImage(this, 0, 0);
-    var data = canvas.toDataURL("image/png");
-    chrome.tabs.sendMessage(sender.tab.id, {action: "base64Image", data: data});
+    var data = canvas.toDataURL('image/png');
+    chrome.tabs.sendMessage(sender.tab.id, {action: 'base64Image', data: data});
   };
   img.src = request.url;
 };
 
 actions.getBookmarks = function() {
   Bookmarks.getMarks(function(marks) {
-    callback({type: "bookmarks", bookmarks: marks});
+    callback({type: 'bookmarks', bookmarks: marks});
   });
 };
 
 actions.searchHistory = function() {
   History.retrieveSearchHistory(request.search, request.limit || 4, function(results) {
-    callback({type: "history", history: results});
+    callback({type: 'history', history: results});
   });
 };
 
 actions.getTopSites = function() {
   Sites.getTop(function(results) {
-    callback({type: "topsites", sites: results});
+    callback({type: 'topsites', sites: results});
   });
 };
 
 actions.getQuickMarks = function() {
-  callback({type: "quickMarks", marks: Quickmarks});
+  callback({type: 'quickMarks', marks: Quickmarks});
 };
 
 actions.getBuffers = function() {
@@ -514,39 +514,39 @@ actions.getBuffers = function() {
     chrome.tabs.query({windowId: windowId}, function(tabs) {
       var t = [];
       for (var i = 0, l = tabs.length; i < l; ++i) {
-        t.push([i + ": " + tabs[i].title, tabs[i].url]);
+        t.push([i + ': ' + tabs[i].title, tabs[i].url]);
       }
-      callback({type: "buffers", buffers: t});
+      callback({type: 'buffers', buffers: t});
     });
   });
 };
 
 actions.getSessionNames = function() {
-  callback({type: "sessions", sessions: Object.keys(sessions).map(function(e) { return [e, Object.keys(sessions[e]).length.toString() + " tab" + (Object.keys(sessions[e]).length === 1 ? "" : "s")]; } )});
+  callback({type: 'sessions', sessions: Object.keys(sessions).map(function(e) { return [e, Object.keys(sessions[e]).length.toString() + ' tab' + (Object.keys(sessions[e]).length === 1 ? '' : 's')]; } )});
 };
 
 actions.retrieveAllHistory = function() {
   var hist = {};
   for (var i = 0; i < History.historyTypes.length; ++i) {
     if (localStorage[History.historyTypes[i]] === void 0) {
-      localStorage[History.historyTypes[i]] = "";
+      localStorage[History.historyTypes[i]] = '';
     }
-    hist[History.historyTypes[i]] = localStorage[History.historyTypes[i]].split(",");
+    hist[History.historyTypes[i]] = localStorage[History.historyTypes[i]].split(',');
   }
-  callback({type: "commandHistory", history: hist});
+  callback({type: 'commandHistory', history: hist});
 };
 
 actions.getBookmarkPath = function() {
   chrome.bookmarks.getTree(function(marks) {
     Bookmarks.getPath(marks[0].children, request.path, function(e) {
-      callback({type: "bookmarkPath", path: e});
+      callback({type: 'bookmarkPath', path: e});
     });
   });
 };
 
 actions.getFilePath = function() {
   Files.getPath(request.path, function(data) {
-    chrome.tabs.sendMessage(sender.tab.id, {action: "getFilePath", data: data});
+    chrome.tabs.sendMessage(sender.tab.id, {action: 'getFilePath', data: data});
   });
 };
 
