@@ -1,5 +1,4 @@
-var Clipboard,
-    Links,
+var Links,
     TabHistory,
     Sites;
 
@@ -79,32 +78,6 @@ chrome.storage.local.get('sessions', function(s) {
     sessions = s.sessions;
   }
 });
-
-Clipboard = {
-  createTextArea: function() {
-    var t = document.createElement('textarea');
-    t.style.position = 'absolute';
-    t.style.left = '-100%';
-    return t;
-  },
-  copy: function(text) {
-    var t = this.createTextArea();
-    t.value = text;
-    document.body.appendChild(t);
-    t.select();
-    document.execCommand('Copy');
-    document.body.removeChild(t);
-  },
-  paste: function(text) {
-    var t = this.createTextArea();
-    document.body.appendChild(t);
-    t.focus();
-    document.execCommand('Paste');
-    text = t.value;
-    document.body.removeChild(t);
-    return text;
-  }
-};
 
 function getTab(sender, reverse, count, first, last) {
   chrome.tabs.query({windowId: sender.tab.windowId}, function(tabs) {
