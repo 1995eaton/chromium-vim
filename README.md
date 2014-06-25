@@ -199,6 +199,9 @@ let blacklists = ["*://*/*.pdf <Up> <Down>"]
 | gF                        | go to the root frame                                                  | rootFrame                       |
 | gq                        | stop the current tab from loading                                     | cancelWebRequest                |
 | gQ                        | stop all tabs from loading                                            | cancelAllWebRequests            |
+| gu                        | go up one path in the URL                                             | goUpUrl                         |
+| gU                        | go to to the base URL                                                 | goToRootUrl                     |
+| gs                        | go to the view-source:// page for the current Url                     | goToSource                      |
 | **Tab Navigation**        |                                                                       |                                 |
 | gt, K, R                  | navigate to the next tab                                              | nextTab                         |
 | gT, J, E                  | navigate to the previous tab                                          | previousTab                     |
