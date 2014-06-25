@@ -1,4 +1,4 @@
-var Links,
+var 
     TabHistory;
 
 var sessions = {},
@@ -64,14 +64,6 @@ function getTab(sender, reverse, count, first, last) {
     }
   });
 }
-
-Links = {
-  multiOpen: function(links) {
-    links.forEach(function(item) {
-      chrome.tabs.create({url: item, active: false});
-    });
-  }
-};
 
 function requestAction(type, request, sender, callback) {
   if (isAction(request.action)) {
