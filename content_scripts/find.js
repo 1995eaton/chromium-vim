@@ -10,7 +10,7 @@ Find.setIndex = function() {
     var br = this.matches[i].getBoundingClientRect();
     if (br.top > 0 && br.left > 0) {
       this.index = i - 1;
-      HUD.display(this.index + 1 + " / " + this.matches.length);
+      HUD.display(this.index + 1 + ' / ' + this.matches.length);
       break;
     }
   }
@@ -29,10 +29,10 @@ Find.search = function(reverse, repeats, ignoreFocus) {
     reverse = !reverse;
   }
   if (!this.matches.length) {
-    return HUD.display("No matches", 1);
+    return HUD.display('No matches', 1);
   }
   if (this.index >= 0) {
-    this.matches[this.index].style.backgroundColor = "";
+    this.matches[this.index].style.backgroundColor = '';
   }
   if (reverse && repeats === 1 && this.index === 0) {
     this.index = this.matches.length - 1;
@@ -63,7 +63,7 @@ Find.search = function(reverse, repeats, ignoreFocus) {
   }
   var node = this.matches[this.index];
   while (node = node.parentElement) {
-    if (node.getAttribute("href") !== null) {
+    if (node.getAttribute('href') !== null) {
       if (!ignoreFocus) {
         node.focus();
       }
@@ -72,7 +72,7 @@ Find.search = function(reverse, repeats, ignoreFocus) {
     }
   }
   this.matches[this.index].style.backgroundColor = activeHighlight;
-  HUD.display(this.index + 1 + " / " + this.matches.length);
+  HUD.display(this.index + 1 + ' / ' + this.matches.length);
   var paddingTop = 0,
       paddingBottom = 0;
   if (Command.active) {
@@ -101,10 +101,10 @@ Find.highlight = function(params) {
   //   setIndex       -> find the first match within the viewport
   //   executesearch  -> run Find.search after highlighting
   //   saveSearch     -> add search to search history
-  var regexMode = "",
+  var regexMode = '',
       containsCap = params.search.search(/[A-Z]/) !== -1,
       useRegex = settings.regexp,
-      markBase = document.createElement("mark"),
+      markBase = document.createElement('mark'),
       node, mark, mid, search, nodeIterator, matchPosition;
 
   markBase.style.backgroundColor = settings.highlight;
@@ -116,15 +116,15 @@ Find.highlight = function(params) {
   search = params.search;
 
   if ((settings.ignorecase || /\/i$/.test(params.search)) && !(settings.smartcase && containsCap)) {
-    search = search.replace(/\/i$/, "");
-    regexMode = "i";
+    search = search.replace(/\/i$/, '');
+    regexMode = 'i';
   }
 
   if (useRegex) {
     try {
-      var rxp = new RegExp(search, "g" + regexMode);
-      var mts = rxp.exec(".");
-      if (!mts || (mts && mts[0] !== "")) { // Avoid infinite loop
+      var rxp = new RegExp(search, 'g' + regexMode);
+      var mts = rxp.exec('.');
+      if (!mts || (mts && mts[0] !== '')) { // Avoid infinite loop
         search = rxp;
       } else {
         useRegex = false;
@@ -139,7 +139,7 @@ Find.highlight = function(params) {
       return NodeFilter.FILTER_REJECT;
     }
     var nodeName = node.parentNode.localName.toLowerCase();
-    if (nodeName === "script" || nodeName === "style" || nodeName === "noscript" || nodeName === "mark") {
+    if (nodeName === 'script' || nodeName === 'style' || nodeName === 'noscript' || nodeName === 'mark') {
       return NodeFilter.FILTER_REJECT;
     }
     if (isVisible(node.parentNode)) {
@@ -184,7 +184,7 @@ Find.highlight = function(params) {
 
   document.body.normalize();
 
-  HUD.display(this.matches.length || "No matches");
+  HUD.display(this.matches.length || 'No matches');
 
   if (params.setIndex) {
     this.setIndex();
@@ -200,7 +200,7 @@ Find.clear = function() {
   var nodes = this.matches;
   for (var i = 0; i < nodes.length; i++) {
     if (nodes[i] && nodes[i].parentNode) {
-      nodes[i].parentNode.innerHTML = nodes[i].parentNode.innerHTML.replace(/<mark[^>]*>([^<]+)<\/mark>/gi, "$1");
+      nodes[i].parentNode.innerHTML = nodes[i].parentNode.innerHTML.replace(/<mark[^>]*>([^<]+)<\/mark>/gi, '$1');
     }
   }
   // More elegant solution, but 1000's of times slower
