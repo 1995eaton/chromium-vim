@@ -1,4 +1,4 @@
-var History = {}
+var History = {};
 
 History.historyTypes = ['action', 'url', 'search'];
 
