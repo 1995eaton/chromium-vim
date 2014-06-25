@@ -81,7 +81,13 @@ Mappings.actions = {
   },
   goToRootUrl: function() {
     if (window.location.pathname.length !== 0 && window.location.pathname !== '/') {
-      chrome.runtime.sendMessage({action: 'openLink', url: window.location.origin});
+      chrome.runtime.sendMessage({
+        action: 'openLink',
+        tab: {
+          pinned: false
+        },
+        url: window.location.origin
+      });
     }
   },
   goUpUrl: function(repeats) {
@@ -89,7 +95,13 @@ Mappings.actions = {
     if (window.location.pathname.length !== 0 && window.location.pathname !== '/') {
       var match = window.location.pathname.replace(rxp, '');
       if (match !== window.location.pathname) {
-        chrome.runtime.sendMessage({action: 'openLink', url: window.location.origin + match});
+        chrome.runtime.sendMessage({
+          action: 'openLink',
+          tab: {
+            pinned: false
+          },
+          url: window.location.origin + match
+        });
       }
     }
   },
