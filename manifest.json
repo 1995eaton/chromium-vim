@@ -70,6 +70,12 @@
     "persistant": false,
     "scripts": [
       "content_scripts/utils.js",
+      "background_scripts/clipboard.js",
+      "background_scripts/bookmarks.js",
+      "background_scripts/sites.js",
+      "background_scripts/files.js",
+      "background_scripts/links.js",
+      "background_scripts/history.js",
       "background_scripts/main.js",
       "background_scripts/actions.js",
       "background_scripts/options.js",
