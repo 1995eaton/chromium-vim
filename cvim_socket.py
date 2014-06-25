@@ -36,7 +36,7 @@ def cleanup():
     os.remove(TMP_SCRIPT_FILE)
 
 
-class cvimHandler(http.server.BaseHTTPRequestHandler):
+class CVHandler(http.server.BaseHTTPRequestHandler):
 
     def do_HEAD(self):
         self.send_response(200)
@@ -68,7 +68,7 @@ if __name__ == '__main__':
     os.chmod(TMP_SCRIPT_FILE, script_permissions.st_mode | stat.S_IEXEC)
     try:
         server_class = http.server.HTTPServer
-        httpd = server_class(('', PORT_NUMBER), cvimHandler)
+        httpd = server_class(('', PORT_NUMBER), CVHandler)
         httpd.serve_forever()
     except KeyboardInterrupt:
         pass
