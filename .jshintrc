@@ -9,6 +9,7 @@
     "immed": true,
     "latedef": "nofunc",
     "newcap": false,
+    "quotmark": "single",
     "noarg": true,
     "multistr": true,
     "undef": false,
