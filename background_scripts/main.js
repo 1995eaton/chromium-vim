@@ -1,13 +1,8 @@
-var 
-    TabHistory;
-
 var sessions = {},
     Frames = {},
     Quickmarks = {},
-    ActiveTabs = {};
-
-TabHistory = {
-};
+    ActiveTabs = {},
+    TabHistory = {};
 
 chrome.tabs.onUpdated.addListener(function(id, changeInfo) {
   if (changeInfo.hasOwnProperty('url')) {
