@@ -1,6 +1,5 @@
-// Search engine completion functions
+var GitHub, Complete = {};
 
-var GitHub;
 String.prototype.validURL = function() {
   var url = this.trimLeft().trimRight();
   if (url.length === 0) {
@@ -28,9 +27,7 @@ String.prototype.embedString = function(string) {
   return this.replace('%s', string);
 };
 
-var Complete = {};
-
-Complete.engines = ['google', 'wikipedia', 'youtube', 'imdb', 'amazon', 'google-maps', 'github', 'xkcd', 'wolframalpha', 'google-image', 'ebay', 'webster', 'wictionary', 'urbandictionary', 'duckduckgo', 'answers', 'google-trends', 'google-finance', 'yahoo', 'bing'];
+Complete.engines = ['google', 'wikipedia', 'youtube', 'imdb', 'amazon', 'google-maps', 'github', 'wolframalpha', 'google-image', 'ebay', 'webster', 'wictionary', 'urbandictionary', 'duckduckgo', 'answers', 'google-trends', 'google-finance', 'yahoo', 'bing'];
 
 Complete.aliases = {
   g: 'google'
@@ -52,7 +49,6 @@ Complete.requestUrls = {
   'google-maps':  'https://www.google.com/maps/search/',
   duckduckgo:     'https://duckduckgo.com/?q=',
   yahoo:          'https://search.yahoo.com/search?p=',
-  xkcd:           'http://www.google.com/cse?cx=012652707207066138651%3Azudjtuwe28q&ie=UTF-8&q=regex&siteurl=xkcd.com%2F1380%2F&ref=xkcd.com%2F&ss=180137j23765520005j17&oq=regex&gs_l=partner.3.0.0.81229.260484.0.261975.7.6.0.1.1.0.199.624.4j2.6.0.gsnos%2Cn%3D13...0.180137j23765516231j17j3..1ac.1.25.partner..0.7.625.u1TFYzUl0S0#gsc.tab=0&gsc.q=',
   answers:        'https://answers.yahoo.com/search/search_result?p=',
   bing:           'https://www.bing.com/search?q=',
   imdb:           'http://www.imdb.com/find?s=all&q=',
@@ -75,7 +71,6 @@ Complete.baseUrls = {
   'google-maps':  'https://www.google.com/maps/preview',
   duckduckgo:     'https://duckduckgo.com',
   yahoo:          'https://search.yahoo.com',
-  xkcd:           'http://xkcd.com',
   answers:        'https://answers.yahoo.com',
   bing:           'https://www.bing.com',
   imdb:           'http://www.imdb.com',
@@ -115,7 +110,6 @@ Complete.apis = {
   wikipedia:      'https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=%s',
   google:         'https://www.google.com/complete/search?client=firefox&hl=en&q=%s',
   github:         '',
-  xkcd:           'http://clients1.google.com/complete/search?client=partner&hl=en&sugexp=gsnos%2Cn%3D13&gs_rn=25&gs_ri=partner&partnerid=012652707207066138651%3Azudjtuwe28q&types=t&ds=cse&cp=4&gs_id=18&json=1&q=%s',
   'google-image': 'http://www.google.com/complete/search?client=img&hl=en&gs_rn=43&gs_ri=img&ds=i&cp=1&gs_id=8&q=%s',
   yahoo:          'https://search.yahoo.com/sugg/gossip/gossip-us-ura/?output=sd1&appid=search.yahoo.com&nresults=20&command=%s',
   answers:        'https://search.yahoo.com/sugg/ss/gossip-us_ss-vertical_ss/?output=sd1&pubid=1307&appid=yanswer&command=%s&nresults=20',
@@ -198,97 +192,94 @@ Complete.convertToLink = function(input) {
     suffix = input.slice(1).join(' ');
   }
   return (prefix.indexOf('%s') !== -1 ?
-      prefix.embedString(suffix) :
-      prefix + suffix);
-};
-
-Complete.xhr = function(url, callback) {
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', url);
-  xhr.onreadystatechange = function() {
-    if (this.readyState === 4 && this.status === 200 && document.activeElement.id === 'cVim-command-bar-input' && commandMode) {
-      callback(JSON.parse(this.responseText));
-    }
-  };
-  xhr.send(url);
+            prefix.embedString(suffix) :
+            prefix + suffix);
 };
 
 Complete.wikipedia = function(query, callback) {
-  this.xhr(this.apis.wikipedia.embedString(query), function(response) {
-    callback(response[1].map(function(e) {
-      return e;
-    }));
-  });
+  httpRequest({
+    url: this.apis.wikipedia.embedString(query),
+    json: true
+  }).then(function(response) {
+    callback(response[1]);
+  }, cVimError);
 };
 
 Complete.google = function(query, callback) {
-  this.xhr(this.apis.google.embedString(query), function(response) {
-    callback(response[1].map(function(e) {
-      return e;
-    }));
-  });
+  httpRequest({
+    url: this.apis.google.embedString(query),
+    json: true
+  }).then(function(response) {
+    callback(response[1]);
+  }, cVimError);
 };
 
 Complete['google-maps'] = function(query, callback) {
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', this.apis['google-maps'].embedString(query));
-  xhr.onreadystatechange = function() {
-    if (this.readyState === 4 && this.status === 200) {
-      var data = JSON.parse(JSON.parse(JSON.stringify(this.responseText.replace(/\/\*[^\*]+\*\//g, '')))).d;
-      data = data.replace(/^[^,]+,/, '')
-                 .replace(/\n\][^\]]+\][^\]]+$/, '')
-                 .replace(/,+/g, ',')
-                 .replace(/\n/g, '')
-                 .replace(/\[,/g, '[');
-      data = JSON.parse(data);
-      data = data.map(function(e) {
-        return e[0][0][0];
-      });
-      callback(data);
-    }
-  };
-  xhr.send();
+  httpRequest({
+    url: this.apis['google-maps'].embedString(query),
+    json: false
+  }).then(function(response) {
+    var data = JSON.parse(JSON.parse(JSON.stringify(response.replace(/\/\*[^\*]+\*\//g, '')))).d;
+    data = data.replace(/^[^,]+,/, '')
+               .replace(/\n\][^\]]+\][^\]]+$/, '')
+               .replace(/,+/g, ',')
+               .replace(/\n/g, '')
+               .replace(/\[,/g, '[');
+    data = JSON.parse(data);
+    data = data.map(function(e) {
+      return e[0][0][0];
+    });
+    callback(data);
+  }, cVimError);
 };
 
 Complete['google-image'] = function(query, callback) {
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', this.apis['google-image'].embedString(query));
-  xhr.onreadystatechange = function() {
-    if (this.readyState === 4 && this.status === 200 && document.activeElement.id === 'cVim-command-bar-input' && commandMode) {
-      callback(JSON.parse(this.responseText.replace(/^[^\(]+\(|\)$/g, ''))[1].map(function(e) {
-        return e[0].replace(/<[^>]+>/g, '');
-      }));
-    }
-  };
-  xhr.send();
+  httpRequest({
+    url: this.apis['google-image'].embedString(query),
+    json: false
+  }).then(function(response) {
+    callback(JSON.parse(response.replace(/^[^\(]+\(|\)$/g, ''))[1].map(function(e) {
+      return e[0].replace(/<[^>]+>/g, '');
+    }));
+  }, cVimError);
 };
 
 Complete['google-trends'] = function(query, callback) {
-  this.xhr(this.apis['google-trends'].embedString(encodeURIComponent(query)), function(response) {
+  httpRequest({
+    url: this.apis['google-trends'].embedString(encodeURIComponent(query)),
+    json: true
+  }).then(function(response) {
     callback(response.entityList.map(function(e) {
       return [e.title + ' - ' + e.type, Complete.requestUrls['google-trends'] + encodeURIComponent(e.mid)];
     }));
-  });
+  }, cVimError);
 };
 
 Complete['google-finance'] = function(query, callback) {
-  this.xhr(this.apis['google-finance'].embedString(encodeURIComponent(query)), function(response) {
+  httpRequest({
+    url: this.apis['google-finance'].embedString(encodeURIComponent(query)),
+    json: true
+  }).then(function(response) {
     callback(response.matches.map(function(e) {
       return [e.t + ' - ' + e.n + ' - ' + e.e, Complete.requestUrls['google-finance'] + e.e + ':' + e.t];
     }));
-  });
+  }, cVimError);
 };
 
 Complete.amazon = function(query, callback) {
-  this.xhr(this.apis.amazon.embedString(encodeURIComponent(query)), function(response) {
-    callback(response[1].map(function(e) {
-      return e;
-    }));
-  });
+  httpRequest({
+    url: this.apis.amazon.embedString(encodeURIComponent(query)),
+    json: true
+  }).then(function(response) {
+    callback(response[1]);
+  }, cVimError);
 };
 
 Complete.yahoo = function(query, callback) {
-  this.xhr(this.apis.yahoo.embedString(encodeURIComponent(query)), function(response) {
+  httpRequest({
+    url: this.apis.yahoo.embedString(encodeURIComponent(query)),
+    json: true
+  }).then(function(response) {
     var _ret = [];
     for (var key in response.r) {
       if (response.r[key].hasOwnProperty('k')) {
@@ -296,122 +287,135 @@ Complete.yahoo = function(query, callback) {
       }
     }
     callback(_ret);
-  });
+  }, cVimError);
 };
 
 Complete.answers = function(query, callback) {
-  this.xhr(this.apis.answers.embedString(encodeURIComponent(query)), function(response) {
+  httpRequest({
+    url: this.apis.answers.embedString(encodeURIComponent(query)),
+    json: true
+  }).then(function(response) {
     callback(response.r.map(function(e) {
-      return [e.k, 'https://answers.yahoo.com/question/index?qid=' +
-                    e.d.replace(/^\{qid:|,.*/g, '')];
+      return [e.k, 'https://answers.yahoo.com/question/index?qid=' + e.d.replace(/^\{qid:|,.*/g, '')];
     }));
-  });
+  }, cVimError);
 };
 
 Complete.bing = function(query, callback) {
-  this.xhr(this.apis.bing.embedString(query), function(response) {
+  httpRequest({
+    url: this.apis.bing.embedString(query),
+    json: true
+  }).then(function(response) {
     callback(response[1].map(function(e) {
       return e;
     }));
-  });
+  }, cVimError);
 };
 
 Complete.ebay = function(query, callback) {
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', this.apis.ebay.embedString(encodeURIComponent(query)));
-  xhr.onreadystatechange = function() {
-    if (this.readyState === 4 && this.status === 200 && document.activeElement.id === 'cVim-command-bar-input' && commandMode) {
-      var _ret = JSON.parse(xhr.responseText.replace(/^[^\(]+\(|\)$/g, ''));
-      if (!_ret.res) {
-        return false;
-      }
-      callback(_ret.res.sug.map(function(e) {
-        return e;
-      }));
+  httpRequest({
+    url: this.apis.ebay.embedString(encodeURIComponent(query)),
+    json: false
+  }).then(function(response) {
+    var _ret = JSON.parse(response.replace(/^[^\(]+\(|\)$/g, ''));
+    if (!_ret.res) {
+      return false;
     }
-  };
-  xhr.send();
+    callback(_ret.res.sug.map(function(e) {
+      return e;
+    }));
+  }, cVimError);
 };
 
 Complete.youtube = function(query, callback) {
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', this.apis.youtube.embedString(query));
-  xhr.onreadystatechange = function() {
-    if (this.readyState === 4 && this.status === 200 && document.activeElement.id === 'cVim-command-bar-input' && commandMode) {
-      var _ret = JSON.parse(xhr.responseText.replace(/^[^\(]+\(|\)$/g, ''));
-      callback(_ret[1].map(function(e) {
-        return e[0];
-      }));
-    }
-  };
-  xhr.send();
+  httpRequest({
+    url: this.apis.youtube.embedString(query),
+    json: false
+  }).then(function(response) {
+    var _ret = JSON.parse(response.replace(/^[^\(]+\(|\)$/g, ''));
+    callback(_ret[1].map(function(e) {
+      return e[0];
+    }));
+  }, cVimError);
 };
 
 Complete.wolframalpha = function(query, callback) {
-  this.xhr(this.apis.wolframalpha.embedString(encodeURIComponent(query)), function(response) {
+  httpRequest({
+    url: this.apis.wolframalpha.embedString(encodeURIComponent(query)),
+    json: true
+  }).then(function(response) {
     callback(response.results.map(function(e) {
       return e.input;
     }));
-  });
+  }, cVimError);
 };
 
 Complete.webster = function(query, callback) {
-  this.xhr(this.apis.webster.embedString(encodeURIComponent(query)), function(response) {
+  httpRequest({
+    url: this.apis.webster.embedString(encodeURIComponent(query)),
+    json: true
+  }).then(function(response) {
     callback(response.suggestions.map(function(e) {
       return e;
     }));
-  });
+  }, cVimError);
 };
 
 Complete.wictionary = function(query, callback) {
-  this.xhr(this.apis.wictionary.embedString(encodeURIComponent(query)), function(response) {
+  httpRequest({
+    url: this.apis.wictionary.embedString(encodeURIComponent(query)),
+    json: true
+  }).then(function(response) {
     callback(response[1].map(function(e) {
       return e;
     }));
-  });
+  }, cVimError);
 };
 
 Complete.duckduckgo = function(query, callback) {
-  this.xhr(this.apis.duckduckgo.embedString(encodeURIComponent(query)), function(response) {
+  httpRequest({
+    url: this.apis.duckduckgo.embedString(encodeURIComponent(query)),
+    json: true
+  }).then(function(response) {
     callback(response.map(function(e) {
       return e.phrase;
     }).compress());
-  });
+  }, cVimError);
 };
 
 Complete.urbandictionary = function(query, callback) {
-  this.xhr(this.apis.urbandictionary.embedString(encodeURIComponent(query)), function(response) {
+  httpRequest({
+    url: this.apis.urbandictionary.embedString(encodeURIComponent(query)),
+    json: true
+  }).then(function(response) {
     callback(response.slice(1).map(function(e) {
       return e;
     }));
-  });
+  }, cVimError);
 };
 
 Complete.imdb = function(query, callback) {
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', this.apis.imdb + query[0] + '/' + query.replace(/ /g, '_') + '.json');
-  xhr.onreadystatechange = function() {
-    if (this.readyState === 4 && this.status === 200 && document.activeElement.id === 'cVim-command-bar-input' && commandMode) {
-      var _ret = JSON.parse(xhr.responseText.replace(/^[^\(]+\(|\)$/g, ''));
-      callback(_ret.d.map(function(e) {
-        if (/:\/\//.test(e.id)) {
-          return [e.l, e.id];
-        }
-        var _url = 'http://www.imdb.com/' + (e.id.indexOf('nm') === 0 ? 'name' : 'title') + '/' + e.id;
-        if (e.q) {
-          return [e.l + ' - ' + e.q + ', ' + e.s + ' (' + e.y + ')', _url];
-        }
-        return [e.l + ' - ' + e.s, _url];
-      }));
-    }
-  };
-  xhr.send();
+  httpRequest({
+    url: this.apis.imdb + query[0] + '/' + query.replace(/ /g, '_') + '.json',
+    json: false
+  }).then(function(response) {
+    var _ret = JSON.parse(response.replace(/^[^\(]+\(|\)$/g, ''));
+    callback(_ret.d.map(function(e) {
+      if (/:\/\//.test(e.id)) {
+        return [e.l, e.id];
+      }
+      var _url = 'http://www.imdb.com/' + (e.id.indexOf('nm') === 0 ? 'name' : 'title') + '/' + e.id;
+      if (e.q) {
+        return [e.l + ' - ' + e.q + ', ' + e.s + ' (' + e.y + ')', _url];
+      }
+      return [e.l + ' - ' + e.s, _url];
+    }));
+  }, cVimError);
 };
 
 var GitHubCache = {};
 GitHub = {
   parseInput: function(input) {
-    log(input);
     if (input.length === 1) {
       return 'https://github.com/' + input[0].slice(1);
     }
@@ -427,22 +431,28 @@ Complete.github = function(query, callback) {
     return callback([['@&lt;USER&gt;/&lt;REPOSITORY&gt;', 'github @']]);
   }
   if (/^@[a-zA-Z_\-0-9]+$/.test(query)) {
-    this.xhr(users.embedString(encodeURIComponent(query.slice(1))), function(response) {
+    httpRequest({
+      url: users.embedString(encodeURIComponent(query.slice(1))),
+      json: true
+    }).then(function(response) {
       return callback(response.results.map(function(e) {
         return [e.command];
       }));
-    });
+    }, cVimError);
   } else if (/^@[a-zA-Z_\-0-9]+\/[^ ]*$/.test(query)) {
 
     var slashPosition = query.indexOf('/');
 
     if (GitHubCache[query.slice(1, slashPosition)] === void 0) {
-      this.xhr(repos.embedString(encodeURIComponent(query.slice(1, -1))), function(response) {
+      httpRequest({
+        url: repos.embedString(encodeURIComponent(query.slice(1, -1))),
+        json: true
+      }).then(function(response) {
         GitHubCache[query.slice(1, slashPosition)] = response.results.map(function(e) {
           return ['@' + e.command];
         });
         return callback(GitHubCache[query.slice(1, slashPosition)]);
-      });
+      }, cVimError);
     } else {
       return callback(GitHubCache[query.slice(1, slashPosition)].filter(function(e) {
         return e[0].indexOf(query) === 0;
@@ -450,15 +460,4 @@ Complete.github = function(query, callback) {
     }
 
   }
-};
-
-Complete.xkcd = function(query, callback) {
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', this.apis.xkcd.embedString(encodeURIComponent(query)));
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState === 4 && xhr.status === 200) {
-      callback(JSON.parse(xhr.responseText)[1]);
-    }
-  };
-  xhr.send();
 };

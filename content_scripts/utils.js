@@ -1,5 +1,25 @@
 var log = console.log.bind(console);
 
+var cVimError = function(message) {
+  log(message);
+};
+
+var httpRequest = function(request) {
+  return new Promise(function(acc, rej) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', request.url);
+    xhr.addEventListener('load', function() {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        acc(request.json ? JSON.parse(xhr.responseText) : xhr.responseText);
+      }
+    });
+    xhr.addEventListener('error', function() {
+      rej(Error('cVim Error: Unable to resolve ' + request.url));
+    });
+    xhr.send();
+  });
+};
+
 function isValidB64(a) {
   try {
     window.atob(a);
@@ -155,7 +175,7 @@ String.prototype.rxp = function() {
 };
 
 String.prototype.convertLink = function() {
-  var url = this.trimLeft().trimRight();
+  var url = this.trimAround();
   if (url.length === 0) {
     return 'chrome://newtab';
   }
