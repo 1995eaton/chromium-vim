@@ -35,10 +35,12 @@ Scroll.smoothScrollBy = function(x, y) {
       delta = 0;
 
   this.isScrolling = true;
-  if (document.body.scrollTop + y < 0) {
-    y = -document.body.scrollTop - 5;
-  } else if (document.body.scrollTop + window.innerHeight + y > document.body.scrollHeight) {
-    y = document.body.scrollHeight - window.innerHeight - document.body.scrollTop + 5;
+  if (document.body) {
+    if (document.body.scrollTop + y < 0) {
+      y = -document.body.scrollTop - 5;
+    } else if (document.body.scrollTop + window.innerHeight + y > document.body.scrollHeight) {
+      y = document.body.scrollHeight - window.innerHeight - document.body.scrollTop + 5;
+    }
   }
 
   function animLoop() {
