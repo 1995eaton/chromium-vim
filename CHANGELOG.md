@@ -5,6 +5,11 @@
  * Awesome new feature! It's now possible to use Vim to edit text boxes. All that is needed is a python script that can be found here: https://github.com/1995eaton/chromium-vim/blob/master/cvim_socket.py
   * To get things running, just run the script: `python cvim_socket.py` and press `<C-i>` inside a text box.
  * As a result of the above, the insert mapping `<C-i>` (beginningOfLine) is now `<C-a>`.
+ * Smoother scrolling
+ * Added `:tabattach` command
+ * Settings defined via the command bar (e.g. `:set nosmoothscroll`) will become active in all other tabs and all new tabs until either the browser is restarted or the settings is flipped
+ * Page searches are now synced with other tabs
+ * Performance enhancements
 
 ## 1.2.55
  * In order to make cVim as "vim-like" as possible, some commands have been added, and others have changed (the old ones will continue to work). `:tabopen` is now `:tabnew` and `:closetab` is now `:quit`

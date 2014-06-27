@@ -59,12 +59,11 @@ HTMLElement.prototype.isInput = function() {
 };
 
 function getVisibleBoundingRect(node) {
-  var computedStyle = getComputedStyle(node);
-  if (computedStyle.opacity === '0' || computedStyle.visibility !== 'visible' || computedStyle.display === 'none' || node.hasAttribute('disabled')) {
-    return false;
-  }
   var boundingRect = node.getClientRects()[0] || node.getBoundingClientRect();
   if (boundingRect.top > window.innerHeight || boundingRect.left > window.innerWidth) {
+    return false;
+  }
+  if (boundingRect.width === 1 || boundingRect.height === 1) {
     return false;
   }
   if (boundingRect.width === 0 || boundingRect.height === 0) {
@@ -82,6 +81,10 @@ function getVisibleBoundingRect(node) {
     }
   }
   if (boundingRect.top + boundingRect.height < 10 || boundingRect.left + boundingRect.width < -10) {
+    return false;
+  }
+  var computedStyle = getComputedStyle(node);
+  if (computedStyle.opacity === '0' || computedStyle.visibility !== 'visible' || computedStyle.display === 'none' || node.hasAttribute('disabled')) {
     return false;
   }
   return boundingRect;
