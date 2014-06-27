@@ -365,15 +365,15 @@ Mappings.actions = {
   },
   nextCompletionResult: function() {
     commandMode &&
-        document.activeElement.id === 'cVim-command-bar-input' &&
-        Command.type === 'action' &&
-        Search.nextResult(false);
+      document.activeElement.id === 'cVim-command-bar-input' &&
+      Command.type === 'action' &&
+      Search.nextResult(false);
   },
   previousCompletionResult: function() {
     commandMode &&
-        document.activeElement.id === 'cVim-command-bar-input' &&
-        Command.type === 'action' &&
-        Search.nextResult(true);
+      document.activeElement.id === 'cVim-command-bar-input' &&
+      Command.type === 'action' &&
+      Search.nextResult(true);
   },
   addQuickMark: function(repeats, queue) {
     Marks.addQuickMark(queue.slice(-1));
@@ -839,6 +839,9 @@ Mappings.parseCustom = function(config) {
     }
 
     if (mapping[0] === 'map' || mapping[0] === 'remap') {
+      mapping[1] = mapping[1].replace(/<c(-s-)?/i, function(e) {
+        return e.toUpperCase();
+      });
       var fromKey = Mappings.indexFromKeybinding(mapping[2]);
       for (key in Mappings.defaults) {
         if (Array.isArray(Mappings.defaults[key])) {
@@ -862,6 +865,9 @@ Mappings.parseCustom = function(config) {
 
     if (mapping[0] === 'imap') {
       mapping.shift();
+      mapping[0] = mapping[0].replace(/<c(-s-)?/i, function(e) {
+        return e.toUpperCase();
+      });
       if (Mappings.insertDefaults.hasOwnProperty(mapping[1])) {
         return Mappings.insertDefaults[mapping[1]].push(mapping[0]);
       }
