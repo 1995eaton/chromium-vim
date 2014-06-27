@@ -681,15 +681,13 @@ Mappings.insertFunctions = {
         left = activeElement.value.slice(0, activeElement.selectionStart),
         right = activeElement.value.slice(activeElement.selectionStart);
     if (activeElement.id === 'cVim-command-bar-input') {
-      left = left.replace(/ *[^\/ ]*\/*\s*$/, '');
+      left = left.replace(/[^\/ ]*\/*\s*$/, '');
     } else {
-      left = left.replace(/([a-zA-Z_]+|[^a-zA-Z\s]+)?( +)?$/, '');
+      left = left.replace(/([a-zA-Z0-9_]+|[^a-zA-Z0-9\s]+)+[\n ]*$/, '');
     }
     activeElement.value = left + right;
-    if (activeElement.selectionStart < activeElement.value.length) {
-      activeElement.selectionStart -= activeElement.value.length - left.length;
-      activeElement.selectionEnd = activeElement.selectionStart;
-    }
+    activeElement.selectionStart -= activeElement.value.length - left.length;
+    activeElement.selectionEnd = activeElement.selectionStart;
     return true;
   },
   beginningOfLine: function() {
@@ -725,7 +723,7 @@ Mappings.insertFunctions = {
   },
   forwardWord: function() {
     var aval = (document.activeElement.value + ' ').slice(document.activeElement.selectionStart, -1);
-    var diff = aval.length - aval.replace(/^([a-zA-Z_]+|[^a-zA-Z\s]+)( +)?/, '').length;
+    var diff = aval.length - aval.replace(/^([a-zA-Z_]+|[^a-zA-Z\s]+)[\s\n]*/, '').length;
     if (diff === 0) {
       document.activeElement.selectionStart = document.activeElement.value.length;
     } else {
@@ -735,7 +733,7 @@ Mappings.insertFunctions = {
   },
   backwardWord: function() {
     var aval = document.activeElement.value.slice(0, document.activeElement.selectionStart);
-    var diff = aval.length - aval.replace(/([a-zA-Z_]+|[^a-zA-Z\s]+)( +)?$/, '').length;
+    var diff = aval.length - aval.replace(/([a-zA-Z_]+|[^a-zA-Z\s]+)[\s\n]*$/, '').length;
     document.activeElement.selectionStart -= diff;
     document.activeElement.selectionEnd -= diff;
     return true;
@@ -748,7 +746,7 @@ Mappings.insertFunctions = {
     }
     var s = document.activeElement.value.slice(0, start);
     var e = document.activeElement.value.slice(start);
-    e = e.replace(/^([a-zA-Z_]+|\s+|[^\sa-zA-Z]+)(\s+)?/, '');
+    e = e.replace(/^([a-zA-Z_]+|\s+|[^\s\na-zA-Z]+)(\s+)?/, '');
     document.activeElement.value = s + e;
     document.activeElement.selectionStart = s.length;
     document.activeElement.selectionEnd = s.length;
