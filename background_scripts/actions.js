@@ -444,6 +444,19 @@ actions.updateMarks = function() {
   });
 };
 
+actions.getChromeSessions = function() {
+  callback(Sessions.recentlyClosed);
+};
+
+actions.restoreChromeSession = function() {
+  var sessionIds = Sessions.recentlyClosed.map(function(e) {
+    return e.id;
+  });
+  if (sessionIds.indexOf(request.sessionId) !== -1) {
+    chrome.sessions.restore(request.sessionId);
+  }
+};
+
 
 // Port actions
 

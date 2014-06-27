@@ -288,6 +288,7 @@ let blacklists = ["*://*/*.pdf <Up> <Down>"]
 | :tabhistory (autocomplete)                  | browse the different history states of the current tab                                 |
 | :quit                                       | close the current tab                                                                  |
 | :date                                       | display the current date                                                               |
+| :restore (autocomplete)                     | restore a previously closed tab (newer versions of Chrome only)                        |
 | :tabattach (autocomplete)                   | move the current tab to another open window                                            |
 | :file (autocomplete) [expirimental]         | open a local file                                                                      |
 | :duplicate                                  | duplicate the current tab                                                              |

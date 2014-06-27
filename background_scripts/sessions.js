@@ -6,7 +6,11 @@ Sessions.onChanged = function() {
     this.recentlyClosed = sessions.filter(function(e) {
       return e.tab && e.tab.sessionId;
     }).map(function(e) {
-      return e.tab.sessionId;
+      return {
+        id: e.tab.sessionId,
+        title: e.tab.title,
+        url: e.tab.url
+      };
     });
     this.sessionIndex = 0;
   }.bind(this));
@@ -14,7 +18,7 @@ Sessions.onChanged = function() {
 
 Sessions.nativeStepBack = function() {
   if (this.sessionIndex < this.recentlyClosed.length) {
-    chrome.sessions.restore(this.recentlyClosed[this.sessionIndex++]);
+    chrome.sessions.restore(this.recentlyClosed[this.sessionIndex++].id);
   }
 };
 

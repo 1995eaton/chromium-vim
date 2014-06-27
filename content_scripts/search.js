@@ -105,6 +105,9 @@ Search.nextResult = function(reverse) {
     case 'windows':
       Command.input.value = Command.input.value.match(/^\S+/)[0] + ' ' + Command.completionResults[this.index][1].replace(/ .*/, '');
       break;
+    case 'chromesessions':
+      Command.input.value = Command.input.value.match(/^\S+/)[0] + ' ' + Command.completionResults[this.index][3].replace(/ .*/, '');
+      break;
     case 'sessions':
       Command.input.value = Command.input.value.match(/^\S+/)[0] + ' ' + Command.completionResults[this.index][1];
       break;

@@ -203,6 +203,7 @@ Command.descriptions = [
   ['tabhistory',   'Open a tab from its history states'],
   ['execute',      'Execute a sequence of keys'],
   ['session',      'Open a saved session in a new window'],
+  ['restore',      'Open a recently closed tab'],
   ['mksession',    'Create a saved session of current tabs'],
   ['delsession',   'Delete sessions'],
   ['tabattach',    'Move current tab to another window'],
@@ -319,6 +320,20 @@ Command.complete = function(value) {
   if (/^buffer(\s+)/.test(value)) {
     search = value.replace(/^\S+\s+/, '');
     port.postMessage({action: 'getBuffers'});
+    return;
+  }
+
+  if (/^restore\s+/.test(value)) {
+    chrome.runtime.sendMessage({action: 'getChromeSessions'}, function(sessions) {
+      this.completions = {
+        chromesessions: Object.keys(sessions).map(function(e) {
+          return [sessions[e].id + ': ' + sessions[e].title, sessions[e].url, sessions[e].id];
+        }).filter(function(e) {
+          return e.join('').toLowerCase().indexOf(value.replace(/^\S+\s+/, '').toLowerCase()) !== -1;
+        })
+      };
+      this.updateCompletions();
+    }.bind(this));
     return;
   }
 
@@ -544,6 +559,13 @@ Command.execute = function(value, repeats) {
       url: Complete.convertToLink(value),
       repeats: repeats,
       noconvert: true
+    });
+  }
+
+  if (/^restore\s+/.test(value)) {
+    chrome.runtime.sendMessage({
+      action: 'restoreChromeSession',
+      sessionId: value.replace(/\S+\s+/, '').trimAround()
     });
   }
 
