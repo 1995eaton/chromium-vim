@@ -111,6 +111,7 @@ Settings.saveSettings = function() {
   this.settings.COMMANDBARCSS = this.cssEl.getValue();
   this.settings.GISTURL = this.gistUrl.value;
   this.settings.MAPPINGS = this.rcEl.value;
+  this.settings.mapleader = this.settings.mapleader.replace(/ /g, '<Space>');
   this.saveButton.value = 'Saved';
   chrome.runtime.sendMessage({action: 'saveSettings', settings: Settings.settings, sendSettings: true});
   setTimeout(function () {
