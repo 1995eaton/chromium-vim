@@ -1,5 +1,30 @@
+#What is cVim?
+
+Vim for Google Chrome.
+
+#Where can I get cVim?
+
+ * There are two ways:
+  * You can install it through the [Chrome web store](https://chrome.google.com/webstore/detail/cvim/ihlenndgcmojhcghmfjfneahoeklbjjh)
+  * You can download the `.zip` file [here](https://github.com/1995eaton/chromium-vim/archive/master.zip) and enable cVim by going to the `chrome://extensions` URL and checking developer mode, then pointing Chrome to the unzipped folder via the `Load unpacked extensions...` button.
+
+# Why is this different than Vimium, ViChrome, or Vrome?
+
+These extensions do a wonderful job of adding Vim-like keybindings to Google Chrome, but they lack many of the features that Firefox Addon, Pentadactyl, have.
+
+ * What features does cVim add to Chrome?
+  * Google/IMDB/Wikipedia/Amazon/Duckduckgo/Yahoo/Bing search completion
+  * Support for custom search engines
+  * History and Bookmark search/completion with bookmark folder support
+  * Caret/Visual mode
+  * Efficient link hints (with support for custom mappings)
+  * Support for custom keyboard mappings
+  * Regex page search with highlighting
+  * Command bar with tab-completion
+  * Smooth scrolling
+
 #cVim Help
-#cVimrc
+###cVimrc
 
  * Boolean cVimrc settings are enabled with the command ```'set' + <SETTING_NAME>``` and disabled with<br>
    the command ```'set' + no<SETTING_NAME>``` (for example, ```set regexp``` and ```set noregexp```)
@@ -45,7 +70,7 @@
 " Settings
 set nohud
 set nosmoothscroll
-set noautofocus
+set noautofocus "The opposite of autofocus; this setting stops sites from focusing on an input box when they load
 set typelinkhints
 let searchlimit = 30
 let scrollstep = 70

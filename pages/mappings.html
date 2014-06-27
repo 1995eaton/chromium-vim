@@ -15,8 +15,34 @@
   <script src="../content_scripts/scroll.js"></script>
   <script src="../content_scripts/search.js"></script>
   <script src="../content_scripts/status.js"></script>
-  <script src="../content_scripts/visual.js"></script></head><h1 id="cvim-help">cVim Help</h1>
-<h1 id="cvimrc">cVimrc</h1>
+  <script src="../content_scripts/visual.js"></script></head><h1 id="what-is-cvim-">What is cVim?</h1>
+<p>Vim for Google Chrome.</p>
+<h1 id="where-can-i-get-cvim-">Where can I get cVim?</h1>
+<ul>
+<li>There are two ways:<ul>
+<li>You can install it through the <a href="https://chrome.google.com/webstore/detail/cvim/ihlenndgcmojhcghmfjfneahoeklbjjh">Chrome web store</a></li>
+<li>You can download the <code>.zip</code> file <a href="https://github.com/1995eaton/chromium-vim/archive/master.zip">here</a> and enable cVim by going to the <code>chrome://extensions</code> URL and checking developer mode, then pointing Chrome to the unzipped folder via the <code>Load unpacked extensions...</code> button.</li>
+</ul>
+</li>
+</ul>
+<h1 id="why-is-this-different-than-vimium-vichrome-or-vrome-">Why is this different than Vimium, ViChrome, or Vrome?</h1>
+<p>These extensions do a wonderful job of adding Vim-like keybindings to Google Chrome, but they lack many of the features that Firefox Addon, Pentadactyl, have.</p>
+<ul>
+<li>What features does cVim add to Chrome?<ul>
+<li>Google/IMDB/Wikipedia/Amazon/Duckduckgo/Yahoo/Bing search completion</li>
+<li>Support for custom search engines</li>
+<li>History and Bookmark search/completion with bookmark folder support</li>
+<li>Caret/Visual mode</li>
+<li>Efficient link hints (with support for custom mappings)</li>
+<li>Support for custom keyboard mappings</li>
+<li>Regex page search with highlighting</li>
+<li>Command bar with tab-completion</li>
+<li>Smooth scrolling</li>
+</ul>
+</li>
+</ul>
+<h1 id="cvim-help">cVim Help</h1>
+<h3 id="cvimrc">cVimrc</h3>
 <ul>
 <li>Boolean cVimrc settings are enabled with the command <code>&#39;set&#39; + &lt;SETTING_NAME&gt;</code> and disabled with&lt;br&gt;
 the command <code>&#39;set&#39; + no&lt;SETTING_NAME&gt;</code> (for example, <code>set regexp</code> and <code>set noregexp</code>)</li>
@@ -225,7 +251,7 @@ the command <code>&#39;set&#39; + no&lt;SETTING_NAME&gt;</code> (for example, <c
 <pre><code class="lang-viml">&quot; Settings
 set nohud
 set nosmoothscroll
-set noautofocus
+set noautofocus &quot;The opposite of autofocus; this setting stops sites from focusing on an input box when they load
 set typelinkhints
 let searchlimit = 30
 let scrollstep = 70
