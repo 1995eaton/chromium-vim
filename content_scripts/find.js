@@ -105,6 +105,8 @@ Find.highlight = function(params) {
       containsCap = params.search.search(/[A-Z]/) !== -1,
       useRegex = settings.regexp,
       markBase = document.createElement('mark'),
+      nodes = [],
+      i = 0,
       node, mark, mid, search, nodeIterator, matchPosition;
 
   markBase.style.backgroundColor = settings.highlight;
@@ -149,11 +151,10 @@ Find.highlight = function(params) {
   }}, false);
 
   if (useRegex) {
-    var nodes = [];
     while (node = nodeIterator.nextNode()) {
       nodes.push(node);
     }
-    for (var i = 0, l = nodes.length; i < l; i++) {
+    for (i = 0, l = nodes.length; i < l; i++) {
       node = nodes[i];
       var matches = node.data.match(search);
       if (matches) {
@@ -170,7 +171,11 @@ Find.highlight = function(params) {
     }
   } else {
     while (node = nodeIterator.nextNode()) {
-      matchPosition = (containsCap ? node.data.indexOf(search) : node.data.toLowerCase().indexOf(search));
+      nodes.push(node);
+    }
+    for (i = 0, l = nodes.length; i < l; i++) {
+      node = nodes[i];
+      matchPosition = (containsCap || !settings.ignorecase ? node.data.indexOf(search) : node.data.toLowerCase().indexOf(search));
       if (matchPosition !== -1) {
         mark = markBase.cloneNode(false);
         mid = node.splitText(matchPosition);
