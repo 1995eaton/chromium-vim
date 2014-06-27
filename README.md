@@ -1,6 +1,6 @@
 #What is cVim?
 
-Vim for Google Chrome.
+Vim for Google Chrome. I hate using the mouse, especially after learning Vim. With my desktop (Linux), I have a lot of key bindings that make doing things easier: I open Chrome with `Alt+w`, I close a window with `Alt+Shift+d`, I open a terminal with `Alt+t`. This is harder to do with Chrome because it has no section for customizing keyboard shortcuts, and it is still necessary to use the mouse to do things like click links. cVim aims to eliminate this problem as best as the Chrome extensions API will allow it to.
 
 #Where can I get cVim?
 
@@ -26,7 +26,7 @@ These extensions do a wonderful job of adding Vim-like keybindings to Google Chr
 #cVim Help
 ###cVimrc
 
- * Boolean cVimrc settings are enabled with the command ```'set' + <SETTING_NAME>``` and disabled with<br>
+ * Boolean cVimrc settings are enabled with the command ```'set' + <SETTING_NAME>``` and disabled with
    the command ```'set' + no<SETTING_NAME>``` (for example, ```set regexp``` and ```set noregexp```)
  * Boolean cVimrc settings can be inversed by adding "!" to the end
  * Other settings are defined with ```=``` used as a separator and are prefixed by ```let``` (for example, ```let hintcharacters="abc"```)
