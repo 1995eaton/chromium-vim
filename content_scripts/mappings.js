@@ -873,6 +873,9 @@ Mappings.parseCustom = function(config) {
     }
 
     if (mapping.length === 2) {
+      mapping[1] = mapping[1].replace(/<c(-s-)?/i, function(e) {
+        return e.toUpperCase();
+      });
       if (mapping[0] === 'iunmap') {
         return Mappings.removeMapping(Mappings.insertDefaults, mapping[1]);
       }
