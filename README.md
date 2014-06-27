@@ -54,6 +54,8 @@ These extensions do a wonderful job of adding Vim-like keybindings to Google Chr
 | scrollduration                      | integer                            | the duration of smooth scrolling                                                          | 20                                                                          |
 | completionengines                   | array of strings                   | use only the specified search engines                                                     | []                                                                          |
 | blacklists                          | array of strings                   | disable cVim on the sites matching one of the patterns                                    | []                                                                          |
+| mapleader                           | string                             | The default `<Leader>` key                                                                | \                                                                           |
+| timeoutlen                          | integer                            | The amount of time to wait for a `<Leader>` mapping in milliseconds                       | 1000                                                                        |
 | highlight                           | string                             | the highlight color in find mode                                                          | "#ffff00"                                                                   |
 | defaultengine                       | string                             | set the default search engine                                                             | "google"                                                                    |
 | locale                              | string                             | set the locale of the site being completed/searched on (see example configuration below)  | ""                                                                          |
@@ -82,8 +84,12 @@ let completionengines = ["google", "amazon", "imdb", "dogpile"]
 let searchalias g = "google" "Create a shortcut for search engines. For example, typing ':tabnew g example' would act the same way as ':tabnew google example'
 let qmark a = ["http://www.reddit.com", "http://www.google.com", "http://twitter.com"]  "Open all of these in a tab with `gnb` or open one of these with <N>goa where <N>
 let blacklists = ["https://mail.google.com/*", "*://*.reddit.com/*"]
+let mapleader = ","
 
 " Mappings
+
+map <Leader>r reloadTabUncached
+map <Leader>x :restore<Space>
 
 map j scrollUp "This remaps the default 'j' mapping
 map gb :buffer<Space> "You can use <Space>, which is interpreted as a literal " " character, to enter buffer completion mode

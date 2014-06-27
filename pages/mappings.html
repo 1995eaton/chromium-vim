@@ -186,6 +186,18 @@ the command <code>&#39;set&#39; + no&lt;SETTING_NAME&gt;</code> (for example, <c
 <td style="text-align:right">[]</td>
 </tr>
 <tr>
+<td>mapleader</td>
+<td>string</td>
+<td>The default <code>&lt;Leader&gt;</code> key</td>
+<td style="text-align:right">\</td>
+</tr>
+<tr>
+<td>timeoutlen</td>
+<td>integer</td>
+<td>The amount of time to wait for a <code>&lt;Leader&gt;</code> mapping in milliseconds</td>
+<td style="text-align:right">1000</td>
+</tr>
+<tr>
 <td>highlight</td>
 <td>string</td>
 <td>the highlight color in find mode</td>
@@ -263,8 +275,12 @@ let completionengines = [&quot;google&quot;, &quot;amazon&quot;, &quot;imdb&quot
 let searchalias g = &quot;google&quot; &quot;Create a shortcut for search engines. For example, typing &#39;:tabnew g example&#39; would act the same way as &#39;:tabnew google example&#39;
 let qmark a = [&quot;http://www.reddit.com&quot;, &quot;http://www.google.com&quot;, &quot;http://twitter.com&quot;]  &quot;Open all of these in a tab with `gnb` or open one of these with &lt;N&gt;goa where &lt;N&gt;
 let blacklists = [&quot;https://mail.google.com/*&quot;, &quot;*://*.reddit.com/*&quot;]
+let mapleader = &quot;,&quot;
 
 &quot; Mappings
+
+map &lt;Leader&gt;r reloadTabUncached
+map &lt;Leader&gt;x :restore&lt;Space&gt;
 
 map j scrollUp &quot;This remaps the default &#39;j&#39; mapping
 map gb :buffer&lt;Space&gt; &quot;You can use &lt;Space&gt;, which is interpreted as a literal &quot; &quot; character, to enter buffer completion mode

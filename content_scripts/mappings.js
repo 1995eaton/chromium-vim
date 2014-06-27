@@ -839,7 +839,7 @@ Mappings.parseCustom = function(config) {
     if (mapping[0] === 'map' || mapping[0] === 'remap') {
       mapping[1] = mapping[1].replace(/<c(-s-)?/i, function(e) {
         return e.toUpperCase();
-      });
+      }).replace(/<leader>/i, settings.mapleader);
       var fromKey = Mappings.indexFromKeybinding(mapping[2]);
       for (key in Mappings.defaults) {
         if (Array.isArray(Mappings.defaults[key])) {
@@ -1038,10 +1038,16 @@ Mappings.convertToAction = function(c) {
             Mappings.actions[key]((addOne ? 1 : +Mappings.repeats), Mappings.queue);
           }
         }
+        window.clearTimeout(this.timeout);
         Mappings.queue = '';
         Mappings.repeats = '';
       }
     }
+  }
+  if (this.queue.length && c === settings.mapleader) {
+    this.timeout = window.setTimeout(function() {
+      Mappings.queue = '';
+    }, settings.timeoutlen);
   }
   return true;
 };
