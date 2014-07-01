@@ -136,7 +136,7 @@ Mappings.actions = {
     chrome.runtime.sendMessage({action: 'lastActiveTab'});
   },
   reverseImage: function() {
-    if (document.body.childNodes.length === 1 && document.body.firstChild.localName === 'img') {
+    if (/\(\d+×\d+\)$/.test(document.title) === true && document.body.firstChild.localName === 'img') {
       if (document.body.firstChild.src) {
         return chrome.runtime.sendMessage({
           action: 'openLinkTab',
@@ -621,6 +621,7 @@ Mappings.defaults = {
   lastScrollPosition:      ['\'\''],
   goToMark:                ['\'*'],
   setMark:                 [';*'],
+  toggleBlacklisted:       [],
   centerMatchT:            ['zt'],
   centerMatchB:            ['zb'],
   centerMatchH:            ['zz'],
@@ -644,6 +645,7 @@ Mappings.defaults = {
 };
 
 Mappings.toggleCvim = [];
+Mappings.toggleBlacklisted = [];
 Mappings.defaultsClone = Object.clone(Mappings.defaults);
 Mappings.shortCutsClone = Object.clone(Mappings.shortCuts);
 
@@ -888,7 +890,9 @@ Mappings.parseCustom = function(config) {
     }
   });
   Mappings.toggleCvim = Mappings.defaults.toggleCvim;
+  Mappings.toggleBlacklisted = Mappings.defaults.toggleBlacklisted;
   delete Mappings.defaults.toggleCvim;
+  delete Mappings.defaults.toggleBlacklisted;
   Mappings.shortCuts = Mappings.shortCuts.map(function(item) {
     item[1] = item[1].replace(/@%/, document.URL);
     return item;

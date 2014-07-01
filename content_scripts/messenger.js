@@ -120,9 +120,12 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
       Find.lastSearch = request.value;
       break;
     case 'sendSettings':
+      Mappings.defaults = Object.clone(Mappings.defaultsClone);
+      Mappings.shortCuts = Object.clone(Mappings.shortCutsClone);
       if (!Command.initialLoadStarted) {
         Command.configureSettings(request.settings);
       } else {
+        Mappings.parseCustom(request.settings.MAPPINGS);
         settings = request.settings;
       }
       break;

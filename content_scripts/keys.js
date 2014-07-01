@@ -344,6 +344,13 @@ Key.toggleCvim = function(ev) {
   var key = Key.fromKeyCode(ev);
   if (Mappings.toggleCvim.indexOf(key) !== -1) {
     chrome.runtime.sendMessage({action: 'toggleEnabled'});
+  } else if (Mappings.toggleBlacklisted.indexOf(key) !== -1) {
+    chrome.runtime.sendMessage({action: 'toggleBlacklisted'});
+    chrome.runtime.sendMessage({
+      action: 'toggleEnabled',
+      singleTab: true,
+      blacklisted: Key.listenersActive === true
+    });
   }
 };
 

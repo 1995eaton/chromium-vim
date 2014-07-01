@@ -752,9 +752,7 @@ Command.insertCSS = function() {
     return;
   }
   var head = document.getElementsByTagName('head');
-  if (!head.length ||
-      !((head.length && window.location.hostname + window.location.pathname === 'www.google.com/_/chrome/newtab')
-        || window.location.protocol === 'chrome-extension:')) {
+  if (!head.length && window.location.protocol !== 'chrome-extensions:' && window.location.pathname !== '/_/chrome/newtab') {
     if (window.location.protocol !== 'chrome:') {
       chrome.runtime.sendMessage({
         action: 'injectCSS',

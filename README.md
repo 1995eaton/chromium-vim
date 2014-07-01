@@ -202,6 +202,7 @@ let blacklists = ["*://*/*.pdf <Up> <Down>"]
 | a                         | alias to ":tabnew google "                                            | :tabnew google                  |
 | :                         | open command bar                                                      | openCommandBar                  |
 | &lt;A-z&gt;               | toggle cVim (same as disable cVim option in toolbar icon)             | toggleCvim                      |
+| unmapped                  | toggle the blacklist on the current domain                            | toggleBlacklisted               |
 | /                         | open search bar                                                       | openSearchBar                   |
 | ?                         | open search bar (reverse search)                                      | openSearchBarReverse            |
 | I                         | search through browser history                                        | :history                        |
