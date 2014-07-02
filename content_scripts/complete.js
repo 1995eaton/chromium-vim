@@ -27,7 +27,7 @@ String.prototype.embedString = function(string) {
   return this.replace('%s', string);
 };
 
-Complete.engines = ['google', 'wikipedia', 'youtube', 'imdb', 'amazon', 'google-maps', 'github', 'wolframalpha', 'google-image', 'ebay', 'webster', 'wictionary', 'urbandictionary', 'duckduckgo', 'answers', 'google-trends', 'google-finance', 'yahoo', 'reddit', 'bing'];
+Complete.engines = ['google', 'wikipedia', 'youtube', 'imdb', 'amazon', 'google-maps', 'github', 'wolframalpha', 'google-image', 'ebay', 'webster', 'wictionary', 'urbandictionary', 'duckduckgo', 'answers', 'google-trends', 'google-finance', 'yahoo', 'bing'];
 
 Complete.aliases = {
   g: 'google'
@@ -47,7 +47,6 @@ Complete.requestUrls = {
   github:         'https://github.com/search?q=',
   'google-image': 'https://www.google.com/search?site=imghp&tbm=isch&source=hp&q=',
   'google-maps':  'https://www.google.com/maps/search/',
-  reddit:         'http://www.reddit.com/',
   duckduckgo:     'https://duckduckgo.com/?q=',
   yahoo:          'https://search.yahoo.com/search?p=',
   answers:        'https://answers.yahoo.com/search/search_result?p=',
@@ -70,7 +69,6 @@ Complete.baseUrls = {
   github:         'https://github.com/',
   'google-image': 'http://www.google.com/imghp',
   'google-maps':  'https://www.google.com/maps/preview',
-  reddit:         'http://www.reddit.com',
   duckduckgo:     'https://duckduckgo.com',
   yahoo:          'https://search.yahoo.com',
   answers:        'https://answers.yahoo.com',
@@ -105,12 +103,6 @@ Complete.parseQuery = {
   },
   wictionary: function(query) {
     return query.replace(' ', '_');
-  },
-  reddit: function(query) {
-    if (reddits.indexOf(query) !== -1) {
-      return 'r/' + query;
-    }
-    return 'search?restrict_sr=off&sort=relevance&t=all&q=' + query;
   }
 };
 
@@ -468,10 +460,4 @@ Complete.github = function(query, callback) {
     }
 
   }
-};
-
-Complete.reddit = function(query, callback) {
-  callback(reddits.filter(function(e) {
-    return e.indexOf(query) === 0;
-  }));
 };
