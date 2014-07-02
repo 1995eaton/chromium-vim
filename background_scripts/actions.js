@@ -71,7 +71,7 @@ actions.openLinkTab = function() {
 };
 
 actions.addFrame = function() {
-  if (Frames[sender.tab.id] === void 0) {
+  if (Frames[sender.tab.id] === void 0 || request.isRoot) {
     Frames[sender.tab.id] = {
       length: 1,
       index: 0
