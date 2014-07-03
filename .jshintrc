@@ -2,6 +2,7 @@
     "esnext": true,
     "bitwise": false,
     "camelcase": true,
+    "loopfunc": true,
     "curly": true,
     "boss": true,
     "eqeqeq": true,

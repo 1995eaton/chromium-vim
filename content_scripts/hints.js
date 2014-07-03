@@ -158,25 +158,31 @@ Hints.dispatchAction = function(link) {
 Hints.handleHintFeedback = function() {
   var linksFound = 0,
       index,
+      link,
       i,
       span;
   if (!settings.numerichints) {
     for (i = 0; i < this.permutations.length; i++) {
+      link = this.linkArr[i][0];
       if (this.permutations[i].indexOf(this.currentString) === 0) {
-        if (this.linkArr[i][0].children.length) {
-          this.linkArr[i][0].replaceChild(this.linkArr[i][0].firstChild.firstChild, this.linkArr[i][0].firstChild);
-          this.linkArr[i][0].normalize();
+        if (link.children.length) {
+          link.replaceChild(link.firstChild.firstChild, link.firstChild);
+          link.normalize();
         }
-        span = document.createElement('span');
-        span.setAttribute('cVim', true);
-        span.className = 'cVim-link-hint_match';
-        this.linkArr[i][0].firstChild.splitText(this.currentString.length);
-        span.appendChild(this.linkArr[i][0].firstChild.cloneNode(true));
-        this.linkArr[i][0].replaceChild(span, this.linkArr[i][0].firstChild);
+        if (settings.dimhintcharacters) {
+          span = document.createElement('span');
+          span.setAttribute('cVim', true);
+          span.className = 'cVim-link-hint_match';
+          link.firstChild.splitText(this.currentString.length);
+          span.appendChild(link.firstChild.cloneNode(true));
+          link.replaceChild(span, link.firstChild);
+        } else if (link.textContent.length !== 1) {
+          link.firstChild.deleteData(null, 1);
+        }
         index = i.toString();
         linksFound++;
-      } else if (this.linkArr[i][0].parentNode) {
-        this.linkArr[i][0].style.opacity = '0';
+      } else if (link.parentNode) {
+        link.style.opacity = '0';
       }
     }
   } else {
@@ -193,25 +199,27 @@ Hints.handleHintFeedback = function() {
     }
     for (i = 0, l = this.linkArr.length; i < l; ++i) {
 
-      if (this.linkArr[i][0].style.opacity === '0') {
+      link = this.linkArr[i][0];
+
+      if (link.style.opacity === '0') {
         continue;
       }
       validMatch = false;
 
       if (settings.typelinkhints) {
-        if (containsNumber && this.linkArr[i][0].textContent.indexOf(stringNum) === 0) {
+        if (containsNumber && link.textContent.indexOf(stringNum) === 0) {
           validMatch = true;
         } else if (!containsNumber && this.linkArr[i][2].toLowerCase().indexOf(string.replace(/.*\d/g, '')) !== -1) {
           validMatch = true;
         }
-      } else if (this.linkArr[i][0].textContent.indexOf(string) === 0) {
+      } else if (link.textContent.indexOf(string) === 0) {
         validMatch = true;
       }
 
       if (validMatch) {
-        if (this.linkArr[i][0].children.length) {
-          this.linkArr[i][0].replaceChild(this.linkArr[i][0].firstChild.firstChild, this.linkArr[i][0].firstChild);
-          this.linkArr[i][0].normalize();
+        if (link.children.length) {
+          link.replaceChild(link.firstChild.firstChild, link.firstChild);
+          link.normalize();
         }
         if (settings.typelinkhints && !containsNumber) {
           var c = 0;
@@ -222,21 +230,25 @@ Hints.handleHintFeedback = function() {
             }
           }
         }
-        if (!Hints.numericMatch || this.linkArr[i][0].textContent === string) {
+        if (!Hints.numericMatch || link.textContent === string) {
           Hints.numericMatch = this.linkArr[i][1];
         }
         if (containsNumber) {
-          span = document.createElement('span');
-          span.setAttribute('cVim', true);
-          span.className = 'cVim-link-hint_match';
-          this.linkArr[i][0].firstChild.splitText(stringNum.length);
-          span.appendChild(this.linkArr[i][0].firstChild.cloneNode(true));
-          this.linkArr[i][0].replaceChild(span, this.linkArr[i][0].firstChild);
+          if (settings.dimhintcharacters) {
+            span = document.createElement('span');
+            span.setAttribute('cVim', true);
+            span.className = 'cVim-link-hint_match';
+            link.firstChild.splitText(stringNum.length);
+            span.appendChild(link.firstChild.cloneNode(true));
+            link.replaceChild(span, link.firstChild);
+          } else if (link.textContent.length !== 1) {
+            link.firstChild.deleteData(null, 1);
+          }
         }
         index = i.toString();
         linksFound++;
-      } else if (this.linkArr[i][0].parentNode) {
-        this.linkArr[i][0].style.opacity = '0';
+      } else if (link.parentNode) {
+        link.style.opacity = '0';
       }
     }
   }

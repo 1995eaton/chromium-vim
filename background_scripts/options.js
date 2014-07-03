@@ -23,6 +23,7 @@ var defaultSettings = {
   autofocus: true,
   insertmappings: true,
   defaultnewtabpage: false,
+  dimhintcharacters: true,
   smoothscroll: true,
   scrollduration: 20,
   locale: '',

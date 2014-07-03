@@ -72,10 +72,28 @@ the command <code>&#39;set&#39; + no&lt;SETTING_NAME&gt;</code> (for example, <c
 <td style="text-align:right">75</td>
 </tr>
 <tr>
+<td>timeoutlen</td>
+<td>integer</td>
+<td>The amount of time to wait for a <code>&lt;Leader&gt;</code> mapping in milliseconds</td>
+<td style="text-align:right">1000</td>
+</tr>
+<tr>
 <td>fullpagescrollpercent</td>
 <td>integer</td>
 <td>set the percent of the page to be scrolled by when using the scrollFullPageUp and scrollFullPageDown commands</td>
 <td style="text-align:right">85</td>
+</tr>
+<tr>
+<td>typelinkhintsdelay</td>
+<td>integer</td>
+<td>the amount of time (in milliseconds) to wait before taking input after opening a link hint with typelinkhints and numerichints enabled</td>
+<td style="text-align:right">500</td>
+</tr>
+<tr>
+<td>scrollduration</td>
+<td>integer</td>
+<td>the duration of smooth scrolling</td>
+<td style="text-align:right">20</td>
 </tr>
 <tr>
 <td>hud</td>
@@ -106,6 +124,12 @@ the command <code>&#39;set&#39; + no&lt;SETTING_NAME&gt;</code> (for example, <c
 <td>boolean</td>
 <td>use numbers for link hints instead of a set of characters</td>
 <td style="text-align:right">false</td>
+</tr>
+<tr>
+<td>dimhintcharacters</td>
+<td>boolean</td>
+<td>dim letter matches in hint characters rather than remove them from the hint</td>
+<td style="text-align:right">true</td>
 </tr>
 <tr>
 <td>defaultnewtabpage</td>
@@ -144,12 +168,6 @@ the command <code>&#39;set&#39; + no&lt;SETTING_NAME&gt;</code> (for example, <c
 <td style="text-align:right">false</td>
 </tr>
 <tr>
-<td>typelinkhintsdelay</td>
-<td>integer</td>
-<td>the amount of time (in milliseconds) to wait before taking input after opening a link hint with typelinkhints and numerichints enabled</td>
-<td style="text-align:right">500</td>
-</tr>
-<tr>
 <td>autofocus</td>
 <td>boolean</td>
 <td>allows websites to automatically focus an input box when they are first loaded</td>
@@ -168,12 +186,6 @@ the command <code>&#39;set&#39; + no&lt;SETTING_NAME&gt;</code> (for example, <c
 <td style="text-align:right">true</td>
 </tr>
 <tr>
-<td>scrollduration</td>
-<td>integer</td>
-<td>the duration of smooth scrolling</td>
-<td style="text-align:right">20</td>
-</tr>
-<tr>
 <td>completionengines</td>
 <td>array of strings</td>
 <td>use only the specified search engines</td>
@@ -190,12 +202,6 @@ the command <code>&#39;set&#39; + no&lt;SETTING_NAME&gt;</code> (for example, <c
 <td>string</td>
 <td>The default <code>&lt;Leader&gt;</code> key</td>
 <td style="text-align:right">\</td>
-</tr>
-<tr>
-<td>timeoutlen</td>
-<td>integer</td>
-<td>The amount of time to wait for a <code>&lt;Leader&gt;</code> mapping in milliseconds</td>
-<td style="text-align:right">1000</td>
 </tr>
 <tr>
 <td>highlight</td>
