@@ -109,9 +109,8 @@ Options.getDefaults = function(request, sender) {
 };
 
 Options.updateBlacklistsMappings = function() {
-  var mappings = Settings.MAPPINGS,
-      i, index;
-  mappings = mappings.split(/\n/);
+  var mappings = Settings.MAPPINGS.split(/\n+/).compress(),
+      i, index, line;
   if (Settings.BLACKLISTS) {
     Settings.blacklists = Settings.BLACKLISTS.split(/\n+/);
     delete Settings.BLACKLISTS;
@@ -124,7 +123,7 @@ Options.updateBlacklistsMappings = function() {
   }
   Settings.blacklists = Settings.blacklists.unique();
   if (Settings.blacklists.length) {
-    var line = 'let blacklists = ' + JSON.stringify(Settings.blacklists);
+    line = 'let blacklists = ' + JSON.stringify(Settings.blacklists);
     if (index) {
       mappings = mappings.slice(0, index).concat(line).concat(mappings.slice(index));
     } else {
@@ -135,16 +134,14 @@ Options.updateBlacklistsMappings = function() {
   Options.saveSettings({settings: Settings});
 };
 
-(function() {
-  chrome.storage[storageMethod].get('settings', function(data) {
-    if (data.settings) {
-      Settings = data.settings;
-      Quickmarks = Settings.qmarks;
-    }
-    Options.refreshSettings();
-    Options.updateBlacklistsMappings();
-  });
-})();
+chrome.storage[storageMethod].get('settings', function(data) {
+  if (data.settings) {
+    Settings = data.settings;
+    Quickmarks = Settings.qmarks;
+  }
+  this.refreshSettings();
+  this.updateBlacklistsMappings();
+}.bind(Options));
 
 chrome.runtime.onMessage.addListener(function (request, sender) {
   if (Options.hasOwnProperty(request.action)) {

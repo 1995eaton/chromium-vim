@@ -1,5 +1,6 @@
 var actions = {},
-isAction, callAction, request, sender, callback, url;
+    Quickmarks = {},
+    isAction, callAction, request, sender, callback, url;
 
 isAction = function(action) {
   return actions.hasOwnProperty(action);

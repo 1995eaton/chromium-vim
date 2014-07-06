@@ -192,7 +192,7 @@ Mappings.actions = {
     }
   },
   toggleImageZoom: function() {
-    if (/\.[a-z]+\s+\(\d+×\d+\)/.test(document.title)) {
+    if (/\.[a-z]+\s+\(\d+×\d+\)/i.test(document.title)) {
       var images = document.getElementsByTagName('img');
       if (images.length) {
         images[0].simulateClick();
@@ -364,16 +364,14 @@ Mappings.actions = {
     }
   },
   nextCompletionResult: function() {
-    commandMode &&
-      document.activeElement.id === 'cVim-command-bar-input' &&
-      Command.type === 'action' &&
+    if (commandMode && document.activeElement.id === 'cVim-command-bar-input' && Command.type === 'action') {
       Search.nextResult(false);
+    }
   },
   previousCompletionResult: function() {
-    commandMode &&
-      document.activeElement.id === 'cVim-command-bar-input' &&
-      Command.type === 'action' &&
+    if (commandMode && document.activeElement.id === 'cVim-command-bar-input' && Command.type === 'action') {
       Search.nextResult(true);
+    }
   },
   addQuickMark: function(repeats, queue) {
     Marks.addQuickMark(queue.slice(-1));

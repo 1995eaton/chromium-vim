@@ -1,10 +1,11 @@
 var Files = {};
 
 Files.sendRequest = function(path, callback) {
-  var xhr;
-  xhr = new XMLHttpRequest();
+  var xhr = new XMLHttpRequest();
   xhr.open('GET', 'file://' + path);
   xhr.onreadystatechange = function() {
+    // this won't work if the xhr.status === 200
+    // check is added below. don't know why...
     if (xhr.readyState === 4) {
       callback(xhr.responseText);
     }
@@ -13,12 +14,13 @@ Files.sendRequest = function(path, callback) {
 };
 
 Files.parseHTML = function(data) {
-  var matches = data.match(/addRow\("[^)]+"\)/g);
-  var results = [];
-  if (matches) {
-    for (var i = 0, l = matches.length; i < l; ++i) {
-      var m = JSON.parse(matches[i].replace(/[^(]+\(/, '[').slice(0, -1) + ']');
-      results.push([m[0], (m[2] ? 'Directory' : 'File (' + m[3] + ')')]);
+  var matches = data.match(/addRow\("[^)]+"\)/g),
+      results = [],
+      i, match;
+  if (matches !== null) {
+    for (i = 0, l = matches.length; i < l; ++i) {
+      match = JSON.parse(matches[i].replace(/[^(]+\(/, '[').slice(0, -1) + ']');
+      results.push([match[0], (match[2] ? 'Directory' : 'File (' + match[3] + ')')]);
     }
   }
   return results;

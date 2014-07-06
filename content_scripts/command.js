@@ -866,7 +866,7 @@ Command.configureSettings = function(_settings) {
 
   settings = _settings;
   this.initialLoadStarted = true;
-  function checkBlacklist() {
+  var checkBlacklist = function() {
     var blacklists = settings.blacklists,
         blacklist;
     Command.blacklisted = false;
@@ -888,12 +888,12 @@ Command.configureSettings = function(_settings) {
         return true;
       }
     }
-  }
-  function loadMain() {
+  };
+  var loadMain = function() {
     Command.loaded = true;
     chrome.runtime.sendMessage({action: 'setIconEnabled'});
     Command.init(true);
-  }
+  };
   Search.settings = Object.keys(settings).filter(function(e) {
     return settings[e].constructor === Boolean;
   });

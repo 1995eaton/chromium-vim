@@ -1,6 +1,5 @@
 var sessions = {},
     Frames = {},
-    Quickmarks = {},
     ActiveTabs = {},
     TabHistory = {};
 
