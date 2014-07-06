@@ -1,19 +1,11 @@
-var Settings = {};
-var Config = {};
-var log;
-log = console.log.bind(console);
-
-Array.prototype.compact = function() {
-  return this.filter(function(e) {
-    return e;
-  });
-};
+var Settings = {},
+    Config = {};
 
 Config.validPrefixes = [/^ *let( +[a-zA-Z0-9_]+){1,2} *= */,
                         /^ *set +[a-z]+ *$/];
 
 Config.set = function(value) {
-  value = value.split(/ +/).compact().pop();
+  value = value.split(/ +/).compress().pop();
   this._ret[value.replace(/^no/, '')] = value.indexOf('no') !== 0;
 };
 
@@ -22,7 +14,7 @@ Config.let = function(value) {
   value = value.split('=');
   value = [value[0], value.slice(1).join('=')];
 
-  assignment = value[0].split(/ +/).compact().slice(1);
+  assignment = value[0].split(/ +/).compress().slice(1);
   objVal = assignment.shift();
   if (assignment.length) {
     if (/^searchaliase?$/.test(objVal)) {
@@ -66,7 +58,7 @@ Config.parseLine = function(value) {
 Config.parse = function() {
   var text = Settings.rcEl.value;
   this._ret = {};
-  text = text.split(/\n+/).compact();
+  text = text.split(/\n+/).compress();
   for (var i = 0, l = text.length; i < l; ++i) {
     this.parseLine(text[i]);
   }

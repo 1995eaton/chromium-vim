@@ -1,31 +1,4 @@
-var GitHub, Complete = {};
-
-String.prototype.validURL = function() {
-  var url = this.trimLeft().trimRight();
-  if (url.length === 0) {
-    return 'chrome://newtab';
-  }
-  if (/^\//.test(url)) {
-    url = 'file://' + url;
-  }
-  if (/^(chrome|chrome-extension|file):\/\/\S+$/.test(url)) {
-    return url;
-  }
-  var pattern = new RegExp('^((https?|ftp):\\/\\/)?'+
-  '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+
-  '((\\d{1,3}\\.){3}\\d{1,3})|'+
-  'localhost)' +
-  '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+
-  '(\\?[;:&a-z\\d%_.~+=-]*)?'+
-  '(\\#[#:-a-z\\d_]*)?$','i');
-  if (pattern.test(url)) {
-    return true;
-  }
-};
-
-String.prototype.embedString = function(string) {
-  return this.replace('%s', string);
-};
+var GitHub, Complete = {}, GitHubCache = {};
 
 Complete.engines = ['google', 'wikipedia', 'youtube', 'imdb', 'amazon', 'google-maps', 'github', 'wolframalpha', 'google-image', 'ebay', 'webster', 'wictionary', 'urbandictionary', 'duckduckgo', 'answers', 'google-trends', 'google-finance', 'yahoo', 'bing'];
 
@@ -413,7 +386,6 @@ Complete.imdb = function(query, callback) {
   }, cVimError);
 };
 
-var GitHubCache = {};
 GitHub = {
   parseInput: function(input) {
     if (input.length === 1) {

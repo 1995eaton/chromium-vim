@@ -144,7 +144,7 @@ Find.highlight = function(params) {
     if (nodeName === 'script' || nodeName === 'style' || nodeName === 'noscript' || nodeName === 'mark') {
       return NodeFilter.FILTER_REJECT;
     }
-    if (isVisible(node.parentNode)) {
+    if (node.parentNode.isVisible()) {
       return NodeFilter.FILTER_ACCEPT;
     }
     return NodeFilter.FILTER_REJECT;

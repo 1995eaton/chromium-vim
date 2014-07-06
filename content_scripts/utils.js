@@ -1,10 +1,19 @@
-var log = console.log.bind(console);
+window.log = console.log.bind(console);
 
-var cVimError = function(message) {
-  log(message);
+window.cVimError = function(message) {
+  console.error(message);
 };
 
-var httpRequest = function(request) {
+window.definePrototype = function(obj, name, fn) {
+  Object.defineProperty(obj.prototype, name, {
+    enumerable: false,
+    configurable: false,
+    writeable: false,
+    value: fn
+  });
+};
+
+window.httpRequest = function(request) {
   return new Promise(function(acc, rej) {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', request.url);
@@ -20,21 +29,24 @@ var httpRequest = function(request) {
   });
 };
 
-function isValidB64(a) {
+
+// ------------ Begin reverse image
+
+window.isValidB64 = function(a) {
   try {
     window.atob(a);
   } catch(e) {
     return false;
   }
   return true;
-}
+};
 
-function reverseImagePost(url) {
+window.reverseImagePost = function(url) {
   return '<html><head><title>cVim reverse image search</title></head><body><form id="f" method="POST" action="https://www.google.com/searchbyimage/upload" enctype="multipart/form-data"><input type="hidden" name="image_content" value="' + url.substring(url.indexOf(',') + 1).replace(/\+/g, '-').replace(/\//g, '_').replace(/\./g, '=') + '"><input type="hidden" name="filename" value=""><input type="hidden" name="image_url" value=""><input type="hidden" name="sbisrc" value=""></form><script>document.getElementById("f").submit();\x3c/script></body></html>';
-}
+};
 
 // Based off of the 'Search by Image' Chrome Extension by Google
-function googleReverseImage(url, source) {
+window.googleReverseImage = function(url, source) {
   if (void 0 !== url && url.indexOf('data:') === 0) {
     if (url.search(/data:image\/(bmp|gif|jpe?g|png|webp|tiff|x-ico)/i) === 0) {
       var commaIndex = url.indexOf(',');
@@ -49,16 +61,11 @@ function googleReverseImage(url, source) {
     }
     return 'https://www.google.com/searchbyimage?image_url=' + url;
   }
-}
-
-HTMLElement.prototype.isInput = function() {
-  return (
-      (this.localName === 'textarea' || this.localName === 'input' || this.getAttribute('contenteditable') === 'true') && !this.disabled &&
-      !/button|radio|file|image|checkbox|submit/i.test(this.getAttribute('type'))
-  );
 };
 
-function getVisibleBoundingRect(node) {
+// ------------ End reverse image
+
+window.getVisibleBoundingRect = function(node) {
   var boundingRect = node.getClientRects()[0] || node.getBoundingClientRect();
   if (boundingRect.top > window.innerHeight || boundingRect.left > window.innerWidth) {
     return false;
@@ -88,31 +95,43 @@ function getVisibleBoundingRect(node) {
     return false;
   }
   return boundingRect;
-}
-
-HTMLCollection.prototype.toArray = function() {
-  var nodes = [];
-  for (var i = 0, l = this.length; i < l; ++i) {
-    nodes.push(this[i]);
-  }
-  return nodes;
 };
 
-HTMLElement.prototype.isVisible = function() {
+definePrototype(HTMLElement, 'isVisible', function() {
   return this.offsetParent && !this.disabled &&
-         this.getAttribute('type') !== 'hidden' &&
-         getComputedStyle(this).visibility !== 'hidden' &&
-         this.getAttribute('display') !== 'none';
+    this.getAttribute('type') !== 'hidden' &&
+    getComputedStyle(this).visibility !== 'hidden' &&
+    this.getAttribute('display') !== 'none';
+});
+
+definePrototype(HTMLElement, 'isInput', function() {
+  return (
+    (this.localName === 'textarea' || this.localName === 'input' || this.getAttribute('contenteditable') === 'true') && !this.disabled &&
+    !/button|radio|file|image|checkbox|submit/i.test(this.getAttribute('type'))
+  );
+});
+
+window.simulateMouseEvents = function(element, events) {
+  for (var i = 0; i < events.length; ++i) {
+    var ev = document.createEvent('MouseEvents');
+    ev.initMouseEvent(events[i], true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+    element.dispatchEvent(ev);
+  }
 };
 
-function isVisible(el) {
-  return el.offsetParent && !el.disabled &&
-         el.getAttribute('type') !== 'hidden' &&
-         getComputedStyle(el).visibility !== 'hidden' &&
-         el.getAttribute('display') !== 'none';
-}
+definePrototype(HTMLElement, 'hover', function() {
+  simulateMouseEvents(this, ['mouseover', 'mouseenter']);
+});
 
-Array.prototype.unique = function() {
+definePrototype(HTMLElement, 'unhover', function() {
+  simulateMouseEvents(this, ['mouseout', 'mouseleave']);
+});
+
+definePrototype(HTMLElement, 'simulateClick', function() {
+  simulateMouseEvents(this, ['mouseover', 'mousedown', 'mouseup', 'click']);
+});
+
+definePrototype(Array, 'unique', function() {
   var a = [];
   for (var i = 0, l = this.length; i < l; ++i) {
     if (a.indexOf(this[i]) === -1) {
@@ -120,26 +139,17 @@ Array.prototype.unique = function() {
     }
   }
   return a;
-};
+});
 
-String.prototype.trimAround = function() {
-  return this.replace(/^(\s+)?(.*\S)?(\s+)?$/g, '$2');
-};
+definePrototype(Array, 'compress', function() {
+  return this.filter(function(e) {
+    return e;
+  });
+});
 
-String.prototype.escape = function() {
-  return this.replace(/&/g, '&amp;')
-             .replace(/'/g, '&quot;')
-             .replace(/</g, '&lt;')
-             .replace(/>/g, '&gt;');
-};
-
-String.prototype.isBoolean = function() {
-  return /^(true|false|0|1)$/i.test(this);
-};
-
-Number.prototype.mod = function(n) {
+definePrototype(Number, 'mod', function(n) {
   return ((this % n) + n) % n;
-};
+});
 
 Object.clone = function(obj) {
   var old = history.state;
@@ -149,35 +159,38 @@ Object.clone = function(obj) {
   return clone;
 };
 
-function sameType(a, b) {
-  return a.constructor === b.constructor;
-}
+definePrototype(String, 'trimAround', function() {
+  return this.replace(/^(\s+)?(.*\S)?(\s+)?$/g, '$2');
+});
 
-function simulateMouseEvents(element, events) {
-  for (var i = 0; i < events.length; ++i) {
-    var ev = document.createEvent('MouseEvents');
-    ev.initMouseEvent(events[i], true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
-    element.dispatchEvent(ev);
+definePrototype(String, 'validURL', function() {
+  var url = this.trimLeft().trimRight();
+  if (url.length === 0) {
+    return 'chrome://newtab';
   }
-}
+  if (/^\//.test(url)) {
+    url = 'file://' + url;
+  }
+  if (/^(chrome|chrome-extension|file):\/\/\S+$/.test(url)) {
+    return url;
+  }
+  var pattern = new RegExp('^((https?|ftp):\\/\\/)?'+
+  '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+
+  '((\\d{1,3}\\.){3}\\d{1,3})|'+
+  'localhost)' +
+  '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+
+  '(\\?[;:&a-z\\d%_.~+=-]*)?'+
+  '(\\#[#:-a-z\\d_]*)?$','i');
+  if (pattern.test(url)) {
+    return true;
+  }
+});
 
-HTMLElement.prototype.hover = function() {
-  simulateMouseEvents(this, ['mouseover', 'mouseenter']);
-};
+definePrototype(String, 'embedString', function(string) {
+  return this.split('%s').join(string);
+});
 
-HTMLElement.prototype.unhover = function() {
-  simulateMouseEvents(this, ['mouseout', 'mouseleave']);
-};
-
-HTMLElement.prototype.simulateClick = function() {
-  simulateMouseEvents(this, ['mouseover', 'mousedown', 'mouseup', 'click']);
-};
-
-String.prototype.rxp = function() {
-  return new RegExp(this, Array.prototype.slice.call(arguments));
-};
-
-String.prototype.convertLink = function() {
+definePrototype(String, 'convertLink', function() {
   var url = this.trimAround();
   if (url.length === 0) {
     return 'chrome://newtab';
@@ -199,9 +212,9 @@ String.prototype.convertLink = function() {
     return (/:\/\//.test(url) ? '' : 'http://') + url;
   }
   return 'https://www.google.com/search?q=' + url;
-};
+});
 
-function matchLocation(url, pattern) { // Uses @match syntax
+window.matchLocation = function(url, pattern) { // Uses @match syntax
   // See https://code.google.com/p/chromium/codesearch#chromium/src/extensions/common/url_pattern.h&sq=package:chromium
   if (typeof pattern !== 'string' || !pattern.trim()) {
     return false;
@@ -243,16 +256,26 @@ function matchLocation(url, pattern) { // Uses @match syntax
     }
   }
   return true;
-}
+};
 
-function waitForLoad(callback, constructor) {
+window.sameType = function(a, b) {
+  return a.constructor === b.constructor;
+};
+
+window.waitForLoad = function(callback, constructor) {
   if ((document.readyState === 'interactive' || document.readyState === 'complete') && document.activeElement) {
     return callback.call(constructor);
   }
   window.setTimeout(function() {
     waitForLoad(callback, constructor);
   }, 5);
-}
+};
+
+window.decodeHTMLEntities = function(string) {
+  var el = document.createElement('div');
+  el.innerHTML = string;
+  return el.textContent;
+};
 
 Object.extend = function() {
   var _ret = {};
@@ -263,19 +286,3 @@ Object.extend = function() {
   }
   return _ret;
 };
-
-Array.prototype.compress = function() {
-  return this.filter(function(e) {
-    return e;
-  });
-};
-
-Array.prototype.last = function() {
-  return this[this.length - 1];
-};
-
-function decodeHTMLEntities(string) {
-  var el = document.createElement('div');
-  el.innerHTML = string;
-  return el.textContent;
-}
