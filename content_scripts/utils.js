@@ -104,6 +104,13 @@ definePrototype(HTMLElement, 'isVisible', function() {
     this.getAttribute('display') !== 'none';
 });
 
+window.isVisible = function(element) {
+  return element.offsetParent && !element.disabled &&
+    element.getAttribute('type') !== 'hidden' &&
+    getComputedStyle(element).visibility !== 'hidden' &&
+    element.getAttribute('display') !== 'none';
+};
+
 definePrototype(HTMLElement, 'isInput', function() {
   return (
     (this.localName === 'textarea' || this.localName === 'input' || this.getAttribute('contenteditable') === 'true') && !this.disabled &&
