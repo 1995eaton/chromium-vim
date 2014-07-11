@@ -424,21 +424,6 @@ actions.openLast = function() {
   }
 };
 
-actions.getBuffers = function() {
-  chrome.tabs.query({
-    windowId: sender.tab.windowId
-  }, function(tabs) {
-    var t = [];
-    for (var i = 0, l = tabs.length; i < l; ++i) {
-      t.push([i + ': ' + tabs[i].title, tabs[i].url]);
-    }
-    chrome.tabs.sendMessage(sender.tab.id, {
-      action: 'showBuffers',
-      buffers: t
-    });
-  });
-};
-
 actions.isNewInstall = function() {
   if (sender.tab.id === Updates.tabId && Updates.displayMessage) {
     Updates.displayMessage = false;
