@@ -68,6 +68,7 @@ Key.fromKeyCode = function(event) {
     event.metaKey  ? 'M' : '',
     event.shiftKey ? 'S' : ''
   ];
+  Key.shiftKey = event.shiftKey;
   var hasModifier = event.ctrlKey || event.altKey || event.metaKey;
   if (this.keyMap.hasOwnProperty(event.which.toString())) {
     map = this.keyMap[event.which.toString()];

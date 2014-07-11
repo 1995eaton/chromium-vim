@@ -70,17 +70,29 @@ Hints.removeContainer = function() {
 };
 
 Hints.dispatchAction = function(link) {
+
   if (!link) {
     return false;
   }
-  this.lastClicked = link;
+
   var node = link.localName;
+  this.lastClicked = link;
+
   if (settings.numerichints && settings.typelinkhints) {
     Hints.keyDelay = true;
     window.setTimeout(function() {
       Hints.keyDelay = false;
     }, settings.typelinkhintsdelay);
   }
+
+  if (Key.shiftKey && !this.shiftKeyInitiator) {
+    switch (this.type) {
+      case void 0:
+        this.type = 'tabbed';
+        break;
+    }
+  }
+
   switch (this.type) {
     case 'yank':
     case 'multiyank':
@@ -143,6 +155,7 @@ Hints.dispatchAction = function(link) {
       }
       break;
   }
+
   if (this.multi) {
     this.removeContainer();
     window.setTimeout(function() {
@@ -153,6 +166,7 @@ Hints.dispatchAction = function(link) {
   } else {
     this.hideHints(false, false, true);
   }
+
 };
 
 Hints.handleHintFeedback = function() {
@@ -417,6 +431,7 @@ Hints.create = function(type, multi) {
   if (!Command.domElementsLoaded) {
     return false;
   }
+  this.shiftKeyInitiator = Key.shiftKey;
   var links, main, frag, i, l;
   this.type = type;
   this.hideHints(true, multi);
