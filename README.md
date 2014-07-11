@@ -242,6 +242,8 @@ let blacklists = ["*://*/*.pdf <Up> <Down>"]
 | &lt;C-S-h&gt;, gh         | open the last URL in the current tab's history in a new tab           | openLastLinkInTab               |
 | &lt;C-S-l&gt;, gl         | open the next URL from the current tab's history in a new tab         | openNextLinkInTab               |
 | x                         | close the current tab                                                 | quit                            |
+| gxT                       | close the tab to the left of the current tab                          | closeTabLeft                    |
+| gxt                       | close the tab to the right of the current tab                         | closeTabRight                   |
 | X                         | open the last closed tab                                              | lastClosedTab                   |
 | t                         | :tabnew                                                               | :tabnew                         |
 | T                         | :tabnew &lt;CURRENT URL&gt;                                           | :tabnew @%                      |

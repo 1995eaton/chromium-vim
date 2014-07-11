@@ -122,6 +122,32 @@ actions.closeTab = function() {
   });
 };
 
+actions.closeTabLeft = function() {
+  chrome.tabs.query({currentWindow: true}, function(tabs) {
+    var tabIds = tabs.map(function(e) {
+      return e.id;
+    });
+    var idex = tabIds.indexOf(sender.tab.id);
+    if (idex === -1) {
+      return;
+    }
+    chrome.tabs.remove(tabIds[(idex - 1).mod(tabIds.length)]);
+  });
+};
+
+actions.closeTabRight = function() {
+  chrome.tabs.query({currentWindow: true}, function(tabs) {
+    var tabIds = tabs.map(function(e) {
+      return e.id;
+    });
+    var idex = tabIds.indexOf(sender.tab.id);
+    if (idex === -1) {
+      return;
+    }
+    chrome.tabs.remove(tabIds[(idex + 1) % tabIds.length]);
+  });
+};
+
 actions.getWindows = function() {
   var _ret = {};
   chrome.windows.getAll(function(info) {

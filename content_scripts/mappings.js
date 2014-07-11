@@ -114,6 +114,12 @@ Mappings.actions = {
   closeTab: function(repeats) {
     chrome.runtime.sendMessage({action: 'closeTab', repeats: repeats});
   },
+  closeTabLeft: function() {
+    chrome.runtime.sendMessage({action: 'closeTabLeft'});
+  },
+  closeTabRight: function() {
+    chrome.runtime.sendMessage({action: 'closeTabRight'});
+  },
   pinTab: function() {
     chrome.runtime.sendMessage({action: 'pinTab'});
   },
@@ -557,6 +563,8 @@ Mappings.shortCuts = [
 
 Mappings.defaults = {
   closeTab:                ['x'],
+  closeTabLeft:            ['gxT'],
+  closeTabRight:           ['gxt'],
   scrollDown:              ['s', 'j'],
   scrollUp:                ['w', 'k'],
   scrollPageUp:            ['e', 'u'],
