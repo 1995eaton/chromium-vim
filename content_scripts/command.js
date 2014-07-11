@@ -318,7 +318,6 @@ Command.complete = function(value) {
   }
 
   if (/^buffer(\s+)/.test(value)) {
-    search = value.replace(/^\S+\s+/, '');
     port.postMessage({action: 'getBuffers'});
     return;
   }
@@ -590,16 +589,22 @@ Command.execute = function(value, repeats) {
   }
 
   if (/^buffer +/.test(value)) {
-    if (Command.completionResults[0]) {
-      return chrome.runtime.sendMessage({
-        action: 'goToTab',
-        index: Command.completionResults[0][1][0]
-      });
+    var index = +value.replace(/^\S+\s+/, ''),
+        selectedBuffer;
+    if (Number.isNaN(index)) {
+      selectedBuffer = Command.completionResults[0];
+      if (selectedBuffer === void 0) {
+        return;
+      }
+    } else {
+      selectedBuffer = Command.completionResults.filter(function(e) {
+        return e[1].indexOf(index.toString()) === 0;
+      })[0];
     }
-    if (/^buffer +[0-9]+ *$/.test(value)) {
+    if (selectedBuffer !== void 0) {
       chrome.runtime.sendMessage({
         action: 'goToTab',
-        index: +value.replace(/^\S+\s+/, '')
+        id: selectedBuffer[3]
       });
     }
     return;

@@ -53,22 +53,12 @@ port.onMessage.addListener(function(response) {
       break;
     case 'buffers':
       if (Command.bar.style.display !== 'none') {
-        var regexp;
-        var val = Command.input.value.replace(/\S+\s+/, ''),
-            useRegex = true;
+        var val = Command.input.value.replace(/\S+\s+/, '');
         Command.hideData();
         Command.completions = {
-          buffers: response.buffers.filter(function(s) {
-            try {
-              regexp = new RegExp(val, 'i');
-            } catch (e) {
-              useRegex = false;
-            }
-            if (useRegex) {
-              return regexp.test(s[0]);
-            }
-            return s[0].substring(0, val.length) === val;
-          })
+          buffers: !val.trim() || Number.isNaN(val) || !response.buffers[+val] ? response.buffers.filter(function(e) {
+            return e.join(' ').toLowerCase().indexOf(val) !== -1;
+          }) : [ response.buffers[+val] ] || []
         };
         Command.updateCompletions();
       }

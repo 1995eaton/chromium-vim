@@ -276,9 +276,17 @@ actions.copy = function() {
 };
 
 actions.goToTab = function() {
-  chrome.tabs.query({currentWindow: true}, function(tabs) {
-    chrome.tabs.update((request.index < tabs.length ? tabs[request.index].id :
-        tabs.slice(-1)[0].id), {active: true});
+  chrome.tabs.query({}, function(tabs) {
+    if (request.id) {
+      return chrome.tabs.get(request.id, function(tabInfo) {
+        chrome.windows.update(tabInfo.windowId, {focused: true}, function() {
+          chrome.tabs.update(request.id, {active: true, highlighted: true});
+        });
+      });
+    } else if (request.index) {
+      chrome.tabs.update((request.index < tabs.length ? tabs[request.index].id :
+          tabs.slice(-1)[0].id), {active: true});
+    }
   });
 };
 
@@ -533,15 +541,12 @@ actions.getQuickMarks = function() {
 };
 
 actions.getBuffers = function() {
-  chrome.tabs.query({active: true, currentWindow: true}, function(initial) {
-    initial = initial[0];
-    var windowId = initial.windowId;
-    chrome.tabs.query({windowId: windowId}, function(tabs) {
-      var t = [];
-      for (var i = 0, l = tabs.length; i < l; ++i) {
-        t.push([i + ': ' + tabs[i].title, tabs[i].url]);
-      }
-      callback({type: 'buffers', buffers: t});
+  chrome.tabs.query({}, function(tabs) {
+    callback({
+      type: 'buffers',
+      buffers: tabs.map(function(e, i) {
+        return [i + ': ' + e.title, e.url, e.id];
+      })
     });
   });
 };
