@@ -148,6 +148,30 @@ actions.closeTabRight = function() {
   });
 };
 
+actions.closeTabsToLeft = function() {
+  chrome.tabs.query({currentWindow: true}, function(tabs) {
+    var ct;
+    while (ct = tabs.shift()) {
+      if (ct.id === sender.tab.id) {
+        break;
+      }
+      chrome.tabs.remove(ct.id);
+    }
+  });
+};
+
+actions.closeTabsToRight = function() {
+  chrome.tabs.query({currentWindow: true}, function(tabs) {
+    var ct;
+    while (ct = tabs.pop()) {
+      if (ct.id === sender.tab.id) {
+        break;
+      }
+      chrome.tabs.remove(ct.id);
+    }
+  });
+};
+
 actions.getWindows = function() {
   var _ret = {};
   chrome.windows.getAll(function(info) {

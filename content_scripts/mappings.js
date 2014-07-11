@@ -120,6 +120,12 @@ Mappings.actions = {
   closeTabRight: function() {
     chrome.runtime.sendMessage({action: 'closeTabRight'});
   },
+  closeTabsToLeft: function() {
+    chrome.runtime.sendMessage({action: 'closeTabsToLeft'});
+  },
+  closeTabsToRight: function() {
+    chrome.runtime.sendMessage({action: 'closeTabsToRight'});
+  },
   pinTab: function() {
     chrome.runtime.sendMessage({action: 'pinTab'});
   },
@@ -565,6 +571,8 @@ Mappings.defaults = {
   closeTab:                ['x'],
   closeTabLeft:            ['gxT'],
   closeTabRight:           ['gxt'],
+  closeTabsToLeft:         ['gx0'],
+  closeTabsToRight:        ['gx$'],
   scrollDown:              ['s', 'j'],
   scrollUp:                ['w', 'k'],
   scrollPageUp:            ['e', 'u'],

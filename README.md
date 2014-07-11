@@ -244,6 +244,8 @@ let blacklists = ["*://*/*.pdf <Up> <Down>"]
 | x                         | close the current tab                                                 | quit                            |
 | gxT                       | close the tab to the left of the current tab                          | closeTabLeft                    |
 | gxt                       | close the tab to the right of the current tab                         | closeTabRight                   |
+| gx0                       | close all tabs to the left of the current tab                         | closeTabsToLeft                 |
+| gx$                       | close all tabs to the right of the current tab                        | closeTabsToRight                |
 | X                         | open the last closed tab                                              | lastClosedTab                   |
 | t                         | :tabnew                                                               | :tabnew                         |
 | T                         | :tabnew &lt;CURRENT URL&gt;                                           | :tabnew @%                      |
