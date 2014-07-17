@@ -9,31 +9,25 @@ script will spawn a urxvt shell, but this action
 can be changed via the COMMAND variable below.
 """
 
+from platform import system
 import http.server
 import subprocess
 import stat
 import os
 
+
 PORT_NUMBER = 8001
-TMP_FILE = "/tmp/cvim-tmp"
-TMP_SCRIPT_FILE = "/tmp/cvim-tmp-script.sh"
 
-"""
-For some reason, we must run the script from a separate file
-when using urxvt... it seems to work fine without the script
-if I use xterm, but I like urxvt better.
-"""
-SCRIPT_COMMAND = "vim $1"
-
-"""
-So essentially, the command below turns into:
-    urxvt -e sh -c 'vim $TMP_FILE'
-"""
-COMMAND = "urxvt -e " + TMP_SCRIPT_FILE + " {}"
-
-
-def cleanup():
-    os.remove(TMP_SCRIPT_FILE)
+if system() == "Windows": # tested on Windows 7 by @Praful
+    TMP_FILE = os.environ['TEMP'] + "\\cvim-tmp"
+    TMP_SCRIPT_FILE = os.environ['TEMP'] + "\\cvim-tmp-script.bat"
+    SCRIPT_COMMAND = "gvim.exe %1"
+    COMMAND = TMP_SCRIPT_FILE + " {}"
+else: # tested on Arch Linux + urxvt
+    TMP_FILE = "/tmp/cvim-tmp"
+    TMP_SCRIPT_FILE = "/tmp/cvim-tmp-script.sh"
+    SCRIPT_COMMAND = "vim $1"
+    COMMAND = "urxvt -e " + TMP_SCRIPT_FILE + " {}"
 
 
 class CVHandler(http.server.BaseHTTPRequestHandler):
@@ -72,5 +66,5 @@ if __name__ == '__main__':
         httpd.serve_forever()
     except KeyboardInterrupt:
         pass
-    cleanup()
+    os.remove(TMP_SCRIPT_FILE)
     httpd.server_close()
