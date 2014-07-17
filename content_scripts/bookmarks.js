@@ -74,9 +74,21 @@ Marks.openQuickMark = function(ch, tabbed, repeats) {
     }
   } else {
     if (this.quickMarks[ch][repeats - 1]) {
-      chrome.runtime.sendMessage({action: 'openLink', url: this.quickMarks[ch][repeats - 1]});
+      chrome.runtime.sendMessage({
+        action: 'openLink',
+        tab: {
+          pinned: false
+        },
+        url: this.quickMarks[ch][repeats - 1]
+      });
     } else {
-      chrome.runtime.sendMessage({action: 'openLink', url: this.quickMarks[ch][0]});
+      chrome.runtime.sendMessage({
+        action: 'openLink',
+        tab: {
+          pinned: false
+        },
+        url: this.quickMarks[ch][0]
+      });
     }
   }
 };
