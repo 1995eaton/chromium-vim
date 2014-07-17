@@ -21,7 +21,8 @@ PORT_NUMBER = 8001
 if system() == "Windows": # tested on Windows 7 by @Praful
     TMP_FILE = os.environ['TEMP'] + "\\cvim-tmp"
     TMP_SCRIPT_FILE = os.environ['TEMP'] + "\\cvim-tmp-script.bat"
-    SCRIPT_COMMAND = "gvim.exe %1"
+    GVIM_PATH = "" # edit this to the location of gvim.exe
+    SCRIPT_COMMAND = GVIM_PATH + "gvim.exe %1"
     COMMAND = TMP_SCRIPT_FILE + " {}"
 else: # tested on Arch Linux + urxvt
     TMP_FILE = "/tmp/cvim-tmp"
