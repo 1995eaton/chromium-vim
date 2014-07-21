@@ -725,8 +725,10 @@ Command.show = function(search, value) {
     this.input.focus();
 
     // Temp fix for Chromium issue in #97
-    document.activeElement.select();
-    document.getSelection().collapseToEnd();
+    if (document.activeElement.id === 'cVim-command-bar-input') {
+      document.activeElement.select();
+      document.getSelection().collapseToEnd();
+    }
     // End temp fix
 
   }.bind(this), 0);
