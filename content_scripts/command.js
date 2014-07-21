@@ -723,6 +723,12 @@ Command.show = function(search, value) {
   this.bar.style.display = 'inline-block';
   setTimeout(function() {
     this.input.focus();
+
+    // Temp fix for Chromium issue in #97
+    document.activeElement.select();
+    document.getSelection().collapseToEnd();
+    // End temp fix
+
   }.bind(this), 0);
 };
 
