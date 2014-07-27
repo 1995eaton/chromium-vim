@@ -818,12 +818,8 @@ Mappings.indexFromKeybinding = function(keybinding) {
 Mappings.parseCustom = function(config) {
   config += this.siteSpecificBlacklists;
   config = config.split(/\n+/).map(function(item) {
-    return item.replace(/(\s+)?'.*/, '')
-               .split(/ +/)
-               .map(function(e) {
-                  return e.trimAround();
-                });
-  });
+    return item.split(/ +/).compress();
+  }).compress();
   config.forEach(function(mapping) {
     var key;
     if (mapping.length === 0) {
