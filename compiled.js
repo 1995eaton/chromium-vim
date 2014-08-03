@@ -824,22 +824,25 @@ window.searchArray = function(array, search, limit, useRegex, fn) {
       search = new RegExp(search, 'i');
     } catch (e) {}
   }
-  var matches = [];
+  var matches = {
+    0: [],
+    1: []
+  };
   var exactMatchCount = 0;
   fn = fn || function(item) { return item; };
   for (var i = 0; i < array.length; i++) {
     var matchIndex = fn(array[i]).search(search);
     if (matchIndex === 0) {
-      matches.unshift(array[i]);
+      matches[0].push(array[i]);
       exactMatchCount++;
       if (exactMatchCount === limit) {
         break;
       }
     } else if (matchIndex !== -1) {
-      matches.push(array[i]);
+      matches[1].push(array[i]);
     }
   }
-  return matches.slice(0, limit);
+  return matches[0].concat(matches[1]).slice(0, limit);
 };
 
 Object.extend = function() {
