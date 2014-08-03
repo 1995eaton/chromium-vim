@@ -314,6 +314,9 @@ Key.up = function(e) {
 
 Key.press = function(e) {
   if (Command.active || (document.activeElement && document.activeElement.id === 'cVim-command-bar-input')) {
+    if (document.activeElement.value === 'chrome://' && String.fromCharCode(e.which) === '/') {
+      e.preventDefault();
+    }
     e.stopPropagation();
   }
   if (Visual.caretModeActive || Visual.visualModeActive) {
