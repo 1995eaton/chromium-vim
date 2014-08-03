@@ -284,6 +284,33 @@ window.decodeHTMLEntities = function(string) {
   return el.textContent;
 };
 
+window.searchArray = function(array, search, limit, useRegex, fn) {
+  if (search === '') {
+    return array.slice(0, settings.searchlimit);
+  }
+  if (useRegex) {
+    try {
+      search = new RegExp(search, 'i');
+    } catch (e) {}
+  }
+  var matches = [];
+  var exactMatchCount = 0;
+  fn = fn || function(item) { return item; };
+  for (var i = 0; i < array.length; i++) {
+    var matchIndex = fn(array[i]).search(search);
+    if (matchIndex === 0) {
+      matches.unshift(array[i]);
+      exactMatchCount++;
+      if (exactMatchCount === limit) {
+        break;
+      }
+    } else if (matchIndex !== -1) {
+      matches.push(array[i]);
+    }
+  }
+  return matches.slice(0, limit);
+};
+
 Object.extend = function() {
   var _ret = {};
   for (var i = 0, l = arguments.length; i < l; ++i) {

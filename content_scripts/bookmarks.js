@@ -105,45 +105,12 @@ Marks.parse = function(marks) {
 };
 
 Marks.match = function(string, callback, limit) {
-
-  var regexp,
-      i,
-      matches = [];
-
   if (string.trim() === '') {
     return callback(this.bookmarks.slice(0, settings.searchlimit + 1));
   }
-
-  try {
-    regexp = new RegExp(string, 'i');
-  } catch (e) {}
-
-  for (i = 0, l = this.bookmarks.length; i < l; ++i) {
-    if (regexp) {
-      if (regexp.test(this.bookmarks[i].join(' '))) {
-        matches.push(this.bookmarks[i]);
-      }
-    } else if (this.bookmarks[i][1].indexOf(string) === 0) { // Get the most relavent matches first
-      matches.push(this.bookmarks[i]);
-    }
-    if ((limit && matches.length === limit) || matches.length > settings.searchlimit) {
-      break;
-    }
-  }
-
-  if (matches.length <= settings.searchlimit && !regexp) {
-    for (i = 0, l = this.bookmarks.length; i < l; ++i) {
-      if (this.bookmarks[i][1].indexOf(string) !== -1) { // Go for any match position at this point
-        matches.push(this.bookmarks[i]);
-      }
-      if ((limit && matches.length === limit) || matches.length > settings.searchlimit) {
-        break;
-      }
-    }
-  }
-
-  callback(matches);
-
+  callback(searchArray(this.bookmarks, string, limit, true, function(item) {
+    return item.join(' ');
+  }));
 };
 
 Marks.matchPath = function(path) {

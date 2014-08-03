@@ -302,9 +302,7 @@ Command.complete = function(value) {
   if (/^tabhistory +/.test(value)) {
     chrome.runtime.sendMessage({action: 'getHistoryStates'}, function(response) {
       this.completions = {
-        tabhistory: response.links.filter(function(e) {
-          return e.indexOf(value.replace(/\S+\s+/, '')) !== -1;
-        })
+        tabhistory: searchArray(response.links, value.replace(/\S+\s+/, ''), settings.searchlimit, true)
       };
       this.updateCompletions();
     }.bind(this));

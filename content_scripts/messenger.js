@@ -56,8 +56,8 @@ port.onMessage.addListener(function(response) {
         var val = Command.input.value.replace(/\S+\s+/, '');
         Command.hideData();
         Command.completions = {
-          buffers: !val.trim() || Number.isNaN(val) || !response.buffers[+val] ? response.buffers.filter(function(e) {
-            return e.join(' ').toLowerCase().indexOf(val) !== -1;
+          buffers: !val.trim() || Number.isNaN(val) || !response.buffers[+val] ? searchArray(response.buffers, val, settings.searchlimit, true, function(item) {
+            return item.join(' ');
           }) : [ response.buffers[+val] ] || []
         };
         Command.updateCompletions();
