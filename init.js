@@ -1,7 +1,11 @@
 if (document.URL.indexOf('https://www.google.com/_/') === 0) {
-  window.addEventListener('load', function() {
-    window.setTimeout(init, 1500);
-  });
+  var pageAction = function() {
+    init();
+    window.removeEventListener('keydown', pageAction);
+    window.removeEventListener('click', pageAction);
+  };
+  window.addEventListener('keydown', pageAction);
+  window.addEventListener('click', pageAction);
 } else {
   init();
 }
