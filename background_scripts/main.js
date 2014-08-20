@@ -5,6 +5,7 @@ var sessions = {},
 
 chrome.tabs.onUpdated.addListener(function(id, changeInfo) {
   if (changeInfo.hasOwnProperty('url')) {
+    History.shouldRefresh = true;
     if (TabHistory.hasOwnProperty(id)) {
       if (TabHistory[id].links.indexOf(changeInfo.url) === -1) {
         if (TabHistory.state !== void 0 && TabHistory[id].state + 1 !== TabHistory[id].length) {

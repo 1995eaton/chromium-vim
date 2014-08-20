@@ -286,7 +286,7 @@ window.decodeHTMLEntities = function(string) {
 
 window.searchArray = function(array, search, limit, useRegex, fn) {
   if (search === '') {
-    return array.slice(0, settings.searchlimit);
+    return array.slice(0, limit || settings.searchlimit);
   }
   if (useRegex) {
     try {

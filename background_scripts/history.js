@@ -19,8 +19,21 @@ History.retrieve = function(type) {
   return [type, localStorage[type].split(',')];
 };
 
-History.retrieveSearchHistory = function(search, limit, callback) {
-  chrome.history.search({text: search, maxResults: limit}, function(results) {
-    callback(results);
+History.historyStore = [];
+History.shouldRefresh = false;
+History.refreshStore = function() {
+  this.shouldRefresh = false;
+  chrome.history.search({text: '', maxResults: 10000}, function(results) {
+    History.historyStore = results;
   });
+};
+
+History.refreshStore();
+History.retrieveSearchHistory = function(search, limit, callback) {
+  if (History.shouldRefresh) {
+    History.refreshStore();
+  }
+  callback(searchArray(this.historyStore, search, limit, true, function(item) {
+    return item.title + item.url;
+  }));
 };

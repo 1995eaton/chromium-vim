@@ -415,17 +415,54 @@ Hints.getLinks = function() {
   }
 };
 
-Hints.generateHintString = function(n, x) {
-  var len = settings.hintcharacters.length,
-      l = [],
-      r;
-  for (var i = 0; n >= 0 && i < x; i++) {
-    r = n % len;
-    l.push(settings.hintcharacters[r]);
-    n -= r;
-    n /= Math.floor(len);
+
+// GolombExp
+// Hints.genHints = function(M) {
+//   var codes = [];
+//   var genCodeWord = function(N) {
+//     var word = '';
+//     do {
+//       word += settings.hintcharacters.charAt(N % settings.hintcharacters.length);
+//       N = ~~(N / settings.hintcharacters.length);
+//     } while (N > 0);
+//     return word.split('').reverse().join('');
+//   };
+//   for (var i = 0; i < M; i++) {
+//     var last = genCodeWord(i);
+//     var first = '';
+//     for (var j = 0; j < last.length - 1; j++) {
+//       first += settings.hintcharacters.charAt(0);
+//     }
+//     codes.push(first + last);
+//   }
+//   return codes;
+// };
+
+// Golomb
+Hints.genHints = function(M) {
+  if (M <= settings.hintcharacters.length) {
+    return settings.hintcharacters.slice(0, M).split('');
   }
-  return l.reverse().join('');
+  var codes = [];
+  var genCodeWord = function(N, length) {
+    for (var i = 0, word = ''; i < length; i++) {
+      word += settings.hintcharacters.charAt(N % settings.hintcharacters.length);
+      N = ~~(N / settings.hintcharacters.length);
+    }
+    codes.push(word.split('').reverse().join(''));
+  };
+
+  var b = Math.ceil(Math.log(M) / Math.log(settings.hintcharacters.length));
+  var cutoff = Math.pow(settings.hintcharacters.length, b) - M;
+  var cutoffR = ~~(cutoff / settings.hintcharacters.length);
+
+  for (var i = 0; i < cutoffR; i++) {
+    genCodeWord(i, b - 1);
+  }
+  for (i = cutoffR; i < M; i++) {
+    genCodeWord(i + cutoff, b);
+  }
+  return codes;
 };
 
 Hints.create = function(type, multi) {
@@ -498,18 +535,7 @@ Hints.create = function(type, multi) {
   }
 
   if (!settings.numerichints) {
-    var lim = Math.ceil(Math.log(this.linkArr.length) / Math.log(settings.hintcharacters.length)) || 1;
-    var rlim = Math.floor((Math.pow(settings.hintcharacters.length, lim) - this.linkArr.length) / settings.hintcharacters.length);
-
-    for (i = 0; i < rlim; ++i) {
-      this.linkArr[i][0].textContent = this.generateHintString(i, lim - 1);
-      this.permutations.push(this.generateHintString(i, lim - 1));
-    }
-
-    for (i = rlim * settings.hintcharacters.length, e = i + this.linkArr.length - rlim; i < e; ++i) {
-      this.permutations.push(this.generateHintString(i, lim));
-    }
-
+    this.permutations = this.genHints(this.linkArr.length);
     for (i = this.linkArr.length - 1; i >= 0; --i) {
       this.linkArr[i][0].textContent = this.permutations[i];
       frag.appendChild(this.linkArr[i][0]);
@@ -817,7 +843,7 @@ window.decodeHTMLEntities = function(string) {
 
 window.searchArray = function(array, search, limit, useRegex, fn) {
   if (search === '') {
-    return array.slice(0, settings.searchlimit);
+    return array.slice(0, limit || settings.searchlimit);
   }
   if (useRegex) {
     try {
