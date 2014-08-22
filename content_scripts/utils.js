@@ -291,7 +291,9 @@ window.searchArray = function(array, search, limit, useRegex, fn) {
   if (useRegex) {
     try {
       search = new RegExp(search, 'i');
-    } catch (e) {}
+    } catch (e) {
+      useRegex = false;
+    }
   }
   var matches = {
     0: [],
@@ -300,7 +302,7 @@ window.searchArray = function(array, search, limit, useRegex, fn) {
   var exactMatchCount = 0;
   fn = fn || function(item) { return item; };
   for (var i = 0; i < array.length; i++) {
-    var matchIndex = fn(array[i]).search(search);
+    var matchIndex = fn(array[i])[useRegex ? 'search' : 'indexOf'](search);
     if (matchIndex === 0) {
       matches[0].push(array[i]);
       exactMatchCount++;
