@@ -363,6 +363,11 @@ Mappings.actions = {
       Hints.create('multiyank');
     }, 0);
   },
+  fullImageHint: function() {
+    window.setTimeout(function() {
+      Hints.create('fullimage');
+    }, 0);
+  },
   yankDocumentUrl: function() {
     Clipboard.copy(document.URL);
     Status.setMessage(document.URL, 2);
@@ -600,6 +605,7 @@ Mappings.defaults = {
   moveTabLeft:             ['<'],
   toggleCvim:              ['<A-z>'],
   goBack:                  ['H', 'S'],
+  fullImageHint:           [],
   reverseImage:            ['gr'],
   multiReverseImage:       ['mr'],
   goForward:               ['L', 'D'],

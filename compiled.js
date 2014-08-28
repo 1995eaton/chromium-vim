@@ -103,6 +103,9 @@ Hints.dispatchAction = function(link) {
         Status.setMessage(text, 2);
       }
       break;
+    case 'fullimage':
+      chrome.runtime.sendMessage({action: 'openLinkTab', active: false, url: link.src, noconvert: true});
+      break;
     case 'image':
     case 'multiimage':
       var url = googleReverseImage(link.src, null);
@@ -517,6 +520,8 @@ Hints.create = function(type, multi) {
           return '(multi-yank)';
         case 'image':
           return '(reverse image)';
+        case 'fullimage':
+          return '(full image)';
         case 'tabbed':
         case 'tabbedActive':
           return '(tabbed)';
@@ -2188,6 +2193,11 @@ Mappings.actions = {
       Hints.create('multiyank');
     }, 0);
   },
+  fullImageHint: function() {
+    window.setTimeout(function() {
+      Hints.create('fullimage');
+    }, 0);
+  },
   yankDocumentUrl: function() {
     Clipboard.copy(document.URL);
     Status.setMessage(document.URL, 2);
@@ -2425,6 +2435,7 @@ Mappings.defaults = {
   moveTabLeft:             ['<'],
   toggleCvim:              ['<A-z>'],
   goBack:                  ['H', 'S'],
+  fullImageHint:           [],
   reverseImage:            ['gr'],
   multiReverseImage:       ['mr'],
   goForward:               ['L', 'D'],
