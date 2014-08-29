@@ -1002,11 +1002,11 @@ Mappings.handleEscapeKey = function() {
   }
 };
 
-Mappings.hasKeybinding = function(binding) {
+Mappings.matchesMapping = function(binding) {
   for (var key in this.defaults) {
     for (var i = 0; i < this.defaults[key].length; i++) {
       var pattern = this.defaults[key][i].replace('*', '');
-      if (binding.indexOf(pattern) !== -1) {
+      if (binding.indexOf(pattern) !== -1 || pattern.indexOf(binding) === 0) {
         return true;
       }
     }

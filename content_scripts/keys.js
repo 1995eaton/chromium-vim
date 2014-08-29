@@ -127,7 +127,7 @@ var KeyListener = (function() {
         return true;
       }
 
-      if (Visual.caretModeActive || Visual.visualModeActive) {
+      if (Hints.active || Visual.caretModeActive || Visual.visualModeActive) {
         event.preventDefault();
         event.stopPropagation();
       }
@@ -146,9 +146,8 @@ var KeyListener = (function() {
         return callback(code, event);
       // Ugly, but this NEEDS to be checked before setTimeout is called. Otherwise, non-cVim keyboard listeners
       // will not be stopped. preventDefault on the other hand, can be.
-      } else if (!Hints.active || commandMode || (!insertMode && document.getSelection().type === 'None' &&
-                 // Mappings.hasKeybinding(Mappings.queue + String.fromCharCode(event.which)[!event.shiftKey ? 'toLowerCase' : 'slice']())))
-                 Mappings.hasKeybinding(Mappings.queue + KeyEvents.keyhandle(event, 'keydown'))))
+      } else if (commandMode || (!insertMode && document.getSelection().type === 'None' &&
+                 Mappings.matchesMapping(Mappings.queue + KeyEvents.keyhandle(event, 'keydown'))))
       {
         event.stopPropagation();
       }

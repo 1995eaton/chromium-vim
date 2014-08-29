@@ -1101,9 +1101,6 @@ var KeyListener = (function() {
       }
     }
     modifiers = modifiers.filter(function(e) { return e; });
-    // if (modifiers[0] === 'S' && modifiers[1] === void 0 && key.toLowerCase() !== key.toUpperCase()) {
-    //   return key.toUpperCase();
-    // }
     if (modifiers.length) {
       key = '<' + modifiers.join('-') + '-' + key + '>';
     } else if (typeof codeMap[event.which.toString()] === 'string') {
@@ -1137,7 +1134,7 @@ var KeyListener = (function() {
         return true;
       }
 
-      if (Visual.caretModeActive || Visual.visualModeActive) {
+      if (Hints.active || Visual.caretModeActive || Visual.visualModeActive) {
         event.preventDefault();
         event.stopPropagation();
       }
@@ -1156,9 +1153,8 @@ var KeyListener = (function() {
         return callback(code, event);
       // Ugly, but this NEEDS to be checked before setTimeout is called. Otherwise, non-cVim keyboard listeners
       // will not be stopped. preventDefault on the other hand, can be.
-      } else if (!Hints.active || commandMode || (!insertMode && document.getSelection().type === 'None' &&
-                 // Mappings.hasKeybinding(Mappings.queue + String.fromCharCode(event.which)[!event.shiftKey ? 'toLowerCase' : 'slice']())))
-                 Mappings.hasKeybinding(Mappings.queue + KeyEvents.keyhandle(event, 'keydown'))))
+      } else if (commandMode || (!insertMode && document.getSelection().type === 'None' &&
+                 Mappings.matchesMapping(Mappings.queue + KeyEvents.keyhandle(event, 'keydown'))))
       {
         event.stopPropagation();
       }
@@ -2917,11 +2913,11 @@ Mappings.handleEscapeKey = function() {
   }
 };
 
-Mappings.hasKeybinding = function(binding) {
+Mappings.matchesMapping = function(binding) {
   for (var key in this.defaults) {
     for (var i = 0; i < this.defaults[key].length; i++) {
       var pattern = this.defaults[key][i].replace('*', '');
-      if (binding.indexOf(pattern) !== -1) {
+      if (binding.indexOf(pattern) !== -1 || pattern.indexOf(binding) === 0) {
         return true;
       }
     }
