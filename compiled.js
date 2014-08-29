@@ -1093,16 +1093,21 @@ var KeyListener = (function() {
       key = event.keyIdentifier;
     } else {
       key = String.fromCharCode(event.which).toLowerCase();
-      if (event.shiftKey && !modifiers.length) {
+      if (event.shiftKey && modifiers.length === 1) {
         key = key.toUpperCase();
+        if (key.toLowerCase() !== key.toUpperCase()) {
+          return key;
+        }
       }
     }
     modifiers = modifiers.filter(function(e) { return e; });
-    if (modifiers.length && modifiers.length) {
-      return '<' + modifiers.join('-') + '-' + key + '>';
-    }
-    if (typeof codeMap[event.which.toString()] === 'string') {
-      return '<' + (event.shiftKey ? 'S-' : '') + key + '>';
+    // if (modifiers[0] === 'S' && modifiers[1] === void 0 && key.toLowerCase() !== key.toUpperCase()) {
+    //   return key.toUpperCase();
+    // }
+    if (modifiers.length) {
+      key = '<' + modifiers.join('-') + '-' + key + '>';
+    } else if (typeof codeMap[event.which.toString()] === 'string') {
+      key = '<' + (event.shiftKey ? 'S-' : '') + key + '>';
     }
     return key;
   };
@@ -1127,14 +1132,14 @@ var KeyListener = (function() {
 
     keydown: function(callback, event) {
 
+      // Modifier keys C-A-S-M
+      if ([16,17,18,91,123].indexOf(event.which) !== -1) {
+        return true;
+      }
+
       if (Visual.caretModeActive || Visual.visualModeActive) {
         event.preventDefault();
         event.stopPropagation();
-      }
-
-      // Modifier keys C-A-S-M
-      if ([16,17,18,91].indexOf(event.which) !== -1) {
-        return true;
       }
 
       // Don't let the keypress listener attempt to parse the key event
@@ -1151,7 +1156,7 @@ var KeyListener = (function() {
         return callback(code, event);
       // Ugly, but this NEEDS to be checked before setTimeout is called. Otherwise, non-cVim keyboard listeners
       // will not be stopped. preventDefault on the other hand, can be.
-      } else if (Hints.active || commandMode || (!insertMode && document.getSelection().type === 'None' &&
+      } else if (!Hints.active || commandMode || (!insertMode && document.getSelection().type === 'None' &&
                  // Mappings.hasKeybinding(Mappings.queue + String.fromCharCode(event.which)[!event.shiftKey ? 'toLowerCase' : 'slice']())))
                  Mappings.hasKeybinding(Mappings.queue + KeyEvents.keyhandle(event, 'keydown'))))
       {
