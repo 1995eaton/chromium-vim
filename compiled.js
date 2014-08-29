@@ -4002,7 +4002,11 @@ Command.updateCompletions = function(useStyles) {
     this.dataElements.push(item);
     this.data.appendChild(item);
   }
-  this.data.style.display = 'block';
+  if (!this.active || !commandMode) {
+    this.hideData();
+  } else {
+    this.data.style.display = 'block';
+  }
 };
 
 Command.hideData = function() {
