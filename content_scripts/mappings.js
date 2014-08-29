@@ -1002,6 +1002,18 @@ Mappings.handleEscapeKey = function() {
   }
 };
 
+Mappings.hasKeybinding = function(binding) {
+  for (var key in this.defaults) {
+    for (var i = 0; i < this.defaults[key].length; i++) {
+      var pattern = this.defaults[key][i].replace('*', '');
+      if (binding.indexOf(pattern) !== -1) {
+        return true;
+      }
+    }
+  }
+  return false;
+};
+
 Mappings.convertToAction = function(c) {
   if (c === '<Esc>' || c === '<C-[>') {
     return this.handleEscapeKey();

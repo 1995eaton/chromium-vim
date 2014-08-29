@@ -1006,108 +1006,210 @@ Marks.matchPath = function(path) {
   port.postMessage({action: 'getBookmarkPath', path: path});
 };
 var addListeners, removeListeners, insertMode, commandMode, settings;
+
+var KeyListener = (function() {
+
+  'use strict';
+
+  var codeMap = {
+    0:   '\\',
+    8:   'BS',
+    9:   'Tab',
+    12:  'Num',
+    13:  'Enter',
+    19:  'Pause',
+    20:  'Caps',
+    27:  'Esc',
+    32:  'Space',
+    33:  'PageUp',
+    34:  'PageDown',
+    35:  'End',
+    36:  'Home',
+    37:  'Left',
+    38:  'Up',
+    39:  'Right',
+    40:  'Down',
+    42:  'PrintScreen',
+    44:  'PrintScreen',
+    45:  'Insert',
+    46:  'Delete',
+    48:  ['0', ')'],
+    49:  ['1', '!'],
+    50:  ['2', '@'],
+    51:  ['3', '#'],
+    52:  ['4', '$'],
+    53:  ['5', '%'],
+    54:  ['6', '^'],
+    55:  ['7', '&'],
+    56:  ['8', '*'],
+    57:  ['9', '('],
+    96:  '0',
+    97:  '1',
+    98:  '2',
+    99:  '3',
+    100: '4',
+    101: '5',
+    102: '6',
+    103: '7',
+    104: '8',
+    105: ['9', ''],
+    106: '*',
+    107: '+',
+    109: '-',
+    111: '/',
+    144: 'Num',
+    186: [';', ':'],
+    188: [',', '<'],
+    189: ['-', '_'],
+    190: ['.', '>'],
+    187: ['=', '+'],
+    191: ['/', '?'],
+    192: ['`', '~'],
+    219: ['[', '{'],
+    221: [']', '}'],
+    220: ['\\', '|'],
+    222: ['\'', '"']
+  };
+
+  var parseKeyDown = function(event) {
+    var key, map;
+    var modifiers = [
+      event.ctrlKey  ? 'C' : '',
+      event.altKey   ? 'A' : '',
+      event.metaKey  ? 'M' : '',
+      event.shiftKey ? 'S' : ''
+    ].join('').split('');
+    if (codeMap.hasOwnProperty(event.which.toString())) {
+      map = codeMap[event.which.toString()];
+      if (Array.isArray(map)) {
+        if (!modifiers.length) {
+          modifiers.splice(modifiers.indexOf('S'), 1);
+        }
+        key = map[+(event.shiftKey && !modifiers.length)];
+      } else {
+        key = map;
+      }
+    } else if (/^F[0-9]+$/.test(event.keyIdentifier)) {
+      key = event.keyIdentifier;
+    } else {
+      key = String.fromCharCode(event.which).toLowerCase();
+      if (event.shiftKey && !modifiers.length) {
+        key = key.toUpperCase();
+      }
+    }
+    modifiers = modifiers.filter(function(e) { return e; });
+    if (modifiers.length && modifiers.length) {
+      return '<' + modifiers.join('-') + '-' + key + '>';
+    }
+    if (typeof codeMap[event.which.toString()] === 'string') {
+      return '<' + (event.shiftKey ? 'S-' : '') + key + '>';
+    }
+    return key;
+  };
+
+  var KeyEvents = {
+
+    keypress: function(callback, event) {
+      if (typeof callback === 'function') {
+        callback(event);
+      }
+    },
+
+    keyhandle: function(event, type) {
+      if (type === 'keypress') {
+        // ascii representation of keycode
+        return String.fromCharCode(event.which);
+      } else {
+        // Vim-like representation
+        return parseKeyDown(event);
+      }
+    },
+
+    keydown: function(callback, event) {
+
+      if (Visual.caretModeActive || Visual.visualModeActive) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+
+      // Modifier keys C-A-S-M
+      if ([16,17,18,91].indexOf(event.which) !== -1) {
+        return true;
+      }
+
+      // Don't let the keypress listener attempt to parse the key event
+      // if it contains a modifier (or asciiKey that should be parsed by the parseKeyDown function
+      // such as { return (13) <BR> } or { space (32) <Space> }
+      if ([9,13,32].indexOf(event.which) !== -1 || event.ctrlKey || event.metaKey || event.altKey) {
+        var code = KeyEvents.keyhandle(event, 'keydown');
+        for (var key in Mappings.defaults) {
+          if (Mappings.defaults[key].indexOf(code) !== -1) {
+            event.stopPropagation();
+            break;
+          }
+        }
+        return callback(code, event);
+      // Ugly, but this NEEDS to be checked before setTimeout is called. Otherwise, non-cVim keyboard listeners
+      // will not be stopped. preventDefault on the other hand, can be.
+      } else if (Hints.active || commandMode || (!insertMode && document.getSelection().type === 'None' &&
+                 // Mappings.hasKeybinding(Mappings.queue + String.fromCharCode(event.which)[!event.shiftKey ? 'toLowerCase' : 'slice']())))
+                 Mappings.hasKeybinding(Mappings.queue + KeyEvents.keyhandle(event, 'keydown'))))
+      {
+        event.stopPropagation();
+      }
+
+      // Create a temporary keypress listener to check if a keycode contains an
+      // ascii-representable character
+      var keypressTriggered = false;
+      var boundMethod = KeyEvents.keypress.bind(KeyEvents, function(event) {
+        if (!keypressTriggered) {
+          // found a matching character...
+          // use it if the setTimeout function below hasn't already timed out
+          keypressTriggered = true;
+          callback(KeyEvents.keyhandle(event, 'keypress'), event);
+        }
+      });
+      window.addEventListener('keypress', boundMethod, true);
+
+      // Wait for the keypress listener to find a match
+      window.setTimeout(function() {
+        window.removeEventListener('keypress', boundMethod, true);
+        if (!keypressTriggered) { // keypress match wasn't found
+          callback(KeyEvents.keyhandle(event, 'keydown'), event);
+        }
+      }, 0);
+
+    }
+
+  };
+
+  var listenerFn = function(callback) {
+    this.callback = callback;
+    this.eventFn = KeyEvents.keydown.bind(null, this.callback);
+    this.active = false;
+    return this;
+  };
+  listenerFn.prototype.activate = function() {
+    if (!this.active) {
+      this.active = true;
+      window.addEventListener('keydown', this.eventFn, true);
+    }
+  };
+  listenerFn.prototype.deactivate = function() {
+    if (this.active) {
+      this.active = false;
+      window.removeEventListener('keydown', this.eventFn, true);
+    }
+  };
+  return listenerFn;
+
+})();
+
 var Key = {};
 
-Key.keyMap = {
-  0:   '\\',
-  8:   'BS',
-  9:   'Tab',
-  12:  'Num',
-  13:  'Enter',
-  19:  'Pause',
-  20:  'Caps',
-  27:  'Esc',
-  32:  'Space',
-  33:  'PageUp',
-  34:  'PageDown',
-  35:  'End',
-  36:  'Home',
-  37:  'Left',
-  38:  'Up',
-  39:  'Right',
-  40:  'Down',
-  44:  'Print',
-  45:  'Insert',
-  46:  'Delete',
-  48:  ['0', ')'],
-  49:  ['1', '!'],
-  50:  ['2', '@'],
-  51:  ['3', '#'],
-  52:  ['4', '$'],
-  53:  ['5', '%'],
-  54:  ['6', '^'],
-  55:  ['7', '&'],
-  56:  ['8', '*'],
-  57:  ['9', '('],
-  96:  '0',
-  97:  '1',
-  98:  '2',
-  99:  '3',
-  100: '4',
-  101: '5',
-  102: '6',
-  103: '7',
-  104: '8',
-  105: ['9', ''],
-  106: '*',
-  107: '+',
-  109: '-',
-  111: '/',
-  144: 'Num',
-  186: [';', ':'],
-  188: [',', '<'],
-  189: ['-', '_'],
-  190: ['.', '>'],
-  187: ['=', '+'],
-  191: ['/', '?'],
-  192: ['`', '~'],
-  219: ['[', '{'],
-  221: [']', '}'],
-  220: ['\\', '|'],
-  222: ['\'', '"']
-};
+Key.down = function(asciiKey, e) {
 
-Key.fromKeyCode = function(event) {
-  var key, map;
-  var modifiers = [
-    event.ctrlKey  ? 'C' : '',
-    event.altKey   ? 'A' : '',
-    event.metaKey  ? 'M' : '',
-    event.shiftKey ? 'S' : ''
-  ];
-  Key.shiftKey = event.shiftKey;
-  var hasModifier = event.ctrlKey || event.altKey || event.metaKey;
-  if (this.keyMap.hasOwnProperty(event.which.toString())) {
-    map = this.keyMap[event.which.toString()];
-    if (Array.isArray(map)) {
-      if (!hasModifier) {
-        modifiers.splice(modifiers.indexOf('S'), 1);
-      }
-      key = map[+(event.shiftKey && !hasModifier)];
-    } else {
-      key = map;
-    }
-  } else if (/^F[0-9]+$/.test(event.keyIdentifier)) {
-    key = event.keyIdentifier;
-  } else {
-    key = String.fromCharCode(event.which).toLowerCase();
-    if (event.shiftKey && !hasModifier) {
-      key = key.toUpperCase();
-    }
-  }
-  modifiers = modifiers.compress();
-  if (modifiers.length && hasModifier) {
-    return '<' + modifiers.join('-') + '-' + key + '>';
-  }
-  if (typeof this.keyMap[event.which.toString()] === 'string') {
-    return '<' + (event.shiftKey ? 'S-' : '') + key + '>';
-  }
-  return key;
-};
-
-Key.down = function(e) {
-
-  var asciiKey, escapeKey, isInput;
+  var escapeKey, isInput;
 
   if (Hints.active) {
     e.stopPropagation();
@@ -1124,10 +1226,6 @@ Key.down = function(e) {
     return e.preventDefault();
   }
 
-  if ((e.which >= 16 && e.which <= 18) || e.which === 91 || e.which === 123) {
-    return false;
-  }
-
   if (Cursor.overlay && settings.autohidecursor) {
     Cursor.overlay.style.display = 'block';
     Cursor.wiggleWindow();
@@ -1135,12 +1233,6 @@ Key.down = function(e) {
 
   if (Command.active && document.activeElement && document.activeElement.id === 'cVim-command-bar-input') {
     e.stopPropagation();
-  }
-
-  asciiKey = Key.fromKeyCode(e);
-
-  if (!asciiKey) {
-    return false;
   }
 
   escapeKey = asciiKey === '<Esc>' || asciiKey === '<C-[>';
@@ -1235,7 +1327,7 @@ Key.down = function(e) {
         }
 
         if (Command.type === 'action') {
-          var inputValue = Command.input.value + (e.ctrlKey ? '&!':'');
+          var inputValue = Command.input.value + (e.ctrlKey ? '&!' : '');
           Command.hide(function() {
             Command.execute(inputValue, 1);
           });
@@ -1319,24 +1411,12 @@ Key.up = function(e) {
   }
 };
 
-Key.press = function(e) {
-  if (Command.active || (document.activeElement && document.activeElement.id === 'cVim-command-bar-input')) {
-    if (document.activeElement.value === 'chrome://' && String.fromCharCode(e.which) === '/') {
-      e.preventDefault();
-    }
-    e.stopPropagation();
-  }
-  if (Visual.caretModeActive || Visual.visualModeActive) {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-};
+Key.listener = new KeyListener(Key.down);
 
 removeListeners = function() {
   Key.listenersActive = false;
-  document.removeEventListener('keypress', Key.press, true);
   document.removeEventListener('keyup', Key.up, true);
-  document.removeEventListener('keydown', Key.down, true);
+  Key.listener.deactivate();
 };
 
 addListeners = function() {
@@ -1344,15 +1424,13 @@ addListeners = function() {
     removeListeners();
   }
   Key.listenersActive = true;
-  document.addEventListener('keypress', Key.press, true);
   document.addEventListener('keyup', Key.up, true);
-  document.addEventListener('keydown', Key.down, true);
+  Key.listener.activate();
 };
 
 addListeners();
 
-Key.toggleCvim = function(ev) {
-  var key = Key.fromKeyCode(ev);
+Key.toggleCvim = function(key) {
   if (Mappings.toggleCvim.indexOf(key) !== -1) {
     chrome.runtime.sendMessage({action: 'toggleEnabled'});
   } else if (Mappings.toggleBlacklisted.indexOf(key) !== -1) {
@@ -1366,7 +1444,8 @@ Key.toggleCvim = function(ev) {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-  document.addEventListener('keydown', Key.toggleCvim, true);
+  var toggleListener = new KeyListener(Key.toggleCvim);
+  toggleListener.activate();
 });
 
 window.addEventListener('DOMContentLoaded', function() {
@@ -2830,6 +2909,18 @@ Mappings.handleEscapeKey = function() {
     Find.clear();
     return HUD.hide();
   }
+};
+
+Mappings.hasKeybinding = function(binding) {
+  for (var key in this.defaults) {
+    for (var i = 0; i < this.defaults[key].length; i++) {
+      var pattern = this.defaults[key][i].replace('*', '');
+      if (binding.indexOf(pattern) !== -1) {
+        return true;
+      }
+    }
+  }
+  return false;
 };
 
 Mappings.convertToAction = function(c) {
