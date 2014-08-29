@@ -203,6 +203,7 @@ var Key = {};
 Key.down = function(asciiKey, e) {
 
   var escapeKey, isInput;
+  Key.shiftKey = e.shiftKey;
 
   if (Hints.active) {
     e.stopPropagation();
