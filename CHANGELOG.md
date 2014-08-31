@@ -1,5 +1,9 @@
 #cVim Changelog
 
+## 1.2.58
+ * Fixed issues with certain keys not working with certain keyboard layouts
+ * `<C-a>` insert mapping is now `<C-i>`
+
 ## 1.2.57
  * Miscellaneous bug fixes
 
