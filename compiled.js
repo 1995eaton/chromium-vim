@@ -2583,8 +2583,8 @@ Mappings.shortCutsClone = Object.clone(Mappings.shortCuts);
 Mappings.insertDefaults = {
   deleteWord:        ['<C-y>'],
   deleteForwardWord: ['<C-p>'],
-  beginningOfLine:   ['<C-a>'],
-  editWithVim:       ['<C-i>'],
+  beginningOfLine:   ['<C-i>'],
+  editWithVim:       [],
   endOfLine:         ['<C-e>'],
   deleteToBeginning: ['<C-u>'],
   deleteToEnd:       ['<C-o>'],
