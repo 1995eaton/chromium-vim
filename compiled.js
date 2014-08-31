@@ -1129,6 +1129,7 @@ var KeyListener = (function() {
 
     keydown: function(callback, event) {
 
+      // Alt key hint focus toggle
       if (Hints.active && event.which === 18) {
         return Hints.changeFocus();
       }
@@ -3552,12 +3553,12 @@ HUD.display = function(text, duration) {
   }
 
 };
-var Visual = {};
-
-Visual.queue = '';
-Visual.visualModeActive = false;
-Visual.caretModeActive = false;
-Visual.textNodes = [];
+var Visual = {
+  queue: '',
+  visualModeActive: false,
+  caretModeActive: false,
+  textNodes: []
+};
 
 Visual.getTextNodes = function(callback) {
   var walker = document.createTreeWalker(document.body, 4, null, false);
@@ -3732,78 +3733,83 @@ Visual.movements = {
 };
 
 Visual.action = function(key) {
+
   this.selection = document.getSelection();
-  if (key === 'g') {
-    if (!this.queue.length) {
-      return this.queue += 'g';
-    } else {
-      this.queue = '';
-      if (!this.visualModeActive) {
-        this.selection.modify('move', 'backward', 'documentboundary');
-      } else if (this.visualModeActive) {
-        this.selection.modify('extend', 'backward', 'documentboundary');
+
+  switch (key) {
+    case 'g':
+      if (!this.queue.length) {
+        this.queue += 'g';
+      } else {
+        this.queue = '';
+        this.selection.modify((this.visualModeActive ? 'extend' : 'move'),
+            'backward', 'documentboundary');
+        this.scrollIntoView();
       }
-      return this.scrollIntoView();
-    }
-  } else {
-    this.queue = '';
+      return;
+    case 'v':
+      if (this.lineMode) {
+        HUD.setMessage(' -- VISUAL -- ');
+        this.lineMode = false;
+        return;
+      }
+      this.visualModeActive = !this.visualModeActive;
+      HUD.setMessage(' -- ' +
+          (this.visualModeActive ? 'VISUAL' : 'CARET') +
+          ' -- ');
+      break;
+    case 'V':
+      this.lineMode = !this.lineMode;
+      this.visualModeActive = true;
+      this.enterLineMode();
+      HUD.setMessage(' -- VISUAL LINE -- ');
+      return;
+    default:
+      this.queue = '';
   }
-  if (key === 'v') {
-    if (this.lineMode) {
-      HUD.setMessage(' -- VISUAL -- ');
-      return this.lineMode = false;
-    }
-    this.visualModeActive = !this.visualModeActive;
-    if (!this.visualModeActive) {
-      HUD.setMessage(' -- CARET -- ');
-      return Visual.collapse();
-    } else {
-      HUD.setMessage(' -- VISUAL -- ');
-    }
-  }
-  if (key === 'V') {
-    this.lineMode = !this.lineMode;
-    this.visualModeActive = true;
-    this.enterLineMode();
-    return HUD.setMessage(' -- VISUAL LINE -- ');
-  }
+
   if (this.lineMode) {
-    return this.lineAction(key);
+    this.lineAction(key);
+    return;
   }
   if (this.selection.type === 'Range') {
     this.visualModeActive = true;
   }
+
   var movementType =
     (this.selection.type === 'Range' || this.visualModeActive) ?
     'extend' : 'move';
+
   if (this.movements.hasOwnProperty(key)) {
     this.selection.modify.apply(this.selection, [movementType].concat(this.movements[key]));
-  } else {
-    switch (key) {
-      case 'n':
-      case 'N':
-        if (key === 'N') {
-          Mappings.actions.previousSearchResult(1);
-        } else {
-          Mappings.actions.nextSearchResult(1);
-        }
-        this.focusSearchResult();
-        break;
-      case 'p':
-      case 'P':
-        Clipboard.copy(this.selection.toString());
-        document.getSelection().collapseToEnd();
-        Clipboard.paste(key === 'P');
-        this.exit();
-        break;
-      case 'y':
-        if (movementType === 'extend') {
-          Clipboard.copy(this.selection.toString());
-          Visual.collapse();
-        }
-        break;
-    }
+    return;
   }
+
+  switch (key) {
+    case 'n':
+    case 'N':
+      if (key === 'N') {
+        Mappings.actions.previousSearchResult(1);
+      } else {
+        Mappings.actions.nextSearchResult(1);
+      }
+      this.focusSearchResult();
+      break;
+    case 'p':
+    case 'P':
+      Clipboard.copy(this.selection.toString());
+      this.selection.collapseToEnd();
+      Clipboard.paste(key === 'P');
+      this.exit();
+      break;
+    case 'y':
+      if (movementType === 'extend') {
+        Clipboard.copy(this.selection.toString());
+        Visual.collapse();
+      }
+      break;
+  }
+
   Visual.scrollIntoView();
 };
 var Command = {};

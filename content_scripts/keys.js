@@ -122,6 +122,7 @@ var KeyListener = (function() {
 
     keydown: function(callback, event) {
 
+      // Alt key hint focus toggle
       if (Hints.active && event.which === 18) {
         return Hints.changeFocus();
       }
