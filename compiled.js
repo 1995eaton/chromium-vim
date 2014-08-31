@@ -4610,7 +4610,7 @@ Command.onDOMLoad = function() {
     var manualFocus = false;
     var initialFocus = window.setInterval(function() {
       if (document.activeElement) {
-        if (/input|textarea/i.test(document.activeElement.localName) && !manualFocus) {
+        if (/input|textarea/i.test(document.activeElement.localName) && !manualFocus && document.activeElement.id !== 'cVim-command-bar-input') {
           document.activeElement.blur();
         }
       }
