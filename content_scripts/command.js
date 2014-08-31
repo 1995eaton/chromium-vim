@@ -3,6 +3,7 @@ var settings, sessions;
 
 Command.dataElements = [];
 Command.matches = [];
+Command.lastInputValue = '';
 
 Command.setup = function() {
   this.bar = document.createElement('div');

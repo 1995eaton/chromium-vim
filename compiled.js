@@ -1293,6 +1293,9 @@ Key.down = function(asciiKey, e) {
   }
 
   if (commandMode && document.activeElement.id === 'cVim-command-bar-input') {
+    window.setTimeout(function() {
+      Command.lastInputValue = Command.input.value;
+    }, 0);
     switch (asciiKey) {
       case '<Tab>': // Tab navigation/completion
       case '<S-Tab>':
@@ -1360,7 +1363,7 @@ Key.down = function(asciiKey, e) {
         });
         break;
       default:
-        if (asciiKey === '<BS>' && Command.input.value.length === 0) {
+        if (asciiKey === '<BS>' && Command.lastInputValue.length === 0 && Command.input.value.length === 0) {
           Command.hide();
           e.preventDefault();
           break;
@@ -3830,6 +3833,7 @@ var settings, sessions;
 
 Command.dataElements = [];
 Command.matches = [];
+Command.lastInputValue = '';
 
 Command.setup = function() {
   this.bar = document.createElement('div');
