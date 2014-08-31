@@ -63,9 +63,9 @@ function getTab(sender, reverse, count, first, last) {
 function requestAction(type, request, sender, callback) {
   if (isAction(request.action)) {
     callAction(request.action, {
-      request : request,
-      sender : sender,
-      callback : callback
+      request: request,
+      sender: sender,
+      callback: callback
     });
   }
 }
@@ -86,6 +86,9 @@ chrome.extension.onConnect.addListener(function(_port) {
 
 chrome.commands.onCommand.addListener(function(command) {
   switch (command) {
+    case 'togglecVim':
+      Popup.toggleEnabled({});
+      break;
     case 'nextTab':
     case 'previousTab':
       chrome.tabs.query({active: true, currentWindow: true}, function(e) {

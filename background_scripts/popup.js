@@ -45,7 +45,7 @@ Popup.getActiveState = function(obj) {
 
 Popup.toggleEnabled = function(obj) {
   var request = obj.request;
-  if (request.singleTab) {
+  if (request && request.singleTab) {
     this.getActiveTab(function(tab) {
       chrome.tabs.sendMessage(tab.id, {action: 'toggleEnabled', state: !request.blacklisted});
     });
@@ -56,7 +56,7 @@ Popup.toggleEnabled = function(obj) {
   }
   chrome.tabs.query({}, function(tabs) {
     this.active = !this.active;
-    if (!request.blacklisted) {
+    if (!request || (request && !request.blacklisted)) {
       tabs.map(function(tab) { return tab.id; }).forEach(function(id) {
         chrome.tabs.sendMessage(id, {action: 'toggleEnabled', state: this.active});
         if (this.active) {

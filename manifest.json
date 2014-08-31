@@ -22,6 +22,9 @@
             "default": "Alt+J"
          }
       },
+      "togglecVim": {
+         "description": "Toggle the enabled state of cVim"
+      },
       "nextCompletionResult": {
         "description": "Let Chrome use <C-n> for cncpcompletion setting (see Help file)",
         "suggested_key": {

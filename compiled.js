@@ -1129,6 +1129,10 @@ var KeyListener = (function() {
 
     keydown: function(callback, event) {
 
+      if (Hints.active && event.which === 18) {
+        return Hints.changeFocus();
+      }
+
       // Modifier keys C-A-S-M
       if ([16,17,18,91,123].indexOf(event.which) !== -1) {
         return true;
@@ -1434,24 +1438,6 @@ addListeners = function() {
 };
 
 addListeners();
-
-Key.toggleCvim = function(key) {
-  if (Mappings.toggleCvim.indexOf(key) !== -1) {
-    chrome.runtime.sendMessage({action: 'toggleEnabled'});
-  } else if (Mappings.toggleBlacklisted.indexOf(key) !== -1) {
-    chrome.runtime.sendMessage({action: 'toggleBlacklisted'});
-    chrome.runtime.sendMessage({
-      action: 'toggleEnabled',
-      singleTab: true,
-      blacklisted: Key.listenersActive === true
-    });
-  }
-};
-
-document.addEventListener('DOMContentLoaded', function() {
-  var toggleListener = new KeyListener(Key.toggleCvim);
-  toggleListener.activate();
-});
 
 window.addEventListener('DOMContentLoaded', function() {
   if (self === top) {
@@ -2517,7 +2503,6 @@ Mappings.defaults = {
   pinTab:                  ['gp'],
   moveTabRight:            ['>'],
   moveTabLeft:             ['<'],
-  toggleCvim:              ['<A-z>'],
   goBack:                  ['H', 'S'],
   fullImageHint:           [],
   reverseImage:            ['gr'],
@@ -2555,7 +2540,6 @@ Mappings.defaults = {
   lastScrollPosition:      ['\'\''],
   goToMark:                ['\'*'],
   setMark:                 [';*'],
-  toggleBlacklisted:       [],
   centerMatchT:            ['zt'],
   centerMatchB:            ['zb'],
   centerMatchH:            ['zz'],
@@ -2578,8 +2562,6 @@ Mappings.defaults = {
   shortCuts:               []
 };
 
-Mappings.toggleCvim = [];
-Mappings.toggleBlacklisted = [];
 Mappings.defaultsClone = Object.clone(Mappings.defaults);
 Mappings.shortCutsClone = Object.clone(Mappings.shortCuts);
 
@@ -2819,10 +2801,6 @@ Mappings.parseCustom = function(config) {
       }
     }
   });
-  Mappings.toggleCvim = Mappings.defaults.toggleCvim;
-  Mappings.toggleBlacklisted = Mappings.defaults.toggleBlacklisted;
-  delete Mappings.defaults.toggleCvim;
-  delete Mappings.defaults.toggleBlacklisted;
   Mappings.shortCuts = Mappings.shortCuts.map(function(item) {
     item[1] = item[1].replace(/@%/, document.URL);
     return item;

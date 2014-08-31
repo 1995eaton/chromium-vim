@@ -603,7 +603,6 @@ Mappings.defaults = {
   pinTab:                  ['gp'],
   moveTabRight:            ['>'],
   moveTabLeft:             ['<'],
-  toggleCvim:              ['<A-z>'],
   goBack:                  ['H', 'S'],
   fullImageHint:           [],
   reverseImage:            ['gr'],
@@ -641,7 +640,6 @@ Mappings.defaults = {
   lastScrollPosition:      ['\'\''],
   goToMark:                ['\'*'],
   setMark:                 [';*'],
-  toggleBlacklisted:       [],
   centerMatchT:            ['zt'],
   centerMatchB:            ['zb'],
   centerMatchH:            ['zz'],
@@ -664,8 +662,6 @@ Mappings.defaults = {
   shortCuts:               []
 };
 
-Mappings.toggleCvim = [];
-Mappings.toggleBlacklisted = [];
 Mappings.defaultsClone = Object.clone(Mappings.defaults);
 Mappings.shortCutsClone = Object.clone(Mappings.shortCuts);
 
@@ -905,10 +901,6 @@ Mappings.parseCustom = function(config) {
       }
     }
   });
-  Mappings.toggleCvim = Mappings.defaults.toggleCvim;
-  Mappings.toggleBlacklisted = Mappings.defaults.toggleBlacklisted;
-  delete Mappings.defaults.toggleCvim;
-  delete Mappings.defaults.toggleBlacklisted;
   Mappings.shortCuts = Mappings.shortCuts.map(function(item) {
     item[1] = item[1].replace(/@%/, document.URL);
     return item;
