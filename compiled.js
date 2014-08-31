@@ -4762,7 +4762,7 @@ var ease = {
   outQuart: function(t, b, c, d) {
     return -c * ((t=t/d-1)*t*t*t - 1) + b;
   },
-  outCirc: function (t, b, c, d) {
+  outCirc: function(t, b, c, d) {
     t /= d;
     t--;
     return c * Math.sqrt(1 - t*t) + b;
@@ -4809,7 +4809,7 @@ Scroll.smoothScrollBy = function(x, y) {
 Scroll.scroll = function(type, repeats) {
 
   var stepSize = settings ? settings.scrollstep : 60;
-  
+
   if (document.body) {
     this.lastPosition = [document.body.scrollLeft, document.body.scrollTop];
   }
