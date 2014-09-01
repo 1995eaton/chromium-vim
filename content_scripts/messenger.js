@@ -7,9 +7,9 @@ port.onMessage.addListener(function(response) {
       port.postMessage({action: 'getBookmarks'});
       port.postMessage({action: 'getQuickMarks'});
       port.postMessage({action: 'getSessionNames'});
-      port.postMessage({action: 'getTopSites'});
       port.postMessage({action: 'retrieveAllHistory'});
       port.postMessage({action: 'sendLastSearch'});
+      port.postMessage({action: 'getTopSites'});
       break;
     case 'commandHistory':
       for (key in response.history) {

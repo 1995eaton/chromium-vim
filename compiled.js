@@ -3244,9 +3244,9 @@ port.onMessage.addListener(function(response) {
       port.postMessage({action: 'getBookmarks'});
       port.postMessage({action: 'getQuickMarks'});
       port.postMessage({action: 'getSessionNames'});
-      port.postMessage({action: 'getTopSites'});
       port.postMessage({action: 'retrieveAllHistory'});
       port.postMessage({action: 'sendLastSearch'});
+      port.postMessage({action: 'getTopSites'});
       break;
     case 'commandHistory':
       for (key in response.history) {
@@ -4754,12 +4754,10 @@ var ease = {
 
 Scroll.smoothScrollBy = function(x, y) {
 
-  var isVertical = (y) ? true : false,
-      easeFunc = ease.outExpo,
+  var easeFunc = ease.outExpo,
       i = 0,
       delta = 0;
 
-  this.isScrolling = true;
   if (document.body) {
     if (document.body.scrollTop + y < 0) {
       y = -document.body.scrollTop - 5;
@@ -4768,22 +4766,32 @@ Scroll.smoothScrollBy = function(x, y) {
     }
   }
 
+  var step = (function() {
+    if (y) {
+      y += (y < 0 ? -1 : 1) * 5;
+      y *= 1.002;
+      return function() {
+        var lastDelta = delta;
+        delta = easeFunc(i, 0, y, settings.scrollduration);
+        window.scrollBy(0, delta - lastDelta);
+        return i++;
+      };
+    } else {
+      x += (x < 0 ? -1 : 1) * 5;
+      x *= 1.002;
+      return function() {
+        var lastDelta = delta;
+        delta = Math.round(easeFunc(i, 0, x, settings.scrollduration));
+        window.scrollBy(delta - lastDelta, 0);
+        return i++;
+      };
+    }
+  })();
+
   function animLoop() {
-
-    if (isVertical) {
-      window.scrollBy(0, Math.round(easeFunc(i, 0, y, settings.scrollduration) - delta));
-    } else {
-      window.scrollBy(Math.round(easeFunc(i, 0, x, settings.scrollduration) - delta), 0);
-    }
-
-    if (i < settings.scrollduration) {
+    if (step() < settings.scrollduration) {
       window.requestAnimationFrame(animLoop);
-    } else {
-      Scroll.isScrolling = false;
     }
-
-    delta = easeFunc(i, 0, (x || y), settings.scrollduration);
-    i += 1;
   }
 
   animLoop();
