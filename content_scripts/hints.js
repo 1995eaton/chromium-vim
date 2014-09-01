@@ -4,12 +4,16 @@ Hints.matchPatterns = function(forward) {
   var pattern = new RegExp('^' + (forward ? settings.nextmatchpattern : settings.previousmatchpattern) + '$', 'gi');
   var nodeIterator = document.createNodeIterator(document.body, 4, null, false);
   var node;
+  var isGoogleSearch = location.hostname + location.pathname === 'www.google.com/search';
   while (node = nodeIterator.nextNode()) {
     var localName = node.localName;
     if (/script|style|noscript/.test(localName)) {
       continue;
     }
     var nodeText = node.data.trim();
+    if (isGoogleSearch && nodeText === 'More') {
+      continue;
+    }
     if (pattern.test(nodeText)) {
       var parentNode = node.parentNode;
       if (/a|button/.test(parentNode.localName) || parentNode.getAttribute('jsaction') || parentNode.getAttribute('onclick')) {
