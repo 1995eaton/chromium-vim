@@ -1,6 +1,6 @@
-var GitHub, Complete = {}, GitHubCache = {};
+var Complete = {};
 
-Complete.engines = ['google', 'wikipedia', 'youtube', 'imdb', 'amazon', 'google-maps', 'github', 'wolframalpha', 'google-image', 'ebay', 'webster', 'wictionary', 'urbandictionary', 'duckduckgo', 'answers', 'google-trends', 'google-finance', 'yahoo', 'bing'];
+Complete.engines = ['google', 'wikipedia', 'youtube', 'imdb', 'amazon', 'google-maps', 'wolframalpha', 'google-image', 'ebay', 'webster', 'wictionary', 'urbandictionary', 'duckduckgo', 'answers', 'google-trends', 'google-finance', 'yahoo', 'bing'];
 
 Complete.aliases = {
   g: 'google'
@@ -17,7 +17,6 @@ Complete.getAlias = function(alias) {
 Complete.requestUrls = {
   wikipedia:      'https://en.wikipedia.org/wiki/',
   google:         'https://www.google.com/search?q=',
-  github:         'https://github.com/search?q=',
   'google-image': 'https://www.google.com/search?site=imghp&tbm=isch&source=hp&q=',
   'google-maps':  'https://www.google.com/maps/search/',
   duckduckgo:     'https://duckduckgo.com/?q=',
@@ -39,7 +38,6 @@ Complete.requestUrls = {
 Complete.baseUrls = {
   wikipedia:      'https://en.wikipedia.org/wiki/Main_Page',
   google:         'https://www.google.com',
-  github:         'https://github.com/',
   'google-image': 'http://www.google.com/imghp',
   'google-maps':  'https://www.google.com/maps/preview',
   duckduckgo:     'https://duckduckgo.com',
@@ -82,7 +80,6 @@ Complete.parseQuery = {
 Complete.apis = {
   wikipedia:      'https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=%s',
   google:         'https://www.google.com/complete/search?client=firefox&hl=en&q=%s',
-  github:         '',
   'google-image': 'http://www.google.com/complete/search?client=img&hl=en&gs_rn=43&gs_ri=img&ds=i&cp=1&gs_id=8&q=%s',
   yahoo:          'https://search.yahoo.com/sugg/gossip/gossip-us-ura/?output=sd1&appid=search.yahoo.com&nresults=20&command=%s',
   answers:        'https://search.yahoo.com/sugg/ss/gossip-us_ss-vertical_ss/?output=sd1&pubid=1307&appid=yanswer&command=%s&nresults=20',
@@ -141,9 +138,6 @@ Complete.convertToLink = function(input) {
   }
   input[0] = this.getAlias(input[0]) || input[0];
   if (Complete.engines.indexOf(input[0]) !== -1) {
-    if (input[0] === 'github') {
-      return GitHub.parseInput(input.slice(1));
-    }
     if (input.length > 1) {
       prefix = Complete.requestUrls[input[0]];
     } else {
@@ -384,52 +378,4 @@ Complete.imdb = function(query, callback) {
       return [e.l + ' - ' + e.s, _url];
     }));
   }, cVimError);
-};
-
-GitHub = {
-  parseInput: function(input) {
-    if (input.length === 1) {
-      return 'https://github.com/' + input[0].slice(1);
-    }
-    return Complete.requestUrls.github + encodeURIComponent(input.join(' '));
-  }
-};
-
-Complete.github = function(query, callback) {
-  var users = 'https://github.com/command_bar/users?q=%s',
-      repos = 'https://github.com/command_bar/repos_for/%s';
-  // paths = 'https://github.com/command_bar/%user/%repository/paths/%branchname?sha=1&q=';
-  if (query.length <= 1) {
-    return callback([['@&lt;USER&gt;/&lt;REPOSITORY&gt;', 'github @']]);
-  }
-  if (/^@[a-zA-Z_\-0-9]+$/.test(query)) {
-    httpRequest({
-      url: users.embedString(encodeURIComponent(query.slice(1))),
-      json: true
-    }).then(function(response) {
-      return callback(response.results.map(function(e) {
-        return [e.command];
-      }));
-    }, cVimError);
-  } else if (/^@[a-zA-Z_\-0-9]+\/[^ ]*$/.test(query)) {
-
-    var slashPosition = query.indexOf('/');
-
-    if (GitHubCache[query.slice(1, slashPosition)] === void 0) {
-      httpRequest({
-        url: repos.embedString(encodeURIComponent(query.slice(1, -1))),
-        json: true
-      }).then(function(response) {
-        GitHubCache[query.slice(1, slashPosition)] = response.results.map(function(e) {
-          return ['@' + e.command];
-        });
-        return callback(GitHubCache[query.slice(1, slashPosition)]);
-      }, cVimError);
-    } else {
-      return callback(GitHubCache[query.slice(1, slashPosition)].filter(function(e) {
-        return e[0].indexOf(query) === 0;
-      }));
-    }
-
-  }
 };
