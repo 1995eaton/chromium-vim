@@ -1920,6 +1920,7 @@ var Mappings = {
 
 Mappings.actions = {
 
+  '<Nop>': function() {},
   toggleVisualMode: function() {
     if (!Command.domElementsLoaded) {
       return false;
@@ -2712,115 +2713,116 @@ Mappings.insertCommand = function(modifier, callback) {
   });
 };
 
-Mappings.removeMapping = function(list, mapping) {
-  for (var key in list) {
-    if (Array.isArray(list[key])) {
-      while (list[key].indexOf(mapping) !== -1) {
-        list[key].splice(list[key].indexOf(mapping), 1);
-      }
-    }
-  }
-};
-
-Mappings.indexFromKeybinding = function(keybinding) {
-  for (var key in this.defaults) {
-    if (Array.isArray(this.defaults[key]) && this.defaults[key].indexOf(keybinding) !== -1) {
+Mappings.indexFromKeybinding = function(obj, keybinding) {
+  for (var key in obj) {
+    if (Array.isArray(obj[key]) && obj[key].indexOf(keybinding) !== -1) {
       return key;
     }
   }
   return null;
 };
 
+Mappings.unmapAll = function(obj, map) {
+  if (map.length === 1) {
+    Object.keys(obj).forEach(function(key) {
+      if (Array.isArray(obj[key])) {
+        obj[key] = [];
+      }
+    });
+    if (obj.hasOwnProperty('shortCuts')) {
+      Mappings.shortCuts = [];
+    }
+  }
+};
+
+Mappings.removeConflicts = function(obj, mapping) {
+  for (var key in obj) {
+    if (Array.isArray(obj[key])) {
+      obj[key] = obj[key].filter(function(e) {
+        if (e === mapping || mapping.indexOf(e) === 0 || e.indexOf(mapping) === 0) {
+          return false;
+        }
+        return true;
+      });
+    }
+  }
+};
+
+Mappings.map = function(obj, map) {
+  if (map.length < 3) {
+    return;
+  }
+  map[1] = map[1].replace(/<([a-zA-Z]-)+/g, function(e) {
+    return e.toUpperCase();
+  });
+  this.removeConflicts(obj, map[1]);
+  if (map[2].charAt(0) === ':' && obj.hasOwnProperty('shortCuts')) {
+    Mappings.shortCuts.push([map[1], map.slice(2).join(' ')]);
+    return;
+  }
+  if (obj.hasOwnProperty(map[2])) {
+    obj[map[2]].push(map[1]);
+    return;
+  }
+  var existingSlot = this.indexFromKeybinding(obj, map[2]);
+  if (existingSlot) {
+    obj[existingSlot].push(map[1]);
+  } else if (obj.hasOwnProperty('shortCuts')) {
+    for (var i = 0; i < this.shortCuts.length; i++) {
+      if (this.shortCuts[i][0] === map[2]) {
+        this.shortCuts.push([map[1], this.shortCuts[i][1]]);
+        break;
+      }
+    }
+  }
+};
+
+Mappings.unmap = function(obj, map) {
+  if (map.length !== 2) {
+    return;
+  }
+  for (var key in obj) {
+    obj[key] = obj[key].filter(function(e) {
+      return e !== map[1];
+    });
+  }
+  if (obj.hasOwnProperty('shortCuts')) {
+    Mappings.shortCuts = Mappings.shortCuts.filter(function(e) {
+      return e[0] !== map[1];
+    });
+  }
+};
+
+Mappings.parseLine = function(line) {
+  var mapping = line.split(/ +/).compress();
+  if (mapping.length === 0) {
+    return;
+  }
+  switch (mapping[0]) {
+    case 'unmapAll':
+      return Mappings.unmapAll(Mappings.defaults, mapping);
+    case 'iunmapAll':
+      return Mappings.unmapAll(Mappings.insertDefaults, mapping);
+    case 'map':
+    case 'remap':
+      return Mappings.map(Mappings.defaults, mapping);
+    case 'imap':
+    case 'iremap':
+      return Mappings.map(Mappings.insertDefaults, mapping);
+    case 'iunmap':
+      return Mappings.unmap(Mappings.insertDefaults, mapping);
+    case 'unmap':
+      return Mappings.unmap(Mappings.defaults, mapping);
+  }
+};
+
 Mappings.parseCustom = function(config) {
   config += this.siteSpecificBlacklists;
-  config = config.split(/\n+/).map(function(item) {
-    return item.split(/ +/).compress();
-  }).compress();
-  config.forEach(function(mapping) {
-    var key;
-    if (mapping.length === 0) {
-      return false;
-    }
-    if (!/^(imap|(re)?map|i?unmap(All)?)$/.test(mapping[0]) ||
-        (mapping.length < 3 && /^((re)?map|imap)$/.test(mapping[0]))) {
-      return false;
-    }
-
-    if (mapping.length === 1) {
-      if (mapping[0] === 'unmapAll') {
-        for (key in Mappings.defaults) {
-          if (Array.isArray(Mappings.defaults[key])) {
-            Mappings.defaults[key] = [];
-          }
-        }
-        Mappings.shortCuts = [];
-      } else if (mapping[0] === 'iunmapAll') {
-        for (key in Mappings.insertDefaults) {
-          if (Array.isArray(Mappings.insertDefaults[key])) {
-            Mappings.insertDefaults[key] = [];
-          }
-        }
-      }
-      return;
-    }
-
-    if (mapping[0] === 'map' || mapping[0] === 'remap') {
-      mapping[1] = mapping[1].replace(/<c(-s-)?/i, function(e) {
-        return e.toUpperCase();
-      }).replace(/<leader>/i, settings.mapleader);
-      var fromKey = Mappings.indexFromKeybinding(mapping[2]);
-      for (key in Mappings.defaults) {
-        if (Array.isArray(Mappings.defaults[key])) {
-          var match = Mappings.defaults[key].indexOf(mapping[1]);
-          if (match !== -1) {
-            Mappings.defaults[key].splice(match, 1);
-          }
-          if (fromKey !== null) {
-            Mappings.defaults[fromKey].push(mapping[1]);
-          }
-        }
-      }
-      if (mapping[2][0] === ':') {
-        return Mappings.shortCuts.push([mapping[1], mapping.slice(2).join(' ')]);
-      }
-      if (Object.keys(Mappings.defaults).indexOf(mapping[2]) !== -1) {
-        return Mappings.defaults[mapping[2]].push(mapping[1]);
-      }
-      return;
-    }
-
-    if (mapping[0] === 'imap') {
-      mapping.shift();
-      mapping[0] = mapping[0].replace(/<c(-s-)?/i, function(e) {
-        return e.toUpperCase();
-      });
-      if (Mappings.insertDefaults.hasOwnProperty(mapping[1])) {
-        return Mappings.insertDefaults[mapping[1]].push(mapping[0]);
-      }
-      return;
-    }
-
-    if (mapping.length === 2) {
-      mapping[1] = mapping[1].replace(/<c(-s-)?/i, function(e) {
-        return e.toUpperCase();
-      });
-      if (mapping[0] === 'iunmap') {
-        return Mappings.removeMapping(Mappings.insertDefaults, mapping[1]);
-      }
-      if (mapping[0] === 'unmap') {
-        Mappings.removeMapping(Mappings.defaults, mapping[1]);
-        Mappings.shortCuts = Mappings.shortCuts.filter(function(item) {
-          return item[0] !== mapping[1];
-        });
-      }
-    }
-  });
+  config.split('\n').compress().forEach(Mappings.parseLine);
   Mappings.shortCuts = Mappings.shortCuts.map(function(item) {
     item[1] = item[1].replace(/@%/, document.URL);
-    return item;
-  });
-  Mappings.shortCuts.forEach(function(item) {
     Mappings.defaults.shortCuts.push(item[0]);
+    return item;
   });
 };
 
@@ -2828,9 +2830,9 @@ Mappings.executeSequence = function(c, r) {
   if (!c.length) {
     return;
   }
-  if (/^[0-9]+/.test(c)) {
-    r = c.match(/^[0-9]+/)[0];
-    c = c.replace(/^[0-9]+/, '');
+  if (/^\d+/.test(c)) {
+    r = c.match(/^\d+/)[0];
+    c = c.replace(/^\d+/, '');
     this.repeats = r;
     if (!c.length) {
       return;
@@ -2873,7 +2875,8 @@ Mappings.handleEscapeKey = function() {
           setIndex: false,
           executeSearch: false,
           reverse: true,
-          saveSearch: true });
+          saveSearch: true
+        });
         Find.index = Find.lastIndex - 1;
         Find.search(false, 1, false);
       }
@@ -4026,8 +4029,8 @@ Command.descriptions = [
   ['tabnew',       'Open a link in a new tab'],
   ['tabnext',      'Switch to the next open tab'],
   ['tabprevious',  'Switch to the previous open tab'],
-  ['new',      'Open a link in a new window'],
-  ['buffer',      'Select from a list of current tabs'],
+  ['new',          'Open a link in a new window'],
+  ['buffer',       'Select from a list of current tabs'],
   ['history',      'Search through your browser history'],
   ['bookmarks',    'Search through your bookmarks'],
   ['file',         'Browse local directories'],
@@ -4038,6 +4041,8 @@ Command.descriptions = [
   ['restore',      'Open a recently closed tab'],
   ['mksession',    'Create a saved session of current tabs'],
   ['delsession',   'Delete sessions'],
+  ['map',          'Map a command'],
+  ['unmap',        'Unmap a command'],
   ['tabattach',    'Move current tab to another window'],
   ['chrome://',    'Opens Chrome urls'],
   ['duplicate',    'Clone the current tab'],
@@ -4492,6 +4497,11 @@ Command.execute = function(value, repeats) {
     }, function() {
       Status.setMessage('session does not exist', 1, 'error');
     });
+  }
+
+  if (/^((i?(re)?map)|i?unmap(All)?)+/.test(value)) {
+    Mappings.parseLine(value);
+    return;
   }
 
   if (/^set +/.test(value) && value !== 'set') {

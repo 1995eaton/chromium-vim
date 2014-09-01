@@ -199,8 +199,8 @@ Command.descriptions = [
   ['tabnew',       'Open a link in a new tab'],
   ['tabnext',      'Switch to the next open tab'],
   ['tabprevious',  'Switch to the previous open tab'],
-  ['new',      'Open a link in a new window'],
-  ['buffer',      'Select from a list of current tabs'],
+  ['new',          'Open a link in a new window'],
+  ['buffer',       'Select from a list of current tabs'],
   ['history',      'Search through your browser history'],
   ['bookmarks',    'Search through your bookmarks'],
   ['file',         'Browse local directories'],
@@ -211,6 +211,8 @@ Command.descriptions = [
   ['restore',      'Open a recently closed tab'],
   ['mksession',    'Create a saved session of current tabs'],
   ['delsession',   'Delete sessions'],
+  ['map',          'Map a command'],
+  ['unmap',        'Unmap a command'],
   ['tabattach',    'Move current tab to another window'],
   ['chrome://',    'Opens Chrome urls'],
   ['duplicate',    'Clone the current tab'],
@@ -665,6 +667,11 @@ Command.execute = function(value, repeats) {
     }, function() {
       Status.setMessage('session does not exist', 1, 'error');
     });
+  }
+
+  if (/^((i?(re)?map)|i?unmap(All)?)+/.test(value)) {
+    Mappings.parseLine(value);
+    return;
   }
 
   if (/^set +/.test(value) && value !== 'set') {
