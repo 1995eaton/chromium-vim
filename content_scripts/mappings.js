@@ -822,10 +822,18 @@ Mappings.unmapAll = function(obj, map) {
 };
 
 Mappings.removeConflicts = function(obj, mapping) {
+  var mrep = mapping.replace(/<[^>]+>/g, '#');
   for (var key in obj) {
     if (Array.isArray(obj[key])) {
       obj[key] = obj[key].filter(function(e) {
-        if (e === mapping || mapping.indexOf(e) === 0 || e.indexOf(mapping) === 0) {
+        if (e === mapping) {
+          return false;
+        }
+        var erep = e.replace(/<[^>]+>/g, '#');
+        if (mapping.indexOf(e) === 0 && mrep.indexOf(erep) === 0) {
+          return false;
+        }
+        if (e.indexOf(mapping) === 0 && erep.indexOf(mrep) === 0) {
           return false;
         }
         return true;
