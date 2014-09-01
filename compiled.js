@@ -628,17 +628,26 @@ window.googleReverseImage = function(url, source) {
 // ------------ End reverse image
 
 window.getVisibleBoundingRect = function(node) {
-  var boundingRect = node.getClientRects()[0] || node.getBoundingClientRect();
+  var i;
+  var boundingRect = node.getBoundingClientRect();
+  if (boundingRect.width <= 1 && boundingRect.height <= 1) {
+    var rects = node.getClientRects();
+    for (i = 0; i < rects.length; i++) {
+      if (rects[i].width > rects[0].height && rects[i].height > rects[0].height) {
+        boundingRect = rects[i];
+      }
+    }
+  }
+  if (boundingRect === void 0) {
+    return false;
+  }
   if (boundingRect.top > window.innerHeight || boundingRect.left > window.innerWidth) {
     return false;
   }
-  if (boundingRect.width === 1 || boundingRect.height === 1) {
-    return false;
-  }
-  if (boundingRect.width === 0 || boundingRect.height === 0) {
+  if (boundingRect.width <= 1 || boundingRect.height <= 1) {
     var children = node.children;
     var visibleChildNode = false;
-    for (var i = 0, l = children.length; i < l; ++i) {
+    for (i = 0, l = children.length; i < l; ++i) {
       boundingRect = children[i].getClientRects()[0] || children[i].getBoundingClientRect();
       if (boundingRect.width > 1 && boundingRect.height > 1) {
         visibleChildNode = true;
