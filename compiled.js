@@ -4618,7 +4618,7 @@ Command.onDOMLoad = function() {
         window.clearInterval(initialFocus);
       }
     }, 5);
-    var initialKeyDown = document.addEventListener('keydown', function() {
+    var initialKeyDown = window.addEventListener('keydown', function() {
       manualFocus = true;
       document.removeEventListener('keydown', initialKeyDown, true);
     }, true);
