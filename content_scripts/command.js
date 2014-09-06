@@ -827,7 +827,6 @@ Command.onDOMLoad = function() {
 Command.init = function(enabled) {
   var key;
   Mappings.defaults = Object.clone(Mappings.defaultsClone);
-  Mappings.shortCuts = Object.clone(Mappings.shortCutsClone);
   Mappings.parseCustom(settings.MAPPINGS);
   if (enabled) {
     this.loaded = true;

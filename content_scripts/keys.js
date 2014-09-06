@@ -152,7 +152,7 @@ var KeyListener = (function() {
       // Ugly, but this NEEDS to be checked before setTimeout is called. Otherwise, non-cVim keyboard listeners
       // will not be stopped. preventDefault on the other hand, can be.
       } else if (commandMode || (!insertMode && document.getSelection().type === 'None' &&
-                 Mappings.matchesMapping(Mappings.queue + KeyEvents.keyhandle(event, 'keydown'))))
+                 mappings.at(Mappings.queue + KeyEvents.keyhandle(event, 'keydown'))))
       {
         event.stopPropagation();
       }

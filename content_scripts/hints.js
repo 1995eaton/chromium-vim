@@ -332,7 +332,7 @@ Hints.evaluateLink = function(link, linkIndex) {
     if (linkLocation.left < 0) {
       linkStyle.left = document.body.scrollLeft + 'px';
     } else {
-      if (l.offsetLeft > linkLocation.left) {
+      if (linkLocation.offsetLeft > linkLocation.left) {
         linkStyle.left = link.offsetLeft * this.documentZoom + 'px';
       } else {
         linkStyle.left = linkLocation.left * this.documentZoom + document.body.scrollLeft + 'px';

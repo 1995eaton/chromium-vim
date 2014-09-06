@@ -111,7 +111,6 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
       break;
     case 'sendSettings':
       Mappings.defaults = Object.clone(Mappings.defaultsClone);
-      Mappings.shortCuts = Object.clone(Mappings.shortCutsClone);
       if (!Command.initialLoadStarted) {
         Command.configureSettings(request.settings);
       } else {
