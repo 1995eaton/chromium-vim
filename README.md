@@ -201,6 +201,7 @@ let blacklists = ["*://*/*.pdf <Up> <Down>"]
 | &lt;N&gt;gn&gt;           | open quickmark &lt;*&gt; in a new tab &lt;N&gt; times                 | openQuickMarkTabbed             |
 | **Miscellaneous**         |                                                                       |                                 |
 | a                         | alias to ":tabnew google "                                            | :tabnew google                  |
+| .                         | repeat the last command                                               | repeatCommand                   |
 | :                         | open command bar                                                      | openCommandBar                  |
 | &lt;A-z&gt;               | toggle cVim (same as disable cVim option in toolbar icon)             | toggleCvim                      |
 | unmapped                  | toggle the blacklist on the current domain                            | toggleBlacklisted               |

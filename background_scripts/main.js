@@ -1,7 +1,8 @@
 var sessions = {},
     Frames = {},
     ActiveTabs = {},
-    TabHistory = {};
+    TabHistory = {},
+    lastCommand = null;
 
 chrome.tabs.onUpdated.addListener(function(id, changeInfo) {
   if (changeInfo.hasOwnProperty('url')) {

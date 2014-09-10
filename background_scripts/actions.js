@@ -29,6 +29,18 @@ function isRepeat(request) {
 
 // Normal extension connections
 
+actions.updateLastCommand = function() {
+  lastCommand = request.data;
+  chrome.tabs.query({currentWindow: true}, function(tabs) {
+    tabs.forEach(function(tab) {
+      chrome.tabs.sendMessage(tab.id, {
+        action: 'updateLastCommand',
+        data: request.data
+      });
+    });
+  });
+};
+
 actions.openLink = function() {
   if (request.tab.tabbed) {
     for (var i = 0; i < request.repeats; ++i) {
@@ -596,6 +608,12 @@ actions.getBookmarkPath = function() {
       callback({type: 'bookmarkPath', path: e});
     });
   });
+};
+
+actions.getLastCommand = function() {
+  if (lastCommand) {
+    callback({type: 'updateLastCommand', data: lastCommand});
+  }
 };
 
 actions.getFilePath = function() {

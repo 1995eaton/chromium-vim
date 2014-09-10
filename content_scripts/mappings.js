@@ -8,6 +8,12 @@ var Mappings = {
   siteSpecificBlacklists: ''
 };
 
+Mappings.lastCommand = {
+  fn: '',
+  queue: '',
+  repeats: 1
+};
+
 Mappings.actions = {
 
   '<Nop>': function() {},
@@ -311,8 +317,8 @@ Mappings.actions = {
     window.scrollTo.apply(null, Scroll.lastPosition);
     Scroll.lastPosition = currentPosition;
   },
-  goToMark: function(repeats, queue) {
-    var key = queue.slice(-1);
+  goToMark: function(repeats) {
+    var key = Mappings.lastCommand.queue.slice(-1);
     if (Scroll.positions.hasOwnProperty(key)) {
       Scroll.lastPosition = [document.body.scrollLeft, document.body.scrollTop];
       window.scrollTo.apply(null, Scroll.positions[key]);
@@ -320,8 +326,8 @@ Mappings.actions = {
       Status.setMessage('Mark not set', 1, 'error');
     }
   },
-  setMark: function(repeats, queue) {
-    Scroll.positions[queue.slice(-1)] = [document.body.scrollLeft, document.body.scrollTop];
+  setMark: function(repeats) {
+    Scroll.positions[Mappings.lastCommand.queue.slice(-1)] = [document.body.scrollLeft, document.body.scrollTop];
   },
   createHint: function() {
     window.setTimeout(function() {
@@ -395,14 +401,14 @@ Mappings.actions = {
       Search.nextResult(true);
     }
   },
-  addQuickMark: function(repeats, queue) {
-    Marks.addQuickMark(queue.slice(-1));
+  addQuickMark: function(repeats) {
+    Marks.addQuickMark(Mappings.lastCommand.queue.slice(-1));
   },
-  openQuickMark: function(repeats, queue) {
-    Marks.openQuickMark(queue.slice(-1), false, repeats);
+  openQuickMark: function(repeats) {
+    Marks.openQuickMark(Mappings.lastCommand.queue.slice(-1), false, repeats);
   },
-  openQuickMarkTabbed: function(repeats, queue) {
-    Marks.openQuickMark(queue.slice(-1), true, repeats);
+  openQuickMarkTabbed: function(repeats) {
+    Marks.openQuickMark(Mappings.lastCommand.queue.slice(-1), true, repeats);
   },
   insertMode: function() {
     if (Command.domElementsLoaded) {
@@ -553,6 +559,11 @@ Mappings.actions = {
     Command.hide();
     commandMode = true;
     return Command.show(false);
+  },
+  repeatCommand: function(repeats) {
+    if (this.hasOwnProperty(Mappings.lastCommand.fn)) {
+      this[Mappings.lastCommand.fn](Mappings.lastCommand.repeats * repeats);
+    }
   }
 
 };
@@ -663,6 +674,7 @@ Mappings.defaults = [
   ['/', 'openSearchBar' ],
   ['?', 'openSearchBarReverse' ],
   [':', 'openCommandBar' ],
+  ['.', 'repeatCommand']
 ];
 
 Mappings.defaultsClone = Object.clone(Mappings.defaults);
@@ -874,6 +886,7 @@ Mappings.handleEscapeKey = function() {
 
   this.queue = '';
   this.repeats = '';
+  node = mappings;
 
   if (commandMode) {
     if (Command.type === 'search') {
@@ -922,6 +935,14 @@ Mappings.handleEscapeKey = function() {
   }
 };
 
+Mappings.nonRepeatableCommands = [
+  'scrollDown',
+  'scrollUp',
+  'scrollLeft',
+  'scrollRight',
+  'reloadTab'
+];
+
 Mappings.convertToAction = function(c) {
   if (c === '<Esc>' || c === '<C-[>') {
     return this.handleEscapeKey();
@@ -948,7 +969,7 @@ Mappings.convertToAction = function(c) {
     return (c === ';' ? Hints.changeFocus() : Hints.handleHint(c));
   }
 
-  if (/^[0-9]$/.test(c) && !(c === '0' && Mappings.repeats === '') && Mappings.queue.length === 0) {
+  if (/^[0-9]$/.test(c) && !(c === '0' && Mappings.repeats === '')) {
     Mappings.repeats += c;
     return;
   }
@@ -972,7 +993,20 @@ Mappings.convertToAction = function(c) {
     if (node.value.indexOf(':') === 0) {
       Mappings.actions.shortCuts(node.value, +Mappings.repeats || 1);
     } else {
-      Mappings.actions[node.value](+Mappings.repeats || 1, this.queue);
+      if (node.value !== 'repeatCommand') {
+        if (Mappings.nonRepeatableCommands.indexOf(node.value) === -1) {
+          Mappings.lastCommand.queue = Mappings.queue;
+          Mappings.lastCommand.repeats = +Mappings.repeats || 1;
+          Mappings.lastCommand.fn = node.value;
+        }
+        Mappings.actions[node.value](Mappings.lastCommand.repeats);
+        chrome.runtime.sendMessage({
+          action: 'updateLastCommand',
+          data: JSON.stringify(Mappings.lastCommand)
+        });
+      } else {
+        Mappings.actions.repeatCommand(+Mappings.repeats || 1);
+      }
     }
     Mappings.queue = '';
     Mappings.repeats = '';

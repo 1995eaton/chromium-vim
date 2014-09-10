@@ -10,6 +10,10 @@ port.onMessage.addListener(function(response) {
       port.postMessage({action: 'retrieveAllHistory'});
       port.postMessage({action: 'sendLastSearch'});
       port.postMessage({action: 'getTopSites'});
+      port.postMessage({action: 'getLastCommand'});
+      break;
+    case 'updateLastCommand':
+      Mappings.lastCommand = JSON.parse(response.data);
       break;
     case 'commandHistory':
       for (key in response.history) {
@@ -90,6 +94,9 @@ port.onMessage.addListener(function(response) {
 
 chrome.extension.onMessage.addListener(function(request, sender, callback) {
   switch (request.action) {
+    case 'updateLastCommand':
+      Mappings.lastCommand = JSON.parse(request.data);
+      break;
     case 'getWindows':
       if (request.windows && Command.active === true) {
         Command.completions = {
