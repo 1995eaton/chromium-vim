@@ -1,6 +1,7 @@
 var Scroll = {};
 Scroll.positions = {};
 
+
 var ease = {
   outSine: function(t, b, c, d) {
     return c * Math.sin(t/d * (Math.PI/2)) + b;
@@ -27,50 +28,85 @@ var ease = {
   }
 };
 
-Scroll.smoothScrollBy = function(x, y) {
-
-  var easeFunc = ease.outExpo,
-      i = 0,
-      delta = 0;
-
-  if (document.body) {
-    if (document.body.scrollTop + y < 0) {
-      y = -document.body.scrollTop - 5;
-    } else if (document.body.scrollTop + window.innerHeight + y > document.body.scrollHeight) {
-      y = document.body.scrollHeight - window.innerHeight - document.body.scrollTop + 5;
-    }
-  }
-
-  var step = (function() {
-    if (y) {
-      y += (y < 0 ? -1 : 1) * 5;
-      y *= 1.002;
-      return function() {
-        var lastDelta = delta;
-        delta = easeFunc(i, 0, y, settings.scrollduration);
-        window.scrollBy(0, delta - lastDelta);
-        return i++;
-      };
+(function() {
+  var animationYFrame;
+  var animationXFrame;
+  var scroll = {
+    x0: 0,
+    y0: 0,
+    x1: 0,
+    y1: 0,
+    tx: 0,
+    ty: 0
+  };
+  var easeFn = ease.outExpo;
+  var scrollYFunction = function() {
+    var delta = easeFn(scroll.ty++,
+        scroll.y0,
+        scroll.y1 - scroll.y0,
+        settings.scrollduration);
+    scroll.y0 = delta;
+    window.scrollTo(window.scrollX, scroll.y0);
+    if (scroll.ty < settings.scrollduration && Math.abs(scroll.y1 - scroll.y0) > 1) {
+      animationYFrame = window.requestAnimationFrame(scrollYFunction);
     } else {
-      x += (x < 0 ? -1 : 1) * 5;
-      x *= 1.002;
-      return function() {
-        var lastDelta = delta;
-        delta = Math.round(easeFunc(i, 0, x, settings.scrollduration));
-        window.scrollBy(delta - lastDelta, 0);
-        return i++;
-      };
+      window.cancelAnimationFrame(animationYFrame);
+      scroll.y0 = 0;
+      scroll.y1 = 0;
+      scroll.ty = 0;
     }
-  })();
-
-  function animLoop() {
-    if (step() < settings.scrollduration) {
-      window.requestAnimationFrame(animLoop);
+  };
+  var scrollXFunction = function() {
+    var delta = easeFn(scroll.tx++,
+        scroll.x0,
+        scroll.x1 - scroll.x0,
+        settings.scrollduration);
+    scroll.x0 = delta;
+    window.scrollTo(scroll.x0, window.scrollY);
+    if (scroll.tx < settings.scrollduration && Math.abs(scroll.x1 - scroll.x0) > 1) {
+      animationXFrame = window.requestAnimationFrame(scrollXFunction);
+    } else {
+      window.cancelAnimationFrame(animationXFrame);
+      scroll.x0 = 0;
+      scroll.x1 = 0;
+      scroll.tx = 0;
     }
-  }
-
-  animLoop();
-};
+  };
+  Scroll.smoothScrollTo = function(x, y) {
+    if (x !== window.scrollX) {
+      window.cancelAnimationFrame(animationXFrame);
+      scroll.x0 = window.scrollX;
+      scroll.x1 = x;
+      scroll.tx = 0;
+      scrollXFunction();
+    }
+    if (y !== window.scrollY) {
+      window.cancelAnimationFrame(animationYFrame);
+      scroll.y0 = window.scrollY;
+      scroll.y1 = y;
+      scroll.ty = 0;
+      scrollYFunction();
+    }
+  };
+  Scroll.smoothScrollBy = function(x, y) {
+    var oldDy = scroll.y1 - scroll.y0;
+    var oldDx = scroll.x1 - scroll.x0;
+    if (x) {
+      window.cancelAnimationFrame(animationXFrame);
+      scroll.x0 = window.scrollX;
+      scroll.x1 = oldDx + scroll.x0 + x;
+      scroll.tx = 0;
+      scrollXFunction();
+    }
+    if (y) {
+      window.cancelAnimationFrame(animationYFrame);
+      scroll.y0 = window.scrollY;
+      scroll.y1 = oldDy + scroll.y0 + y;
+      scroll.ty = 0;
+      scrollYFunction();
+    }
+  };
+})();
 
 Scroll.scroll = function(type, repeats) {
 
@@ -102,10 +138,10 @@ Scroll.scroll = function(type, repeats) {
         Scroll.smoothScrollBy(0, -repeats * window.innerHeight * (settings.fullpagescrollpercent / 100 || 0.85));
         break;
       case 'top':
-        Scroll.smoothScrollBy(0, -document.body.scrollTop - 10);
+        Scroll.smoothScrollBy(0, -document.body.scrollTop);
         break;
       case 'bottom':
-        Scroll.smoothScrollBy(0, document.body.scrollHeight - document.body.scrollTop - window.innerHeight + 10);
+        Scroll.smoothScrollBy(0, document.body.scrollHeight - document.body.scrollTop - window.innerHeight + 20);
         break;
       case 'left':
         Scroll.smoothScrollBy(repeats * -stepSize / 2, 0);
