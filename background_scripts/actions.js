@@ -387,7 +387,7 @@ actions.createSession = function() {
       action: 'sessions',
       sessions: Object.keys(sessions).map(function(e) {
         return [e, Object.keys(sessions[e]).length.toString() +
-          ' tab' + (Object.keys(sessions[e]).length === 1 ? '' : 's')];
+        ' tab' + (Object.keys(sessions[e]).length === 1 ? '' : 's')];
       })
     });
   });
@@ -542,7 +542,7 @@ actions.injectCSS = function() {
 
 actions.urlToBase64 = function() {
   var img = new Image();
-  img.onload = function () {
+  img.onload = function() {
     var canvas = document.createElement('canvas');
     canvas.width = this.width;
     canvas.height = this.height;

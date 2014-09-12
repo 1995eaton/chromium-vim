@@ -48,7 +48,7 @@ Bookmarks.getPath = function(m, p, callback, initialPath) {
       folder = item;
     }
     if (p[0] && item.title.substring(0, p[0].length).toLowerCase() === p[0].toLowerCase()) {
-    _ret.push([item.title, (item.url || 'folder'), initialPath]);
+      _ret.push([item.title, (item.url || 'folder'), initialPath]);
     }
     if (p.length === 0) {
       if (!matchFound) {

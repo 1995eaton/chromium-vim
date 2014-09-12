@@ -25,7 +25,7 @@ var defaultSettings = {
   defaultnewtabpage: false,
   dimhintcharacters: true,
   smoothscroll: true,
-  scrollduration: 20,
+  scrollduration: 75,
   locale: '',
   mapleader: '\\',
   timeoutlen: 1000,
@@ -143,7 +143,7 @@ chrome.storage[storageMethod].get('settings', function(data) {
   this.updateBlacklistsMappings();
 }.bind(Options));
 
-chrome.runtime.onMessage.addListener(function (request, sender) {
+chrome.runtime.onMessage.addListener(function(request, sender) {
   if (Options.hasOwnProperty(request.action)) {
     Options[request.action](request, sender);
   }
