@@ -263,7 +263,12 @@ Hints.handleHintFeedback = function() {
             span.appendChild(link.firstChild.cloneNode(true));
             link.replaceChild(span, link.firstChild);
           } else if (link.textContent.length !== 1) {
-            link.firstChild.deleteData(null, 1);
+            span = document.createElement('span');
+            span.setAttribute('cVim', true);
+            span.className = 'cVim-link-hint_match_hidden';
+            link.firstChild.splitText(stringNum.length);
+            span.appendChild(link.firstChild.cloneNode(true));
+            link.replaceChild(span, link.firstChild);
           }
         }
         index = i.toString();
