@@ -164,127 +164,127 @@ let blacklists = ["*://*/*.pdf <Up> <Down>"]
 
 | Movement                  |                                                                       | Mapping name                    |
 | ------------------------- | :-------------------------------------------------------------------- | :------------------------------ |
-| j, s                      | scroll down                                                           | scrollDown                      |
-| k, w                      | scroll up                                                             | scrollUp                        |
-| h                         | scroll left                                                           | scrollLeft                      |
-| l                         | scroll right                                                          | scrollRight                     |
-| d                         | scroll half-page down                                                 | scrollPageDown                  |
+| `j`, `s`                  | scroll down                                                           | scrollDown                      |
+| `k`, `w`                  | scroll up                                                             | scrollUp                        |
+| `h`                       | scroll left                                                           | scrollLeft                      |
+| `l`                       | scroll right                                                          | scrollRight                     |
+| `d`                       | scroll half-page down                                                 | scrollPageDown                  |
 | unmapped                  | scroll full-page down                                                 | scrollFullPageDown              |
-| u, e                      | scroll half-page up                                                   | scrollPageUp                    |
+| `u`, `e`                  | scroll half-page up                                                   | scrollPageUp                    |
 | unmapped                  | scroll full-page up                                                   | scrollFullPageUp                |
-| gg                        | scroll top the top of the page                                        | scrollToTop                     |
-| G                         | scroll to the bottom of the page                                      | scrollToBottom                  |
-| 0                         | scroll to the left of the page                                        | scrollToLeft                    |
-| $                         | scroll to the right of the page                                       | scrollToRight                   |
-| gi                        | go to first input box                                                 | goToInput                       |
-| gI                        | go to the last focused input box by `gi`                              | goToLastInput                   |
-| zz                        | center page to current search match (middle)                          | centerMatchH                    |
-| zt                        | center page to current search match (top)                             | centerMatchT                    |
-| zb                        | center page to current search match (bottom)                          | centerMatchB                    |
+| `gg`                      | scroll top the top of the page                                        | scrollToTop                     |
+| `G`                       | scroll to the bottom of the page                                      | scrollToBottom                  |
+| `0`                       | scroll to the left of the page                                        | scrollToLeft                    |
+| `$`                       | scroll to the right of the page                                       | scrollToRight                   |
+| `gi`                      | go to first input box                                                 | goToInput                       |
+| `gI`                      | go to the last focused input box by `gi`                              | goToLastInput                   |
+| `zz`                      | center page to current search match (middle)                          | centerMatchH                    |
+| `zt`                      | center page to current search match (top)                             | centerMatchT                    |
+| `zb`                      | center page to current search match (bottom)                          | centerMatchB                    |
 | **Link Hints**            |                                                                       |                                 |
-| f                         | open link in current tab                                              | createHint                      |
-| F                         | open link in new tab                                                  | createTabbedHint                |
+| `f`                       | open link in current tab                                              | createHint                      |
+| `F`                       | open link in new tab                                                  | createTabbedHint                |
 | unmapped                  | open link in new tab (active)                                         | createActiveTabbedHint          |
-| W                         | open link in new window                                               | createHintWindow                |
-| A                         | repeat last hint command                                              | openLastHint                    |
-| q                         | trigger a hover event (mouseover + mouseenter)                        | createHoverHint                 |
-| Q                         | trigger a unhover event (mouseout + mouseleave)                       | createUnhoverHint               |
-| mf                        | open multiple links                                                   | createMultiHint                 |
-| mr                        | reverse image search multiple links                                   | multiReverseImage               |
-| my                        | yank multiple links (open the list of links with P)                   | multiYankUrl                    |
-| gy                        | copy url from link to clipboard                                       | yankUrl                         |
-| gr                        | reverse image search (google images)                                  | reverseImage                    |
-| ;                         | change the link hint focus                                            |                                 |
+| `W`                       | open link in new window                                               | createHintWindow                |
+| `A`                       | repeat last hint command                                              | openLastHint                    |
+| `q`                       | trigger a hover event (mouseover + mouseenter)                        | createHoverHint                 |
+| `Q`                       | trigger a unhover event (mouseout + mouseleave)                       | createUnhoverHint               |
+| `mf`                      | open multiple links                                                   | createMultiHint                 |
+| `mr`                      | reverse image search multiple links                                   | multiReverseImage               |
+| `my`                      | yank multiple links (open the list of links with P)                   | multiYankUrl                    |
+| `gy`                      | copy url from link to clipboard                                       | yankUrl                         |
+| `gr`                      | reverse image search (google images)                                  | reverseImage                    |
+| `;`                       | change the link hint focus                                            |                                 |
 | **QuickMarks**            |                                                                       |                                 |
-| M&lt;*&gt;                | create quickmark &lt;*&gt;                                            | addQuickMark                    |
-| go&lt;*&gt;               | open quickmark &lt;*&gt; in the current tab                           | openQuickMark                   |
-| &lt;N&gt;gn&gt;           | open quickmark &lt;*&gt; in a new tab &lt;N&gt; times                 | openQuickMarkTabbed             |
+| `M<*>`                    | create quickmark &lt;*&gt;                                            | addQuickMark                    |
+| `go<*>`                   | open quickmark &lt;*&gt; in the current tab                           | openQuickMark                   |
+| `gn<*>`                   | open quickmark &lt;*&gt; in a new tab &lt;N&gt; times                 | openQuickMarkTabbed             |
 | **Miscellaneous**         |                                                                       |                                 |
-| a                         | alias to ":tabnew google "                                            | :tabnew google                  |
-| .                         | repeat the last command                                               | repeatCommand                   |
-| :                         | open command bar                                                      | openCommandBar                  |
-| &lt;A-z&gt;               | toggle cVim (same as disable cVim option in toolbar icon)             | toggleCvim                      |
+| `a`                       | alias to ":tabnew google "                                            | :tabnew google                  |
+| `.`                       | repeat the last command                                               | repeatCommand                   |
+| `:`                       | open command bar                                                      | openCommandBar                  |
+| `<A-z>`                   | toggle cVim (same as disable cVim option in toolbar icon)             | toggleCvim                      |
 | unmapped                  | toggle the blacklist on the current domain                            | toggleBlacklisted               |
-| /                         | open search bar                                                       | openSearchBar                   |
-| ?                         | open search bar (reverse search)                                      | openSearchBarReverse            |
-| I                         | search through browser history                                        | :history                        |
-| &lt;N&gt;g%               | scroll &lt;N&gt; percent down the page                                | percentScroll                   |
-| zr                        | restart Google Chrome                                                 | :chrome://restart&lt;CR&gt;     |
-| i                         | enter insert mode (escape to exit)                                    | insertMode                      |
-| r                         | reload the current tab                                                | reloadTab                       |
-| gR                        | reload the current tab + local cache                                  | reloadTabUncached               |
-| ;&lt;*&gt;                | create mark &lt;*&gt;                                                 | setMark                         |
-| ''                        | go to last scroll position                                            | lastScrollPosition              |
-| '&lt;*&gt;                | go to mark &lt;*&gt;                                                  | goToMark                        |
+| `/`                       | open search bar                                                       | openSearchBar                   |
+| `?`                       | open search bar (reverse search)                                      | openSearchBarReverse            |
+| `I`                       | search through browser history                                        | :history                        |
+| `<N>g%`                   | scroll &lt;N&gt; percent down the page                                | percentScroll                   |
+| `zr`                      | restart Google Chrome                                                 | :chrome://restart&lt;CR&gt;     |
+| `i`                       | enter insert mode (escape to exit)                                    | insertMode                      |
+| `r`                       | reload the current tab                                                | reloadTab                       |
+| `gR`                      | reload the current tab + local cache                                  | reloadTabUncached               |
+| `;<*>`                    | create mark &lt;*&gt;                                                 | setMark                         |
+| `''`                      | go to last scroll position                                            | lastScrollPosition              |
+| `'<*>`                    | go to mark &lt;*&gt;                                                  | goToMark                        |
 | none                      | reload all tabs                                                       | reloadAllTabs                   |
-| cr                        | reload all tabs but current                                           | reloadAllButCurrent             |
-| zi                        | zoom page in                                                          | zoomPageIn                      |
-| zo                        | zoom page out                                                         | zoomPageOut                     |
-| z0                        | zoom page to original size                                            | zoomOrig                        |
-| z&lt;Enter&gt;            | toggle image zoom (same as clicking the image on image-only pages)    | toggleImageZoom                 |
-| gd                        | alias to :chrome://downloads&lt;CR&gt;                                | :chrome://downloads&lt;CR&gt;   |
-| yy                        | copy the url of the current page to the clipboard                     | yankDocumentUrl                 |
-| b                         | search through bookmarks                                              | :bookmarks                      |
-| p                         | open the clipboard selection                                          | openPaste                       |
-| P                         | open the clipboard selection in a new tab                             | openPasteTab                    |
-| ci                        | toggle visibility of images on the current webpage                    | toggleImages                    |
-| gj                        | hide the download shelf                                               | hideDownloadsShelf              |
-| gf                        | cycle through iframes                                                 | nextFrame                       |
-| gF                        | go to the root frame                                                  | rootFrame                       |
-| gq                        | stop the current tab from loading                                     | cancelWebRequest                |
-| gQ                        | stop all tabs from loading                                            | cancelAllWebRequests            |
-| gu                        | go up one path in the URL                                             | goUpUrl                         |
-| gU                        | go to to the base URL                                                 | goToRootUrl                     |
-| gs                        | go to the view-source:// page for the current Url                     | goToSource                      |
+| `cr`                      | reload all tabs but current                                           | reloadAllButCurrent             |
+| `zi`                      | zoom page in                                                          | zoomPageIn                      |
+| `zo`                      | zoom page out                                                         | zoomPageOut                     |
+| `z0`                      | zoom page to original size                                            | zoomOrig                        |
+| `z<Enter>`                | toggle image zoom (same as clicking the image on image-only pages)    | toggleImageZoom                 |
+| `gd`                      | alias to :chrome://downloads&lt;CR&gt;                                | :chrome://downloads&lt;CR&gt;   |
+| `yy`                      | copy the url of the current page to the clipboard                     | yankDocumentUrl                 |
+| `b`                       | search through bookmarks                                              | :bookmarks                      |
+| `p`                       | open the clipboard selection                                          | openPaste                       |
+| `P`                       | open the clipboard selection in a new tab                             | openPasteTab                    |
+| `ci`                      | toggle visibility of images on the current webpage                    | toggleImages                    |
+| `gj`                      | hide the download shelf                                               | hideDownloadsShelf              |
+| `gf`                      | cycle through iframes                                                 | nextFrame                       |
+| `gF`                      | go to the root frame                                                  | rootFrame                       |
+| `gq`                      | stop the current tab from loading                                     | cancelWebRequest                |
+| `gQ`                      | stop all tabs from loading                                            | cancelAllWebRequests            |
+| `gu`                      | go up one path in the URL                                             | goUpUrl                         |
+| `gU`                      | go to to the base URL                                                 | goToRootUrl                     |
+| `gs`                      | go to the view-source:// page for the current Url                     | goToSource                      |
 | **Tab Navigation**        |                                                                       |                                 |
-| gt, K, R                  | navigate to the next tab                                              | nextTab                         |
-| gT, J, E                  | navigate to the previous tab                                          | previousTab                     |
-| g0, g$                    | go to the first/last tab                                              | firstTab, lastTab               |
-| &lt;C-S-h&gt;, gh         | open the last URL in the current tab's history in a new tab           | openLastLinkInTab               |
-| &lt;C-S-l&gt;, gl         | open the next URL from the current tab's history in a new tab         | openNextLinkInTab               |
-| x                         | close the current tab                                                 | quit                            |
-| gxT                       | close the tab to the left of the current tab                          | closeTabLeft                    |
-| gxt                       | close the tab to the right of the current tab                         | closeTabRight                   |
-| gx0                       | close all tabs to the left of the current tab                         | closeTabsToLeft                 |
-| gx$                       | close all tabs to the right of the current tab                        | closeTabsToRight                |
-| X                         | open the last closed tab                                              | lastClosedTab                   |
-| t                         | :tabnew                                                               | :tabnew                         |
-| T                         | :tabnew &lt;CURRENT URL&gt;                                           | :tabnew @%                      |
-| O                         | :open &lt;CURRENT URL&gt;                                             | :open @%                        |
-| &lt;N&gt;%                | switch to tab &lt;N&gt;                                               | goToTab                         |
-| H, S                      | go back                                                               | goBack                          |
-| L, D                      | go forward                                                            | goForward                       |
-| B                         | search for another active tab                                         | :buffer                         |
-| &lt;                      | move current tab left                                                 | moveTabLeft                     |
-| &gt;                      | move current tab right                                                | moveTabRight                    |
-| ]]                        | click the "next" link on the page (see nextmatchpattern above)        | nextMatchPattern                |
-| [[                        | click the "back" link on the page (see previousmatchpattern above)    | previousMatchPattern            |
-| gp                        | pin/unpin the current tab                                             | pinTab                          |
+| `gt`, `K`, `R`            | navigate to the next tab                                              | nextTab                         |
+| `gT`, `J`, `E`            | navigate to the previous tab                                          | previousTab                     |
+| `g0`, `g$`                | go to the first/last tab                                              | firstTab, lastTab               |
+| `<C-S-h>`, `gh`           | open the last URL in the current tab's history in a new tab           | openLastLinkInTab               |
+| `<C-S-l>`, `gl`           | open the next URL from the current tab's history in a new tab         | openNextLinkInTab               |
+| `x`                       | close the current tab                                                 | quit                            |
+| `gxT`                     | close the tab to the left of the current tab                          | closeTabLeft                    |
+| `gxt`                     | close the tab to the right of the current tab                         | closeTabRight                   |
+| `gx0`                     | close all tabs to the left of the current tab                         | closeTabsToLeft                 |
+| `gx$`                     | close all tabs to the right of the current tab                        | closeTabsToRight                |
+| `X`                       | open the last closed tab                                              | lastClosedTab                   |
+| `t`                       | :tabnew                                                               | :tabnew                         |
+| `T`                       | :tabnew &lt;CURRENT URL&gt;                                           | :tabnew @%                      |
+| `O`                       | :open &lt;CURRENT URL&gt;                                             | :open @%                        |
+| `<N>%`                    | switch to tab &lt;N&gt;                                               | goToTab                         |
+| `H`, `S`                  | go back                                                               | goBack                          |
+| `L`, `D`                  | go forward                                                            | goForward                       |
+| `B`                       | search for another active tab                                         | :buffer                         |
+| `<`                       | move current tab left                                                 | moveTabLeft                     |
+| `>`                       | move current tab right                                                | moveTabRight                    |
+| `]]`                      | click the "next" link on the page (see nextmatchpattern above)        | nextMatchPattern                |
+| `[[`                      | click the "back" link on the page (see previousmatchpattern above)    | previousMatchPattern            |
+| `gp`                      | pin/unpin the current tab                                             | pinTab                          |
 | **Find Mode**             |                                                                       |                                 |
-| n                         | next search result                                                    | nextSearchResult                |
-| N                         | previous search result                                                | previousSearchResult            |
-| v                         | enter visual/caret mode (highlight current search/selection)          | toggleVisualMode                |
-| V                         | enter visual line mode from caret mode/currently highlighted search   | toggleVisualLineMode            |
+| `n`                       | next search result                                                    | nextSearchResult                |
+| `N`                       | previous search result                                                | previousSearchResult            |
+| `v`                       | enter visual/caret mode (highlight current search/selection)          | toggleVisualMode                |
+| `V`                       | enter visual line mode from caret mode/currently highlighted search   | toggleVisualLineMode            |
 | **Visual/Caret Mode**     |                                                                       |                                 |
-| escape                    | exit visual mode to caret mode/exit caret mode to normal mode         |                                 |
-| v                         | toggle between visual/caret mode                                      |                                 |
-| h, j, k, l                | move the caret position/extend the visual selection                   |                                 |
-| y                         | copys the current selection                                           |                                 |
-| n                         | select the next search result                                         |                                 |
-| N                         | select the previous search result                                     |                                 |
-| p                         | open highlighted text in current tab                                  |                                 |
-| P                         | open highlighted text in new tab                                      |                                 |
+| `<Esc>`                   | exit visual mode to caret mode/exit caret mode to normal mode         |                                 |
+| `v`                       | toggle between visual/caret mode                                      |                                 |
+| `h`, `j`, `k`, `l`        | move the caret position/extend the visual selection                   |                                 |
+| `y`                       | copys the current selection                                           |                                 |
+| `n`                       | select the next search result                                         |                                 |
+| `N`                       | select the previous search result                                     |                                 |
+| `p`                       | open highlighted text in current tab                                  |                                 |
+| `P`                       | open highlighted text in new tab                                      |                                 |
 | **Text boxes**            |                                                                       |                                 |
-| &lt;C-i&gt;               | move cursor to the beginning of the line                              | beginningOfLine                 |
-| &lt;C-e&gt;               | move cursor to the end of the line                                    | endOfLine                       |
-| &lt;C-u&gt;               | delete to the beginning of the line                                   | deleteToBeginning               |
-| &lt;C-o&gt;               | delete to the end of the line                                         | deleteToEnd                     |
-| &lt;C-y&gt;               | delete back one word                                                  | deleteWord                      |
-| &lt;C-p&gt;               | delete forward one word                                               | deleteForwardWord               |
-| &lt;C-h&gt;               | move cursor back one word                                             | backwardWord                    |
-| &lt;C-l&gt;               | move cursor forward one word                                          | forwardWord                     |
-| &lt;C-f&gt;               | move cursor forward one letter                                        | forwardChar                     |
-| &lt;C-b&gt;               | move cursor back one letter                                           | backwardChar                    |
+| `<C-i>`                   | move cursor to the beginning of the line                              | beginningOfLine                 |
+| `<C-e>`                   | move cursor to the end of the line                                    | endOfLine                       |
+| `<C-u>`                   | delete to the beginning of the line                                   | deleteToBeginning               |
+| `<C-o>`                   | delete to the end of the line                                         | deleteToEnd                     |
+| `<C-y>`                   | delete back one word                                                  | deleteWord                      |
+| `<C-p>`                   | delete forward one word                                               | deleteForwardWord               |
+| `<C-h>`                   | move cursor back one word                                             | backwardWord                    |
+| `<C-l>`                   | move cursor forward one word                                          | forwardWord                     |
+| `<C-f>`                   | move cursor forward one letter                                        | forwardChar                     |
+| `<C-b>`                   | move cursor back one letter                                           | backwardChar                    |
 
 #Command Mode
 

@@ -1,7 +1,7 @@
 var Scroll = {};
 Scroll.positions = {};
 
-var ease = {
+var Easing = {
   // jQuery Easing v1.3 - http://gsgd.co.uk/sandbox/jquery/easing/
   // Open source under the BSD License.
   // Copyright © 2008 George McGinley Smith
@@ -197,112 +197,110 @@ var ease = {
   }
 };
 
-(function() {
-  var animationYFrame;
-  var animationXFrame;
+(function($) {
+
+  var animationYFrame, animationXFrame,
+      scrollXFunction, scrollYFunction;
+
+  var easeFn = Easing.outExpo;
+  var timeFn = typeof window.performance === 'undefined' ?
+    Date.now : performance.now.bind(performance);
+
   var scroll = {
-    x0: 0,
-    y0: 0,
-    xc: 0,
-    x1: 0,
-    y1: 0,
-    yc: 0,
-    tx: 0,
-    txo: 0,
-    tyo: 0,
-    ty: 0,
-    dx: 0,
-    dy: 0
+    x0:   0, // starting x position
+    x1:   0, // ending x position
+    xc:   0, // delta-x during scroll
+    tx:   0, // delta-t
+    txo:  0, // last time measurement
+    dx:   0, // x-duration
+    y0:   0,
+    y1:   0,
+    yc:   0,
+    ty:   0,
+    tyo:  0,
+    dy:   0
   };
-  var easeFn = ease.outExpo;
-  var scrollYFunction = function() {
-    var delta = easeFn(scroll.ty,
-        scroll.y0,
-        scroll.y1 - scroll.y0,
-        scroll.dy);
-    var time = Date.now();
+
+  scrollYFunction = function() {
+    var delta = easeFn(scroll.ty, scroll.y0, scroll.y1 - scroll.y0, scroll.dy);
+    var time = timeFn();
     scroll.yc = delta;
     scroll.ty += time - scroll.tyo;
     scroll.tyo = time;
-    window.scrollTo(window.scrollX, delta);
-    if (scroll.ty < scroll.dy) {
-      animationYFrame = window.requestAnimationFrame(scrollYFunction);
+    $.scrollTo($.scrollX, delta);
+    if (scroll.ty <= scroll.dy) {
+      animationYFrame = $.requestAnimationFrame(scrollYFunction);
     } else {
-      window.cancelAnimationFrame(animationYFrame);
-      window.scrollTo(window.scrollX, scroll.y1);
-      scroll.y0 = 0;
-      scroll.yc = 0;
-      scroll.y1 = 0;
-      scroll.ty = 0;
+      $.cancelAnimationFrame(animationYFrame);
+      $.scrollTo($.scrollX, scroll.y1);
+      scroll.y0 = scroll.y1 = scroll.yc = scroll.ty = 0;
     }
   };
-  var scrollXFunction = function() {
-    var delta = easeFn(scroll.tx++,
-        scroll.x0,
-        scroll.x1 - scroll.x0,
-        scroll.dx);
-    var time = Date.now();
+
+  scrollXFunction = function() {
+    var delta = easeFn(scroll.tx, scroll.x0, scroll.x1 - scroll.x0, scroll.dx);
+    var time = timeFn();
     scroll.xc = delta;
     scroll.tx += time - scroll.txo;
     scroll.txo = time;
-    window.scrollTo(delta, window.scrollY);
-    if (scroll.tx < scroll.dx) {
-      animationXFrame = window.requestAnimationFrame(scrollXFunction);
+    $.scrollTo(delta, $.scrollY);
+    if (scroll.tx <= scroll.dx) {
+      animationXFrame = $.requestAnimationFrame(scrollXFunction);
     } else {
-      window.cancelAnimationFrame(animationXFrame);
-      window.scrollTo(scroll.x1, window.scrollY);
-      scroll.x0 = 0;
-      scroll.x1 = 0;
-      scroll.xc = 0;
-      scroll.tx = 0;
+      $.cancelAnimationFrame(animationXFrame);
+      $.scrollTo(scroll.x1, $.scrollY);
+      scroll.x0 = scroll.x1 = scroll.xc = scroll.tx = 0;
     }
   };
-  window.setSmoothScrollEaseFN = function(fn) {
+
+  $.setSmoothScrollEaseFN = function(fn) {
     easeFn = fn;
   };
-  window.smoothScrollTo = function(x, y, d) {
-    window.cancelAnimationFrame(animationXFrame);
-    window.cancelAnimationFrame(animationYFrame);
-    scroll.dx = d;
-    scroll.dy = d;
-    if (x !== window.scrollX) {
-      scroll.x0 = window.scrollX;
+
+  $.smoothScrollTo = function(x, y, d) {
+    $.cancelAnimationFrame(animationXFrame);
+    $.cancelAnimationFrame(animationYFrame);
+    scroll.dx = scroll.dy = d;
+    if (x !== $.scrollX) {
+      scroll.x0 = $.scrollX;
       scroll.x1 = x;
       scroll.tx = 0;
-      scroll.txo = Date.now();
+      scroll.txo = timeFn();
       scrollXFunction();
     }
-    if (y !== window.scrollY) {
-      scroll.y0 = window.scrollY;
+    if (y !== $.scrollY) {
+      scroll.y0 = $.scrollY;
       scroll.y1 = y;
       scroll.ty = 0;
-      scroll.tyo = Date.now();
+      scroll.tyo = timeFn();
       scrollYFunction();
     }
   };
-  window.smoothScrollBy = function(x, y, d) {
-    var oldDy = scroll.y1 - scroll.yc;
-    var oldDx = scroll.x1 - scroll.xc;
+
+  $.smoothScrollBy = function(x, y, d) {
     if (x) {
-      window.cancelAnimationFrame(animationXFrame);
+      var oldDx = scroll.x1 - scroll.xc;
+      $.cancelAnimationFrame(animationXFrame);
       scroll.dx = d;
-      scroll.x0 = window.scrollX;
+      scroll.x0 = $.scrollX;
       scroll.x1 = oldDx + scroll.x0 + x;
       scroll.tx = 0;
-      scroll.txo = Date.now();
+      scroll.txo = timeFn();
       scrollXFunction();
     }
     if (y) {
-      window.cancelAnimationFrame(animationYFrame);
+      var oldDy = scroll.y1 - scroll.yc;
+      $.cancelAnimationFrame(animationYFrame);
       scroll.dy = d;
-      scroll.y0 = window.scrollY;
+      scroll.y0 = $.scrollY;
       scroll.y1 = oldDy + scroll.y0 + y;
       scroll.ty = 0;
-      scroll.tyo = Date.now();
+      scroll.tyo = timeFn();
       scrollYFunction();
     }
   };
-})();
+
+})(this);
 
 Scroll.scroll = function(type, repeats) {
 
