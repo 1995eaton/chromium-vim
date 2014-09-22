@@ -638,7 +638,7 @@ window.googleReverseImage = function(url, source) {
 
 window.getVisibleBoundingRect = function(node) {
   var i;
-  var boundingRect = node.getBoundingClientRect();
+  var boundingRect = node.getClientRects()[0] || node.getBoundingClientRect();
   if (boundingRect.width <= 1 && boundingRect.height <= 1) {
     var rects = node.getClientRects();
     for (i = 0; i < rects.length; i++) {
