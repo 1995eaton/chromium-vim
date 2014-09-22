@@ -19,6 +19,7 @@ marked.setOptions({
 var makeHTML = function(data) {
   return '<!DOCTYPE html><html><head>' +
          '<link rel="stylesheet" href="./markdown.css">' +
+         '<link rel="stylesheet" href="../content_scripts/main.css">' +
          '<script src="../compiled.js"></script>' +
          '<script src="../init.js"></script>' +
          '</head>' + marked(data) + '</html>';
