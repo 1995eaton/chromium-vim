@@ -394,20 +394,7 @@ actions.createSession = function() {
 };
 
 actions.openBookmarkFolder = function() {
-  Bookmarks.getFolderLinks(request.path, function(e) {
-    if (e.length > 5) {
-      chrome.tabs.sendMessage(sender.tab.id, {
-        action: 'confirm',
-        message: 'Open ' + e.length + ' tabs?'
-      }, function(response) {
-        if (response) {
-          Links.multiOpen(e);
-        }
-      });
-    } else {
-      Links.multiOpen(e);
-    }
-  });
+  Bookmarks.getFolderLinks(request.path, Links.multiOpen);
 };
 
 actions.deleteSession = function() {

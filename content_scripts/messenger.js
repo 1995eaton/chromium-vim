@@ -125,9 +125,6 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
         settings = request.settings;
       }
       break;
-    case 'confirm':
-      callback(confirm(request.message));
-      break;
     case 'cancelAllWebRequests':
       window.stop();
       break;
