@@ -1171,6 +1171,7 @@ var KeyListener = (function() {
 
   var parseKeyDown = function(event) {
     var key, map;
+    var isFKey = false;
     var modifiers = [
       event.ctrlKey  ? 'C' : '',
       event.altKey   ? 'A' : '',
@@ -1188,6 +1189,7 @@ var KeyListener = (function() {
         key = map;
       }
     } else if (/^F[0-9]+$/.test(event.keyIdentifier)) {
+      isFKey = true;
       key = event.keyIdentifier;
     } else {
       key = String.fromCharCode(event.which).toLowerCase();
@@ -1201,7 +1203,7 @@ var KeyListener = (function() {
     modifiers = modifiers.filter(function(e) { return e; });
     if (modifiers.length) {
       key = '<' + modifiers.join('-') + '-' + key + '>';
-    } else if (typeof codeMap[event.which.toString()] === 'string') {
+    } else if (typeof codeMap[event.which.toString()] === 'string' || isFKey) {
       key = '<' + (event.shiftKey ? 'S-' : '') + key + '>';
     }
     return key;
@@ -1221,6 +1223,7 @@ var KeyListener = (function() {
         return String.fromCharCode(event.which);
       } else {
         // Vim-like representation
+        log(parseKeyDown(event));
         return parseKeyDown(event);
       }
     },
