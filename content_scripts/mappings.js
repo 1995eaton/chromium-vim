@@ -694,103 +694,99 @@ Mappings.insertDefaults = [
   ['<C-h>', 'backwardWord' ],
 ];
 
-Mappings.insertFunctions = {
-  editWithVim: function() {
-    if (this.externalVimReq) {
-      this.externalVimReq.abort();
+Mappings.insertFunctions = (function() {
+
+  var selection = document.getSelection();
+
+  function modify() {
+    if (arguments.length === 3) {
+      selection.modify.apply(selection, arguments);
+      return;
     }
-    this.externalVimReq = new XMLHttpRequest();
-    var textbox = document.activeElement;
-    this.externalVimReq.open('POST', 'http://127.0.0.1:8001');
-    this.externalVimReq.onreadystatechange = function() {
-      if (this.readyState === 4 && this.status === 200) {
-        textbox.value = this.responseText.replace(/\n$/, ''); // Avoid ending newline
-      }
-    };
-    this.externalVimReq.send(textbox.value);
-  },
-  deleteWord: function() {
-    var activeElement = document.activeElement,
-        left = activeElement.value.slice(0, activeElement.selectionStart),
-        right = activeElement.value.slice(activeElement.selectionStart);
-    if (activeElement.id === 'cVim-command-bar-input') {
-      left = left.replace(/[^\/ ]*\/*\s*$/, '');
-    } else {
-      left = left.replace(/([a-zA-Z0-9_]+|[^a-zA-Z0-9\s]+)+[\n ]*$/, '');
-    }
-    activeElement.value = left + right;
-    activeElement.selectionStart -= activeElement.value.length - left.length;
-    activeElement.selectionEnd = activeElement.selectionStart;
-    return true;
-  },
-  beginningOfLine: function() {
-    document.activeElement.selectionStart = 0;
-    document.activeElement.selectionEnd = 0;
-    return true;
-  },
-  endOfLine: function() {
-    document.activeElement.selectionStart = document.activeElement.value.length;
-    document.activeElement.selectionEnd = document.activeElement.selectionStart;
-    return true;
-  },
-  deleteToBeginning: function() {
-    document.activeElement.value =
-      document.activeElement.value.slice(document.activeElement.selectionStart - 1, -1);
-    document.activeElement.selectionStart = 0;
-    document.activeElement.selectionEnd = 0;
-    return true;
-  },
-  deleteToEnd: function() {
-    document.activeElement.value =
-      document.activeElement.value.substring(0, document.activeElement.selectionStart);
-    return true;
-  },
-  forwardChar: function() {
-    document.activeElement.selectionStart += 1;
-    return true;
-  },
-  backwardChar: function() {
-    document.activeElement.selectionStart -= 1;
-    document.activeElement.selectionEnd -= 1;
-    return true;
-  },
-  forwardWord: function() {
-    var aval = (document.activeElement.value + ' ').slice(document.activeElement.selectionStart, -1);
-    var diff = aval.length - aval.replace(/^([a-zA-Z_]+|[^a-zA-Z\s]+)[\s\n]*/, '').length;
-    if (diff === 0) {
-      document.activeElement.selectionStart = document.activeElement.value.length;
-    } else {
-      document.activeElement.selectionStart += diff;
-    }
-    return true;
-  },
-  backwardWord: function() {
-    var aval = document.activeElement.value.slice(0, document.activeElement.selectionStart);
-    var diff = aval.length - aval.replace(/([a-zA-Z_]+|[^a-zA-Z\s]+)[\s\n]*$/, '').length;
-    document.activeElement.selectionStart -= diff;
-    document.activeElement.selectionEnd -= diff;
-    return true;
-  },
-  deleteForwardWord: function() {
-    var start = document.activeElement.selectionStart;
-    var end = document.activeElement.selectionEnd;
-    if (start !== end) {
-      return false;
-    }
-    var s = document.activeElement.value.slice(0, start);
-    var e = document.activeElement.value.slice(start);
-    e = e.replace(/^([a-zA-Z_]+|\s+|[^\s\na-zA-Z]+)(\s+)?/, '');
-    document.activeElement.value = s + e;
-    document.activeElement.selectionStart = s.length;
-    document.activeElement.selectionEnd = s.length;
-    return true;
+    selection.modify.bind(
+        selection,
+        selection.type === 'Range' ? 'extend' : 'move'
+    ).apply(null, arguments);
   }
-};
+
+  function deleteSelection() {
+    document.execCommand('delete', false, 0);
+  }
+
+  return {
+    __setElement__: function(e) {
+      element = e;
+    },
+    editWithVim: function() {
+      if (this.externalVimReq) {
+        this.externalVimReq.abort();
+      }
+      this.externalVimReq = new XMLHttpRequest();
+      this.externalVimReq.open('POST', 'http://127.0.0.1:8001');
+      this.externalVimReq.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+          log(this.responseText);
+          element[element.value !== void 0 ? 'value' : 'innerHTML'] = this.responseText.replace(/\n$/, '');
+        }
+      };
+      this.externalVimReq.send(element.value || element.innerHTML);
+    },
+    forwardChar: modify.bind(null, 'right', 'character'),
+    backwardChar: modify.bind(null, 'left', 'character'),
+    backwardWord: function() {
+      modify('left', 'word');
+    },
+    forwardWord: function() {
+      if (element.value !== void 0) {
+        var start = element.selectionStart;
+        var end = element.value.slice(start).match(/[a-zA-Z_0-9]+[\s\n]*|(\n|[^a-zA-Z_0-9])\1*/);
+        end = start + (end ? end[0].length : 0);
+        element.selectionStart = end;
+        element.selectionEnd = end;
+        return;
+      }
+      modify('right', 'word');
+    },
+    deleteToBeginning: function() {
+      modify('extend', 'left', 'documentboundary');
+      deleteSelection();
+    },
+    deleteToEnd: function() {
+      modify('extend', 'right', 'documentboundary');
+      deleteSelection();
+      modify('move', 'right', 'documentboundary');
+    },
+    beginningOfLine: function() {
+      modify('left', 'documentboundary');
+    },
+    endOfLine: function() {
+      modify('right', 'documentboundary');
+    },
+    deleteWord: function() {
+      modify('extend', 'left', 'word');
+      deleteSelection();
+    },
+    deleteForwardWord: function() {
+      if (element.value !== void 0) {
+        var start = element.selectionStart;
+        var end = element.value.slice(start).match(/[a-zA-Z_0-9]+[\s\n]*|(\n|[^a-zA-Z_0-9])\1*/);
+        end = start + (end ? end[0].length : 0);
+        element.selectionStart = start;
+        element.selectionEnd = end;
+      } else {
+        modify('extend', 'right', 'word');
+      }
+      deleteSelection();
+    }
+  };
+
+})();
 
 Mappings.insertCommand = function(modifier, callback) {
   var value = insertMappings.at(modifier);
   if (value) {
     callback(true);
+    this.insertFunctions.__setElement__(document.activeElement);
     this.insertFunctions[value]();
   }
 };
@@ -912,6 +908,10 @@ Mappings.handleEscapeKey = function() {
   }
 
   if (document.activeElement.isInput()) {
+    if (document.getSelection().type === 'Range') {
+      document.getSelection().collapseToEnd();
+      return;
+    }
     this.actions.inputFocused = false;
     return document.activeElement.blur();
   }
