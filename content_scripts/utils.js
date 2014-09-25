@@ -122,7 +122,7 @@ window.isVisible = function(element) {
 
 definePrototype(HTMLElement, 'isInput', function() {
   return (
-    (this.localName === 'textarea' || this.localName === 'input' || this.getAttribute('contenteditable') === 'true') && !this.disabled &&
+    (this.localName === 'textarea' || this.localName === 'input' || this.hasAttribute('contenteditable')) && !this.disabled &&
     !/button|radio|file|image|checkbox|submit/i.test(this.getAttribute('type'))
   );
 });

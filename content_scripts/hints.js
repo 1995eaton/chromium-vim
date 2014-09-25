@@ -135,7 +135,7 @@ Hints.dispatchAction = function(link) {
       break;
     default:
       if (node === 'textarea' || (node === 'input' && /^(text|password|email|search)$/i.test(link.type)) ||
-          link.getAttribute('contenteditable') === 'true') {
+          link.hasAttribute('contenteditable')) {
         setTimeout(function() {
           link.focus();
           if (link.getAttribute('readonly')) {
@@ -393,7 +393,7 @@ Hints.getLinks = function() {
       if (name === 'a' || name === 'button' || name === 'select' || name === 'textarea' || name === 'input' || name === 'area') {
         return NodeFilter.FILTER_ACCEPT;
       }
-      if (node.getAttribute('onclick') || node.getAttribute('tabindex') || node.getAttribute('aria-haspopup') || node.getAttribute('data-cmd') || node.getAttribute('jsaction')) {
+      if (node.hasAttribute('contenteditable') || node.hasAttribute('onclick') || node.hasAttribute('tabindex') || node.hasAttribute('aria-haspopup') || node.hasAttribute('data-cmd') || node.hasAttribute('jsaction')) {
         return NodeFilter.FILTER_ACCEPT;
       }
       if (role = node.getAttribute('role')) {

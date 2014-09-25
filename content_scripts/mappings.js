@@ -317,7 +317,7 @@ Mappings.actions = {
     window.scrollTo.apply(null, Scroll.lastPosition);
     Scroll.lastPosition = currentPosition;
   },
-  goToMark: function(repeats) {
+  goToMark: function() {
     var key = Mappings.lastCommand.queue.slice(-1);
     if (Scroll.positions.hasOwnProperty(key)) {
       Scroll.lastPosition = [document.body.scrollLeft, document.body.scrollTop];
@@ -326,7 +326,7 @@ Mappings.actions = {
       Status.setMessage('Mark not set', 1, 'error');
     }
   },
-  setMark: function(repeats) {
+  setMark: function() {
     Scroll.positions[Mappings.lastCommand.queue.slice(-1)] = [document.body.scrollLeft, document.body.scrollTop];
   },
   createHint: function() {
@@ -401,7 +401,7 @@ Mappings.actions = {
       Search.nextResult(true);
     }
   },
-  addQuickMark: function(repeats) {
+  addQuickMark: function() {
     Marks.addQuickMark(Mappings.lastCommand.queue.slice(-1));
   },
   openQuickMark: function(repeats) {
@@ -480,7 +480,7 @@ Mappings.actions = {
   },
   goToInput: function(repeats) {
     this.inputElements = [];
-    var allInput = document.querySelectorAll('input,textarea'),
+    var allInput = document.querySelectorAll('input,textarea,*[contenteditable]'),
         i;
     for (i = 0, l = allInput.length; i < l; i++) {
       if (allInput[i].isInput() && allInput[i].isVisible() && allInput[i].id !== 'cVim-command-bar-input') {
@@ -506,7 +506,9 @@ Mappings.actions = {
     }
     this.inputFocused = true;
     this.inputElements[this.inputElementsIndex].focus();
-    document.activeElement.select();
+    if (document.activeElement.hasOwnProperty('select')) {
+      document.activeElement.select();
+    }
     if (!document.activeElement.getAttribute('readonly')) {
       document.getSelection().collapseToEnd();
     }
