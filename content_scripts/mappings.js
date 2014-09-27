@@ -506,10 +506,10 @@ Mappings.actions = {
     }
     this.inputFocused = true;
     this.inputElements[this.inputElementsIndex].focus();
-    if (document.activeElement.hasOwnProperty('select')) {
+    if (document.activeElement.select) {
       document.activeElement.select();
     }
-    if (!document.activeElement.getAttribute('readonly')) {
+    if (!document.activeElement.hasAttribute('readonly')) {
       document.getSelection().collapseToEnd();
     }
   },
