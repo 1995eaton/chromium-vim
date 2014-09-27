@@ -717,19 +717,14 @@ Mappings.insertFunctions = (function() {
     __setElement__: function(e) {
       element = e;
     },
+    __getElement__: function() {
+      return element;
+    },
     editWithVim: function() {
-      if (this.externalVimReq) {
-        this.externalVimReq.abort();
-      }
-      this.externalVimReq = new XMLHttpRequest();
-      this.externalVimReq.open('POST', 'http://127.0.0.1:8001');
-      this.externalVimReq.onreadystatechange = function() {
-        if (this.readyState === 4 && this.status === 200) {
-          log(this.responseText);
-          element[element.value !== void 0 ? 'value' : 'innerHTML'] = this.responseText.replace(/\n$/, '');
-        }
-      };
-      this.externalVimReq.send(element.value || element.innerHTML);
+      port.postMessage({
+        action: 'editWithVim',
+        text: element.value || element.innerHTML
+      });
     },
     forwardChar: modify.bind(null, 'right', 'character'),
     backwardChar: modify.bind(null, 'left', 'character'),

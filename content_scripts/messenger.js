@@ -89,6 +89,13 @@ port.onMessage.addListener(function(response) {
         Command.hideData();
       }
       break;
+    case 'editWithVim':
+      var lastInputElement = Mappings.insertFunctions.__getElement__();
+      if (lastInputElement) {
+        lastInputElement[lastInputElement.value !== void 0 ? 'value' : 'innerHTML'] =
+          response.text.replace(/\n$/, ''); // remove trailing line left by vim
+      }
+      break;
   }
 });
 

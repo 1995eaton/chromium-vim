@@ -614,3 +614,14 @@ actions.getBlacklisted = function() {
     callback(true);
   });
 };
+
+actions.editWithVim = function() {
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', 'http://127.0.0.1:8001');
+  xhr.addEventListener('readystatechange', function() {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      callback({type: 'editWithVim', text: xhr.responseText});
+    }
+  });
+  xhr.send('' + request.text);
+};
