@@ -1,4 +1,4 @@
-if (document.URL.indexOf('https://www.google.com/_/') === 0) {
+if (/https?:\/\/(www\.)?google\.com\/(_|webhp)/.test(document.URL)) {
   var pageAction = function() {
     init();
     window.removeEventListener('keydown', pageAction);

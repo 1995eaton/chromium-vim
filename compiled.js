@@ -1645,7 +1645,7 @@ Complete.parseQuery = {
 
 Complete.apis = {
   wikipedia:      'https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=%s',
-  google:         'https://www.google.com/complete/search?client=firefox&hl=en&q=%s',
+  google:         'https://www.google.com/complete/search?client=chrome-omni&gs_ri=chrome-ext&oit=1&cp=1&pgcl=7&q=%s',
   'google-image': 'http://www.google.com/complete/search?client=img&hl=en&gs_rn=43&gs_ri=img&ds=i&cp=1&gs_id=8&q=%s',
   yahoo:          'https://search.yahoo.com/sugg/gossip/gossip-us-ura/?output=sd1&appid=search.yahoo.com&nresults=20&command=%s',
   answers:        'https://search.yahoo.com/sugg/ss/gossip-us_ss-vertical_ss/?output=sd1&pubid=1307&appid=yanswer&command=%s&nresults=20',
@@ -1724,6 +1724,9 @@ Complete.convertToLink = function(input) {
   } else {
     suffix = input.slice(1).join(' ');
   }
+  if (suffix.validURL()) {
+    return suffix;
+  }
   return (prefix.indexOf('%s') !== -1 ?
             prefix.embedString(suffix) :
             prefix + suffix);
@@ -1743,7 +1746,15 @@ Complete.google = function(query, callback) {
     url: this.apis.google.embedString(query),
     json: true
   }).then(function(response) {
-    callback(response[1]);
+    var data = response[1].map(function(e, i) {
+      return {
+        type: response[4]['google:suggesttype'][i],
+        text: e
+      };
+    });
+    callback(data.sort(function(a) {
+      return a.type !== 'NAVIGATION';
+    }).map(function(e) { return e.text; }));
   }, cVimError);
 };
 
