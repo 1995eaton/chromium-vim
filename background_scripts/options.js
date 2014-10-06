@@ -26,6 +26,7 @@ var defaultSettings = {
   dimhintcharacters: true,
   smoothscroll: true,
   scrollduration: 500,
+  zoomfactor: 0.10,
   locale: '',
   mapleader: '\\',
   timeoutlen: 1000,

@@ -500,6 +500,30 @@ actions.restoreChromeSession = function() {
   }
 };
 
+// chrome.tabs.zoom features: Chrome >= 38 (beta + dev)
+(function() {
+
+  var zoom = function(scale, override, repeats) {
+    if (chrome.tabs.getZoom === void 0) {
+      return callback(false);
+    }
+    chrome.tabs.getZoom(sender.tab.id, function(zoomFactor) {
+      chrome.tabs.setZoom(sender.tab.id, override || zoomFactor + scale * repeats);
+    });
+  };
+
+  actions.zoomIn = function() {
+    zoom(Settings.zoomfactor, null, request.repeats);
+  };
+
+  actions.zoomOut = function() {
+    zoom(-Settings.zoomfactor, null, request.repeats);
+  };
+
+  actions.zoomOrig = function() { zoom(null, 1.0, 1); };
+
+})();
+
 
 // Port actions
 

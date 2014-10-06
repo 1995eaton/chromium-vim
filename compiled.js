@@ -2181,15 +2181,29 @@ Mappings.actions = {
     }
   },
   zoomPageIn: function(repeats) {
-    document.body.style.zoom =
-      (+document.body.style.zoom ? parseFloat(document.body.style.zoom) : 1) + 0.1 * repeats;
+    chrome.runtime.sendMessage({
+      action: 'zoomIn',
+      repeats: repeats
+    }, function() {
+      document.body.style.zoom =
+        (+document.body.style.zoom ? parseFloat(document.body.style.zoom) : 1) + settings.zoomfactor * repeats;
+    });
   },
   zoomPageOut: function(repeats) {
-    document.body.style.zoom =
-      (+document.body.style.zoom ? parseFloat(document.body.style.zoom) : 1) - 0.1 * repeats;
+    chrome.runtime.sendMessage({
+      action: 'zoomOut',
+      repeats: repeats
+    }, function() {
+      document.body.style.zoom =
+        (+document.body.style.zoom ? parseFloat(document.body.style.zoom) : 1) - settings.zoomfactor * repeats;
+    });
   },
   zoomOrig: function() {
-    document.body.style.zoom = '1';
+    chrome.runtime.sendMessage({
+      action: 'zoomOrig'
+    }, function() {
+      document.body.style.zoom = '1';
+    });
   },
   centerMatchT: function() {
     var documentZoom = parseFloat(document.body.style.zoom) || 1;
