@@ -524,6 +524,12 @@ actions.restoreChromeSession = function() {
 
 })();
 
+actions.duplicateTab = function() {
+  for (var i = 0; i < request.repeats; i++) {
+    chrome.tabs.duplicate(sender.tab.id);
+  }
+};
+
 
 // Port actions
 

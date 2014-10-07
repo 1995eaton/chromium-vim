@@ -4274,8 +4274,7 @@ Command.execute = function(value, repeats) {
       HUD.hide();
       break;
     case 'duplicate':
-      tab.tabbed = true;
-      chrome.runtime.sendMessage({action: 'openLink', tab: tab, url: document.URL, repeats: repeats});
+      chrome.runtime.sendMessage({action: 'duplicateTab', repeats: repeats});
       break;
     case 'settings':
       tab.tabbed = true;
