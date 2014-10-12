@@ -1,68 +1,165 @@
 var Settings = {},
     Config = {};
 
-Config.validPrefixes = [/^ *let( +[a-zA-Z0-9_]+){1,2} *= */,
-                        /^ *set +[a-z]+ *$/];
-
-Config.set = function(value) {
-  value = value.split(/ +/).compress().pop();
-  this._ret[value.replace(/^no/, '')] = value.indexOf('no') !== 0;
+var Stream = function(input) {
+  this.i = 0;
+  this.l = input.length;
+  this.s = input;
 };
-
-Config.let = function(value) {
-  var _ret, objVal, assignment;
-  value = value.split('=');
-  value = [value[0], value.slice(1).join('=')];
-
-  assignment = value[0].split(/ +/).compress().slice(1);
-  objVal = assignment.shift();
-  if (assignment.length) {
-    if (/^searchaliase?$/.test(objVal)) {
-      objVal += 'es';
-    } else {
-      objVal += 's';
+Stream.prototype = {
+  eof: function() {
+    return this.i >= this.l;
+  },
+  get: function() {
+    return this.eof() ? null : this.s[this.i++];
+  },
+  peek: function() {
+    return this.i + 1 >= this.l ? null : this.s[this.i+1];
+  },
+  peekBack: function() {
+    return this.i === 0 ? null : this.s[this.i - 1];
+  },
+  char: function() {
+    return this.eof() ? null : this.s[this.i];
+  },
+  until: function(c) {
+    for (var s = ''; c.indexOf(this.char()) === -1 && !this.eof();) {
+      s += this.get();
     }
-    var key = assignment.pop();
-    try {
-      value = JSON.parse(value[1]);
-    } catch (e) {
-      return; // TODO: add error message
+    while (c.indexOf(this.char()) !== -1 && !this.eof()) {
+      this.get();
     }
-    if (this._ret.hasOwnProperty(objVal) && this._ret[objVal].constructor === Object) {
-      this._ret[objVal][key] = value;
-      return;
-    }
-    _ret = {};
-    _ret[key] = value;
-  } else {
-    try {
-      _ret = JSON.parse(value[1]);
-    } catch (e) {
-      return; // TODO: same as above
-    }
-  }
-  this._ret[objVal] = _ret;
-
-};
-
-Config.parseLine = function(value) {
-  value = value.replace(/(['\]]) *'[^'\]]*$/, '$1');
-  for (var i = 0, l = this.validPrefixes.length; i < l; ++i) {
-    if (this.validPrefixes[i].test(value)) {
-      var prefix = value.match(/[a-zA-Z0-9_]+/)[0];
-      this[prefix](value, 'string');
+    return s === '' ? null : s;
+  },
+  skip: function(m) {
+    while (m.test(this.char()) && !this.eof()) {
+      this.get();
     }
   }
 };
 
-Config.parse = function() {
-  var text = Settings.rcEl.value;
-  this._ret = {};
-  text = text.split(/\n+/).compress();
-  for (var i = 0, l = text.length; i < l; ++i) {
-    this.parseLine(text[i]);
+var Config = {
+  parse: function() {
+    var input = Settings.rcEl.value;
+    input = input.replace(/\n\s*\\\s*/g, '');
+    var output = {
+      MAPPINGS: ''
+    };
+    var stream = new Stream(input);
+    var ws = ' \n\t';
+
+    var string = function() {
+      var begin = stream.get();
+      var s = '';
+      var isesc = false;
+      while (!stream.eof()) {
+        var c = stream.get();
+        if (isesc) {
+          s += c;
+          isesc = false;
+          continue;
+        }
+        if (c === begin) {
+          return s;
+        }
+        s += c;
+      }
+    };
+
+    var number = function() {
+      var s = '';
+      while (/[0-9\.]/.test(stream.char())) {
+        s += stream.get();
+      }
+      return parseFloat(s);
+    };
+
+    var array = function() {
+      var a = [];
+      stream.get();
+      while (!stream.eof()) {
+        stream.skip(/[ \t]/);
+        a.push(string());
+        stream.skip(/[ \t]/);
+        if (stream.char() === ']') {
+          stream.get();
+          return a;
+        }
+        stream.get();
+      }
+    };
+
+    var ev = function() {
+      stream.skip(/[\s\n]/);
+      switch (stream.char()) {
+        case '\'':
+        case '"':
+          return string();
+        case '[':
+          return array();
+        default:
+          return number();
+      }
+    };
+
+    var F = {
+      'set': function() {
+        var opt = stream.until('\n');
+        var value = true;
+        if (opt.charAt(0) === 'n' && opt.charAt(1) === 'o') {
+          value = false;
+          opt = opt.slice(2);
+        }
+        output[opt] = value;
+      },
+      'let': function() {
+        var opt = stream.until('=');
+        opt = opt.split(/\s+/).filter(function(e) { return e.trim(); });
+        var obj;
+        if (opt.length === 2) {
+          opt[0] += 's';
+          if (!output.hasOwnProperty(opt[0]) || typeof output[opt[0]] !== 'object') {
+            output[opt[0]] = {};
+          }
+          obj = output[opt[0]];
+          opt = opt[1];
+          obj[opt] = ev();
+        } else {
+          opt = opt[0];
+          output[opt] = ev();
+        }
+      }
+    };
+
+    while (!stream.eof()) {
+      stream.skip(/[\s\n]/);
+      var word = stream.until(ws);
+      switch (word) {
+        case 'set':
+          F.set();
+          break;
+        case 'let':
+          F.let();
+          break;
+        case 'map':
+        case 'unmap':
+        case 'imap':
+        case 'iunmap':
+        case 'iunmapAll':
+        case 'unmapAll':
+          var rest = stream.until('\n');
+          if (rest) {
+            output.MAPPINGS += word + ' ' + rest + '\n';
+          }
+          break;
+        default:
+          if (typeof word === 'string' && word.charAt(0) === '"') {
+          }
+          break;
+      }
+    }
+    return output;
   }
-  return this._ret;
 };
 
 Settings.checkConfig = function(config) {
@@ -80,7 +177,7 @@ Settings.checkConfig = function(config) {
   }
 };
 
-Settings.loadrc = function (config) {
+Settings.loadrc = function(config) {
   this.rcEl.value = config.MAPPINGS;
   this.rcEl.style.height = this.rcEl.scrollHeight + 'px';
   if (this.cssEl) {
@@ -106,12 +203,12 @@ Settings.saveSettings = function() {
   this.settings.mapleader = this.settings.mapleader.replace(/ /g, '<Space>');
   this.saveButton.value = 'Saved';
   chrome.runtime.sendMessage({action: 'saveSettings', settings: Settings.settings, sendSettings: true});
-  setTimeout(function () {
+  setTimeout(function() {
     this.saveButton.value = 'Save';
   }.bind(this), 3000);
 };
 
-Settings.editMode = function (e) {
+Settings.editMode = function(e) {
   if (this.cssEl) {
     if (e.target.value === 'Vim') {
       this.cssEl.setOption('keyMap', 'vim');
