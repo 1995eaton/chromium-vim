@@ -832,7 +832,8 @@ Mappings.convertToAction = function(key) {
     return false;
   }
   if (Hints.active) {
-    return Hints.handleHint(key);
+    Hints.handleHint(key);
+    return true;
   }
 
   if (/^[0-9]$/.test(key) && !(key === '0' && this.repeats === '')) {

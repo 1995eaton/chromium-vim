@@ -3,6 +3,7 @@
 ## 1.2.60
  * Removed the toggleImages command
  * Remove the `:date` command
+ * Performance optimizations + bugfixes
 
 ## 1.2.59
  * Various bug fixes
