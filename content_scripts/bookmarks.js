@@ -1,8 +1,9 @@
-var Marks = {};
-Marks.bookmarks = [];
-Marks.quickMarks = {};
-Marks.currentBookmarks = [];
-Marks.files = [];
+var Marks = {
+  bookmarks: [],
+  files: [],
+  currentBookmarks: [],
+  quickMarks: {}
+};
 
 Marks.filePath = function() {
   var input = Command.input.value.replace(/.*\//, '');
@@ -53,7 +54,7 @@ Marks.addQuickMark = function(ch) {
       Status.setMessage('Current URL removed from existing QuickMark "' + ch + '"', 1);
     }
   }
-  chrome.runtime.sendMessage({action: 'updateMarks', marks: this.quickMarks});
+  RUNTIME('updateMarks', {marks: this.quickMarks});
 };
 
 Marks.openQuickMark = function(ch, tabbed, repeats) {
@@ -63,27 +64,25 @@ Marks.openQuickMark = function(ch, tabbed, repeats) {
   if (tabbed) {
     if (repeats !== 1) {
       if (this.quickMarks[ch][repeats - 1]) {
-        chrome.runtime.sendMessage({action: 'openLinkTab', url: this.quickMarks[ch][repeats - 1]});
+        RUNTIME('openLinkTab', {url: this.quickMarks[ch][repeats - 1]});
       } else {
-        chrome.runtime.sendMessage({action: 'openLinkTab', url: this.quickMarks[ch][0]});
+        RUNTIME('openLinkTab', {url: this.quickMarks[ch][0]});
       }
     } else {
       for (var i = 0, l = this.quickMarks[ch].length; i < l; ++i) {
-        chrome.runtime.sendMessage({action: 'openLinkTab', url: this.quickMarks[ch][i]});
+        RUNTIME('openLinkTab', {url: this.quickMarks[ch][i]});
       }
     }
   } else {
     if (this.quickMarks[ch][repeats - 1]) {
-      chrome.runtime.sendMessage({
-        action: 'openLink',
+      RUNTIME('openLink', {
         tab: {
           pinned: false
         },
         url: this.quickMarks[ch][repeats - 1]
       });
     } else {
-      chrome.runtime.sendMessage({
-        action: 'openLink',
+      RUNTIME('openLink', {
         tab: {
           pinned: false
         },
@@ -113,6 +112,4 @@ Marks.match = function(string, callback, limit) {
   }));
 };
 
-Marks.matchPath = function(path) {
-  port.postMessage({action: 'getBookmarkPath', path: path});
-};
+Marks.matchPath = function(path) { PORT('getBookmarkPath', {path: path}); };

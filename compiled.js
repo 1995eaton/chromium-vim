@@ -1,4 +1,625 @@
 function init() {
+LOG = console.log.bind(console);
+
+var cVimError = function(message) {
+  console.error(message);
+};
+
+var definePrototype = function(obj, name, fn) {
+  Object.defineProperty(obj.prototype, name, {
+    enumerable: false,
+    configurable: false,
+    writeable: false,
+    value: fn
+  });
+};
+
+var httpRequest = function(request) {
+  return new Promise(function(acc, rej) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', request.url);
+    xhr.addEventListener('load', function() {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        acc(request.json ? JSON.parse(xhr.responseText) : xhr.responseText);
+      }
+    });
+    xhr.addEventListener('error', function() {
+      rej(Error('cVim Error: Unable to resolve ' + request.url));
+    });
+    xhr.send();
+  });
+};
+
+// ------------ Begin reverse image
+var isValidB64 = function(a) {
+  try {
+    window.atob(a);
+  } catch(e) {
+    return false;
+  }
+  return true;
+};
+
+var reverseImagePost = function(url) {
+  return '<html><head><title>cVim reverse image search</title></head><body><form id="f" method="POST" action="https://www.google.com/searchbyimage/upload" enctype="multipart/form-data"><input type="hidden" name="image_content" value="' + url.substring(url.indexOf(',') + 1).replace(/\+/g, '-').replace(/\//g, '_').replace(/\./g, '=') + '"><input type="hidden" name="filename" value=""><input type="hidden" name="image_url" value=""><input type="hidden" name="sbisrc" value=""></form><script>document.getElementById("f").submit();\x3c/script></body></html>';
+};
+
+// Based off of the 'Search by Image' Chrome Extension by Google
+var googleReverseImage = function(url, source) {
+  if (void 0 !== url && url.indexOf('data:') === 0) {
+    if (url.search(/data:image\/(bmp|gif|jpe?g|png|webp|tiff|x-ico)/i) === 0) {
+      var commaIndex = url.indexOf(',');
+      if (commaIndex !== -1 && isValidB64(url.substring(commaIndex + 1))) {
+        return 'data:text/html;charset=utf-8;base64,' + window.btoa(reverseImagePost(url, source));
+      }
+    }
+  } else {
+    if (url.indexOf('file://') === 0 || url.indexOf('chrome') === 0) {
+      RUNTIME('urlToBase64', {url: url});
+      return;
+    }
+    return 'https://www.google.com/searchbyimage?image_url=' + url;
+  }
+};
+// ------------ End reverse image
+
+var getVisibleBoundingRect = function(node) {
+  var i;
+  var boundingRect = node.getClientRects()[0] || node.getBoundingClientRect();
+  if (boundingRect.width <= 1 && boundingRect.height <= 1) {
+    var rects = node.getClientRects();
+    for (i = 0; i < rects.length; i++) {
+      if (rects[i].width > rects[0].height && rects[i].height > rects[0].height) {
+        boundingRect = rects[i];
+      }
+    }
+  }
+  if (boundingRect === void 0) {
+    return false;
+  }
+  if (boundingRect.top > window.innerHeight || boundingRect.left > window.innerWidth) {
+    return false;
+  }
+  if (boundingRect.width <= 1 || boundingRect.height <= 1) {
+    var children = node.children;
+    var visibleChildNode = false;
+    for (i = 0, l = children.length; i < l; ++i) {
+      boundingRect = children[i].getClientRects()[0] || children[i].getBoundingClientRect();
+      if (boundingRect.width > 1 && boundingRect.height > 1) {
+        visibleChildNode = true;
+        break;
+      }
+    }
+    if (visibleChildNode === false) {
+      return false;
+    }
+  }
+  if (boundingRect.top + boundingRect.height < 10 || boundingRect.left + boundingRect.width < -10) {
+    return false;
+  }
+  var computedStyle = getComputedStyle(node);
+  if (computedStyle.opacity === '0' || computedStyle.visibility !== 'visible' || computedStyle.display === 'none' || node.hasAttribute('disabled')) {
+    return false;
+  }
+  return boundingRect;
+};
+
+definePrototype(HTMLElement, 'isVisible', function() {
+  return this.offsetParent && !this.disabled &&
+    this.getAttribute('type') !== 'hidden' &&
+    getComputedStyle(this).visibility !== 'hidden' &&
+    this.getAttribute('display') !== 'none';
+});
+
+var isVisible = function(element) {
+  return element.offsetParent && !element.disabled &&
+    element.getAttribute('type') !== 'hidden' &&
+    getComputedStyle(element).visibility !== 'hidden' &&
+    element.getAttribute('display') !== 'none';
+};
+
+definePrototype(HTMLElement, 'isInput', function() {
+  return (
+    (this.localName === 'textarea' || this.localName === 'input' || this.hasAttribute('contenteditable')) && !this.disabled &&
+    !/button|radio|file|image|checkbox|submit/i.test(this.getAttribute('type'))
+  );
+});
+
+var simulateMouseEvents = function(element, events) {
+  for (var i = 0; i < events.length; ++i) {
+    var ev = document.createEvent('MouseEvents');
+    ev.initMouseEvent(events[i], true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+    element.dispatchEvent(ev);
+  }
+};
+
+definePrototype(HTMLElement, 'hover', function() {
+  simulateMouseEvents(this, ['mouseover', 'mouseenter']);
+});
+
+definePrototype(HTMLElement, 'unhover', function() {
+  simulateMouseEvents(this, ['mouseout', 'mouseleave']);
+});
+
+definePrototype(HTMLElement, 'simulateClick', function() {
+  simulateMouseEvents(this, ['mouseover', 'mousedown', 'mouseup', 'click']);
+});
+
+definePrototype(Array, 'unique', function() {
+  var a = [];
+  for (var i = 0, l = this.length; i < l; ++i) {
+    if (a.indexOf(this[i]) === -1) {
+      a.push(this[i]);
+    }
+  }
+  return a;
+});
+
+definePrototype(Array, 'compress', function() {
+  return this.filter(function(e) {
+    return e;
+  });
+});
+
+definePrototype(Number, 'mod', function(n) {
+  return ((this % n) + n) % n;
+});
+
+Object.clone = function(obj) {
+  var old = history.state;
+  history.replaceState(obj);
+  var clone = history.state;
+  history.replaceState(old);
+  return clone;
+};
+
+definePrototype(String, 'trimAround', function() {
+  return this.replace(/^(\s+)?(.*\S)?(\s+)?$/g, '$2');
+});
+
+definePrototype(String, 'validURL', function() {
+  var url = this.trimLeft().trimRight();
+  if (url.length === 0) {
+    return 'chrome://newtab';
+  }
+  if (/^\//.test(url)) {
+    url = 'file://' + url;
+  }
+  if (/^(chrome|chrome-extension|file):\/\/\S+$/.test(url)) {
+    return url;
+  }
+  var pattern = new RegExp('^((https?|ftp):\\/\\/)?'+
+  '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+
+  '((\\d{1,3}\\.){3}\\d{1,3})|'+
+  'localhost)' +
+  '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+
+  '(\\?[;:&a-z\\d%_.~+=-]*)?'+
+  '(\\#[#:-a-z\\d_]*)?$','i');
+  if (pattern.test(url)) {
+    return true;
+  }
+});
+
+definePrototype(String, 'embedString', function(string) {
+  return this.split('%s').join(string);
+});
+
+definePrototype(String, 'convertLink', function() {
+  var url = this.trimAround();
+  if (url.length === 0) {
+    return 'chrome://newtab';
+  }
+  if (/^\//.test(url)) {
+    url = 'file://' + url;
+  }
+  if (/^(chrome|chrome-extension|file):\/\/\S+$/.test(url)) {
+    return url;
+  }
+  var pattern = new RegExp('^((https?|ftp):\\/\\/)?'+
+    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+
+    '((\\d{1,3}\\.){3}\\d{1,3})|'+
+    'localhost)' +
+    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+
+    '(\\?[;&a-z\\d%_.~+=-]*)?'+
+    '(\\#[-a-z\\d_]*)?$','i');
+  if (pattern.test(url)) {
+    return (/:\/\//.test(url) ? '' : 'http://') + url;
+  }
+  return 'https://www.google.com/search?q=' + url;
+});
+
+var matchLocation = function(url, pattern) { // Uses @match syntax
+  // See https://code.google.com/p/chromium/codesearch#chromium/src/extensions/common/url_pattern.h&sq=package:chromium
+  if (typeof pattern !== 'string' || !pattern.trim()) {
+    return false;
+  }
+  var protocol = (pattern.match(/.*:\/\//) || [''])[0].slice(0, -2),
+      hostname, path, pathMatch, hostMatch;
+  url = new URL(url);
+  if (/\*\*/.test(pattern)) {
+    console.error('cVim Error: Invalid pattern: "%s"', pattern);
+    return false;
+  }
+  if (!protocol.length) {
+    console.error('cVim Error: Invalid protocol in pattern: "%s"', pattern);
+    return false;
+  }
+  pattern = pattern.replace(/.*:\/\//, '');
+  if (protocol !== '*:' && url.protocol !== protocol) {
+    return false;
+  }
+  if (url.protocol !== 'file:') {
+    hostname = pattern.match(/^[^\/]+\//g);
+    if (!hostname) {
+      console.error('cVim Error: Invalid host in pattern: "%s"', pattern);
+      return false;
+    }
+    var origHostname = hostname;
+    hostname = hostname[0].slice(0, -1).replace(/([.])/g, '\\$1').replace(/\*/g, '.*');
+    hostMatch = url.hostname.match(new RegExp(hostname, 'i'));
+    if (!hostMatch || hostMatch[0].length !== url.hostname.length) {
+      return false;
+    }
+    pattern = '/' + pattern.slice(origHostname[0].length);
+  }
+  if (pattern.length) {
+    path = pattern.replace(/([.&\\\/\(\)\[\]!?])/g, '\\$1').replace(/\*/g, '.*');
+    pathMatch = url.pathname.match(new RegExp(path));
+    if (!pathMatch || pathMatch[0].length !== url.pathname.length) {
+      return false;
+    }
+  }
+  return true;
+};
+
+var waitForLoad = function(callback, constructor) {
+  if ((document.readyState === 'interactive' || document.readyState === 'complete') && document.activeElement) {
+    return callback.call(constructor);
+  }
+  window.setTimeout(function() {
+    waitForLoad(callback, constructor);
+  }, 5);
+};
+
+var decodeHTMLEntities = function(string) {
+  var el = document.createElement('div');
+  el.innerHTML = string;
+  return el.textContent;
+};
+
+var searchArray = function(array, search, limit, useRegex, fn) {
+  if (search === '') {
+    return array.slice(0, limit || settings.searchlimit);
+  }
+  if (useRegex) {
+    try {
+      search = new RegExp(search, 'i');
+    } catch (e) {
+      useRegex = false;
+    }
+  }
+  var matches = {
+    0: [],
+    1: []
+  };
+  var exactMatchCount = 0;
+  fn = fn || function(item) { return item; };
+  for (var i = 0; i < array.length; i++) {
+    var matchIndex = fn(array[i])[useRegex ? 'search' : 'indexOf'](search);
+    if (matchIndex === 0) {
+      matches[0].push(array[i]);
+      exactMatchCount++;
+      if (exactMatchCount === limit) {
+        break;
+      }
+    } else if (matchIndex !== -1) {
+      matches[1].push(array[i]);
+    }
+  }
+  return matches[0].concat(matches[1]).slice(0, limit);
+};
+
+Object.extend = function() {
+  var _ret = {};
+  for (var i = 0, l = arguments.length; i < l; ++i) {
+    for (var key in arguments[i]) {
+      _ret[key] = arguments[i][key];
+    }
+  }
+  return _ret;
+};
+
+var Trie = (function() {
+  var _ = function(parent) {
+    this.data = {};
+    this.parent = parent || null;
+  };
+  function deleteKeyValue(node, value) {
+    for (var key in node) {
+      if (node[key] === value) {
+        delete node[key];
+      }
+    }
+  }
+  _.prototype.contains = function(item) {
+    return this.data.hasOwnProperty(item);
+  };
+  _.prototype.splitString = function(string) {
+    var blocks =
+      [].slice.call(string.match(/<[^>]+>/g) || []);
+    var split = [];
+    for (var i = 0; i < string.length; i++) {
+      if (string.slice(i).indexOf(blocks[0]) === 0) {
+        i += blocks[0].length - 1;
+        split.push(blocks.shift());
+      } else {
+        split.push(string.charAt(i));
+      }
+    }
+    return split;
+  };
+  _.prototype.add = function(string, value) {
+    var split = this.splitString(string);
+    var node = this;
+    split.forEach(function(e) {
+      if (node.data.hasOwnProperty(e)) {
+        node = node.data[e];
+      } else {
+        node.data[e] = new _(node);
+        node = node.data[e];
+      }
+      delete node.value;
+    });
+    node.value = value;
+  };
+  _.prototype.remove = function(string) {
+    var split = this.splitString(string);
+    var node = this.data;
+    while (split.length) {
+      node = node[split.shift()];
+      if (!node) {
+        return null;
+      }
+      if (split.length) {
+        node = node.data;
+      }
+    }
+    deleteKeyValue(node.parent.data, node);
+    while (node = node.parent) {
+      if (!node.value && Object.keys(node.data).length === 1) {
+        deleteKeyValue(node.parent.data, node);
+      } else {
+        break;
+      }
+    }
+  };
+  _.prototype.at = function(string) {
+    var split = this.splitString(string);
+    var node = this;
+    while (split.length) {
+      node = node.data['*'] || node.data[split[0]];
+      split.shift();
+      if (!node) {
+        return null;
+      }
+    }
+    return split.length !== 0 ? true : (node.value || true);
+  };
+  return _;
+})();
+
+var port = chrome.extension.connect({name: 'main'});
+
+RUNTIME = function(action, args, callback) {
+  args = args || {};
+  args.action = action;
+  if (typeof callback === 'function') {
+    chrome.runtime.sendMessage(args, callback);
+  } else {
+    chrome.runtime.sendMessage(args);
+  }
+};
+PORT = function(action, args, callback) {
+  args = args || {};
+  args.action = action;
+  if (typeof callback === 'function') {
+    port.postMessage(args, callback);
+  } else {
+    port.postMessage(args);
+  }
+};
+
+port.onMessage.addListener(function(response) {
+  var key;
+  switch (response.type) {
+    case 'hello':
+      port.postMessage({action: 'getBookmarks'});
+      port.postMessage({action: 'getQuickMarks'});
+      port.postMessage({action: 'getSessionNames'});
+      port.postMessage({action: 'retrieveAllHistory'});
+      port.postMessage({action: 'sendLastSearch'});
+      port.postMessage({action: 'getTopSites'});
+      port.postMessage({action: 'getLastCommand'});
+      break;
+    case 'updateLastCommand':
+      Mappings.lastCommand = JSON.parse(response.data);
+      break;
+    case 'commandHistory':
+      for (key in response.history) {
+        Command.history[key] = response.history[key];
+      }
+      break;
+    case 'history':
+      var matches = [];
+      for (key in response.history) {
+        if (response.history[key].url) {
+          if (response.history[key].title.trim() === '') {
+            matches.push(['Untitled', response.history[key].url]);
+          } else {
+            matches.push([response.history[key].title, response.history[key].url]);
+          }
+        }
+      }
+      matches = matches.sort(function(a, b) {
+        return a[1].length - b[1].length;
+      });
+      if (Command.historyMode) {
+        if (Command.active && Command.bar.style.display !== 'none') {
+          Command.completions = { history: matches };
+          Command.updateCompletions(false);
+        }
+      } else if (Command.searchMode) {
+        Command.searchMode = false;
+        if (Command.active && Command.bar.style.display !== 'none') {
+          Command.completions.history = matches;
+          Command.updateCompletions(true);
+        }
+      }
+      Marks.history = matches;
+      break;
+    case 'bookmarks':
+      Marks.bookmarks = [];
+      Marks.parse(response.bookmarks);
+      break;
+    case 'topsites':
+      Search.topSites = response.sites;
+      break;
+    case 'buffers':
+      if (Command.bar.style.display !== 'none') {
+        var val = Command.input.value.replace(/\S+\s+/, '');
+        Command.hideData();
+        Command.completions = {
+          buffers: !val.trim() || Number.isNaN(val) || !response.buffers[+val] ? searchArray(response.buffers, val, settings.searchlimit, true, function(item) {
+            return item.join(' ');
+          }) : [ response.buffers[+val] ] || []
+        };
+        Command.updateCompletions();
+      }
+      break;
+    case 'sessions':
+      sessions = response.sessions;
+      break;
+    case 'quickMarks':
+      Marks.quickMarks = {};
+      for (key in response.marks) {
+        if (Array.isArray(response.marks[key])) {
+          Marks.quickMarks[key] = response.marks[key];
+        } else if (typeof response.marks[key] === 'string') {
+          Marks.quickMarks[key] = [response.marks[key]];
+        }
+      }
+      break;
+    case 'bookmarkPath':
+      if (response.path.length) {
+        Command.completions = {};
+        Command.completions.paths = response.path;
+        Command.updateCompletions();
+      } else {
+        Command.hideData();
+      }
+      break;
+    case 'editWithVim':
+      var lastInputElement = Mappings.insertFunctions.__getElement__();
+      if (lastInputElement) {
+        lastInputElement[lastInputElement.value !== void 0 ? 'value' : 'innerHTML'] =
+          response.text.replace(/\n$/, ''); // remove trailing line left by vim
+      }
+      break;
+  }
+});
+
+chrome.extension.onMessage.addListener(function(request, sender, callback) {
+  switch (request.action) {
+    case 'updateLastCommand':
+      Mappings.lastCommand = JSON.parse(request.data);
+      break;
+    case 'getWindows':
+      if (request.windows && Command.active === true) {
+        Command.completions = {
+          windows: Object.keys(request.windows).map(function(e, i) {
+            var tlen = request.windows[e].length.toString();
+            return [(i+1).toString() + ' (' + tlen + (tlen === '1' ? ' Tab)' : ' Tabs)'),  request.windows[e].join(', '), e];
+          })
+        };
+        Command.updateCompletions();
+      }
+      break;
+    case 'commandHistory':
+      for (var key in request.history) {
+        Command.history[key] = request.history[key];
+      }
+      break;
+    case 'updateLastSearch':
+      Find.lastSearch = request.value;
+      break;
+    case 'sendSettings':
+      Mappings.defaults = Object.clone(Mappings.defaultsClone);
+      if (!Command.initialLoadStarted) {
+        Command.configureSettings(request.settings);
+      } else {
+        Mappings.parseCustom(request.settings.MAPPINGS);
+        settings = request.settings;
+      }
+      break;
+    case 'cancelAllWebRequests':
+      window.stop();
+      break;
+    case 'updateMarks':
+      Marks.quickMarks = request.marks;
+      break;
+    case 'base64Image':
+      RUNTIME('openLinkTab', {
+        active: false,
+        url: 'data:text/html;charset=utf-8;base64,' +
+          window.btoa(reverseImagePost(request.data, null)),
+        noconvert: true
+      });
+      break;
+    case 'focusFrame':
+      if (request.index === Frames.index) {
+        Frames.focus();
+      }
+      break;
+    case 'sessions':
+      sessions = request.sessions;
+      break;
+    case 'nextCompletionResult':
+      if (settings.cncpcompletion && Command.type === 'action' && commandMode && document.activeElement.id === 'cVim-command-bar-input') {
+        Search.nextResult();
+        break;
+      }
+      if (window.self === window.top) {
+        callback(true);
+      }
+      break;
+    case 'deleteBackWord':
+      if (!insertMode && document.activeElement.isInput()) {
+        Mappings.insertFunctions.deleteWord();
+        if (document.activeElement.id === 'cVim-command-bar-input') {
+          Command.complete(Command.input.value);
+        }
+      }
+      break;
+    case 'getFilePath':
+      var parsed = request.data;
+      Marks.files = parsed;
+      Marks.filePath();
+      break;
+    case 'toggleEnabled':
+      addListeners();
+      if (!settings) {
+        RUNTIME('getSettings');
+      }
+      Command.init(request.state);
+      break;
+    case 'getBlacklistStatus':
+      callback(Command.blacklisted);
+      break;
+    case 'alert':
+      alert(request.message);
+      break;
+  }
+});
 var Hints = {};
 
 Hints.matchPatterns = function(forward) {
@@ -108,13 +729,13 @@ Hints.dispatchAction = function(link) {
       }
       break;
     case 'fullimage':
-      chrome.runtime.sendMessage({action: 'openLinkTab', active: false, url: link.src, noconvert: true});
+      RUNTIME('openLinkTab', {active: false, url: link.src, noconvert: true});
       break;
     case 'image':
     case 'multiimage':
       var url = googleReverseImage(link.src, null);
       if (url) {
-        chrome.runtime.sendMessage({action: 'openLinkTab', active: false, url: url, noconvert: true});
+        RUNTIME('openLinkTab', {active: false, url: url, noconvert: true});
       }
       break;
     case 'hover':
@@ -132,7 +753,7 @@ Hints.dispatchAction = function(link) {
       link.unhover();
       break;
     case 'window':
-      chrome.runtime.sendMessage({action: 'openLinkWindow', focused: false, url: link.href, noconvert: true});
+      RUNTIME('openLinkWindow', {focused: false, url: link.href, noconvert: true});
       break;
     default:
       if (node === 'textarea' || (node === 'input' && /^(text|password|email|search)$/i.test(link.type)) ||
@@ -153,7 +774,7 @@ Hints.dispatchAction = function(link) {
         break;
       }
       if (link.getAttribute('target') !== '_top' && (/tabbed/.test(this.type) || this.type === 'multi')) {
-        chrome.runtime.sendMessage({action: 'openLinkTab', active: this.type === 'tabbedActive', url: link.href, noconvert: true});
+        RUNTIME('openLinkTab', {active: this.type === 'tabbedActive', url: link.href, noconvert: true});
       } else {
         if (link.getAttribute('href')) {
           link.click();
@@ -572,423 +1193,12 @@ Hints.create = function(type, multi) {
     main.style.opacity = '1';
   }, 0);
 };
-LOG = console.log.bind(console);
-
-var cVimError = function(message) {
-  console.error(message);
+var Marks = {
+  bookmarks: [],
+  files: [],
+  currentBookmarks: [],
+  quickMarks: {}
 };
-
-var definePrototype = function(obj, name, fn) {
-  Object.defineProperty(obj.prototype, name, {
-    enumerable: false,
-    configurable: false,
-    writeable: false,
-    value: fn
-  });
-};
-
-var httpRequest = function(request) {
-  return new Promise(function(acc, rej) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', request.url);
-    xhr.addEventListener('load', function() {
-      if (xhr.readyState === 4 && xhr.status === 200) {
-        acc(request.json ? JSON.parse(xhr.responseText) : xhr.responseText);
-      }
-    });
-    xhr.addEventListener('error', function() {
-      rej(Error('cVim Error: Unable to resolve ' + request.url));
-    });
-    xhr.send();
-  });
-};
-
-
-// ------------ Begin reverse image
-
-var isValidB64 = function(a) {
-  try {
-    window.atob(a);
-  } catch(e) {
-    return false;
-  }
-  return true;
-};
-
-var reverseImagePost = function(url) {
-  return '<html><head><title>cVim reverse image search</title></head><body><form id="f" method="POST" action="https://www.google.com/searchbyimage/upload" enctype="multipart/form-data"><input type="hidden" name="image_content" value="' + url.substring(url.indexOf(',') + 1).replace(/\+/g, '-').replace(/\//g, '_').replace(/\./g, '=') + '"><input type="hidden" name="filename" value=""><input type="hidden" name="image_url" value=""><input type="hidden" name="sbisrc" value=""></form><script>document.getElementById("f").submit();\x3c/script></body></html>';
-};
-
-// Based off of the 'Search by Image' Chrome Extension by Google
-var googleReverseImage = function(url, source) {
-  if (void 0 !== url && url.indexOf('data:') === 0) {
-    if (url.search(/data:image\/(bmp|gif|jpe?g|png|webp|tiff|x-ico)/i) === 0) {
-      var commaIndex = url.indexOf(',');
-      if (commaIndex !== -1 && isValidB64(url.substring(commaIndex + 1))) {
-        return 'data:text/html;charset=utf-8;base64,' + window.btoa(reverseImagePost(url, source));
-      }
-    }
-  } else {
-    if (url.indexOf('file://') === 0 || url.indexOf('chrome') === 0) {
-      chrome.runtime.sendMessage({action: 'urlToBase64', url: url});
-      return;
-    }
-    return 'https://www.google.com/searchbyimage?image_url=' + url;
-  }
-};
-
-// ------------ End reverse image
-
-var getVisibleBoundingRect = function(node) {
-  var i;
-  var boundingRect = node.getClientRects()[0] || node.getBoundingClientRect();
-  if (boundingRect.width <= 1 && boundingRect.height <= 1) {
-    var rects = node.getClientRects();
-    for (i = 0; i < rects.length; i++) {
-      if (rects[i].width > rects[0].height && rects[i].height > rects[0].height) {
-        boundingRect = rects[i];
-      }
-    }
-  }
-  if (boundingRect === void 0) {
-    return false;
-  }
-  if (boundingRect.top > window.innerHeight || boundingRect.left > window.innerWidth) {
-    return false;
-  }
-  if (boundingRect.width <= 1 || boundingRect.height <= 1) {
-    var children = node.children;
-    var visibleChildNode = false;
-    for (i = 0, l = children.length; i < l; ++i) {
-      boundingRect = children[i].getClientRects()[0] || children[i].getBoundingClientRect();
-      if (boundingRect.width > 1 && boundingRect.height > 1) {
-        visibleChildNode = true;
-        break;
-      }
-    }
-    if (visibleChildNode === false) {
-      return false;
-    }
-  }
-  if (boundingRect.top + boundingRect.height < 10 || boundingRect.left + boundingRect.width < -10) {
-    return false;
-  }
-  var computedStyle = getComputedStyle(node);
-  if (computedStyle.opacity === '0' || computedStyle.visibility !== 'visible' || computedStyle.display === 'none' || node.hasAttribute('disabled')) {
-    return false;
-  }
-  return boundingRect;
-};
-
-definePrototype(HTMLElement, 'isVisible', function() {
-  return this.offsetParent && !this.disabled &&
-    this.getAttribute('type') !== 'hidden' &&
-    getComputedStyle(this).visibility !== 'hidden' &&
-    this.getAttribute('display') !== 'none';
-});
-
-var isVisible = function(element) {
-  return element.offsetParent && !element.disabled &&
-    element.getAttribute('type') !== 'hidden' &&
-    getComputedStyle(element).visibility !== 'hidden' &&
-    element.getAttribute('display') !== 'none';
-};
-
-definePrototype(HTMLElement, 'isInput', function() {
-  return (
-    (this.localName === 'textarea' || this.localName === 'input' || this.hasAttribute('contenteditable')) && !this.disabled &&
-    !/button|radio|file|image|checkbox|submit/i.test(this.getAttribute('type'))
-  );
-});
-
-var simulateMouseEvents = function(element, events) {
-  for (var i = 0; i < events.length; ++i) {
-    var ev = document.createEvent('MouseEvents');
-    ev.initMouseEvent(events[i], true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
-    element.dispatchEvent(ev);
-  }
-};
-
-definePrototype(HTMLElement, 'hover', function() {
-  simulateMouseEvents(this, ['mouseover', 'mouseenter']);
-});
-
-definePrototype(HTMLElement, 'unhover', function() {
-  simulateMouseEvents(this, ['mouseout', 'mouseleave']);
-});
-
-definePrototype(HTMLElement, 'simulateClick', function() {
-  simulateMouseEvents(this, ['mouseover', 'mousedown', 'mouseup', 'click']);
-});
-
-definePrototype(Array, 'unique', function() {
-  var a = [];
-  for (var i = 0, l = this.length; i < l; ++i) {
-    if (a.indexOf(this[i]) === -1) {
-      a.push(this[i]);
-    }
-  }
-  return a;
-});
-
-definePrototype(Array, 'compress', function() {
-  return this.filter(function(e) {
-    return e;
-  });
-});
-
-definePrototype(Number, 'mod', function(n) {
-  return ((this % n) + n) % n;
-});
-
-Object.clone = function(obj) {
-  var old = history.state;
-  history.replaceState(obj);
-  var clone = history.state;
-  history.replaceState(old);
-  return clone;
-};
-
-definePrototype(String, 'trimAround', function() {
-  return this.replace(/^(\s+)?(.*\S)?(\s+)?$/g, '$2');
-});
-
-definePrototype(String, 'validURL', function() {
-  var url = this.trimLeft().trimRight();
-  if (url.length === 0) {
-    return 'chrome://newtab';
-  }
-  if (/^\//.test(url)) {
-    url = 'file://' + url;
-  }
-  if (/^(chrome|chrome-extension|file):\/\/\S+$/.test(url)) {
-    return url;
-  }
-  var pattern = new RegExp('^((https?|ftp):\\/\\/)?'+
-  '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+
-  '((\\d{1,3}\\.){3}\\d{1,3})|'+
-  'localhost)' +
-  '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+
-  '(\\?[;:&a-z\\d%_.~+=-]*)?'+
-  '(\\#[#:-a-z\\d_]*)?$','i');
-  if (pattern.test(url)) {
-    return true;
-  }
-});
-
-definePrototype(String, 'embedString', function(string) {
-  return this.split('%s').join(string);
-});
-
-definePrototype(String, 'convertLink', function() {
-  var url = this.trimAround();
-  if (url.length === 0) {
-    return 'chrome://newtab';
-  }
-  if (/^\//.test(url)) {
-    url = 'file://' + url;
-  }
-  if (/^(chrome|chrome-extension|file):\/\/\S+$/.test(url)) {
-    return url;
-  }
-  var pattern = new RegExp('^((https?|ftp):\\/\\/)?'+
-    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+
-    '((\\d{1,3}\\.){3}\\d{1,3})|'+
-    'localhost)' +
-    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+
-    '(\\?[;&a-z\\d%_.~+=-]*)?'+
-    '(\\#[-a-z\\d_]*)?$','i');
-  if (pattern.test(url)) {
-    return (/:\/\//.test(url) ? '' : 'http://') + url;
-  }
-  return 'https://www.google.com/search?q=' + url;
-});
-
-var matchLocation = function(url, pattern) { // Uses @match syntax
-  // See https://code.google.com/p/chromium/codesearch#chromium/src/extensions/common/url_pattern.h&sq=package:chromium
-  if (typeof pattern !== 'string' || !pattern.trim()) {
-    return false;
-  }
-  var protocol = (pattern.match(/.*:\/\//) || [''])[0].slice(0, -2),
-      hostname, path, pathMatch, hostMatch;
-  url = new URL(url);
-  if (/\*\*/.test(pattern)) {
-    console.error('cVim Error: Invalid pattern: "%s"', pattern);
-    return false;
-  }
-  if (!protocol.length) {
-    console.error('cVim Error: Invalid protocol in pattern: "%s"', pattern);
-    return false;
-  }
-  pattern = pattern.replace(/.*:\/\//, '');
-  if (protocol !== '*:' && url.protocol !== protocol) {
-    return false;
-  }
-  if (url.protocol !== 'file:') {
-    hostname = pattern.match(/^[^\/]+\//g);
-    if (!hostname) {
-      console.error('cVim Error: Invalid host in pattern: "%s"', pattern);
-      return false;
-    }
-    var origHostname = hostname;
-    hostname = hostname[0].slice(0, -1).replace(/([.])/g, '\\$1').replace(/\*/g, '.*');
-    hostMatch = url.hostname.match(new RegExp(hostname, 'i'));
-    if (!hostMatch || hostMatch[0].length !== url.hostname.length) {
-      return false;
-    }
-    pattern = '/' + pattern.slice(origHostname[0].length);
-  }
-  if (pattern.length) {
-    path = pattern.replace(/([.&\\\/\(\)\[\]!?])/g, '\\$1').replace(/\*/g, '.*');
-    pathMatch = url.pathname.match(new RegExp(path));
-    if (!pathMatch || pathMatch[0].length !== url.pathname.length) {
-      return false;
-    }
-  }
-  return true;
-};
-
-var waitForLoad = function(callback, constructor) {
-  if ((document.readyState === 'interactive' || document.readyState === 'complete') && document.activeElement) {
-    return callback.call(constructor);
-  }
-  window.setTimeout(function() {
-    waitForLoad(callback, constructor);
-  }, 5);
-};
-
-var decodeHTMLEntities = function(string) {
-  var el = document.createElement('div');
-  el.innerHTML = string;
-  return el.textContent;
-};
-
-var searchArray = function(array, search, limit, useRegex, fn) {
-  if (search === '') {
-    return array.slice(0, limit || settings.searchlimit);
-  }
-  if (useRegex) {
-    try {
-      search = new RegExp(search, 'i');
-    } catch (e) {
-      useRegex = false;
-    }
-  }
-  var matches = {
-    0: [],
-    1: []
-  };
-  var exactMatchCount = 0;
-  fn = fn || function(item) { return item; };
-  for (var i = 0; i < array.length; i++) {
-    var matchIndex = fn(array[i])[useRegex ? 'search' : 'indexOf'](search);
-    if (matchIndex === 0) {
-      matches[0].push(array[i]);
-      exactMatchCount++;
-      if (exactMatchCount === limit) {
-        break;
-      }
-    } else if (matchIndex !== -1) {
-      matches[1].push(array[i]);
-    }
-  }
-  return matches[0].concat(matches[1]).slice(0, limit);
-};
-
-Object.extend = function() {
-  var _ret = {};
-  for (var i = 0, l = arguments.length; i < l; ++i) {
-    for (var key in arguments[i]) {
-      _ret[key] = arguments[i][key];
-    }
-  }
-  return _ret;
-};
-
-var Trie = (function() {
-  var _ = function(parent) {
-    this.data = {};
-    this.parent = parent || null;
-  };
-  function deleteKeyValue(node, value) {
-    for (var key in node) {
-      if (node[key] === value) {
-        delete node[key];
-      }
-    }
-  }
-  _.prototype.contains = function(item) {
-    return this.data.hasOwnProperty(item);
-  };
-  _.prototype.splitString = function(string) {
-    var blocks =
-      [].slice.call(string.match(/<[^>]+>/g) || []);
-    var split = [];
-    for (var i = 0; i < string.length; i++) {
-      if (string.slice(i).indexOf(blocks[0]) === 0) {
-        i += blocks[0].length - 1;
-        split.push(blocks.shift());
-      } else {
-        split.push(string.charAt(i));
-      }
-    }
-    return split;
-  };
-  _.prototype.add = function(string, value) {
-    var split = this.splitString(string);
-    var node = this;
-    split.forEach(function(e) {
-      if (node.data.hasOwnProperty(e)) {
-        node = node.data[e];
-      } else {
-        node.data[e] = new _(node);
-        node = node.data[e];
-      }
-      delete node.value;
-    });
-    node.value = value;
-  };
-  _.prototype.remove = function(string) {
-    var split = this.splitString(string);
-    var node = this.data;
-    while (split.length) {
-      node = node[split.shift()];
-      if (!node) {
-        return null;
-      }
-      if (split.length) {
-        node = node.data;
-      }
-    }
-    deleteKeyValue(node.parent.data, node);
-    while (node = node.parent) {
-      if (!node.value && Object.keys(node.data).length === 1) {
-        deleteKeyValue(node.parent.data, node);
-      } else {
-        break;
-      }
-    }
-  };
-  _.prototype.at = function(string) {
-    var split = this.splitString(string);
-    var node = this;
-    while (split.length) {
-      node = node.data['*'] || node.data[split[0]];
-      split.shift();
-      if (!node) {
-        return null;
-      }
-    }
-    return split.length !== 0 ? true : (node.value || true);
-  };
-  return _;
-})();
-
-var Marks = {};
-Marks.bookmarks = [];
-Marks.quickMarks = {};
-Marks.currentBookmarks = [];
-Marks.files = [];
 
 Marks.filePath = function() {
   var input = Command.input.value.replace(/.*\//, '');
@@ -1039,7 +1249,7 @@ Marks.addQuickMark = function(ch) {
       Status.setMessage('Current URL removed from existing QuickMark "' + ch + '"', 1);
     }
   }
-  chrome.runtime.sendMessage({action: 'updateMarks', marks: this.quickMarks});
+  RUNTIME('updateMarks', {marks: this.quickMarks});
 };
 
 Marks.openQuickMark = function(ch, tabbed, repeats) {
@@ -1049,27 +1259,25 @@ Marks.openQuickMark = function(ch, tabbed, repeats) {
   if (tabbed) {
     if (repeats !== 1) {
       if (this.quickMarks[ch][repeats - 1]) {
-        chrome.runtime.sendMessage({action: 'openLinkTab', url: this.quickMarks[ch][repeats - 1]});
+        RUNTIME('openLinkTab', {url: this.quickMarks[ch][repeats - 1]});
       } else {
-        chrome.runtime.sendMessage({action: 'openLinkTab', url: this.quickMarks[ch][0]});
+        RUNTIME('openLinkTab', {url: this.quickMarks[ch][0]});
       }
     } else {
       for (var i = 0, l = this.quickMarks[ch].length; i < l; ++i) {
-        chrome.runtime.sendMessage({action: 'openLinkTab', url: this.quickMarks[ch][i]});
+        RUNTIME('openLinkTab', {url: this.quickMarks[ch][i]});
       }
     }
   } else {
     if (this.quickMarks[ch][repeats - 1]) {
-      chrome.runtime.sendMessage({
-        action: 'openLink',
+      RUNTIME('openLink', {
         tab: {
           pinned: false
         },
         url: this.quickMarks[ch][repeats - 1]
       });
     } else {
-      chrome.runtime.sendMessage({
-        action: 'openLink',
+      RUNTIME('openLink', {
         tab: {
           pinned: false
         },
@@ -1099,9 +1307,7 @@ Marks.match = function(string, callback, limit) {
   }));
 };
 
-Marks.matchPath = function(path) {
-  port.postMessage({action: 'getBookmarkPath', path: path});
-};
+Marks.matchPath = function(path) { PORT('getBookmarkPath', {path: path}); };
 var addListeners, removeListeners, insertMode, commandMode, settings;
 
 var KeyListener = (function() {
@@ -1433,8 +1639,7 @@ Key.down = function(asciiKey, e) {
 
         if (!(Command.history[Command.type].length > 0 && Command.history[Command.type].slice(-1)[0] === Command.input.value)) {
           Command.history[Command.type].push(Command.input.value);
-          chrome.runtime.sendMessage({
-            action: 'appendHistory',
+          RUNTIME('appendHistory', {
             value: Command.input.value,
             type: Command.type
           });
@@ -1466,10 +1671,7 @@ Key.down = function(asciiKey, e) {
         Find.index = Command.modeIdentifier.textContent === '/' ? -1 : 1;
         Find.setIndex();
         Find.search(Command.modeIdentifier.textContent === '?', 1, true);
-        port.postMessage({
-          action: 'updateLastSearch',
-          value: Find.lastSearch
-        });
+        PORT('updateLastSearch', {value: Find.lastSearch});
         break;
       default:
         if (asciiKey === '<BS>' && Command.lastInputValue.length === 0 && Command.input.value.length === 0) {
@@ -1546,7 +1748,7 @@ addListeners();
 
 window.addEventListener('DOMContentLoaded', function() {
   if (self === top) {
-    chrome.runtime.sendMessage({action: 'isNewInstall'}, function(message) {
+    RUNTIME('isNewInstall', null, function(message) {
       if (message) {
         alert(message);
       }
@@ -1562,11 +1764,11 @@ Clipboard.copy = function(text, store) {
   } else {
     this.store += (this.store.length ? '\n' : '') + text;
   }
-  chrome.runtime.sendMessage({action: 'copy', text: this.store});
+  RUNTIME('copy', {text: this.store});
 };
 
 Clipboard.paste = function(tabbed) {
-  return chrome.runtime.sendMessage({action: (tabbed ? 'openPasteTab' : 'openPaste')});
+  RUNTIME(tabbed ? 'openPasteTab' : 'openPaste');
 };
 var Complete = {};
 
@@ -2037,7 +2239,7 @@ Mappings.actions = {
     window.stop();
   },
   cancelAllWebRequests: function() {
-    chrome.runtime.sendMessage({action: 'cancelAllWebRequests'});
+    RUNTIME('cancelAllWebRequests');
   },
   percentScroll: function(repeats) {
     repeats = (Mappings.repeats === '0' || Mappings.repeats === '') ? 0 : repeats;
@@ -2045,14 +2247,13 @@ Mappings.actions = {
       (document.body.scrollHeight - window.innerHeight) * repeats / 100;
   },
   goToTab: function(repeats) {
-    chrome.runtime.sendMessage({action: 'goToTab', index: repeats - 1});
+    RUNTIME('goToTab', {index: repeats - 1});
   },
   hideDownloadsShelf: function() {
-    chrome.runtime.sendMessage({action: 'hideDownloadsShelf'});
+    RUNTIME('hideDownloadsShelf');
   },
   goToRootUrl: function() {
-    chrome.runtime.sendMessage({
-      action: 'openLink',
+    RUNTIME('openLink', {
       url: location.protocol + '//' + location.hostname,
       tab: { pinned: null }
     });
@@ -2062,65 +2263,64 @@ Mappings.actions = {
       .filter(function(e) { return e; })
       .slice(0, -repeats).join('/');
     if (path !== location.pathname) {
-      chrome.runtime.sendMessage({
-        action: 'openLink',
+      RUNTIME('openLink', {
         url: location.protocol + '//' + location.hostname + path,
         tab: { pinned: null }
       });
     }
   },
   nextFrame: function(repeats) {
-    chrome.runtime.sendMessage({action: 'focusFrame', repeats: repeats});
+    RUNTIME('focusFrame', {repeats: repeats});
   },
   rootFrame: function() {
-    chrome.runtime.sendMessage({action: 'focusFrame', isRoot: true});
+    RUNTIME('focusFrame', {isRoot: true});
   },
   closeTab: function(repeats) {
-    chrome.runtime.sendMessage({action: 'closeTab', repeats: repeats});
+    RUNTIME('closeTab', {repeats: repeats});
   },
   closeTabLeft: function() {
-    chrome.runtime.sendMessage({action: 'closeTabLeft'});
+    RUNTIME('closeTabLeft');
   },
   closeTabRight: function() {
-    chrome.runtime.sendMessage({action: 'closeTabRight'});
+    RUNTIME('closeTabRight');
   },
   closeTabsToLeft: function() {
-    chrome.runtime.sendMessage({action: 'closeTabsToLeft'});
+    RUNTIME('closeTabsToLeft');
   },
   closeTabsToRight: function() {
-    chrome.runtime.sendMessage({action: 'closeTabsToRight'});
+    RUNTIME('closeTabsToRight');
   },
   pinTab: function() {
-    chrome.runtime.sendMessage({action: 'pinTab'});
+    RUNTIME('pinTab');
   },
   firstTab: function() {
-    chrome.runtime.sendMessage({action: 'firstTab'});
+    RUNTIME('firstTab');
   },
   lastTab: function() {
-    chrome.runtime.sendMessage({action: 'lastTab'});
+    RUNTIME('lastTab');
   },
   lastClosedTab: function() {
-    chrome.runtime.sendMessage({action: 'openLast'});
+    RUNTIME('openLast');
   },
   moveTabRight: function(repeats) {
-    chrome.runtime.sendMessage({action: 'moveTabRight', repeats: repeats});
+    RUNTIME('moveTabRight', {repeats: repeats});
   },
   moveTabLeft: function(repeats) {
-    chrome.runtime.sendMessage({action: 'moveTabLeft', repeats: repeats});
+    RUNTIME('moveTabLeft', {repeats: repeats});
   },
   lastActiveTab: function() {
-    chrome.runtime.sendMessage({action: 'lastActiveTab'});
+    RUNTIME('lastActiveTab');
   },
   reverseImage: function() {
     if (/\(\d+×\d+\)$/.test(document.title) === true && document.body.firstChild.localName === 'img') {
       if (document.body.firstChild.src) {
-        return chrome.runtime.sendMessage({
-          action: 'openLinkTab',
+        RUNTIME('openLinkTab', {
           active: false,
           url: 'https://www.google.com/searchbyimage?image_url=' +
                 document.body.firstChild.src,
           noconvert: true
         });
+        return;
       }
     } else {
       window.setTimeout(function() {
@@ -2176,27 +2376,19 @@ Mappings.actions = {
     }
   },
   zoomPageIn: function(repeats) {
-    chrome.runtime.sendMessage({
-      action: 'zoomIn',
-      repeats: repeats
-    }, function() {
+    RUNTIME('zoomIn', {repeats: repeats}, function() {
       document.body.style.zoom =
         (+document.body.style.zoom ? parseFloat(document.body.style.zoom) : 1) + settings.zoomfactor * repeats;
     });
   },
   zoomPageOut: function(repeats) {
-    chrome.runtime.sendMessage({
-      action: 'zoomOut',
-      repeats: repeats
-    }, function() {
+    RUNTIME('zoomOut', {repeats: repeats}, function() {
       document.body.style.zoom =
         (+document.body.style.zoom ? parseFloat(document.body.style.zoom) : 1) - settings.zoomfactor * repeats;
     });
   },
   zoomOrig: function() {
-    chrome.runtime.sendMessage({
-      action: 'zoomOrig'
-    }, function() {
+    RUNTIME('zoomOrig', null, function() {
       document.body.style.zoom = '1';
     });
   },
@@ -2229,16 +2421,10 @@ Mappings.actions = {
     }
   },
   openLastLinkInTab: function(repeats) {
-    chrome.runtime.sendMessage({
-      action: 'openLastLinkInTab',
-      repeats: repeats
-    });
+    RUNTIME('openLastLinkInTab', {repeats: repeats});
   },
   openNextLinkInTab: function(repeats) {
-    chrome.runtime.sendMessage({
-      action: 'openNextLinkInTab',
-      repeats: repeats
-    });
+    RUNTIME('openNextLinkInTab', {repeats: repeats});
   },
   scrollDown: function(repeats) {
     Scroll.scroll('down', repeats);
@@ -2345,16 +2531,16 @@ Mappings.actions = {
     }
   },
   reloadTab: function() {
-    chrome.runtime.sendMessage({action: 'reloadTab', nocache: false});
+    RUNTIME('reloadTab', {nocache: false});
   },
   reloadTabUncached: function() {
-    chrome.runtime.sendMessage({action: 'reloadTab', nocache: true});
+    RUNTIME('reloadTab', {nocache: true});
   },
   reloadAllButCurrent: function() {
-    chrome.runtime.sendMessage({action: 'reloadAllTabs', nocache: false, current: false});
+    RUNTIME('reloadAllTabs', {nocache: false, current: false});
   },
   reloadAllTabs: function() {
-    chrome.runtime.sendMessage({action: 'reloadAllTabs', nocache: false, current: true});
+    RUNTIME('reloadAllTabs', {nocache: false, current: true});
   },
   nextSearchResult: function(repeats) {
     if (Find.matches.length) {
@@ -2382,10 +2568,10 @@ Mappings.actions = {
     }
   },
   nextTab: function(r) {
-    chrome.runtime.sendMessage({action: 'nextTab', repeats: r});
+    RUNTIME('nextTab', {repeats: r});
   },
   previousTab: function(r) {
-    chrome.runtime.sendMessage({action: 'previousTab', repeats: r});
+    RUNTIME('previousTab', {repeats: r});
   },
   goBack: function(repeats) {
     history.go(-1 * repeats);
@@ -2394,8 +2580,7 @@ Mappings.actions = {
     history.go(1 * repeats);
   },
   goToSource: function() {
-    chrome.runtime.sendMessage({
-      action: 'openLinkTab',
+    RUNTIME('openLinkTab', {
       active: true,
       url: 'view-source:' + document.URL,
       noconvert: true
@@ -2649,8 +2834,7 @@ Mappings.insertFunctions = (function() {
       return element;
     },
     editWithVim: function() {
-      port.postMessage({
-        action: 'editWithVim',
+      PORT('editWithVim', {
         text: element.value || element.innerHTML
       });
     },
@@ -2895,8 +3079,7 @@ Mappings.convertToAction = function(c) {
           Mappings.lastCommand.fn = node.value;
         }
         Mappings.actions[node.value](Mappings.lastCommand.repeats);
-        chrome.runtime.sendMessage({
-          action: 'updateLastCommand',
+        RUNTIME('updateLastCommand', {
           data: JSON.stringify(Mappings.lastCommand)
         });
       } else {
@@ -2909,12 +3092,12 @@ Mappings.convertToAction = function(c) {
   }
   return true;
 };
-var Find = {};
-
-Find.highlights = [];
-Find.index = 0;
-Find.matches = [];
-Find.tries = 0;
+var Find = {
+  highlights: [],
+  matches: [],
+  index: 0,
+  tries: 0
+};
 
 Find.setIndex = function() {
   for (var i = 0; i < this.matches.length; i++) {
@@ -3198,194 +3381,6 @@ Status.hide = function() {
   Command.statusBar.style.display = 'none';
   this.active = false;
 };
-var port = chrome.extension.connect({name: 'main'});
-
-port.onMessage.addListener(function(response) {
-  var key;
-  switch (response.type) {
-    case 'hello':
-      port.postMessage({action: 'getBookmarks'});
-      port.postMessage({action: 'getQuickMarks'});
-      port.postMessage({action: 'getSessionNames'});
-      port.postMessage({action: 'retrieveAllHistory'});
-      port.postMessage({action: 'sendLastSearch'});
-      port.postMessage({action: 'getTopSites'});
-      port.postMessage({action: 'getLastCommand'});
-      break;
-    case 'updateLastCommand':
-      Mappings.lastCommand = JSON.parse(response.data);
-      break;
-    case 'commandHistory':
-      for (key in response.history) {
-        Command.history[key] = response.history[key];
-      }
-      break;
-    case 'history':
-      var matches = [];
-      for (key in response.history) {
-        if (response.history[key].url) {
-          if (response.history[key].title.trim() === '') {
-            matches.push(['Untitled', response.history[key].url]);
-          } else {
-            matches.push([response.history[key].title, response.history[key].url]);
-          }
-        }
-      }
-      matches = matches.sort(function(a, b) {
-        return a[1].length - b[1].length;
-      });
-      if (Command.historyMode) {
-        if (Command.active && Command.bar.style.display !== 'none') {
-          Command.completions = { history: matches };
-          Command.updateCompletions(false);
-        }
-      } else if (Command.searchMode) {
-        Command.searchMode = false;
-        if (Command.active && Command.bar.style.display !== 'none') {
-          Command.completions.history = matches;
-          Command.updateCompletions(true);
-        }
-      }
-      Marks.history = matches;
-      break;
-    case 'bookmarks':
-      Marks.bookmarks = [];
-      Marks.parse(response.bookmarks);
-      break;
-    case 'topsites':
-      Search.topSites = response.sites;
-      break;
-    case 'buffers':
-      if (Command.bar.style.display !== 'none') {
-        var val = Command.input.value.replace(/\S+\s+/, '');
-        Command.hideData();
-        Command.completions = {
-          buffers: !val.trim() || Number.isNaN(val) || !response.buffers[+val] ? searchArray(response.buffers, val, settings.searchlimit, true, function(item) {
-            return item.join(' ');
-          }) : [ response.buffers[+val] ] || []
-        };
-        Command.updateCompletions();
-      }
-      break;
-    case 'sessions':
-      sessions = response.sessions;
-      break;
-    case 'quickMarks':
-      Marks.quickMarks = {};
-      for (key in response.marks) {
-        if (Array.isArray(response.marks[key])) {
-          Marks.quickMarks[key] = response.marks[key];
-        } else if (typeof response.marks[key] === 'string') {
-          Marks.quickMarks[key] = [response.marks[key]];
-        }
-      }
-      break;
-    case 'bookmarkPath':
-      if (response.path.length) {
-        Command.completions = {};
-        Command.completions.paths = response.path;
-        Command.updateCompletions();
-      } else {
-        Command.hideData();
-      }
-      break;
-    case 'editWithVim':
-      var lastInputElement = Mappings.insertFunctions.__getElement__();
-      if (lastInputElement) {
-        lastInputElement[lastInputElement.value !== void 0 ? 'value' : 'innerHTML'] =
-          response.text.replace(/\n$/, ''); // remove trailing line left by vim
-      }
-      break;
-  }
-});
-
-chrome.extension.onMessage.addListener(function(request, sender, callback) {
-  switch (request.action) {
-    case 'updateLastCommand':
-      Mappings.lastCommand = JSON.parse(request.data);
-      break;
-    case 'getWindows':
-      if (request.windows && Command.active === true) {
-        Command.completions = {
-          windows: Object.keys(request.windows).map(function(e, i) {
-            var tlen = request.windows[e].length.toString();
-            return [(i+1).toString() + ' (' + tlen + (tlen === '1' ? ' Tab)' : ' Tabs)'),  request.windows[e].join(', '), e];
-          })
-        };
-        Command.updateCompletions();
-      }
-      break;
-    case 'commandHistory':
-      for (var key in request.history) {
-        Command.history[key] = request.history[key];
-      }
-      break;
-    case 'updateLastSearch':
-      Find.lastSearch = request.value;
-      break;
-    case 'sendSettings':
-      Mappings.defaults = Object.clone(Mappings.defaultsClone);
-      if (!Command.initialLoadStarted) {
-        Command.configureSettings(request.settings);
-      } else {
-        Mappings.parseCustom(request.settings.MAPPINGS);
-        settings = request.settings;
-      }
-      break;
-    case 'cancelAllWebRequests':
-      window.stop();
-      break;
-    case 'updateMarks':
-      Marks.quickMarks = request.marks;
-      break;
-    case 'base64Image':
-      chrome.runtime.sendMessage({action: 'openLinkTab', active: false, url: 'data:text/html;charset=utf-8;base64,' + window.btoa(reverseImagePost(request.data, null)), noconvert: true});
-      break;
-    case 'focusFrame':
-      if (request.index === Frames.index) {
-        Frames.focus();
-      }
-      break;
-    case 'sessions':
-      sessions = request.sessions;
-      break;
-    case 'nextCompletionResult':
-      if (settings.cncpcompletion && Command.type === 'action' && commandMode && document.activeElement.id === 'cVim-command-bar-input') {
-        Search.nextResult();
-        break;
-      }
-      if (window.self === window.top) {
-        callback(true);
-      }
-      break;
-    case 'deleteBackWord':
-      if (!insertMode && document.activeElement.isInput()) {
-        Mappings.insertFunctions.deleteWord();
-        if (document.activeElement.id === 'cVim-command-bar-input') {
-          Command.complete(Command.input.value);
-        }
-      }
-      break;
-    case 'getFilePath':
-      var parsed = request.data;
-      Marks.files = parsed;
-      Marks.filePath();
-      break;
-    case 'toggleEnabled':
-      addListeners();
-      if (!settings) {
-        chrome.runtime.sendMessage({action: 'getSettings'});
-      }
-      Command.init(request.state);
-      break;
-    case 'getBlacklistStatus':
-      callback(Command.blacklisted);
-      break;
-    case 'alert':
-      alert(request.message);
-      break;
-  }
-});
 var HUD = {};
 HUD.visible = false;
 HUD.slideDuration = 40;
@@ -3843,13 +3838,13 @@ Command.history = {
       index = len;
     }
     var lastIndex = index;
-    index += reverse? -1 : 1;
+    index += reverse ? -1 : 1;
     if (Command.typed && Command.typed.trim()) {
       while (this.setInfo(type, index)) {
         if (this[type][index].substring(0, Command.typed.length) === Command.typed) {
           break;
         }
-        index += reverse? -1 : 1;
+        index += reverse ? -1 : 1;
       }
     }
     if (reverse && index === -1) {
@@ -4065,7 +4060,7 @@ Command.complete = function(value) {
   }
 
   if (/^tabhistory +/.test(value)) {
-    chrome.runtime.sendMessage({action: 'getHistoryStates'}, function(response) {
+    RUNTIME('getHistoryStates', null, function(response) {
       this.completions = {
         tabhistory: searchArray(response.links, value.replace(/\S+\s+/, ''), settings.searchlimit, true)
       };
@@ -4075,7 +4070,7 @@ Command.complete = function(value) {
   }
 
   if (/^taba(ttach)? +/.test(value)) {
-    chrome.runtime.sendMessage({action: 'getWindows'});
+    RUNTIME('getWindows');
     this.completions = { };
     return;
   }
@@ -4086,7 +4081,7 @@ Command.complete = function(value) {
   }
 
   if (/^restore\s+/.test(value)) {
-    chrome.runtime.sendMessage({action: 'getChromeSessions'}, function(sessions) {
+    RUNTIME('getChromeSessions', null, function(sessions) {
       this.completions = {
         chromesessions: Object.keys(sessions).map(function(e) {
           return [sessions[e].id + ': ' + sessions[e].title, sessions[e].url, sessions[e].id];
@@ -4142,7 +4137,8 @@ Command.complete = function(value) {
       if (settings.homedirectory) {
         search = search.replace('~', settings.homedirectory);
       }
-      return chrome.runtime.sendMessage({action: 'getFilePath', path: search});
+      RUNTIME('getFilePath', {path: search});
+      return;
     } else {
       Marks.lastFileSearch = search;
       return Marks.filePath();
@@ -4201,15 +4197,23 @@ Command.execute = function(value, repeats) {
       HUD.hide();
       break;
     case 'duplicate':
-      chrome.runtime.sendMessage({action: 'duplicateTab', repeats: repeats});
+      RUNTIME('duplicateTab', {repeats: repeats});
       break;
     case 'settings':
       tab.tabbed = true;
-      chrome.runtime.sendMessage({action: 'openLink', tab: tab, url: chrome.extension.getURL('/pages/options.html'), repeats: repeats});
+      RUNTIME('openLink', {
+        tab: tab,
+        url: chrome.extension.getURL('/pages/options.html'),
+        repeats: repeats
+      });
       break;
     case 'changelog':
       tab.tabbed = true;
-      chrome.runtime.sendMessage({action: 'openLink', tab: tab, url: chrome.extension.getURL('/pages/changelog.html'), repeats: repeats});
+      RUNTIME('openLink', {
+        tab: tab,
+        url: chrome.extension.getURL('/pages/changelog.html'),
+        repeats: repeats
+      });
       break;
     case 'date':
       var date = new Date();
@@ -4219,135 +4223,134 @@ Command.execute = function(value, repeats) {
       break;
     case 'help':
       tab.tabbed = true;
-      chrome.runtime.sendMessage({action: 'openLink', tab: tab, url: chrome.extension.getURL('/pages/mappings.html')});
+      RUNTIME('openLink', {tab: tab, url: chrome.extension.getURL('/pages/mappings.html')});
       break;
     case 'stop':
       window.stop();
       break;
     case 'stopall':
-      chrome.runtime.sendMessage({action: 'cancelAllWebRequests'});
+      RUNTIME('cancelAllWebRequests');
       break;
     case 'viewsource':
-      chrome.runtime.sendMessage({action: 'openLink', tab: tab, url: 'view-source:' + document.URL, noconvert: true});
+      RUNTIME('openLink', {tab: tab, url: 'view-source:' + document.URL, noconvert: true});
       break;
     case 'togglepin':
-      chrome.runtime.sendMessage({action: 'pinTab'});
+      RUNTIME('pinTab');
       break;
     case 'undo':
-      chrome.runtime.sendMessage({action: 'openLast'});
+      RUNTIME('openLast');
       break;
     case 'tabnext':
     case 'tabn':
-      chrome.runtime.sendMessage({action: 'nextTab'});
+      RUNTIME('nextTab');
       break;
     case 'tabprevious':
     case 'tabp':
     case 'tabN':
-      chrome.runtime.sendMessage({action: 'previousTab'});
+      RUNTIME('previousTab');
       break;
     case 'tabprevious':
       break;
     case 'q':
     case 'quit':
     case 'exit':
-      chrome.runtime.sendMessage({action: 'closeTab', repeats: repeats});
+      RUNTIME('closeTab', {repeats: repeats});
       break;
     case 'qa':
     case 'qall':
-      chrome.runtime.sendMessage({action: 'closeWindow'});
+      RUNTIME('closeWindow');
       break;
     default:
       break;
   }
 
   if (/^chrome:\/\/\S+$/.test(value)) {
-    return chrome.runtime.sendMessage({
-      action: 'openLink',
+    RUNTIME('openLink', {
       tab: tab,
       url: value,
       noconvert: true
     });
+    return;
   }
 
   if (/^bookmarks +/.test(value) && !/^\S+\s*$/.test(value)) {
     if (/^\S+\s+\//.test(value)) {
-      return chrome.runtime.sendMessage({
-        action: 'openBookmarkFolder',
+      RUNTIME('openBookmarkFolder', {
         path: value.replace(/\S+\s+/, ''),
         noconvert: true
       });
+      return;
     }
-    return chrome.runtime.sendMessage({
-      action: 'openLink',
+    RUNTIME('openLink', {
       tab: tab,
       url: value.replace(/^\S+\s+/, ''),
       noconvert: true
     });
+    return;
   }
 
   if (/^history +/.test(value) && !/^\S+\s*$/.test(value)) {
-    return chrome.runtime.sendMessage({
-      action: 'openLink',
+    RUNTIME('openLink', {
       tab: tab,
       url: Complete.convertToLink(value),
       noconvert: true
     });
+    return;
   }
 
   if (/^taba(ttach)? +/.test(value) && !/^\S+\s*$/.test(value)) {
     var windowId;
     if (windowId = this.completionResults[parseInt(value.replace(/^\S+ */, '')) - 1]) {
-      return chrome.runtime.sendMessage({
-        action: 'moveTab',
+      RUNTIME('moveTab', {
         windowId: windowId[3]
       });
+      return;
     }
   }
 
   if (/^file +/.test(value)) {
-    return chrome.runtime.sendMessage({
-      action: 'openLink',
+    RUNTIME('openLink', {
       tab: tab,
       url: 'file://' + value.replace(/\S+ +/, '').replace(/^~/, settings.homedirectory),
       noconvert: true
     });
+    return;
   }
 
   if (/^(new|winopen|wo)$/.test(value.replace(/ .*/, '')) && !/^\S+\s*$/.test(value)) {
-    return chrome.runtime.sendMessage({
-      action: 'openLinkWindow',
+    RUNTIME('openLinkWindow', {
       tab: tab,
       url: Complete.convertToLink(value),
       repeats: repeats,
       noconvert: true
     });
+    return;
   }
 
   if (/^restore\s+/.test(value)) {
-    chrome.runtime.sendMessage({
-      action: 'restoreChromeSession',
+    RUNTIME('restoreChromeSession', {
       sessionId: value.replace(/\S+\s+/, '').trimAround()
     });
   }
 
   if (/^(tabnew|tabedit|tabe|to|tabopen|tabhistory)$/.test(value.replace(/ .*/, ''))) {
     tab.tabbed = true;
-    return chrome.runtime.sendMessage({
-      action: 'openLink',
+    RUNTIME('openLink', {
       tab: tab,
       url: Complete.convertToLink(value),
       repeats: repeats,
       noconvert: true
     });
+    return;
   }
 
   if (/^(o|open)$/.test(value.replace(/ .*/, '')) && !/^\S+\s*$/.test(value)) {
-    return chrome.runtime.sendMessage({
-      action: 'openLink',
+    RUNTIME('openLink', {
       tab: tab,
       url: Complete.convertToLink(value),
       noconvert: true
     });
+    return;
   }
 
   if (/^buffer +/.test(value)) {
@@ -4364,10 +4367,7 @@ Command.execute = function(value, repeats) {
       })[0];
     }
     if (selectedBuffer !== void 0) {
-      chrome.runtime.sendMessage({
-        action: 'goToTab',
-        id: selectedBuffer[3]
-      });
+      RUNTIME('goToTab', {id: selectedBuffer[3]});
     }
     return;
   }
@@ -4389,7 +4389,7 @@ Command.execute = function(value, repeats) {
       sessions.splice(sessions.indexOf(value), 1);
     }
     value.split(' ').forEach(function(v) {
-      chrome.runtime.sendMessage({action: 'deleteSession', name: v});
+      RUNTIME('deleteSession', {name: v});
     });
     return port.postMessage({action: 'getSessionNames'});
   }
@@ -4405,10 +4405,7 @@ Command.execute = function(value, repeats) {
     if (sessions.indexOf(value) === -1) {
       sessions.push(value);
     }
-    chrome.runtime.sendMessage({
-      action: 'createSession',
-      name: value
-    });
+    RUNTIME('createSession', {name: value});
     return;
   }
 
@@ -4417,13 +4414,10 @@ Command.execute = function(value, repeats) {
     if (value === '') {
       return Status.setMessage('session name required', 1, 'error');
     }
-    return chrome.runtime.sendMessage({
-      action: 'openSession',
-      name: value,
-      sameWindow: !tab.active
-    }, function() {
+    RUNTIME('openSession', {name: value, sameWindow: !tab.active}, function() {
       Status.setMessage('session does not exist', 1, 'error');
     });
+    return;
   }
 
   if (/^((i?(re)?map)|i?unmap(All)?)+/.test(value)) {
@@ -4457,7 +4451,7 @@ Command.execute = function(value, repeats) {
       } else {
         settings[value[0]] = isSet;
       }
-      chrome.runtime.sendMessage({action: 'syncSettings', settings: settings});
+      RUNTIME('syncSettings', {settings: settings});
     }
     return;
   }
@@ -4534,8 +4528,7 @@ Command.insertCSS = function() {
   var head = document.getElementsByTagName('head');
   if (!head.length && window.location.protocol !== 'chrome-extensions:' && window.location.pathname !== '/_/chrome/newtab') {
     if (window.location.protocol !== 'chrome:') {
-      chrome.runtime.sendMessage({
-        action: 'injectCSS',
+      RUNTIME('injectCSS', {
         css: settings.COMMANDBARCSS,
         runAt: 'document_start'
       });
@@ -4670,7 +4663,7 @@ Command.configureSettings = function(_settings) {
   };
   var loadMain = function() {
     Command.loaded = true;
-    chrome.runtime.sendMessage({action: 'setIconEnabled'});
+    RUNTIME('setIconEnabled');
     Command.init(true);
   };
   Search.settings = Object.keys(settings).filter(function(e) {
@@ -4679,7 +4672,7 @@ Command.configureSettings = function(_settings) {
   removeListeners();
   settings.searchlimit = +settings.searchlimit;
   if (!checkBlacklist()) {
-    chrome.runtime.sendMessage({action: 'getActiveState'}, function(response) {
+    RUNTIME('getActiveState', null, function(response) {
       if (response) {
         addListeners();
         loadMain();
@@ -4693,7 +4686,7 @@ Command.configureSettings = function(_settings) {
 };
 
 if (!Command.loaded) {
-  chrome.runtime.sendMessage({action: 'getSettings'});
+  RUNTIME('getSettings');
 }
 var Scroll = {};
 Scroll.positions = {};
@@ -5224,29 +5217,25 @@ Search.nextResult = function(reverse) {
   }
 
 };
-var Frames = {};
-
-Frames.focus = function() {
-  window.focus();
-  var outline = document.createElement('div');
-  outline.id = 'cVim-frames-outline';
-  document.body.appendChild(outline);
-  window.setTimeout(function() {
-    document.body.removeChild(outline);
-  }, 500);
-};
-
-Frames.isVisible = function() {
-  return document.body &&
-         window.innerWidth &&
-         window.innerHeight;
-};
-
-Frames.init = function(isRoot) {
-  if (Frames.isVisible()) {
-    chrome.runtime.sendMessage({action: 'addFrame', isRoot: isRoot}, function(index) {
-      Frames.index = index;
-    });
+var Frames = {
+  focus: function() {
+    window.focus();
+    var outline = document.createElement('div');
+    outline.id = 'cVim-frames-outline';
+    document.body.appendChild(outline);
+    window.setTimeout(function() {
+      document.body.removeChild(outline);
+    }, 500);
+  },
+  isVisible: function() {
+    return document.body && window.innerWidth && window.innerHeight;
+  },
+  init: function(isRoot) {
+    if (Frames.isVisible()) {
+      RUNTIME('addFrame', {isRoot: isRoot}, function(index) {
+        Frames.index = index;
+      });
+    }
   }
 };
 

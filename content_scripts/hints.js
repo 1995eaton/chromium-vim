@@ -107,13 +107,13 @@ Hints.dispatchAction = function(link) {
       }
       break;
     case 'fullimage':
-      chrome.runtime.sendMessage({action: 'openLinkTab', active: false, url: link.src, noconvert: true});
+      RUNTIME('openLinkTab', {active: false, url: link.src, noconvert: true});
       break;
     case 'image':
     case 'multiimage':
       var url = googleReverseImage(link.src, null);
       if (url) {
-        chrome.runtime.sendMessage({action: 'openLinkTab', active: false, url: url, noconvert: true});
+        RUNTIME('openLinkTab', {active: false, url: url, noconvert: true});
       }
       break;
     case 'hover':
@@ -131,7 +131,7 @@ Hints.dispatchAction = function(link) {
       link.unhover();
       break;
     case 'window':
-      chrome.runtime.sendMessage({action: 'openLinkWindow', focused: false, url: link.href, noconvert: true});
+      RUNTIME('openLinkWindow', {focused: false, url: link.href, noconvert: true});
       break;
     default:
       if (node === 'textarea' || (node === 'input' && /^(text|password|email|search)$/i.test(link.type)) ||
@@ -152,7 +152,7 @@ Hints.dispatchAction = function(link) {
         break;
       }
       if (link.getAttribute('target') !== '_top' && (/tabbed/.test(this.type) || this.type === 'multi')) {
-        chrome.runtime.sendMessage({action: 'openLinkTab', active: this.type === 'tabbedActive', url: link.href, noconvert: true});
+        RUNTIME('openLinkTab', {active: this.type === 'tabbedActive', url: link.href, noconvert: true});
       } else {
         if (link.getAttribute('href')) {
           link.click();

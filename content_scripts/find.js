@@ -1,9 +1,9 @@
-var Find = {};
-
-Find.highlights = [];
-Find.index = 0;
-Find.matches = [];
-Find.tries = 0;
+var Find = {
+  highlights: [],
+  matches: [],
+  index: 0,
+  tries: 0
+};
 
 Find.setIndex = function() {
   for (var i = 0; i < this.matches.length; i++) {

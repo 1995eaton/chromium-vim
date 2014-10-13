@@ -329,8 +329,7 @@ Key.down = function(asciiKey, e) {
 
         if (!(Command.history[Command.type].length > 0 && Command.history[Command.type].slice(-1)[0] === Command.input.value)) {
           Command.history[Command.type].push(Command.input.value);
-          chrome.runtime.sendMessage({
-            action: 'appendHistory',
+          RUNTIME('appendHistory', {
             value: Command.input.value,
             type: Command.type
           });
@@ -362,10 +361,7 @@ Key.down = function(asciiKey, e) {
         Find.index = Command.modeIdentifier.textContent === '/' ? -1 : 1;
         Find.setIndex();
         Find.search(Command.modeIdentifier.textContent === '?', 1, true);
-        port.postMessage({
-          action: 'updateLastSearch',
-          value: Find.lastSearch
-        });
+        PORT('updateLastSearch', {value: Find.lastSearch});
         break;
       default:
         if (asciiKey === '<BS>' && Command.lastInputValue.length === 0 && Command.input.value.length === 0) {
@@ -442,7 +438,7 @@ addListeners();
 
 window.addEventListener('DOMContentLoaded', function() {
   if (self === top) {
-    chrome.runtime.sendMessage({action: 'isNewInstall'}, function(message) {
+    RUNTIME('isNewInstall', null, function(message) {
       if (message) {
         alert(message);
       }

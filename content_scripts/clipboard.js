@@ -7,9 +7,9 @@ Clipboard.copy = function(text, store) {
   } else {
     this.store += (this.store.length ? '\n' : '') + text;
   }
-  chrome.runtime.sendMessage({action: 'copy', text: this.store});
+  RUNTIME('copy', {text: this.store});
 };
 
 Clipboard.paste = function(tabbed) {
-  return chrome.runtime.sendMessage({action: (tabbed ? 'openPasteTab' : 'openPaste')});
+  RUNTIME(tabbed ? 'openPasteTab' : 'openPaste');
 };

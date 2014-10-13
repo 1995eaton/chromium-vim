@@ -75,7 +75,7 @@ Mappings.actions = {
     window.stop();
   },
   cancelAllWebRequests: function() {
-    chrome.runtime.sendMessage({action: 'cancelAllWebRequests'});
+    RUNTIME('cancelAllWebRequests');
   },
   percentScroll: function(repeats) {
     repeats = (Mappings.repeats === '0' || Mappings.repeats === '') ? 0 : repeats;
@@ -83,14 +83,13 @@ Mappings.actions = {
       (document.body.scrollHeight - window.innerHeight) * repeats / 100;
   },
   goToTab: function(repeats) {
-    chrome.runtime.sendMessage({action: 'goToTab', index: repeats - 1});
+    RUNTIME('goToTab', {index: repeats - 1});
   },
   hideDownloadsShelf: function() {
-    chrome.runtime.sendMessage({action: 'hideDownloadsShelf'});
+    RUNTIME('hideDownloadsShelf');
   },
   goToRootUrl: function() {
-    chrome.runtime.sendMessage({
-      action: 'openLink',
+    RUNTIME('openLink', {
       url: location.protocol + '//' + location.hostname,
       tab: { pinned: null }
     });
@@ -100,65 +99,64 @@ Mappings.actions = {
       .filter(function(e) { return e; })
       .slice(0, -repeats).join('/');
     if (path !== location.pathname) {
-      chrome.runtime.sendMessage({
-        action: 'openLink',
+      RUNTIME('openLink', {
         url: location.protocol + '//' + location.hostname + path,
         tab: { pinned: null }
       });
     }
   },
   nextFrame: function(repeats) {
-    chrome.runtime.sendMessage({action: 'focusFrame', repeats: repeats});
+    RUNTIME('focusFrame', {repeats: repeats});
   },
   rootFrame: function() {
-    chrome.runtime.sendMessage({action: 'focusFrame', isRoot: true});
+    RUNTIME('focusFrame', {isRoot: true});
   },
   closeTab: function(repeats) {
-    chrome.runtime.sendMessage({action: 'closeTab', repeats: repeats});
+    RUNTIME('closeTab', {repeats: repeats});
   },
   closeTabLeft: function() {
-    chrome.runtime.sendMessage({action: 'closeTabLeft'});
+    RUNTIME('closeTabLeft');
   },
   closeTabRight: function() {
-    chrome.runtime.sendMessage({action: 'closeTabRight'});
+    RUNTIME('closeTabRight');
   },
   closeTabsToLeft: function() {
-    chrome.runtime.sendMessage({action: 'closeTabsToLeft'});
+    RUNTIME('closeTabsToLeft');
   },
   closeTabsToRight: function() {
-    chrome.runtime.sendMessage({action: 'closeTabsToRight'});
+    RUNTIME('closeTabsToRight');
   },
   pinTab: function() {
-    chrome.runtime.sendMessage({action: 'pinTab'});
+    RUNTIME('pinTab');
   },
   firstTab: function() {
-    chrome.runtime.sendMessage({action: 'firstTab'});
+    RUNTIME('firstTab');
   },
   lastTab: function() {
-    chrome.runtime.sendMessage({action: 'lastTab'});
+    RUNTIME('lastTab');
   },
   lastClosedTab: function() {
-    chrome.runtime.sendMessage({action: 'openLast'});
+    RUNTIME('openLast');
   },
   moveTabRight: function(repeats) {
-    chrome.runtime.sendMessage({action: 'moveTabRight', repeats: repeats});
+    RUNTIME('moveTabRight', {repeats: repeats});
   },
   moveTabLeft: function(repeats) {
-    chrome.runtime.sendMessage({action: 'moveTabLeft', repeats: repeats});
+    RUNTIME('moveTabLeft', {repeats: repeats});
   },
   lastActiveTab: function() {
-    chrome.runtime.sendMessage({action: 'lastActiveTab'});
+    RUNTIME('lastActiveTab');
   },
   reverseImage: function() {
     if (/\(\d+×\d+\)$/.test(document.title) === true && document.body.firstChild.localName === 'img') {
       if (document.body.firstChild.src) {
-        return chrome.runtime.sendMessage({
-          action: 'openLinkTab',
+        RUNTIME('openLinkTab', {
           active: false,
           url: 'https://www.google.com/searchbyimage?image_url=' +
                 document.body.firstChild.src,
           noconvert: true
         });
+        return;
       }
     } else {
       window.setTimeout(function() {
@@ -214,27 +212,19 @@ Mappings.actions = {
     }
   },
   zoomPageIn: function(repeats) {
-    chrome.runtime.sendMessage({
-      action: 'zoomIn',
-      repeats: repeats
-    }, function() {
+    RUNTIME('zoomIn', {repeats: repeats}, function() {
       document.body.style.zoom =
         (+document.body.style.zoom ? parseFloat(document.body.style.zoom) : 1) + settings.zoomfactor * repeats;
     });
   },
   zoomPageOut: function(repeats) {
-    chrome.runtime.sendMessage({
-      action: 'zoomOut',
-      repeats: repeats
-    }, function() {
+    RUNTIME('zoomOut', {repeats: repeats}, function() {
       document.body.style.zoom =
         (+document.body.style.zoom ? parseFloat(document.body.style.zoom) : 1) - settings.zoomfactor * repeats;
     });
   },
   zoomOrig: function() {
-    chrome.runtime.sendMessage({
-      action: 'zoomOrig'
-    }, function() {
+    RUNTIME('zoomOrig', null, function() {
       document.body.style.zoom = '1';
     });
   },
@@ -267,16 +257,10 @@ Mappings.actions = {
     }
   },
   openLastLinkInTab: function(repeats) {
-    chrome.runtime.sendMessage({
-      action: 'openLastLinkInTab',
-      repeats: repeats
-    });
+    RUNTIME('openLastLinkInTab', {repeats: repeats});
   },
   openNextLinkInTab: function(repeats) {
-    chrome.runtime.sendMessage({
-      action: 'openNextLinkInTab',
-      repeats: repeats
-    });
+    RUNTIME('openNextLinkInTab', {repeats: repeats});
   },
   scrollDown: function(repeats) {
     Scroll.scroll('down', repeats);
@@ -383,16 +367,16 @@ Mappings.actions = {
     }
   },
   reloadTab: function() {
-    chrome.runtime.sendMessage({action: 'reloadTab', nocache: false});
+    RUNTIME('reloadTab', {nocache: false});
   },
   reloadTabUncached: function() {
-    chrome.runtime.sendMessage({action: 'reloadTab', nocache: true});
+    RUNTIME('reloadTab', {nocache: true});
   },
   reloadAllButCurrent: function() {
-    chrome.runtime.sendMessage({action: 'reloadAllTabs', nocache: false, current: false});
+    RUNTIME('reloadAllTabs', {nocache: false, current: false});
   },
   reloadAllTabs: function() {
-    chrome.runtime.sendMessage({action: 'reloadAllTabs', nocache: false, current: true});
+    RUNTIME('reloadAllTabs', {nocache: false, current: true});
   },
   nextSearchResult: function(repeats) {
     if (Find.matches.length) {
@@ -420,10 +404,10 @@ Mappings.actions = {
     }
   },
   nextTab: function(r) {
-    chrome.runtime.sendMessage({action: 'nextTab', repeats: r});
+    RUNTIME('nextTab', {repeats: r});
   },
   previousTab: function(r) {
-    chrome.runtime.sendMessage({action: 'previousTab', repeats: r});
+    RUNTIME('previousTab', {repeats: r});
   },
   goBack: function(repeats) {
     history.go(-1 * repeats);
@@ -432,8 +416,7 @@ Mappings.actions = {
     history.go(1 * repeats);
   },
   goToSource: function() {
-    chrome.runtime.sendMessage({
-      action: 'openLinkTab',
+    RUNTIME('openLinkTab', {
       active: true,
       url: 'view-source:' + document.URL,
       noconvert: true
@@ -687,8 +670,7 @@ Mappings.insertFunctions = (function() {
       return element;
     },
     editWithVim: function() {
-      port.postMessage({
-        action: 'editWithVim',
+      PORT('editWithVim', {
         text: element.value || element.innerHTML
       });
     },
@@ -933,8 +915,7 @@ Mappings.convertToAction = function(c) {
           Mappings.lastCommand.fn = node.value;
         }
         Mappings.actions[node.value](Mappings.lastCommand.repeats);
-        chrome.runtime.sendMessage({
-          action: 'updateLastCommand',
+        RUNTIME('updateLastCommand', {
           data: JSON.stringify(Mappings.lastCommand)
         });
       } else {

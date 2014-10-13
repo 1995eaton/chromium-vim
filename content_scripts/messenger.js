@@ -1,5 +1,24 @@
 var port = chrome.extension.connect({name: 'main'});
 
+RUNTIME = function(action, args, callback) {
+  args = args || {};
+  args.action = action;
+  if (typeof callback === 'function') {
+    chrome.runtime.sendMessage(args, callback);
+  } else {
+    chrome.runtime.sendMessage(args);
+  }
+};
+PORT = function(action, args, callback) {
+  args = args || {};
+  args.action = action;
+  if (typeof callback === 'function') {
+    port.postMessage(args, callback);
+  } else {
+    port.postMessage(args);
+  }
+};
+
 port.onMessage.addListener(function(response) {
   var key;
   switch (response.type) {
@@ -139,7 +158,12 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
       Marks.quickMarks = request.marks;
       break;
     case 'base64Image':
-      chrome.runtime.sendMessage({action: 'openLinkTab', active: false, url: 'data:text/html;charset=utf-8;base64,' + window.btoa(reverseImagePost(request.data, null)), noconvert: true});
+      RUNTIME('openLinkTab', {
+        active: false,
+        url: 'data:text/html;charset=utf-8;base64,' +
+          window.btoa(reverseImagePost(request.data, null)),
+        noconvert: true
+      });
       break;
     case 'focusFrame':
       if (request.index === Frames.index) {
@@ -174,7 +198,7 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
     case 'toggleEnabled':
       addListeners();
       if (!settings) {
-        chrome.runtime.sendMessage({action: 'getSettings'});
+        RUNTIME('getSettings');
       }
       Command.init(request.state);
       break;

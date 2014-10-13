@@ -54,7 +54,7 @@ var googleReverseImage = function(url, source) {
     }
   } else {
     if (url.indexOf('file://') === 0 || url.indexOf('chrome') === 0) {
-      chrome.runtime.sendMessage({action: 'urlToBase64', url: url});
+      RUNTIME('urlToBase64', {url: url});
       return;
     }
     return 'https://www.google.com/searchbyimage?image_url=' + url;

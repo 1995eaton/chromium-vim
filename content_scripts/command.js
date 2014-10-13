@@ -85,13 +85,13 @@ Command.history = {
       index = len;
     }
     var lastIndex = index;
-    index += reverse? -1 : 1;
+    index += reverse ? -1 : 1;
     if (Command.typed && Command.typed.trim()) {
       while (this.setInfo(type, index)) {
         if (this[type][index].substring(0, Command.typed.length) === Command.typed) {
           break;
         }
-        index += reverse? -1 : 1;
+        index += reverse ? -1 : 1;
       }
     }
     if (reverse && index === -1) {
@@ -307,7 +307,7 @@ Command.complete = function(value) {
   }
 
   if (/^tabhistory +/.test(value)) {
-    chrome.runtime.sendMessage({action: 'getHistoryStates'}, function(response) {
+    RUNTIME('getHistoryStates', null, function(response) {
       this.completions = {
         tabhistory: searchArray(response.links, value.replace(/\S+\s+/, ''), settings.searchlimit, true)
       };
@@ -317,7 +317,7 @@ Command.complete = function(value) {
   }
 
   if (/^taba(ttach)? +/.test(value)) {
-    chrome.runtime.sendMessage({action: 'getWindows'});
+    RUNTIME('getWindows');
     this.completions = { };
     return;
   }
@@ -328,7 +328,7 @@ Command.complete = function(value) {
   }
 
   if (/^restore\s+/.test(value)) {
-    chrome.runtime.sendMessage({action: 'getChromeSessions'}, function(sessions) {
+    RUNTIME('getChromeSessions', null, function(sessions) {
       this.completions = {
         chromesessions: Object.keys(sessions).map(function(e) {
           return [sessions[e].id + ': ' + sessions[e].title, sessions[e].url, sessions[e].id];
@@ -384,7 +384,8 @@ Command.complete = function(value) {
       if (settings.homedirectory) {
         search = search.replace('~', settings.homedirectory);
       }
-      return chrome.runtime.sendMessage({action: 'getFilePath', path: search});
+      RUNTIME('getFilePath', {path: search});
+      return;
     } else {
       Marks.lastFileSearch = search;
       return Marks.filePath();
@@ -443,15 +444,23 @@ Command.execute = function(value, repeats) {
       HUD.hide();
       break;
     case 'duplicate':
-      chrome.runtime.sendMessage({action: 'duplicateTab', repeats: repeats});
+      RUNTIME('duplicateTab', {repeats: repeats});
       break;
     case 'settings':
       tab.tabbed = true;
-      chrome.runtime.sendMessage({action: 'openLink', tab: tab, url: chrome.extension.getURL('/pages/options.html'), repeats: repeats});
+      RUNTIME('openLink', {
+        tab: tab,
+        url: chrome.extension.getURL('/pages/options.html'),
+        repeats: repeats
+      });
       break;
     case 'changelog':
       tab.tabbed = true;
-      chrome.runtime.sendMessage({action: 'openLink', tab: tab, url: chrome.extension.getURL('/pages/changelog.html'), repeats: repeats});
+      RUNTIME('openLink', {
+        tab: tab,
+        url: chrome.extension.getURL('/pages/changelog.html'),
+        repeats: repeats
+      });
       break;
     case 'date':
       var date = new Date();
@@ -461,135 +470,134 @@ Command.execute = function(value, repeats) {
       break;
     case 'help':
       tab.tabbed = true;
-      chrome.runtime.sendMessage({action: 'openLink', tab: tab, url: chrome.extension.getURL('/pages/mappings.html')});
+      RUNTIME('openLink', {tab: tab, url: chrome.extension.getURL('/pages/mappings.html')});
       break;
     case 'stop':
       window.stop();
       break;
     case 'stopall':
-      chrome.runtime.sendMessage({action: 'cancelAllWebRequests'});
+      RUNTIME('cancelAllWebRequests');
       break;
     case 'viewsource':
-      chrome.runtime.sendMessage({action: 'openLink', tab: tab, url: 'view-source:' + document.URL, noconvert: true});
+      RUNTIME('openLink', {tab: tab, url: 'view-source:' + document.URL, noconvert: true});
       break;
     case 'togglepin':
-      chrome.runtime.sendMessage({action: 'pinTab'});
+      RUNTIME('pinTab');
       break;
     case 'undo':
-      chrome.runtime.sendMessage({action: 'openLast'});
+      RUNTIME('openLast');
       break;
     case 'tabnext':
     case 'tabn':
-      chrome.runtime.sendMessage({action: 'nextTab'});
+      RUNTIME('nextTab');
       break;
     case 'tabprevious':
     case 'tabp':
     case 'tabN':
-      chrome.runtime.sendMessage({action: 'previousTab'});
+      RUNTIME('previousTab');
       break;
     case 'tabprevious':
       break;
     case 'q':
     case 'quit':
     case 'exit':
-      chrome.runtime.sendMessage({action: 'closeTab', repeats: repeats});
+      RUNTIME('closeTab', {repeats: repeats});
       break;
     case 'qa':
     case 'qall':
-      chrome.runtime.sendMessage({action: 'closeWindow'});
+      RUNTIME('closeWindow');
       break;
     default:
       break;
   }
 
   if (/^chrome:\/\/\S+$/.test(value)) {
-    return chrome.runtime.sendMessage({
-      action: 'openLink',
+    RUNTIME('openLink', {
       tab: tab,
       url: value,
       noconvert: true
     });
+    return;
   }
 
   if (/^bookmarks +/.test(value) && !/^\S+\s*$/.test(value)) {
     if (/^\S+\s+\//.test(value)) {
-      return chrome.runtime.sendMessage({
-        action: 'openBookmarkFolder',
+      RUNTIME('openBookmarkFolder', {
         path: value.replace(/\S+\s+/, ''),
         noconvert: true
       });
+      return;
     }
-    return chrome.runtime.sendMessage({
-      action: 'openLink',
+    RUNTIME('openLink', {
       tab: tab,
       url: value.replace(/^\S+\s+/, ''),
       noconvert: true
     });
+    return;
   }
 
   if (/^history +/.test(value) && !/^\S+\s*$/.test(value)) {
-    return chrome.runtime.sendMessage({
-      action: 'openLink',
+    RUNTIME('openLink', {
       tab: tab,
       url: Complete.convertToLink(value),
       noconvert: true
     });
+    return;
   }
 
   if (/^taba(ttach)? +/.test(value) && !/^\S+\s*$/.test(value)) {
     var windowId;
     if (windowId = this.completionResults[parseInt(value.replace(/^\S+ */, '')) - 1]) {
-      return chrome.runtime.sendMessage({
-        action: 'moveTab',
+      RUNTIME('moveTab', {
         windowId: windowId[3]
       });
+      return;
     }
   }
 
   if (/^file +/.test(value)) {
-    return chrome.runtime.sendMessage({
-      action: 'openLink',
+    RUNTIME('openLink', {
       tab: tab,
       url: 'file://' + value.replace(/\S+ +/, '').replace(/^~/, settings.homedirectory),
       noconvert: true
     });
+    return;
   }
 
   if (/^(new|winopen|wo)$/.test(value.replace(/ .*/, '')) && !/^\S+\s*$/.test(value)) {
-    return chrome.runtime.sendMessage({
-      action: 'openLinkWindow',
+    RUNTIME('openLinkWindow', {
       tab: tab,
       url: Complete.convertToLink(value),
       repeats: repeats,
       noconvert: true
     });
+    return;
   }
 
   if (/^restore\s+/.test(value)) {
-    chrome.runtime.sendMessage({
-      action: 'restoreChromeSession',
+    RUNTIME('restoreChromeSession', {
       sessionId: value.replace(/\S+\s+/, '').trimAround()
     });
   }
 
   if (/^(tabnew|tabedit|tabe|to|tabopen|tabhistory)$/.test(value.replace(/ .*/, ''))) {
     tab.tabbed = true;
-    return chrome.runtime.sendMessage({
-      action: 'openLink',
+    RUNTIME('openLink', {
       tab: tab,
       url: Complete.convertToLink(value),
       repeats: repeats,
       noconvert: true
     });
+    return;
   }
 
   if (/^(o|open)$/.test(value.replace(/ .*/, '')) && !/^\S+\s*$/.test(value)) {
-    return chrome.runtime.sendMessage({
-      action: 'openLink',
+    RUNTIME('openLink', {
       tab: tab,
       url: Complete.convertToLink(value),
       noconvert: true
     });
+    return;
   }
 
   if (/^buffer +/.test(value)) {
@@ -606,10 +614,7 @@ Command.execute = function(value, repeats) {
       })[0];
     }
     if (selectedBuffer !== void 0) {
-      chrome.runtime.sendMessage({
-        action: 'goToTab',
-        id: selectedBuffer[3]
-      });
+      RUNTIME('goToTab', {id: selectedBuffer[3]});
     }
     return;
   }
@@ -631,7 +636,7 @@ Command.execute = function(value, repeats) {
       sessions.splice(sessions.indexOf(value), 1);
     }
     value.split(' ').forEach(function(v) {
-      chrome.runtime.sendMessage({action: 'deleteSession', name: v});
+      RUNTIME('deleteSession', {name: v});
     });
     return port.postMessage({action: 'getSessionNames'});
   }
@@ -647,10 +652,7 @@ Command.execute = function(value, repeats) {
     if (sessions.indexOf(value) === -1) {
       sessions.push(value);
     }
-    chrome.runtime.sendMessage({
-      action: 'createSession',
-      name: value
-    });
+    RUNTIME('createSession', {name: value});
     return;
   }
 
@@ -659,13 +661,10 @@ Command.execute = function(value, repeats) {
     if (value === '') {
       return Status.setMessage('session name required', 1, 'error');
     }
-    return chrome.runtime.sendMessage({
-      action: 'openSession',
-      name: value,
-      sameWindow: !tab.active
-    }, function() {
+    RUNTIME('openSession', {name: value, sameWindow: !tab.active}, function() {
       Status.setMessage('session does not exist', 1, 'error');
     });
+    return;
   }
 
   if (/^((i?(re)?map)|i?unmap(All)?)+/.test(value)) {
@@ -699,7 +698,7 @@ Command.execute = function(value, repeats) {
       } else {
         settings[value[0]] = isSet;
       }
-      chrome.runtime.sendMessage({action: 'syncSettings', settings: settings});
+      RUNTIME('syncSettings', {settings: settings});
     }
     return;
   }
@@ -776,8 +775,7 @@ Command.insertCSS = function() {
   var head = document.getElementsByTagName('head');
   if (!head.length && window.location.protocol !== 'chrome-extensions:' && window.location.pathname !== '/_/chrome/newtab') {
     if (window.location.protocol !== 'chrome:') {
-      chrome.runtime.sendMessage({
-        action: 'injectCSS',
+      RUNTIME('injectCSS', {
         css: settings.COMMANDBARCSS,
         runAt: 'document_start'
       });
@@ -912,7 +910,7 @@ Command.configureSettings = function(_settings) {
   };
   var loadMain = function() {
     Command.loaded = true;
-    chrome.runtime.sendMessage({action: 'setIconEnabled'});
+    RUNTIME('setIconEnabled');
     Command.init(true);
   };
   Search.settings = Object.keys(settings).filter(function(e) {
@@ -921,7 +919,7 @@ Command.configureSettings = function(_settings) {
   removeListeners();
   settings.searchlimit = +settings.searchlimit;
   if (!checkBlacklist()) {
-    chrome.runtime.sendMessage({action: 'getActiveState'}, function(response) {
+    RUNTIME('getActiveState', null, function(response) {
       if (response) {
         addListeners();
         loadMain();
@@ -935,5 +933,5 @@ Command.configureSettings = function(_settings) {
 };
 
 if (!Command.loaded) {
-  chrome.runtime.sendMessage({action: 'getSettings'});
+  RUNTIME('getSettings');
 }

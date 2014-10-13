@@ -1,8 +1,9 @@
 #!/bin/sh
 
 scripts=(
-'hints'
 'utils'
+'messenger'
+'hints'
 'bookmarks'
 'keys'
 'clipboard'
@@ -11,7 +12,6 @@ scripts=(
 'find'
 'cursor'
 'status'
-'messenger'
 'hud'
 'visual'
 'command'
