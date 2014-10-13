@@ -1,5 +1,9 @@
 #cVim Changelog
 
+## 1.2.60
+ * Removed the toggleImages command
+ * Remove the `:date` command
+
 ## 1.2.59
  * Various bug fixes
  * Improved smooth-scrolling

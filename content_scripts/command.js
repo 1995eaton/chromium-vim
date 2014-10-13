@@ -219,7 +219,6 @@ Command.descriptions = [
   ['settings',     'Open the options page for this extension'],
   ['help',         'Shows the help page'],
   ['changelog',    'Shows the changelog page'],
-  ['date',         'Display the current date'],
   ['quit',         'Close the current tab'],
   ['qall',         'Close the current window'],
   ['stop',         'Stop the current page from loading'],
@@ -465,12 +464,6 @@ Command.execute = function(value, repeats) {
         url: chrome.extension.getURL('/pages/changelog.html'),
         repeats: repeats
       });
-      return;
-    case 'date':
-      var date = new Date();
-      var weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-      var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-      Status.setMessage(weekDays[date.getDay()] + ', ' + months[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear(), 2);
       return;
     case 'help':
       tab.tabbed = true;

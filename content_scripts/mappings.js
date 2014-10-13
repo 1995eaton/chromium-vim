@@ -1,18 +1,126 @@
-var insertMappings = new Trie();
-var mappings = new Trie();
-var node = mappings;
+var insertMappings = new Trie(),
+    mappingTrie = new Trie(),
+    currentTrieNode = mappingTrie;
 
 var Mappings = {
   repeats: '',
   queue: '',
-  siteSpecificBlacklists: ''
+  siteSpecificBlacklists: '',
+  lastCommand: {
+    fn: '',
+    queue: '',
+    repeats: 1
+  }
 };
 
-Mappings.lastCommand = {
-  fn: '',
-  queue: '',
-  repeats: 1
-};
+Mappings.defaults = [
+  ['j', 'scrollDown'],
+  ['gg', 'scrollToTop'],
+  ['a',  ':tabnew google '],
+  ['zr', ':chrome://restart&<CR>'],
+  ['o',  ':open '],
+  ['O',  ':open @%'],
+  ['b',  ':bookmarks '],
+  ['t',  ':tabnew '],
+  ['I',  ':history '],
+  ['T',  ':tabnew @%'],
+  ['B',  ':buffer '],
+  ['gd', ':chrome://downloads!<cr>'],
+  ['ge', ':chrome://extensions!<cr>'],
+  ['x', 'closeTab'],
+  ['gxT', 'closeTabLeft' ],
+  ['gxt', 'closeTabRight' ],
+  ['gx0', 'closeTabsToLeft' ],
+  ['gx$', 'closeTabsToRight' ],
+  ['s', 'scrollDown' ],
+  ['j', 'scrollDown' ],
+  ['w', 'scrollUp' ],
+  ['k', 'scrollUp' ],
+  ['e', 'scrollPageUp' ],
+  ['u', 'scrollPageUp' ],
+  ['d', 'scrollPageDown' ],
+  ['gg', 'scrollToTop' ],
+  ['G', 'scrollToBottom' ],
+  ['h', 'scrollLeft' ],
+  ['l', 'scrollRight' ],
+  ['0', 'scrollToLeft' ],
+  ['$', 'scrollToRight' ],
+  ['i', 'insertMode' ],
+  ['r', 'reloadTab' ],
+  ['cr', 'reloadAllButCurrent' ],
+  ['gR', 'reloadTabUncached' ],
+  ['f', 'createHint' ],
+  ['mf', 'createMultiHint' ],
+  [']]', 'nextMatchPattern' ],
+  ['[[', 'previousMatchPattern' ],
+  ['W', 'createHintWindow' ],
+  ['gp', 'pinTab' ],
+  ['>', 'moveTabRight' ],
+  ['<', 'moveTabLeft' ],
+  ['H', 'goBack' ],
+  ['S', 'goBack' ],
+  ['gr', 'reverseImage' ],
+  ['mr', 'multiReverseImage' ],
+  ['L', 'goForward' ],
+  ['D', 'goForward' ],
+  ['g0', 'firstTab' ],
+  ['M*', 'addQuickMark' ],
+  ['A', 'openLastHint' ],
+  ['go*', 'openQuickMark' ],
+  ['gn*', 'openQuickMarkTabbed' ],
+  ['gq', 'cancelWebRequest' ],
+  ['<C-S-h>', 'openLastLinkInTab' ],
+  ['gh', 'openLastLinkInTab' ],
+  ['<C-S-l>', 'openNextLinkInTab' ],
+  ['gl', 'openNextLinkInTab' ],
+  ['gQ', 'cancelAllWebRequests' ],
+  ['q', 'createHoverHint' ],
+  ['Q', 'createUnhoverHint' ],
+  ['g$', 'lastTab' ],
+  ['X', 'lastClosedTab' ],
+  ['gj', 'hideDownloadsShelf' ],
+  ['F', 'createTabbedHint' ],
+  ['gi', 'goToInput' ],
+  ['gI', 'goToLastInput' ],
+  ['K', 'nextTab' ],
+  ['R', 'nextTab' ],
+  ['gt', 'nextTab' ],
+  ['gf', 'nextFrame' ],
+  ['gF', 'rootFrame' ],
+  ['g\'', 'lastActiveTab' ],
+  ['g%', 'percentScroll' ],
+  ['%', 'goToTab' ],
+  ['z<Enter>', 'toggleImageZoom' ],
+  ['zi', 'zoomPageIn' ],
+  ['zo', 'zoomPageOut' ],
+  ['z0', 'zoomOrig' ],
+  ['\'\'', 'lastScrollPosition' ],
+  ['\'*', 'goToMark' ],
+  [';*', 'setMark' ],
+  ['zt', 'centerMatchT' ],
+  ['zb', 'centerMatchB' ],
+  ['zz', 'centerMatchH' ],
+  ['gs', 'goToSource' ],
+  ['gU', 'goToRootUrl' ],
+  ['gu', 'goUpUrl' ],
+  ['gy', 'yankUrl' ],
+  ['my', 'multiYankUrl' ],
+  ['yy', 'yankDocumentUrl' ],
+  ['p', 'openPaste' ],
+  ['v', 'toggleVisualMode' ],
+  ['V', 'toggleVisualLineMode' ],
+  ['P', 'openPasteTab' ],
+  ['J', 'previousTab' ],
+  ['E', 'previousTab' ],
+  ['gT', 'previousTab' ],
+  ['n', 'nextSearchResult' ],
+  ['N', 'previousSearchResult' ],
+  ['/', 'openSearchBar' ],
+  ['?', 'openSearchBarReverse' ],
+  [':', 'openCommandBar' ],
+  ['.', 'repeatCommand']
+];
+Mappings.defaultsClone = Object.clone(Mappings.defaults);
 
 Mappings.actions = {
 
@@ -168,40 +276,6 @@ Mappings.actions = {
     window.setTimeout(function() {
       Hints.create('multiimage');
     }, 0);
-  },
-  toggleImages: function() {
-    if (!this.imagesDisabled) {
-      this.images = [];
-      var walker = document.createTreeWalker(document.body, 1, false, null);
-      var el;
-      while (el = walker.nextNode()) {
-        var computedStyle = getComputedStyle(el, null);
-        if (el.localName === 'img' || computedStyle.getPropertyValue('background-image') !== 'none') {
-          var opacity = computedStyle.getPropertyValue('opacity');
-          var bimg = computedStyle.getPropertyValue('background-image');
-          if (opacity === '1') {
-            opacity = null;
-          }
-          if (bimg === 'none') {
-            bimg = null;
-          }
-          this.images.push([opacity, bimg, el]);
-        }
-      }
-    }
-    this.imagesDisabled = (this.imagesDisabled === void 0 ? true : !this.imagesDisabled);
-    for (i = 0, l = this.images.length; i < l; ++i) {
-      if (this.images[i][2].localName === 'img') {
-        this.images[i][2].style.opacity = (this.imagesDisabled ? '0' : this.images[i][1]);
-      }
-      if (this.images[i][1] !== null) {
-        if (this.imagesDisabled) {
-          this.images[i][2].style.backgroundImage = 'none';
-        } else {
-          this.images[i][2].style.backgroundImage = this.images[i][1];
-        }
-      }
-    }
   },
   toggleImageZoom: function() {
     if (/\.[a-z]+\s+\(\d+×\d+\)/i.test(document.title)) {
@@ -519,117 +593,6 @@ Mappings.actions = {
 
 };
 
-Mappings.defaults = [
-  ['j', 'scrollDown'],
-  ['gg', 'scrollToTop'],
-  ['a',  ':tabnew google '],
-  ['zr', ':chrome://restart&<CR>'],
-  ['o',  ':open '],
-  ['O',  ':open @%'],
-  ['b',  ':bookmarks '],
-  ['t',  ':tabnew '],
-  ['I',  ':history '],
-  ['T',  ':tabnew @%'],
-  ['B',  ':buffer '],
-  ['gd', ':chrome://downloads!<cr>'],
-  ['ge', ':chrome://extensions!<cr>'],
-  ['x', 'closeTab'],
-  ['gxT', 'closeTabLeft' ],
-  ['gxt', 'closeTabRight' ],
-  ['gx0', 'closeTabsToLeft' ],
-  ['gx$', 'closeTabsToRight' ],
-  ['s', 'scrollDown' ],
-  ['j', 'scrollDown' ],
-  ['w', 'scrollUp' ],
-  ['k', 'scrollUp' ],
-  ['e', 'scrollPageUp' ],
-  ['u', 'scrollPageUp' ],
-  ['d', 'scrollPageDown' ],
-  ['gg', 'scrollToTop' ],
-  ['G', 'scrollToBottom' ],
-  ['h', 'scrollLeft' ],
-  ['l', 'scrollRight' ],
-  ['0', 'scrollToLeft' ],
-  ['$', 'scrollToRight' ],
-  ['i', 'insertMode' ],
-  ['r', 'reloadTab' ],
-  ['cr', 'reloadAllButCurrent' ],
-  ['gR', 'reloadTabUncached' ],
-  ['f', 'createHint' ],
-  ['mf', 'createMultiHint' ],
-  [']]', 'nextMatchPattern' ],
-  ['[[', 'previousMatchPattern' ],
-  ['W', 'createHintWindow' ],
-  ['gp', 'pinTab' ],
-  ['>', 'moveTabRight' ],
-  ['<', 'moveTabLeft' ],
-  ['H', 'goBack' ],
-  ['S', 'goBack' ],
-  ['gr', 'reverseImage' ],
-  ['mr', 'multiReverseImage' ],
-  ['L', 'goForward' ],
-  ['D', 'goForward' ],
-  ['g0', 'firstTab' ],
-  ['M*', 'addQuickMark' ],
-  ['A', 'openLastHint' ],
-  ['go*', 'openQuickMark' ],
-  ['gn*', 'openQuickMarkTabbed' ],
-  ['gq', 'cancelWebRequest' ],
-  ['<C-S-h>', 'openLastLinkInTab' ],
-  ['gh', 'openLastLinkInTab' ],
-  ['<C-S-l>', 'openNextLinkInTab' ],
-  ['gl', 'openNextLinkInTab' ],
-  ['gQ', 'cancelAllWebRequests' ],
-  ['q', 'createHoverHint' ],
-  ['ci', 'toggleImages' ],
-  ['Q', 'createUnhoverHint' ],
-  ['g$', 'lastTab' ],
-  ['X', 'lastClosedTab' ],
-  ['gj', 'hideDownloadsShelf' ],
-  ['F', 'createTabbedHint' ],
-  ['gi', 'goToInput' ],
-  ['gI', 'goToLastInput' ],
-  ['K', 'nextTab' ],
-  ['R', 'nextTab' ],
-  ['gt', 'nextTab' ],
-  ['gf', 'nextFrame' ],
-  ['gF', 'rootFrame' ],
-  ['g\'', 'lastActiveTab' ],
-  ['g%', 'percentScroll' ],
-  ['%', 'goToTab' ],
-  ['z<Enter>', 'toggleImageZoom' ],
-  ['zi', 'zoomPageIn' ],
-  ['zo', 'zoomPageOut' ],
-  ['z0', 'zoomOrig' ],
-  ['\'\'', 'lastScrollPosition' ],
-  ['\'*', 'goToMark' ],
-  [';*', 'setMark' ],
-  ['zt', 'centerMatchT' ],
-  ['zb', 'centerMatchB' ],
-  ['zz', 'centerMatchH' ],
-  ['gs', 'goToSource' ],
-  ['gU', 'goToRootUrl' ],
-  ['gu', 'goUpUrl' ],
-  ['gy', 'yankUrl' ],
-  ['my', 'multiYankUrl' ],
-  ['yy', 'yankDocumentUrl' ],
-  ['p', 'openPaste' ],
-  ['v', 'toggleVisualMode' ],
-  ['V', 'toggleVisualLineMode' ],
-  ['P', 'openPasteTab' ],
-  ['J', 'previousTab' ],
-  ['E', 'previousTab' ],
-  ['gT', 'previousTab' ],
-  ['n', 'nextSearchResult' ],
-  ['N', 'previousSearchResult' ],
-  ['/', 'openSearchBar' ],
-  ['?', 'openSearchBarReverse' ],
-  [':', 'openCommandBar' ],
-  ['.', 'repeatCommand']
-];
-
-Mappings.defaultsClone = Object.clone(Mappings.defaults);
-
 Mappings.insertDefaults = [
   ['<C-y>', 'deleteWord' ],
   ['<C-p>', 'deleteForwardWord' ],
@@ -644,7 +607,6 @@ Mappings.insertDefaults = [
 ];
 
 Mappings.insertFunctions = (function() {
-
   var selection = document.getSelection();
 
   function modify() {
@@ -722,7 +684,6 @@ Mappings.insertFunctions = (function() {
       deleteSelection();
     }
   };
-
 })();
 
 Mappings.insertCommand = function(modifier, callback) {
@@ -739,7 +700,7 @@ Mappings.parseLine = function(line) {
   if (map.length) {
     switch (map[0]) {
       case 'unmapAll':
-        mappings.data = [];
+        mappingTrie.data = [];
         return;
       case 'iunmapAll':
         insertMappings.data = [];
@@ -747,8 +708,8 @@ Mappings.parseLine = function(line) {
       case 'map':
       case 'remap':
         map[1] = map[1].replace(/<leader>/ig, settings.mapleader);
-        mappings.remove(map[1]);
-        return mappings.add(map[1], mappings.at(map[2]) || map.slice(2).join(' '));
+        mappingTrie.remove(map[1]);
+        return mappingTrie.add(map[1], mappingTrie.at(map[2]) || map.slice(2).join(' '));
       case 'imap':
       case 'iremap':
         insertMappings.remove(map[1]);
@@ -756,20 +717,20 @@ Mappings.parseLine = function(line) {
       case 'iunmap':
         return insertMappings.remove(map[1]);
       case 'unmap':
-        return mappings.remove(map[1]);
+        return mappingTrie.remove(map[1]);
     }
   }
 };
 
 Mappings.parseCustom = function(config) {
-  for (var i = 0; i < this.defaults.length; i++) {
-    mappings.add.apply(mappings, this.defaults[i]);
-  }
-  for (i = 0; i < this.insertDefaults.length; i++) {
-    insertMappings.add.apply(insertMappings, this.insertDefaults[i]);
-  }
-  config += this.siteSpecificBlacklists;
-  config.split('\n').compress().forEach(Mappings.parseLine);
+  this.defaults.forEach(function(e) {
+    mappingTrie.add.apply(mappingTrie, e);
+  });
+  this.insertDefaults.forEach(function(e) {
+    insertMappings.add.apply(insertMappings, e);
+  });
+  (config += this.siteSpecificBlacklists)
+    .split('\n').compress().forEach(this.parseLine);
 };
 
 Mappings.executeSequence = function(c, r) {
@@ -789,7 +750,7 @@ Mappings.executeSequence = function(c, r) {
   this.queue = this.queue.slice(0, -1);
   this.convertToAction(com);
   if (!commandMode && !document.activeElement.isInput()) {
-    Mappings.executeSequence(c.substring(1), r);
+    this.executeSequence(c.substring(1), r);
   }
 };
 
@@ -797,7 +758,7 @@ Mappings.handleEscapeKey = function() {
 
   this.queue = '';
   this.repeats = '';
-  node = mappings;
+  currentTrieNode = mappingTrie;
 
   if (commandMode) {
     if (Command.type === 'search') {
@@ -858,73 +819,65 @@ Mappings.nonRepeatableCommands = [
   'reloadTab'
 ];
 
-Mappings.convertToAction = function(c) {
-  if (c === '<Esc>' || c === '<C-[>') {
-    return this.handleEscapeKey();
+Mappings.clearQueue = function() {
+  currentTrieNode = mappingTrie;
+  this.queue = this.repeats = '';
+  this.validMatch = false;
+};
+
+Mappings.convertToAction = function(key) {
+
+  if (key === '<Esc>' || key === '<C-[>') {
+    this.handleEscapeKey();
+    return false;
   }
   if (Hints.active) {
-    if (settings.numerichints && c === '<Enter>') {
-      if (Hints.numericMatch) {
-        return Hints.dispatchAction(Hints.numericMatch);
-      }
-      return Hints.hideHints(false);
-    }
-    if (settings.typelinkhints) {
-      if (c === ';') {
-        Hints.changeFocus();
-      } else {
-        Hints.handleHint(c.replace('<Space>', ' '));
-      }
-      return true;
-    }
-    if (c === '<Space>') {
-      Hints.hideHints(false);
-      return true;
-    }
-    return (c === ';' ? Hints.changeFocus() : Hints.handleHint(c));
+    return Hints.handleHint(key);
   }
 
-  if (/^[0-9]$/.test(c) && !(c === '0' && Mappings.repeats === '')) {
-    Mappings.repeats += c;
+  if (/^[0-9]$/.test(key) && !(key === '0' && this.repeats === '')) {
+    this.repeats += key;
     return;
   }
 
-  Mappings.queue += c;
-  if (!node.data.hasOwnProperty(c)) {
-    if (node.data['*']) {
-      node = node.data['*'];
+  this.queue += key;
+  if (!currentTrieNode.data.hasOwnProperty(key)) {
+    if (currentTrieNode.data['*']) {
+      currentTrieNode = currentTrieNode.data['*'];
     } else {
-      node = mappings;
-      Mappings.queue = '';
-      Mappings.repeats = '';
-      Mappings.validMatch = false;
+      this.clearQueue();
       return false;
     }
   } else {
-    node = node.data[c];
-    Mappings.validMatch = true;
+    currentTrieNode = currentTrieNode.data[key];
+    this.validMatch = true;
   }
-  if (node.value) {
-    if (node.value.indexOf(':') === 0) {
-      Mappings.actions.shortCuts(node.value, +Mappings.repeats || 1);
+
+  if (currentTrieNode.value) {
+    if (currentTrieNode.value.indexOf(':') === 0) {
+      this.actions.shortCuts(currentTrieNode.value, +this.repeats || 1);
     } else {
-      if (node.value !== 'repeatCommand') {
-        if (Mappings.nonRepeatableCommands.indexOf(node.value) === -1) {
-          Mappings.lastCommand.queue = Mappings.queue;
-          Mappings.lastCommand.repeats = +Mappings.repeats || 1;
-          Mappings.lastCommand.fn = node.value;
+      if (currentTrieNode.value !== 'repeatCommand') {
+        if (!this.actions[currentTrieNode.value]) {
+          this.clearQueue();
+          return false;
         }
-        Mappings.actions[node.value](Mappings.lastCommand.repeats);
+        if (this.nonRepeatableCommands.indexOf(currentTrieNode.value) === -1) {
+          this.lastCommand.queue = this.queue;
+          this.lastCommand.repeats = +this.repeats || 1;
+          this.lastCommand.fn = currentTrieNode.value;
+        }
+        this.actions[currentTrieNode.value](this.lastCommand.repeats);
         RUNTIME('updateLastCommand', {
-          data: JSON.stringify(Mappings.lastCommand)
+          data: JSON.stringify(this.lastCommand)
         });
       } else {
-        Mappings.actions.repeatCommand(+Mappings.repeats || 1);
+        this.actions.repeatCommand(+this.repeats || 1);
       }
     }
-    Mappings.queue = '';
-    Mappings.repeats = '';
-    node = mappings;
+    this.clearQueue();
   }
+
   return true;
+
 };

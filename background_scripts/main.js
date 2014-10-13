@@ -1,8 +1,7 @@
 var sessions = {},
     Frames = {},
     ActiveTabs = {},
-    TabHistory = {},
-    lastCommand = null;
+    TabHistory = {};
 
 chrome.tabs.onUpdated.addListener(function(id, changeInfo) {
   if (changeInfo.hasOwnProperty('url')) {
@@ -62,7 +61,7 @@ function getTab(sender, reverse, count, first, last) {
 }
 
 function requestAction(type, request, sender, callback) {
-  if (isAction(request.action)) {
+  if (Actions[request.action]) {
     callAction(request.action, {
       request: request,
       sender: sender,
@@ -71,17 +70,11 @@ function requestAction(type, request, sender, callback) {
   }
 }
 
-chrome.extension.onConnect.addListener(function(_port) {
-  var port = _port;
+chrome.extension.onConnect.addListener(function(port) {
   console.assert(port.name === 'main');
   port.postMessage({type: 'hello'});
   port.onMessage.addListener(function(request) {
-    requestAction('port', request, null, function(message) {
-      port.postMessage(message);
-    });
-  });
-  port.onDisconnect.addListener(function() {
-    port = null;
+    requestAction('port', request, null, port.postMessage.bind(port));
   });
 });
 

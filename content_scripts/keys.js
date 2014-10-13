@@ -135,7 +135,7 @@ var KeyListener = (function() {
       }
 
       // Don't let the keypress listener attempt to parse the key event
-      // if it contains a modifier (or asciiKey that should be parsed by the parseKeyDown function
+      // if it contains a modifier (or key that should be parsed by the parseKeyDown function
       // such as { return (13) <BR> } or { space (32) <Space> }
       if ([9,13,32].indexOf(event.which) !== -1 || event.ctrlKey || event.metaKey || event.altKey) {
         var code = KeyEvents.keyhandle(event, 'keydown');
@@ -148,7 +148,7 @@ var KeyListener = (function() {
         return callback(code, event);
       // Ugly, but this NEEDS to be checked before setTimeout is called. Otherwise, non-cVim keyboard listeners
       // will not be stopped. preventDefault on the other hand, can be.
-      } else if (commandMode || (!insertMode && mappings.at(Mappings.queue + KeyEvents.keyhandle(event, 'keydown'))))
+      } else if (commandMode || (!insertMode && mappingTrie.at(Mappings.queue + KeyEvents.keyhandle(event, 'keydown'))))
       {
         event.stopPropagation();
       }
@@ -209,26 +209,26 @@ var KeyListener = (function() {
 
 })();
 
-var Key = {};
+var KeyHandler = {};
 
-Key.down = function(asciiKey, e) {
+KeyHandler.down = function(key, event) {
 
   var escapeKey, isInput;
-  Key.shiftKey = e.shiftKey;
+  KeyHandler.shiftKey = event.shiftKey;
 
   if (Hints.active) {
-    e.stopPropagation();
-    if (e.which === 18) {
+    event.stopPropagation();
+    if (event.which === 18) {
       return Hints.changeFocus();
-    } else if (e.which === 191) {
-      e.preventDefault();
+    } else if (event.which === 191) {
+      event.preventDefault();
       return document.getElementById('cVim-link-container').style.opacity = '0';
     }
   }
 
   if (Hints.keyDelay) {
-    e.stopPropagation();
-    return e.preventDefault();
+    event.stopPropagation();
+    return event.preventDefault();
   }
 
   if (Cursor.overlay && settings.autohidecursor) {
@@ -237,16 +237,16 @@ Key.down = function(asciiKey, e) {
   }
 
   if (Command.active && document.activeElement && document.activeElement.id === 'cVim-command-bar-input') {
-    e.stopPropagation();
+    event.stopPropagation();
   }
 
-  escapeKey = asciiKey === '<Esc>' || asciiKey === '<C-[>';
+  escapeKey = key === '<Esc>' || key === '<C-[>';
 
   if (Visual.caretModeActive || Visual.visualModeActive) {
-    e.stopPropagation();
+    event.stopPropagation();
     Visual.selection = document.getSelection();
-    if (e.which === 8) {
-      e.preventDefault();
+    if (event.which === 8) {
+      event.preventDefault();
     }
     if (escapeKey) {
       Visual.lineMode = false;
@@ -259,7 +259,7 @@ Key.down = function(asciiKey, e) {
       Visual.collapse();
       return;
     }
-    return Visual.action(asciiKey.replace(/^<BS>$/, 'h').replace(/^<Space>$/, 'l'));
+    return Visual.action(key.replace(/^<BS>$/, 'h').replace(/^<Space>$/, 'l'));
   }
 
   if (escapeKey) {
@@ -270,13 +270,13 @@ Key.down = function(asciiKey, e) {
     return false;
   }
 
-  if (!commandMode && Mappings.actions.inputFocused && e.which === 9) { // When <Tab> or <S-Tab> is pressed in 'gi' mode
+  if (!commandMode && Mappings.actions.inputFocused && event.which === 9) { // When <Tab> or <S-Tab> is pressed in 'gi' mode
     if (document.activeElement && (!document.activeElement.isInput() || !Mappings.actions.inputElements.length)) {
       return Mappings.actions.inputFocused = false;
     }
-    e.preventDefault();
-    e.stopPropagation();
-    Mappings.actions.inputElementsIndex = ((e.shiftKey ? -1 : 1) + Mappings.actions.inputElementsIndex).mod(Mappings.actions.inputElements.length);
+    event.preventDefault();
+    event.stopPropagation();
+    Mappings.actions.inputElementsIndex = ((event.shiftKey ? -1 : 1) + Mappings.actions.inputElementsIndex).mod(Mappings.actions.inputElements.length);
     Mappings.actions.inputElements[Mappings.actions.inputElementsIndex].focus();
     if (Mappings.actions.inputElements[Mappings.actions.inputElementsIndex].getAttribute('readonly')) {
       Mappings.actions.inputElements[Mappings.actions.inputElementsIndex].select();
@@ -288,12 +288,12 @@ Key.down = function(asciiKey, e) {
 
   if (!isInput) {
     if (Mappings.queue.length) {
-      e.preventDefault();
-      e.stopPropagation();
+      event.preventDefault();
+      event.stopPropagation();
     }
-    if (Mappings.convertToAction(asciiKey)) {
-      e.preventDefault();
-      return e.stopPropagation();
+    if (Mappings.convertToAction(key)) {
+      event.preventDefault();
+      return event.stopPropagation();
     }
   }
 
@@ -301,30 +301,30 @@ Key.down = function(asciiKey, e) {
     window.setTimeout(function() {
       Command.lastInputValue = Command.input.value;
     }, 0);
-    switch (asciiKey) {
+    switch (key) {
       case '<Tab>': // Tab navigation/completion
       case '<S-Tab>':
         if (Command.type === 'action') {
-          e.preventDefault();
-          Mappings.actions[ (asciiKey === '<Tab>' ? 'next' : 'previous') + 'CompletionResult' ]();
+          event.preventDefault();
+          Mappings.actions[ (key === '<Tab>' ? 'next' : 'previous') + 'CompletionResult' ]();
         }
         break;
       case '<C-p>':
         if (Command.type === 'action' && settings.cncpcompletion) {
-          e.preventDefault();
+          event.preventDefault();
           Mappings.actions.previousCompletionResult();
         }
         return;
 
       case '<Up>': // Command history navigation/search
       case '<Down>':
-        e.preventDefault();
-        Command.history.cycle(Command.type, (asciiKey === '<Up>'));
+        event.preventDefault();
+        Command.history.cycle(Command.type, (key === '<Up>'));
         break;
 
       case '<Enter>':
       case '<C-Enter>':
-        e.preventDefault();
+        event.preventDefault();
         document.activeElement.blur();
 
         if (!(Command.history[Command.type].length > 0 && Command.history[Command.type].slice(-1)[0] === Command.input.value)) {
@@ -336,7 +336,7 @@ Key.down = function(asciiKey, e) {
         }
 
         if (Command.type === 'action') {
-          var inputValue = Command.input.value + (e.ctrlKey ? '&!' : '');
+          var inputValue = Command.input.value + (event.ctrlKey ? '&!' : '');
           Command.hide(function() {
             Command.execute(inputValue, 1);
           });
@@ -351,7 +351,7 @@ Key.down = function(asciiKey, e) {
               search: Command.input.value,
               setIndex: true,
               executeSearch: false,
-              reverse: asciiKey === '<C-Enter>',
+              reverse: key === '<C-Enter>',
               saveSearch: true
             });
           }
@@ -364,9 +364,9 @@ Key.down = function(asciiKey, e) {
         PORT('updateLastSearch', {value: Find.lastSearch});
         break;
       default:
-        if (asciiKey === '<BS>' && Command.lastInputValue.length === 0 && Command.input.value.length === 0) {
+        if (key === '<BS>' && Command.lastInputValue.length === 0 && Command.input.value.length === 0) {
           Command.hide();
-          e.preventDefault();
+          event.preventDefault();
           break;
         }
         setTimeout(function() {
@@ -392,8 +392,8 @@ Key.down = function(asciiKey, e) {
   }
 
   if (settings && settings.insertmappings && isInput) {
-    Mappings.insertCommand(asciiKey, function() {
-      e.preventDefault();
+    Mappings.insertCommand(key, function() {
+      event.preventDefault();
       if (document.activeElement.id === 'cVim-command-bar-input' && Command.type !== 'search') {
         window.setTimeout(function() {
           Command.complete(Command.input.value);
@@ -404,34 +404,31 @@ Key.down = function(asciiKey, e) {
 
 };
 
-Key.up = function(e) {
+KeyHandler.up = function(event) {
   if ((document.activeElement && document.activeElement.id === 'cVim-command-bar-input') || (!insertMode && Mappings.queue.length && Mappings.validMatch)) {
-    e.stopPropagation();
-    e.preventDefault();
+    event.stopPropagation();
+    event.preventDefault();
   }
-  if (Hints.active && e.which === 191) {
+  if (Hints.active && event.which === 191) {
     document.getElementById('cVim-link-container').style.opacity = '1';
-  }
-  if (Hints.active && e.which === 16 && Hints.linkPreview) {
-    Hints.hideHints(false);
   }
 };
 
-Key.listener = new KeyListener(Key.down);
+KeyHandler.listener = new KeyListener(KeyHandler.down);
 
 removeListeners = function() {
-  Key.listenersActive = false;
-  document.removeEventListener('keyup', Key.up, true);
-  Key.listener.deactivate();
+  KeyHandler.listenersActive = false;
+  document.removeEventListener('keyup', KeyHandler.up, true);
+  KeyHandler.listener.deactivate();
 };
 
 addListeners = function() {
-  if (Key.listenersActive) {
+  if (KeyHandler.listenersActive) {
     removeListeners();
   }
-  Key.listenersActive = true;
-  document.addEventListener('keyup', Key.up, true);
-  Key.listener.activate();
+  KeyHandler.listenersActive = true;
+  document.addEventListener('keyup', KeyHandler.up, true);
+  KeyHandler.listener.activate();
 };
 
 addListeners();

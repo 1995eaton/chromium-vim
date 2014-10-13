@@ -47,7 +47,6 @@ Hints.hideHints = function(reset, multi, useKeyDelay) {
       document.getElementById('cVim-link-container').parentNode.removeChild(document.getElementById('cVim-link-container'));
     }
   }
-  this.linkPreview = false;
   this.numericMatch = void 0;
   this.active = reset;
   this.currentString = '';
@@ -89,7 +88,7 @@ Hints.dispatchAction = function(link) {
     }, settings.typelinkhintsdelay);
   }
 
-  if (Key.shiftKey && !this.shiftKeyInitiator) {
+  if (KeyHandler.shiftKey && !this.shiftKeyInitiator) {
     switch (this.type) {
       case void 0:
         this.type = 'tabbed';
@@ -291,10 +290,15 @@ Hints.handleHintFeedback = function() {
 
 
 Hints.handleHint = function(key) {
-  if (this.linkPreview) {
-    this.dispatchAction(this.linkArr[this.currentIndex][1]);
+  key = key.replace('<Space>', ' ');
+  if (key === ';') {
+    return this.changeFocus();
   }
-  if (settings.numerichints || settings.hintcharacters.split('').indexOf(key.toLowerCase()) !== -1) {
+  if (settings.numerichints && key === '<Enter>') {
+    return this.numericMatch ?
+      this.dispatchAction(this.numericMatch) : this.hideHints(false);
+  }
+  if (settings.numerichints || ~settings.hintcharacters.split('').indexOf(key.toLowerCase())) {
     this.currentString += key.toLowerCase();
     this.handleHintFeedback(this.currentString);
   } else {
@@ -482,7 +486,7 @@ Hints.create = function(type, multi) {
     if (!Command.domElementsLoaded) {
       return false;
     }
-    self.shiftKeyInitiator = Key.shiftKey;
+    self.shiftKeyInitiator = KeyHandler.shiftKey;
     var links, main, frag, i, l;
     self.type = type;
     self.hideHints(true, multi);

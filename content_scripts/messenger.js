@@ -1,23 +1,16 @@
 var port = chrome.extension.connect({name: 'main'});
 
-RUNTIME = function(action, args, callback) {
-  args = args || {};
-  args.action = action;
-  if (typeof callback === 'function') {
-    chrome.runtime.sendMessage(args, callback);
-  } else {
-    chrome.runtime.sendMessage(args);
-  }
-};
-PORT = function(action, args, callback) {
-  args = args || {};
-  args.action = action;
-  if (typeof callback === 'function') {
-    port.postMessage(args, callback);
-  } else {
-    port.postMessage(args);
-  }
-};
+(function() {
+  var $ = function(FN) {
+    return function(action, args, callback) {
+      (args = args || {}).action = action;
+      FN(args, typeof callback === 'function' ?
+          callback : void 0);
+    };
+  };
+  RUNTIME = $(chrome.runtime.sendMessage.bind(chrome.runtime));
+  PORT = $(port.postMessage.bind(port));
+})();
 
 port.onMessage.addListener(function(response) {
   var key;

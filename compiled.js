@@ -410,24 +410,17 @@ var Trie = (function() {
 
 var port = chrome.extension.connect({name: 'main'});
 
-RUNTIME = function(action, args, callback) {
-  args = args || {};
-  args.action = action;
-  if (typeof callback === 'function') {
-    chrome.runtime.sendMessage(args, callback);
-  } else {
-    chrome.runtime.sendMessage(args);
-  }
-};
-PORT = function(action, args, callback) {
-  args = args || {};
-  args.action = action;
-  if (typeof callback === 'function') {
-    port.postMessage(args, callback);
-  } else {
-    port.postMessage(args);
-  }
-};
+(function() {
+  var $ = function(FN) {
+    return function(action, args, callback) {
+      (args = args || {}).action = action;
+      FN(args, typeof callback === 'function' ?
+          callback : void 0);
+    };
+  };
+  RUNTIME = $(chrome.runtime.sendMessage.bind(chrome.runtime));
+  PORT = $(port.postMessage.bind(port));
+})();
 
 port.onMessage.addListener(function(response) {
   var key;
@@ -669,7 +662,6 @@ Hints.hideHints = function(reset, multi, useKeyDelay) {
       document.getElementById('cVim-link-container').parentNode.removeChild(document.getElementById('cVim-link-container'));
     }
   }
-  this.linkPreview = false;
   this.numericMatch = void 0;
   this.active = reset;
   this.currentString = '';
@@ -711,7 +703,7 @@ Hints.dispatchAction = function(link) {
     }, settings.typelinkhintsdelay);
   }
 
-  if (Key.shiftKey && !this.shiftKeyInitiator) {
+  if (KeyHandler.shiftKey && !this.shiftKeyInitiator) {
     switch (this.type) {
       case void 0:
         this.type = 'tabbed';
@@ -913,10 +905,15 @@ Hints.handleHintFeedback = function() {
 
 
 Hints.handleHint = function(key) {
-  if (this.linkPreview) {
-    this.dispatchAction(this.linkArr[this.currentIndex][1]);
+  key = key.replace('<Space>', ' ');
+  if (key === ';') {
+    return this.changeFocus();
   }
-  if (settings.numerichints || settings.hintcharacters.split('').indexOf(key.toLowerCase()) !== -1) {
+  if (settings.numerichints && key === '<Enter>') {
+    return this.numericMatch ?
+      this.dispatchAction(this.numericMatch) : this.hideHints(false);
+  }
+  if (settings.numerichints || ~settings.hintcharacters.split('').indexOf(key.toLowerCase())) {
     this.currentString += key.toLowerCase();
     this.handleHintFeedback(this.currentString);
   } else {
@@ -1104,7 +1101,7 @@ Hints.create = function(type, multi) {
     if (!Command.domElementsLoaded) {
       return false;
     }
-    self.shiftKeyInitiator = Key.shiftKey;
+    self.shiftKeyInitiator = KeyHandler.shiftKey;
     var links, main, frag, i, l;
     self.type = type;
     self.hideHints(true, multi);
@@ -1445,7 +1442,7 @@ var KeyListener = (function() {
       }
 
       // Don't let the keypress listener attempt to parse the key event
-      // if it contains a modifier (or asciiKey that should be parsed by the parseKeyDown function
+      // if it contains a modifier (or key that should be parsed by the parseKeyDown function
       // such as { return (13) <BR> } or { space (32) <Space> }
       if ([9,13,32].indexOf(event.which) !== -1 || event.ctrlKey || event.metaKey || event.altKey) {
         var code = KeyEvents.keyhandle(event, 'keydown');
@@ -1458,7 +1455,7 @@ var KeyListener = (function() {
         return callback(code, event);
       // Ugly, but this NEEDS to be checked before setTimeout is called. Otherwise, non-cVim keyboard listeners
       // will not be stopped. preventDefault on the other hand, can be.
-      } else if (commandMode || (!insertMode && mappings.at(Mappings.queue + KeyEvents.keyhandle(event, 'keydown'))))
+      } else if (commandMode || (!insertMode && mappingTrie.at(Mappings.queue + KeyEvents.keyhandle(event, 'keydown'))))
       {
         event.stopPropagation();
       }
@@ -1519,26 +1516,26 @@ var KeyListener = (function() {
 
 })();
 
-var Key = {};
+var KeyHandler = {};
 
-Key.down = function(asciiKey, e) {
+KeyHandler.down = function(key, event) {
 
   var escapeKey, isInput;
-  Key.shiftKey = e.shiftKey;
+  KeyHandler.shiftKey = event.shiftKey;
 
   if (Hints.active) {
-    e.stopPropagation();
-    if (e.which === 18) {
+    event.stopPropagation();
+    if (event.which === 18) {
       return Hints.changeFocus();
-    } else if (e.which === 191) {
-      e.preventDefault();
+    } else if (event.which === 191) {
+      event.preventDefault();
       return document.getElementById('cVim-link-container').style.opacity = '0';
     }
   }
 
   if (Hints.keyDelay) {
-    e.stopPropagation();
-    return e.preventDefault();
+    event.stopPropagation();
+    return event.preventDefault();
   }
 
   if (Cursor.overlay && settings.autohidecursor) {
@@ -1547,16 +1544,16 @@ Key.down = function(asciiKey, e) {
   }
 
   if (Command.active && document.activeElement && document.activeElement.id === 'cVim-command-bar-input') {
-    e.stopPropagation();
+    event.stopPropagation();
   }
 
-  escapeKey = asciiKey === '<Esc>' || asciiKey === '<C-[>';
+  escapeKey = key === '<Esc>' || key === '<C-[>';
 
   if (Visual.caretModeActive || Visual.visualModeActive) {
-    e.stopPropagation();
+    event.stopPropagation();
     Visual.selection = document.getSelection();
-    if (e.which === 8) {
-      e.preventDefault();
+    if (event.which === 8) {
+      event.preventDefault();
     }
     if (escapeKey) {
       Visual.lineMode = false;
@@ -1569,7 +1566,7 @@ Key.down = function(asciiKey, e) {
       Visual.collapse();
       return;
     }
-    return Visual.action(asciiKey.replace(/^<BS>$/, 'h').replace(/^<Space>$/, 'l'));
+    return Visual.action(key.replace(/^<BS>$/, 'h').replace(/^<Space>$/, 'l'));
   }
 
   if (escapeKey) {
@@ -1580,13 +1577,13 @@ Key.down = function(asciiKey, e) {
     return false;
   }
 
-  if (!commandMode && Mappings.actions.inputFocused && e.which === 9) { // When <Tab> or <S-Tab> is pressed in 'gi' mode
+  if (!commandMode && Mappings.actions.inputFocused && event.which === 9) { // When <Tab> or <S-Tab> is pressed in 'gi' mode
     if (document.activeElement && (!document.activeElement.isInput() || !Mappings.actions.inputElements.length)) {
       return Mappings.actions.inputFocused = false;
     }
-    e.preventDefault();
-    e.stopPropagation();
-    Mappings.actions.inputElementsIndex = ((e.shiftKey ? -1 : 1) + Mappings.actions.inputElementsIndex).mod(Mappings.actions.inputElements.length);
+    event.preventDefault();
+    event.stopPropagation();
+    Mappings.actions.inputElementsIndex = ((event.shiftKey ? -1 : 1) + Mappings.actions.inputElementsIndex).mod(Mappings.actions.inputElements.length);
     Mappings.actions.inputElements[Mappings.actions.inputElementsIndex].focus();
     if (Mappings.actions.inputElements[Mappings.actions.inputElementsIndex].getAttribute('readonly')) {
       Mappings.actions.inputElements[Mappings.actions.inputElementsIndex].select();
@@ -1598,12 +1595,12 @@ Key.down = function(asciiKey, e) {
 
   if (!isInput) {
     if (Mappings.queue.length) {
-      e.preventDefault();
-      e.stopPropagation();
+      event.preventDefault();
+      event.stopPropagation();
     }
-    if (Mappings.convertToAction(asciiKey)) {
-      e.preventDefault();
-      return e.stopPropagation();
+    if (Mappings.convertToAction(key)) {
+      event.preventDefault();
+      return event.stopPropagation();
     }
   }
 
@@ -1611,30 +1608,30 @@ Key.down = function(asciiKey, e) {
     window.setTimeout(function() {
       Command.lastInputValue = Command.input.value;
     }, 0);
-    switch (asciiKey) {
+    switch (key) {
       case '<Tab>': // Tab navigation/completion
       case '<S-Tab>':
         if (Command.type === 'action') {
-          e.preventDefault();
-          Mappings.actions[ (asciiKey === '<Tab>' ? 'next' : 'previous') + 'CompletionResult' ]();
+          event.preventDefault();
+          Mappings.actions[ (key === '<Tab>' ? 'next' : 'previous') + 'CompletionResult' ]();
         }
         break;
       case '<C-p>':
         if (Command.type === 'action' && settings.cncpcompletion) {
-          e.preventDefault();
+          event.preventDefault();
           Mappings.actions.previousCompletionResult();
         }
         return;
 
       case '<Up>': // Command history navigation/search
       case '<Down>':
-        e.preventDefault();
-        Command.history.cycle(Command.type, (asciiKey === '<Up>'));
+        event.preventDefault();
+        Command.history.cycle(Command.type, (key === '<Up>'));
         break;
 
       case '<Enter>':
       case '<C-Enter>':
-        e.preventDefault();
+        event.preventDefault();
         document.activeElement.blur();
 
         if (!(Command.history[Command.type].length > 0 && Command.history[Command.type].slice(-1)[0] === Command.input.value)) {
@@ -1646,7 +1643,7 @@ Key.down = function(asciiKey, e) {
         }
 
         if (Command.type === 'action') {
-          var inputValue = Command.input.value + (e.ctrlKey ? '&!' : '');
+          var inputValue = Command.input.value + (event.ctrlKey ? '&!' : '');
           Command.hide(function() {
             Command.execute(inputValue, 1);
           });
@@ -1661,7 +1658,7 @@ Key.down = function(asciiKey, e) {
               search: Command.input.value,
               setIndex: true,
               executeSearch: false,
-              reverse: asciiKey === '<C-Enter>',
+              reverse: key === '<C-Enter>',
               saveSearch: true
             });
           }
@@ -1674,9 +1671,9 @@ Key.down = function(asciiKey, e) {
         PORT('updateLastSearch', {value: Find.lastSearch});
         break;
       default:
-        if (asciiKey === '<BS>' && Command.lastInputValue.length === 0 && Command.input.value.length === 0) {
+        if (key === '<BS>' && Command.lastInputValue.length === 0 && Command.input.value.length === 0) {
           Command.hide();
-          e.preventDefault();
+          event.preventDefault();
           break;
         }
         setTimeout(function() {
@@ -1702,8 +1699,8 @@ Key.down = function(asciiKey, e) {
   }
 
   if (settings && settings.insertmappings && isInput) {
-    Mappings.insertCommand(asciiKey, function() {
-      e.preventDefault();
+    Mappings.insertCommand(key, function() {
+      event.preventDefault();
       if (document.activeElement.id === 'cVim-command-bar-input' && Command.type !== 'search') {
         window.setTimeout(function() {
           Command.complete(Command.input.value);
@@ -1714,34 +1711,31 @@ Key.down = function(asciiKey, e) {
 
 };
 
-Key.up = function(e) {
+KeyHandler.up = function(event) {
   if ((document.activeElement && document.activeElement.id === 'cVim-command-bar-input') || (!insertMode && Mappings.queue.length && Mappings.validMatch)) {
-    e.stopPropagation();
-    e.preventDefault();
+    event.stopPropagation();
+    event.preventDefault();
   }
-  if (Hints.active && e.which === 191) {
+  if (Hints.active && event.which === 191) {
     document.getElementById('cVim-link-container').style.opacity = '1';
-  }
-  if (Hints.active && e.which === 16 && Hints.linkPreview) {
-    Hints.hideHints(false);
   }
 };
 
-Key.listener = new KeyListener(Key.down);
+KeyHandler.listener = new KeyListener(KeyHandler.down);
 
 removeListeners = function() {
-  Key.listenersActive = false;
-  document.removeEventListener('keyup', Key.up, true);
-  Key.listener.deactivate();
+  KeyHandler.listenersActive = false;
+  document.removeEventListener('keyup', KeyHandler.up, true);
+  KeyHandler.listener.deactivate();
 };
 
 addListeners = function() {
-  if (Key.listenersActive) {
+  if (KeyHandler.listenersActive) {
     removeListeners();
   }
-  Key.listenersActive = true;
-  document.addEventListener('keyup', Key.up, true);
-  Key.listener.activate();
+  KeyHandler.listenersActive = true;
+  document.addEventListener('keyup', KeyHandler.up, true);
+  KeyHandler.listener.activate();
 };
 
 addListeners();
@@ -1755,20 +1749,20 @@ window.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
-var Clipboard = {};
-Clipboard.store = '';
+var Clipboard = {
+  store: '',
+  copy: function(text, store) {
+    if (!store) {
+      this.store = text;
+    } else {
+      this.store += (this.store.length ? '\n' : '') + text;
+    }
+    RUNTIME('copy', {text: this.store});
+  },
 
-Clipboard.copy = function(text, store) {
-  if (!store) {
-    this.store = text;
-  } else {
-    this.store += (this.store.length ? '\n' : '') + text;
+  paste: function(tabbed) {
+    RUNTIME(tabbed ? 'openPasteTab' : 'openPaste');
   }
-  RUNTIME('copy', {text: this.store});
-};
-
-Clipboard.paste = function(tabbed) {
-  RUNTIME(tabbed ? 'openPasteTab' : 'openPaste');
 };
 var Complete = {};
 
@@ -2162,21 +2156,129 @@ Complete.imdb = function(query, callback) {
     }));
   }, cVimError);
 };
-var insertMappings = new Trie();
-var mappings = new Trie();
-var node = mappings;
+var insertMappings = new Trie(),
+    mappingTrie = new Trie(),
+    currentTrieNode = mappingTrie;
 
 var Mappings = {
   repeats: '',
   queue: '',
-  siteSpecificBlacklists: ''
+  siteSpecificBlacklists: '',
+  lastCommand: {
+    fn: '',
+    queue: '',
+    repeats: 1
+  }
 };
 
-Mappings.lastCommand = {
-  fn: '',
-  queue: '',
-  repeats: 1
-};
+Mappings.defaults = [
+  ['j', 'scrollDown'],
+  ['gg', 'scrollToTop'],
+  ['a',  ':tabnew google '],
+  ['zr', ':chrome://restart&<CR>'],
+  ['o',  ':open '],
+  ['O',  ':open @%'],
+  ['b',  ':bookmarks '],
+  ['t',  ':tabnew '],
+  ['I',  ':history '],
+  ['T',  ':tabnew @%'],
+  ['B',  ':buffer '],
+  ['gd', ':chrome://downloads!<cr>'],
+  ['ge', ':chrome://extensions!<cr>'],
+  ['x', 'closeTab'],
+  ['gxT', 'closeTabLeft' ],
+  ['gxt', 'closeTabRight' ],
+  ['gx0', 'closeTabsToLeft' ],
+  ['gx$', 'closeTabsToRight' ],
+  ['s', 'scrollDown' ],
+  ['j', 'scrollDown' ],
+  ['w', 'scrollUp' ],
+  ['k', 'scrollUp' ],
+  ['e', 'scrollPageUp' ],
+  ['u', 'scrollPageUp' ],
+  ['d', 'scrollPageDown' ],
+  ['gg', 'scrollToTop' ],
+  ['G', 'scrollToBottom' ],
+  ['h', 'scrollLeft' ],
+  ['l', 'scrollRight' ],
+  ['0', 'scrollToLeft' ],
+  ['$', 'scrollToRight' ],
+  ['i', 'insertMode' ],
+  ['r', 'reloadTab' ],
+  ['cr', 'reloadAllButCurrent' ],
+  ['gR', 'reloadTabUncached' ],
+  ['f', 'createHint' ],
+  ['mf', 'createMultiHint' ],
+  [']]', 'nextMatchPattern' ],
+  ['[[', 'previousMatchPattern' ],
+  ['W', 'createHintWindow' ],
+  ['gp', 'pinTab' ],
+  ['>', 'moveTabRight' ],
+  ['<', 'moveTabLeft' ],
+  ['H', 'goBack' ],
+  ['S', 'goBack' ],
+  ['gr', 'reverseImage' ],
+  ['mr', 'multiReverseImage' ],
+  ['L', 'goForward' ],
+  ['D', 'goForward' ],
+  ['g0', 'firstTab' ],
+  ['M*', 'addQuickMark' ],
+  ['A', 'openLastHint' ],
+  ['go*', 'openQuickMark' ],
+  ['gn*', 'openQuickMarkTabbed' ],
+  ['gq', 'cancelWebRequest' ],
+  ['<C-S-h>', 'openLastLinkInTab' ],
+  ['gh', 'openLastLinkInTab' ],
+  ['<C-S-l>', 'openNextLinkInTab' ],
+  ['gl', 'openNextLinkInTab' ],
+  ['gQ', 'cancelAllWebRequests' ],
+  ['q', 'createHoverHint' ],
+  ['Q', 'createUnhoverHint' ],
+  ['g$', 'lastTab' ],
+  ['X', 'lastClosedTab' ],
+  ['gj', 'hideDownloadsShelf' ],
+  ['F', 'createTabbedHint' ],
+  ['gi', 'goToInput' ],
+  ['gI', 'goToLastInput' ],
+  ['K', 'nextTab' ],
+  ['R', 'nextTab' ],
+  ['gt', 'nextTab' ],
+  ['gf', 'nextFrame' ],
+  ['gF', 'rootFrame' ],
+  ['g\'', 'lastActiveTab' ],
+  ['g%', 'percentScroll' ],
+  ['%', 'goToTab' ],
+  ['z<Enter>', 'toggleImageZoom' ],
+  ['zi', 'zoomPageIn' ],
+  ['zo', 'zoomPageOut' ],
+  ['z0', 'zoomOrig' ],
+  ['\'\'', 'lastScrollPosition' ],
+  ['\'*', 'goToMark' ],
+  [';*', 'setMark' ],
+  ['zt', 'centerMatchT' ],
+  ['zb', 'centerMatchB' ],
+  ['zz', 'centerMatchH' ],
+  ['gs', 'goToSource' ],
+  ['gU', 'goToRootUrl' ],
+  ['gu', 'goUpUrl' ],
+  ['gy', 'yankUrl' ],
+  ['my', 'multiYankUrl' ],
+  ['yy', 'yankDocumentUrl' ],
+  ['p', 'openPaste' ],
+  ['v', 'toggleVisualMode' ],
+  ['V', 'toggleVisualLineMode' ],
+  ['P', 'openPasteTab' ],
+  ['J', 'previousTab' ],
+  ['E', 'previousTab' ],
+  ['gT', 'previousTab' ],
+  ['n', 'nextSearchResult' ],
+  ['N', 'previousSearchResult' ],
+  ['/', 'openSearchBar' ],
+  ['?', 'openSearchBarReverse' ],
+  [':', 'openCommandBar' ],
+  ['.', 'repeatCommand']
+];
+Mappings.defaultsClone = Object.clone(Mappings.defaults);
 
 Mappings.actions = {
 
@@ -2332,40 +2434,6 @@ Mappings.actions = {
     window.setTimeout(function() {
       Hints.create('multiimage');
     }, 0);
-  },
-  toggleImages: function() {
-    if (!this.imagesDisabled) {
-      this.images = [];
-      var walker = document.createTreeWalker(document.body, 1, false, null);
-      var el;
-      while (el = walker.nextNode()) {
-        var computedStyle = getComputedStyle(el, null);
-        if (el.localName === 'img' || computedStyle.getPropertyValue('background-image') !== 'none') {
-          var opacity = computedStyle.getPropertyValue('opacity');
-          var bimg = computedStyle.getPropertyValue('background-image');
-          if (opacity === '1') {
-            opacity = null;
-          }
-          if (bimg === 'none') {
-            bimg = null;
-          }
-          this.images.push([opacity, bimg, el]);
-        }
-      }
-    }
-    this.imagesDisabled = (this.imagesDisabled === void 0 ? true : !this.imagesDisabled);
-    for (i = 0, l = this.images.length; i < l; ++i) {
-      if (this.images[i][2].localName === 'img') {
-        this.images[i][2].style.opacity = (this.imagesDisabled ? '0' : this.images[i][1]);
-      }
-      if (this.images[i][1] !== null) {
-        if (this.imagesDisabled) {
-          this.images[i][2].style.backgroundImage = 'none';
-        } else {
-          this.images[i][2].style.backgroundImage = this.images[i][1];
-        }
-      }
-    }
   },
   toggleImageZoom: function() {
     if (/\.[a-z]+\s+\(\d+×\d+\)/i.test(document.title)) {
@@ -2683,117 +2751,6 @@ Mappings.actions = {
 
 };
 
-Mappings.defaults = [
-  ['j', 'scrollDown'],
-  ['gg', 'scrollToTop'],
-  ['a',  ':tabnew google '],
-  ['zr', ':chrome://restart&<CR>'],
-  ['o',  ':open '],
-  ['O',  ':open @%'],
-  ['b',  ':bookmarks '],
-  ['t',  ':tabnew '],
-  ['I',  ':history '],
-  ['T',  ':tabnew @%'],
-  ['B',  ':buffer '],
-  ['gd', ':chrome://downloads!<cr>'],
-  ['ge', ':chrome://extensions!<cr>'],
-  ['x', 'closeTab'],
-  ['gxT', 'closeTabLeft' ],
-  ['gxt', 'closeTabRight' ],
-  ['gx0', 'closeTabsToLeft' ],
-  ['gx$', 'closeTabsToRight' ],
-  ['s', 'scrollDown' ],
-  ['j', 'scrollDown' ],
-  ['w', 'scrollUp' ],
-  ['k', 'scrollUp' ],
-  ['e', 'scrollPageUp' ],
-  ['u', 'scrollPageUp' ],
-  ['d', 'scrollPageDown' ],
-  ['gg', 'scrollToTop' ],
-  ['G', 'scrollToBottom' ],
-  ['h', 'scrollLeft' ],
-  ['l', 'scrollRight' ],
-  ['0', 'scrollToLeft' ],
-  ['$', 'scrollToRight' ],
-  ['i', 'insertMode' ],
-  ['r', 'reloadTab' ],
-  ['cr', 'reloadAllButCurrent' ],
-  ['gR', 'reloadTabUncached' ],
-  ['f', 'createHint' ],
-  ['mf', 'createMultiHint' ],
-  [']]', 'nextMatchPattern' ],
-  ['[[', 'previousMatchPattern' ],
-  ['W', 'createHintWindow' ],
-  ['gp', 'pinTab' ],
-  ['>', 'moveTabRight' ],
-  ['<', 'moveTabLeft' ],
-  ['H', 'goBack' ],
-  ['S', 'goBack' ],
-  ['gr', 'reverseImage' ],
-  ['mr', 'multiReverseImage' ],
-  ['L', 'goForward' ],
-  ['D', 'goForward' ],
-  ['g0', 'firstTab' ],
-  ['M*', 'addQuickMark' ],
-  ['A', 'openLastHint' ],
-  ['go*', 'openQuickMark' ],
-  ['gn*', 'openQuickMarkTabbed' ],
-  ['gq', 'cancelWebRequest' ],
-  ['<C-S-h>', 'openLastLinkInTab' ],
-  ['gh', 'openLastLinkInTab' ],
-  ['<C-S-l>', 'openNextLinkInTab' ],
-  ['gl', 'openNextLinkInTab' ],
-  ['gQ', 'cancelAllWebRequests' ],
-  ['q', 'createHoverHint' ],
-  ['ci', 'toggleImages' ],
-  ['Q', 'createUnhoverHint' ],
-  ['g$', 'lastTab' ],
-  ['X', 'lastClosedTab' ],
-  ['gj', 'hideDownloadsShelf' ],
-  ['F', 'createTabbedHint' ],
-  ['gi', 'goToInput' ],
-  ['gI', 'goToLastInput' ],
-  ['K', 'nextTab' ],
-  ['R', 'nextTab' ],
-  ['gt', 'nextTab' ],
-  ['gf', 'nextFrame' ],
-  ['gF', 'rootFrame' ],
-  ['g\'', 'lastActiveTab' ],
-  ['g%', 'percentScroll' ],
-  ['%', 'goToTab' ],
-  ['z<Enter>', 'toggleImageZoom' ],
-  ['zi', 'zoomPageIn' ],
-  ['zo', 'zoomPageOut' ],
-  ['z0', 'zoomOrig' ],
-  ['\'\'', 'lastScrollPosition' ],
-  ['\'*', 'goToMark' ],
-  [';*', 'setMark' ],
-  ['zt', 'centerMatchT' ],
-  ['zb', 'centerMatchB' ],
-  ['zz', 'centerMatchH' ],
-  ['gs', 'goToSource' ],
-  ['gU', 'goToRootUrl' ],
-  ['gu', 'goUpUrl' ],
-  ['gy', 'yankUrl' ],
-  ['my', 'multiYankUrl' ],
-  ['yy', 'yankDocumentUrl' ],
-  ['p', 'openPaste' ],
-  ['v', 'toggleVisualMode' ],
-  ['V', 'toggleVisualLineMode' ],
-  ['P', 'openPasteTab' ],
-  ['J', 'previousTab' ],
-  ['E', 'previousTab' ],
-  ['gT', 'previousTab' ],
-  ['n', 'nextSearchResult' ],
-  ['N', 'previousSearchResult' ],
-  ['/', 'openSearchBar' ],
-  ['?', 'openSearchBarReverse' ],
-  [':', 'openCommandBar' ],
-  ['.', 'repeatCommand']
-];
-
-Mappings.defaultsClone = Object.clone(Mappings.defaults);
-
 Mappings.insertDefaults = [
   ['<C-y>', 'deleteWord' ],
   ['<C-p>', 'deleteForwardWord' ],
@@ -2808,7 +2765,6 @@ Mappings.insertDefaults = [
 ];
 
 Mappings.insertFunctions = (function() {
-
   var selection = document.getSelection();
 
   function modify() {
@@ -2886,7 +2842,6 @@ Mappings.insertFunctions = (function() {
       deleteSelection();
     }
   };
-
 })();
 
 Mappings.insertCommand = function(modifier, callback) {
@@ -2903,7 +2858,7 @@ Mappings.parseLine = function(line) {
   if (map.length) {
     switch (map[0]) {
       case 'unmapAll':
-        mappings.data = [];
+        mappingTrie.data = [];
         return;
       case 'iunmapAll':
         insertMappings.data = [];
@@ -2911,8 +2866,8 @@ Mappings.parseLine = function(line) {
       case 'map':
       case 'remap':
         map[1] = map[1].replace(/<leader>/ig, settings.mapleader);
-        mappings.remove(map[1]);
-        return mappings.add(map[1], mappings.at(map[2]) || map.slice(2).join(' '));
+        mappingTrie.remove(map[1]);
+        return mappingTrie.add(map[1], mappingTrie.at(map[2]) || map.slice(2).join(' '));
       case 'imap':
       case 'iremap':
         insertMappings.remove(map[1]);
@@ -2920,20 +2875,20 @@ Mappings.parseLine = function(line) {
       case 'iunmap':
         return insertMappings.remove(map[1]);
       case 'unmap':
-        return mappings.remove(map[1]);
+        return mappingTrie.remove(map[1]);
     }
   }
 };
 
 Mappings.parseCustom = function(config) {
-  for (var i = 0; i < this.defaults.length; i++) {
-    mappings.add.apply(mappings, this.defaults[i]);
-  }
-  for (i = 0; i < this.insertDefaults.length; i++) {
-    insertMappings.add.apply(insertMappings, this.insertDefaults[i]);
-  }
-  config += this.siteSpecificBlacklists;
-  config.split('\n').compress().forEach(Mappings.parseLine);
+  this.defaults.forEach(function(e) {
+    mappingTrie.add.apply(mappingTrie, e);
+  });
+  this.insertDefaults.forEach(function(e) {
+    insertMappings.add.apply(insertMappings, e);
+  });
+  (config += this.siteSpecificBlacklists)
+    .split('\n').compress().forEach(this.parseLine);
 };
 
 Mappings.executeSequence = function(c, r) {
@@ -2953,7 +2908,7 @@ Mappings.executeSequence = function(c, r) {
   this.queue = this.queue.slice(0, -1);
   this.convertToAction(com);
   if (!commandMode && !document.activeElement.isInput()) {
-    Mappings.executeSequence(c.substring(1), r);
+    this.executeSequence(c.substring(1), r);
   }
 };
 
@@ -2961,7 +2916,7 @@ Mappings.handleEscapeKey = function() {
 
   this.queue = '';
   this.repeats = '';
-  node = mappings;
+  currentTrieNode = mappingTrie;
 
   if (commandMode) {
     if (Command.type === 'search') {
@@ -3022,75 +2977,67 @@ Mappings.nonRepeatableCommands = [
   'reloadTab'
 ];
 
-Mappings.convertToAction = function(c) {
-  if (c === '<Esc>' || c === '<C-[>') {
-    return this.handleEscapeKey();
+Mappings.clearQueue = function() {
+  currentTrieNode = mappingTrie;
+  this.queue = this.repeats = '';
+  this.validMatch = false;
+};
+
+Mappings.convertToAction = function(key) {
+
+  if (key === '<Esc>' || key === '<C-[>') {
+    this.handleEscapeKey();
+    return false;
   }
   if (Hints.active) {
-    if (settings.numerichints && c === '<Enter>') {
-      if (Hints.numericMatch) {
-        return Hints.dispatchAction(Hints.numericMatch);
-      }
-      return Hints.hideHints(false);
-    }
-    if (settings.typelinkhints) {
-      if (c === ';') {
-        Hints.changeFocus();
-      } else {
-        Hints.handleHint(c.replace('<Space>', ' '));
-      }
-      return true;
-    }
-    if (c === '<Space>') {
-      Hints.hideHints(false);
-      return true;
-    }
-    return (c === ';' ? Hints.changeFocus() : Hints.handleHint(c));
+    return Hints.handleHint(key);
   }
 
-  if (/^[0-9]$/.test(c) && !(c === '0' && Mappings.repeats === '')) {
-    Mappings.repeats += c;
+  if (/^[0-9]$/.test(key) && !(key === '0' && this.repeats === '')) {
+    this.repeats += key;
     return;
   }
 
-  Mappings.queue += c;
-  if (!node.data.hasOwnProperty(c)) {
-    if (node.data['*']) {
-      node = node.data['*'];
+  this.queue += key;
+  if (!currentTrieNode.data.hasOwnProperty(key)) {
+    if (currentTrieNode.data['*']) {
+      currentTrieNode = currentTrieNode.data['*'];
     } else {
-      node = mappings;
-      Mappings.queue = '';
-      Mappings.repeats = '';
-      Mappings.validMatch = false;
+      this.clearQueue();
       return false;
     }
   } else {
-    node = node.data[c];
-    Mappings.validMatch = true;
+    currentTrieNode = currentTrieNode.data[key];
+    this.validMatch = true;
   }
-  if (node.value) {
-    if (node.value.indexOf(':') === 0) {
-      Mappings.actions.shortCuts(node.value, +Mappings.repeats || 1);
+
+  if (currentTrieNode.value) {
+    if (currentTrieNode.value.indexOf(':') === 0) {
+      this.actions.shortCuts(currentTrieNode.value, +this.repeats || 1);
     } else {
-      if (node.value !== 'repeatCommand') {
-        if (Mappings.nonRepeatableCommands.indexOf(node.value) === -1) {
-          Mappings.lastCommand.queue = Mappings.queue;
-          Mappings.lastCommand.repeats = +Mappings.repeats || 1;
-          Mappings.lastCommand.fn = node.value;
+      if (currentTrieNode.value !== 'repeatCommand') {
+        if (!this.actions[currentTrieNode.value]) {
+          this.clearQueue();
+          return false;
         }
-        Mappings.actions[node.value](Mappings.lastCommand.repeats);
+        if (this.nonRepeatableCommands.indexOf(currentTrieNode.value) === -1) {
+          this.lastCommand.queue = this.queue;
+          this.lastCommand.repeats = +this.repeats || 1;
+          this.lastCommand.fn = currentTrieNode.value;
+        }
+        this.actions[currentTrieNode.value](this.lastCommand.repeats);
         RUNTIME('updateLastCommand', {
-          data: JSON.stringify(Mappings.lastCommand)
+          data: JSON.stringify(this.lastCommand)
         });
       } else {
-        Mappings.actions.repeatCommand(+Mappings.repeats || 1);
+        this.actions.repeatCommand(+this.repeats || 1);
       }
     }
-    Mappings.queue = '';
-    Mappings.repeats = '';
-    node = mappings;
+    this.clearQueue();
   }
+
   return true;
+
 };
 var Find = {
   highlights: [],
@@ -3973,7 +3920,6 @@ Command.descriptions = [
   ['settings',     'Open the options page for this extension'],
   ['help',         'Shows the help page'],
   ['changelog',    'Shows the changelog page'],
-  ['date',         'Display the current date'],
   ['quit',         'Close the current tab'],
   ['qall',         'Close the current window'],
   ['stop',         'Stop the current page from loading'],
@@ -4220,12 +4166,6 @@ Command.execute = function(value, repeats) {
         repeats: repeats
       });
       return;
-    case 'date':
-      var date = new Date();
-      var weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-      var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-      Status.setMessage(weekDays[date.getDay()] + ', ' + months[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear(), 2);
-      return;
     case 'help':
       tab.tabbed = true;
       RUNTIME('openLink', {tab: tab, url: chrome.extension.getURL('/pages/mappings.html')});
@@ -4471,7 +4411,7 @@ Command.execute = function(value, repeats) {
 
 Command.show = function(search, value) {
   if (!this.domElementsLoaded) {
-    return false;
+    return;
   }
   this.type = '';
   this.active = true;

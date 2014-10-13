@@ -228,7 +228,6 @@ let blacklists = ["*://*/*.pdf <Up> <Down>"]
 | `b`                       | search through bookmarks                                              | :bookmarks                      |
 | `p`                       | open the clipboard selection                                          | openPaste                       |
 | `P`                       | open the clipboard selection in a new tab                             | openPasteTab                    |
-| `ci`                      | toggle visibility of images on the current webpage                    | toggleImages                    |
 | `gj`                      | hide the download shelf                                               | hideDownloadsShelf              |
 | `gf`                      | cycle through iframes                                                 | nextFrame                       |
 | `gF`                      | go to the root frame                                                  | rootFrame                       |
@@ -301,7 +300,6 @@ let blacklists = ["*://*/*.pdf <Up> <Down>"]
 | :chrome:// (autocomplete)                   | open a chrome:// url                                                                   |
 | :tabhistory (autocomplete)                  | browse the different history states of the current tab                                 |
 | :quit                                       | close the current tab                                                                  |
-| :date                                       | display the current date                                                               |
 | :restore (autocomplete)                     | restore a previously closed tab (newer versions of Chrome only)                        |
 | :tabattach (autocomplete)                   | move the current tab to another open window                                            |
 | :file (autocomplete) [expirimental]         | open a local file                                                                      |
