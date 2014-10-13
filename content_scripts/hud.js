@@ -1,6 +1,7 @@
-var HUD = {};
-HUD.visible = false;
-HUD.slideDuration = 40;
+var HUD = {
+  visible: false,
+  slideDuration: 40
+};
 
 HUD.transitionEvent = function() {
   if (HUD.overflowValue) {

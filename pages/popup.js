@@ -22,15 +22,15 @@ chrome.runtime.sendMessage({action: 'getActiveState'}, function(response) {
   }
 });
 
-settings.onclick = function() {
+settings.addEventListener('click', function() {
   chrome.runtime.sendMessage({
     action: 'openLinkTab',
     active: true,
     url: chrome.extension.getURL('/pages/options.html')
   });
-};
+}, false);
 
-pause.onclick = function() {
+pause.addEventListener('click', function() {
   isEnabled = !isEnabled;
   if (isEnabled) {
     pause.textContent = 'Disable cVim';
@@ -38,9 +38,9 @@ pause.onclick = function() {
     pause.textContent = 'Enable cVim';
   }
   chrome.runtime.sendMessage({action: 'toggleEnabled', blacklisted: isBlacklisted});
-};
+}, false);
 
-blacklist.onclick = function() {
+blacklist.addEventListener('click', function() {
   isBlacklisted = !isBlacklisted;
   if (blacklist.textContent === 'Disable cVim on this domain') {
     blacklist.textContent = 'Enable cVim on this domain';
@@ -55,4 +55,4 @@ blacklist.onclick = function() {
       blacklisted: isBlacklisted
     });
   }
-};
+}, false);

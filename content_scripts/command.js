@@ -94,7 +94,7 @@ Command.history = {
         index += reverse ? -1 : 1;
       }
     }
-    if (reverse && index === -1) {
+    if (reverse && !~index) {
       this.index[type] = lastIndex;
       return;
     }
@@ -111,9 +111,9 @@ Command.history = {
 Command.completions = {};
 
 Command.completionStyles = {
-  topsites: ['Top Site', 'darkcyan'],
-  history:  ['History', 'cyan'],
-  bookmarks: ['Bookmark', '#6d85fd']
+  topsites:  [ 'Top Site', 'darkcyan' ],
+  history:   [ 'History',      'cyan' ],
+  bookmarks: [ 'Bookmark',  '#6d85fd' ]
 };
 
 Command.completionOrder = {
@@ -248,10 +248,11 @@ Command.complete = function(value) {
     this.deleteCompletions('engines,bookmarks,complete,chrome,search');
     search = search.split(/ +/).compress();
 
-    if ((search.length < 2 || Complete.engines.indexOf(search[0]) === -1) && !Complete.hasAlias(search[0]) || (Complete.hasAlias(search[0]) &&  value.slice(-1) !== ' ' && search.length < 2)) {
+    if ((search.length < 2 || !~Complete.engines.indexOf(search[0])) && !Complete.hasAlias(search[0]) || (Complete.hasAlias(search[0]) &&  value.slice(-1) !== ' ' && search.length < 2)) {
 
-      if (Complete.engines.indexOf(search[0]) !== -1) {
-        return this.hideData();
+      if (~Complete.engines.indexOf(search[0])) {
+        this.hideData();
+        return;
       }
 
       this.completions.engines = [];
@@ -263,7 +264,7 @@ Command.complete = function(value) {
       this.updateCompletions(true);
 
       this.completions.topsites = Search.topSites.filter(function(e) {
-        return (e[0] + ' ' + e[1]).toLowerCase().indexOf(search.slice(0).join(' ').toLowerCase()) !== -1;
+        return ~(e[0] + ' ' + e[1]).toLowerCase().indexOf(search.slice(0).join(' ').toLowerCase());
       }).slice(0, 5).map(function(e) {
         return [e[0], e[1]];
       });
@@ -278,7 +279,8 @@ Command.complete = function(value) {
 
       this.historyMode = false;
       this.searchMode = true;
-      return port.postMessage({action: 'searchHistory', search: value.replace(/^\S+\s+/, ''), limit: settings.searchlimit});
+      PORT('searchHistory', {search: value.replace(/^\S+\s+/, ''), limit: settings.searchlimit});
+      return;
 
     }
 
@@ -288,7 +290,7 @@ Command.complete = function(value) {
         return;
       }
     }
-    if (Complete.engines.indexOf(search[0]) !== -1 && Complete.hasOwnProperty(search[0])) {
+    if (~Complete.engines.indexOf(search[0]) && Complete.hasOwnProperty(search[0])) {
       Complete[search[0]](search.slice(1).join(' '), function(response) {
         this.completions = { search: response };
         this.updateCompletions();
@@ -323,7 +325,7 @@ Command.complete = function(value) {
   }
 
   if (/^buffer(\s+)/.test(value)) {
-    port.postMessage({action: 'getBuffers'});
+    PORT('getBuffers');
     return;
   }
 
@@ -333,7 +335,7 @@ Command.complete = function(value) {
         chromesessions: Object.keys(sessions).map(function(e) {
           return [sessions[e].id + ': ' + sessions[e].title, sessions[e].url, sessions[e].id];
         }).filter(function(e) {
-          return e.join('').toLowerCase().indexOf(value.replace(/^\S+\s+/, '').toLowerCase()) !== -1;
+          return ~e.join('').toLowerCase().indexOf(value.replace(/^\S+\s+/, '').toLowerCase());
         })
       };
       this.updateCompletions();
@@ -357,7 +359,8 @@ Command.complete = function(value) {
         return e[0].substring(0, search.length) === search;
       })
     };
-    return this.updateCompletions();
+    this.updateCompletions();
+    return;
   }
 
   if (/^set(\s+)/.test(value)) {
@@ -370,10 +373,11 @@ Command.complete = function(value) {
 
   if (/^hist(ory)?(\s+)/.test(value)) {
     if (search.trim() === '') {
-      return this.hideData();
+      this.hideData();
+      return;
     }
     this.historyMode = true;
-    port.postMessage({action: 'searchHistory', search: search, limit: settings.searchlimit});
+    PORT('searchHistory', {search: search, limit: settings.searchlimit});
     return;
   }
 
@@ -385,11 +389,11 @@ Command.complete = function(value) {
         search = search.replace('~', settings.homedirectory);
       }
       RUNTIME('getFilePath', {path: search});
-      return;
     } else {
       Marks.lastFileSearch = search;
-      return Marks.filePath();
+      Marks.filePath();
     }
+    return;
   }
 
   if (/^b(ook)?marks(\s+)/.test(value)) {
@@ -442,10 +446,10 @@ Command.execute = function(value, repeats) {
     case 'nohl':
       Find.clear();
       HUD.hide();
-      break;
+      return;
     case 'duplicate':
       RUNTIME('duplicateTab', {repeats: repeats});
-      break;
+      return;
     case 'settings':
       tab.tabbed = true;
       RUNTIME('openLink', {
@@ -453,7 +457,7 @@ Command.execute = function(value, repeats) {
         url: chrome.extension.getURL('/pages/options.html'),
         repeats: repeats
       });
-      break;
+      return;
     case 'changelog':
       tab.tabbed = true;
       RUNTIME('openLink', {
@@ -461,54 +465,52 @@ Command.execute = function(value, repeats) {
         url: chrome.extension.getURL('/pages/changelog.html'),
         repeats: repeats
       });
-      break;
+      return;
     case 'date':
       var date = new Date();
       var weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
       var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
       Status.setMessage(weekDays[date.getDay()] + ', ' + months[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear(), 2);
-      break;
+      return;
     case 'help':
       tab.tabbed = true;
       RUNTIME('openLink', {tab: tab, url: chrome.extension.getURL('/pages/mappings.html')});
-      break;
+      return;
     case 'stop':
       window.stop();
-      break;
+      return;
     case 'stopall':
       RUNTIME('cancelAllWebRequests');
-      break;
+      return;
     case 'viewsource':
       RUNTIME('openLink', {tab: tab, url: 'view-source:' + document.URL, noconvert: true});
-      break;
+      return;
     case 'togglepin':
       RUNTIME('pinTab');
-      break;
+      return;
     case 'undo':
       RUNTIME('openLast');
-      break;
+      return;
     case 'tabnext':
     case 'tabn':
       RUNTIME('nextTab');
-      break;
+      return;
     case 'tabprevious':
     case 'tabp':
     case 'tabN':
       RUNTIME('previousTab');
-      break;
+      return;
     case 'tabprevious':
-      break;
+      return;
     case 'q':
     case 'quit':
     case 'exit':
       RUNTIME('closeTab', {repeats: repeats});
-      break;
+      return;
     case 'qa':
     case 'qall':
       RUNTIME('closeWindow');
-      break;
-    default:
-      break;
+      return;
   }
 
   if (/^chrome:\/\/\S+$/.test(value)) {
@@ -624,32 +626,37 @@ Command.execute = function(value, repeats) {
     realKeys = '';
     repeats = '';
     Command.hide();
-    return Mappings.executeSequence(command);
+    Mappings.executeSequence(command);
+    return;
   }
 
   if (/^delsession/.test(value)) {
     value = value.replace(/^\S+(\s+)?/, '').trimAround();
     if (value === '') {
-      return Status.setMessage('argument required', 1, 'error');
+      Status.setMessage('argument required', 1, 'error');
+      return;
     }
-    if (sessions.indexOf(value) !== -1) {
+    if (~sessions.indexOf(value)) {
       sessions.splice(sessions.indexOf(value), 1);
     }
     value.split(' ').forEach(function(v) {
       RUNTIME('deleteSession', {name: v});
     });
-    return port.postMessage({action: 'getSessionNames'});
+    PORT('getSessionNames');
+    return;
   }
 
   if (/^mksession/.test(value)) {
     value = value.replace(/^\S+(\s+)?/, '').trimAround();
     if (value === '') {
-      return Status.setMessage('session name required', 1, 'error');
+      Status.setMessage('session name required', 1, 'error');
+      return;
     }
     if (/[^a-zA-Z0-9_-]/.test(value)) {
-      return Status.setMessage('only alphanumeric characters, dashes, and underscores are allowed', 1, 'error');
+      Status.setMessage('only alphanumeric characters, dashes, and underscores are allowed', 1, 'error');
+      return;
     }
-    if (sessions.indexOf(value) === -1) {
+    if (!~sessions.indexOf(value)) {
       sessions.push(value);
     }
     RUNTIME('createSession', {name: value});
@@ -659,7 +666,8 @@ Command.execute = function(value, repeats) {
   if (/^session/.test(value)) {
     value = value.replace(/^\S+(\s+)?/, '').trimAround();
     if (value === '') {
-      return Status.setMessage('session name required', 1, 'error');
+      Status.setMessage('session name required', 1, 'error');
+      return;
     }
     RUNTIME('openSession', {name: value, sameWindow: !tab.active}, function() {
       Status.setMessage('session does not exist', 1, 'error');
@@ -678,11 +686,13 @@ Command.execute = function(value, repeats) {
         isQuery = /\?$/.test(value[0]);
     value[0] = value[0].replace(/\?$/, '');
     if (!settings.hasOwnProperty(value[0].replace(/^no|!$/g, ''))) {
-      return Status.setMessage('unknown option: ' + value[0], 1, 'error');
+      Status.setMessage('unknown option: ' + value[0], 1, 'error');
+      return;
     }
 
     if (isQuery) {
-      return Status.setMessage(value + ': ' + settings[value[0]], 1);
+      Status.setMessage(value + ': ' + settings[value[0]], 1);
+      return;
     }
 
     isSet    = !/^no/.test(value[0]);
@@ -707,7 +717,7 @@ Command.execute = function(value, repeats) {
 
 Command.show = function(search, value) {
   if (!this.domElementsLoaded) {
-    return false;
+    return;
   }
   this.type = '';
   this.active = true;
@@ -773,8 +783,9 @@ Command.insertCSS = function() {
     return;
   }
   var head = document.getElementsByTagName('head');
-  if (!head.length && window.location.protocol !== 'chrome-extensions:' && window.location.pathname !== '/_/chrome/newtab') {
-    if (window.location.protocol !== 'chrome:') {
+  if (!head.length && location.protocol !== 'chrome-extensions:' &&
+      location.pathname !== '/_/chrome/newtab') {
+    if (location.protocol !== 'chrome:') {
       RUNTIME('injectCSS', {
         css: settings.COMMANDBARCSS,
         runAt: 'document_start'
@@ -800,7 +811,8 @@ Command.onDOMLoad = function() {
     var manualFocus = false;
     var initialFocus = window.setInterval(function() {
       if (document.activeElement) {
-        if (/input|textarea/i.test(document.activeElement.localName) && !manualFocus && document.activeElement.id !== 'cVim-command-bar-input') {
+        if (/input|textarea/i.test(document.activeElement.localName) && !manualFocus &&
+            document.activeElement.id !== 'cVim-command-bar-input') {
           document.activeElement.blur();
         }
       }
@@ -830,12 +842,12 @@ Command.init = function(enabled) {
 
     if (Array.isArray(settings.completionengines) && settings.completionengines.length) {
       Complete.engines = Complete.engines.filter(function(e) {
-        return settings.completionengines.indexOf(e) !== -1;
+        return ~settings.completionengines.indexOf(e);
       });
     }
     if (settings.searchengines && settings.searchengines.constructor === Object) {
       for (key in settings.searchengines) {
-        if (Complete.engines.indexOf(key) === -1 && typeof settings.searchengines[key] === 'string') {
+        if (!~Complete.engines.indexOf(key) && typeof settings.searchengines[key] === 'string') {
           Complete.engines.push(key);
           Complete.requestUrls[key] = settings.searchengines[key];
         }
