@@ -28,7 +28,8 @@ Visual.exit = function() {
   } else {
     HUD.display(Find.index + 1 + ' / ' + Find.matches.length);
   }
-  return document.body.spellcheck = true;
+  document.body.spellcheck = true;
+  return;
 };
 
 Visual.focusSearchResult = function(lineMode) {
@@ -109,11 +110,11 @@ Visual.enterLineMode = function() {
     if (bnode.parentNode.getBoundingClientRect().top > enode.parentNode.getBoundingClientRect().top) {
       this.selection.setPosition(bnode, bnode.length);
       this.selection.extend(enode, 0);
-      this.selection.modify('extend', 'backward', 'lineboundary');
+      this.selection.modify('extend', 'left', 'lineboundary');
     } else {
       this.selection.setPosition(bnode, 0);
       this.selection.extend(enode, enode.length);
-      this.selection.modify('extend', 'forward', 'lineboundary');
+      this.selection.modify('extend', 'right', 'lineboundary');
     }
     this.firstExtentNode = this.selection.extentNode;
   }
@@ -123,7 +124,7 @@ Visual.fillLine = function() {
   this.selection = document.getSelection();
   if (this.selection.type === 'Caret') {
     this.selection.setPosition(this.selection.baseNode, 0);
-    this.selection.modify('extend', 'forward', 'lineboundary');
+    this.selection.modify('extend', 'right', 'lineboundary');
   }
 };
 
@@ -135,8 +136,8 @@ Visual.lineAction = function(key) {
         this.selection.setPosition(this.selection.baseNode, 0);
         this.firstLine = false;
       }
-      this.selection.modify('extend', 'forward', 'line');
-      this.selection.modify('extend', 'backward', 'lineboundary');
+      this.selection.modify('extend', 'right', 'line');
+      this.selection.modify('extend', 'left', 'lineboundary');
       this.fillLine();
       break;
     case 'k':
@@ -144,8 +145,8 @@ Visual.lineAction = function(key) {
         this.selection.setPosition(this.selection.baseNode, this.selection.baseNode.length);
         this.firstLine = false;
       }
-      this.selection.modify('extend', 'backward', 'line');
-      this.selection.modify('extend', 'forward', 'lineboundary');
+      this.selection.modify('extend', 'left', 'line');
+      this.selection.modify('extend', 'right', 'lineboundary');
       this.fillLine();
       break;
     case 'p':
@@ -159,22 +160,22 @@ Visual.lineAction = function(key) {
       Visual.collapse();
       break;
     case 'G':
-      this.selection.modify('extend', 'forward', 'documentboundary');
+      this.selection.modify('extend', 'right', 'documentboundary');
       break;
   }
   Visual.scrollIntoView();
 };
 
 Visual.movements = {
-  l: ['forward', 'character'],
-  h: ['backward', 'character'],
-  k: ['backward', 'line'],
-  j: ['forward', 'line'],
-  w: ['forward', 'word'],
-  b: ['backward', 'word'],
-  0: ['backward', 'lineboundary'],
-  $: ['forward', 'lineboundary'],
-  G: ['forward', 'documentboundary']
+  l: ['right', 'character'],
+  h: ['left', 'character'],
+  k: ['left', 'line'],
+  j: ['right', 'line'],
+  w: ['right', 'word'],
+  b: ['left', 'word'],
+  0: ['left', 'lineboundary'],
+  $: ['right', 'lineboundary'],
+  G: ['right', 'documentboundary']
 };
 
 Visual.action = function(key) {
@@ -188,7 +189,7 @@ Visual.action = function(key) {
       } else {
         this.queue = '';
         this.selection.modify((this.visualModeActive ? 'extend' : 'move'),
-            'backward', 'documentboundary');
+            'left', 'documentboundary');
         this.scrollIntoView();
       }
       return;

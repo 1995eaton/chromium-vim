@@ -134,11 +134,6 @@ var KeyListener = (function() {
         return true;
       }
 
-      if (Hints.active || Visual.caretModeActive || Visual.visualModeActive) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-
       // Don't let the keypress listener attempt to parse the key event
       // if it contains a modifier (or asciiKey that should be parsed by the parseKeyDown function
       // such as { return (13) <BR> } or { space (32) <Space> }
@@ -153,8 +148,7 @@ var KeyListener = (function() {
         return callback(code, event);
       // Ugly, but this NEEDS to be checked before setTimeout is called. Otherwise, non-cVim keyboard listeners
       // will not be stopped. preventDefault on the other hand, can be.
-      } else if (commandMode || (!insertMode && document.getSelection().type === 'None' &&
-                 mappings.at(Mappings.queue + KeyEvents.keyhandle(event, 'keydown'))))
+      } else if (commandMode || (!insertMode && mappings.at(Mappings.queue + KeyEvents.keyhandle(event, 'keydown'))))
       {
         event.stopPropagation();
       }
@@ -166,16 +160,25 @@ var KeyListener = (function() {
         if (!keypressTriggered) {
           // found a matching character...
           // use it if the setTimeout function below hasn't already timed out
+          if (Hints.active || Visual.caretModeActive || Visual.visualModeActive) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
           keypressTriggered = true;
           callback(KeyEvents.keyhandle(event, 'keypress'), event);
         }
       });
+
       window.addEventListener('keypress', boundMethod, true);
 
       // Wait for the keypress listener to find a match
       window.setTimeout(function() {
         window.removeEventListener('keypress', boundMethod, true);
         if (!keypressTriggered) { // keypress match wasn't found
+          if (Hints.active || Visual.caretModeActive || Visual.visualModeActive) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
           callback(KeyEvents.keyhandle(event, 'keydown'), event);
         }
       }, 0);
@@ -248,11 +251,13 @@ Key.down = function(asciiKey, e) {
     if (escapeKey) {
       Visual.lineMode = false;
       if (Visual.visualModeActive === false) {
-        return Visual.exit();
+        Visual.exit();
+        insertMode = false;
+        return;
       }
-      Visual.visualModeActive = false;
       HUD.setMessage(' -- CARET -- ');
       Visual.collapse();
+      return;
     }
     return Visual.action(asciiKey.replace(/^<BS>$/, 'h').replace(/^<Space>$/, 'l'));
   }

@@ -1239,11 +1239,6 @@ var KeyListener = (function() {
         return true;
       }
 
-      if (Hints.active || Visual.caretModeActive || Visual.visualModeActive) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-
       // Don't let the keypress listener attempt to parse the key event
       // if it contains a modifier (or asciiKey that should be parsed by the parseKeyDown function
       // such as { return (13) <BR> } or { space (32) <Space> }
@@ -1258,8 +1253,7 @@ var KeyListener = (function() {
         return callback(code, event);
       // Ugly, but this NEEDS to be checked before setTimeout is called. Otherwise, non-cVim keyboard listeners
       // will not be stopped. preventDefault on the other hand, can be.
-      } else if (commandMode || (!insertMode && document.getSelection().type === 'None' &&
-                 mappings.at(Mappings.queue + KeyEvents.keyhandle(event, 'keydown'))))
+      } else if (commandMode || (!insertMode && mappings.at(Mappings.queue + KeyEvents.keyhandle(event, 'keydown'))))
       {
         event.stopPropagation();
       }
@@ -1271,16 +1265,25 @@ var KeyListener = (function() {
         if (!keypressTriggered) {
           // found a matching character...
           // use it if the setTimeout function below hasn't already timed out
+          if (Hints.active || Visual.caretModeActive || Visual.visualModeActive) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
           keypressTriggered = true;
           callback(KeyEvents.keyhandle(event, 'keypress'), event);
         }
       });
+
       window.addEventListener('keypress', boundMethod, true);
 
       // Wait for the keypress listener to find a match
       window.setTimeout(function() {
         window.removeEventListener('keypress', boundMethod, true);
         if (!keypressTriggered) { // keypress match wasn't found
+          if (Hints.active || Visual.caretModeActive || Visual.visualModeActive) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
           callback(KeyEvents.keyhandle(event, 'keydown'), event);
         }
       }, 0);
@@ -1353,11 +1356,13 @@ Key.down = function(asciiKey, e) {
     if (escapeKey) {
       Visual.lineMode = false;
       if (Visual.visualModeActive === false) {
-        return Visual.exit();
+        Visual.exit();
+        insertMode = false;
+        return;
       }
-      Visual.visualModeActive = false;
       HUD.setMessage(' -- CARET -- ');
       Visual.collapse();
+      return;
     }
     return Visual.action(asciiKey.replace(/^<BS>$/, 'h').replace(/^<Space>$/, 'l'));
   }
@@ -3593,7 +3598,8 @@ Visual.exit = function() {
   } else {
     HUD.display(Find.index + 1 + ' / ' + Find.matches.length);
   }
-  return document.body.spellcheck = true;
+  document.body.spellcheck = true;
+  return;
 };
 
 Visual.focusSearchResult = function(lineMode) {
@@ -3674,11 +3680,11 @@ Visual.enterLineMode = function() {
     if (bnode.parentNode.getBoundingClientRect().top > enode.parentNode.getBoundingClientRect().top) {
       this.selection.setPosition(bnode, bnode.length);
       this.selection.extend(enode, 0);
-      this.selection.modify('extend', 'backward', 'lineboundary');
+      this.selection.modify('extend', 'left', 'lineboundary');
     } else {
       this.selection.setPosition(bnode, 0);
       this.selection.extend(enode, enode.length);
-      this.selection.modify('extend', 'forward', 'lineboundary');
+      this.selection.modify('extend', 'right', 'lineboundary');
     }
     this.firstExtentNode = this.selection.extentNode;
   }
@@ -3688,7 +3694,7 @@ Visual.fillLine = function() {
   this.selection = document.getSelection();
   if (this.selection.type === 'Caret') {
     this.selection.setPosition(this.selection.baseNode, 0);
-    this.selection.modify('extend', 'forward', 'lineboundary');
+    this.selection.modify('extend', 'right', 'lineboundary');
   }
 };
 
@@ -3700,8 +3706,8 @@ Visual.lineAction = function(key) {
         this.selection.setPosition(this.selection.baseNode, 0);
         this.firstLine = false;
       }
-      this.selection.modify('extend', 'forward', 'line');
-      this.selection.modify('extend', 'backward', 'lineboundary');
+      this.selection.modify('extend', 'right', 'line');
+      this.selection.modify('extend', 'left', 'lineboundary');
       this.fillLine();
       break;
     case 'k':
@@ -3709,8 +3715,8 @@ Visual.lineAction = function(key) {
         this.selection.setPosition(this.selection.baseNode, this.selection.baseNode.length);
         this.firstLine = false;
       }
-      this.selection.modify('extend', 'backward', 'line');
-      this.selection.modify('extend', 'forward', 'lineboundary');
+      this.selection.modify('extend', 'left', 'line');
+      this.selection.modify('extend', 'right', 'lineboundary');
       this.fillLine();
       break;
     case 'p':
@@ -3724,22 +3730,22 @@ Visual.lineAction = function(key) {
       Visual.collapse();
       break;
     case 'G':
-      this.selection.modify('extend', 'forward', 'documentboundary');
+      this.selection.modify('extend', 'right', 'documentboundary');
       break;
   }
   Visual.scrollIntoView();
 };
 
 Visual.movements = {
-  l: ['forward', 'character'],
-  h: ['backward', 'character'],
-  k: ['backward', 'line'],
-  j: ['forward', 'line'],
-  w: ['forward', 'word'],
-  b: ['backward', 'word'],
-  0: ['backward', 'lineboundary'],
-  $: ['forward', 'lineboundary'],
-  G: ['forward', 'documentboundary']
+  l: ['right', 'character'],
+  h: ['left', 'character'],
+  k: ['left', 'line'],
+  j: ['right', 'line'],
+  w: ['right', 'word'],
+  b: ['left', 'word'],
+  0: ['left', 'lineboundary'],
+  $: ['right', 'lineboundary'],
+  G: ['right', 'documentboundary']
 };
 
 Visual.action = function(key) {
@@ -3753,7 +3759,7 @@ Visual.action = function(key) {
       } else {
         this.queue = '';
         this.selection.modify((this.visualModeActive ? 'extend' : 'move'),
-            'backward', 'documentboundary');
+            'left', 'documentboundary');
         this.scrollIntoView();
       }
       return;
