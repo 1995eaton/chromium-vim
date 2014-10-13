@@ -9,7 +9,8 @@ var Mappings = {
   lastCommand: {
     fn: '',
     queue: '',
-    repeats: 1
+    repeats: 1,
+    args: []
   }
 };
 
@@ -587,7 +588,8 @@ Mappings.actions = {
   },
   repeatCommand: function(repeats) {
     if (this.hasOwnProperty(Mappings.lastCommand.fn)) {
-      this[Mappings.lastCommand.fn](Mappings.lastCommand.repeats * repeats);
+      this[Mappings.lastCommand.fn].apply(this,
+          (Mappings.lastCommand.args || []).concat(Mappings.lastCommand.repeats * repeats));
     }
   }
 
@@ -855,8 +857,15 @@ Mappings.convertToAction = function(key) {
   }
 
   if (currentTrieNode.value) {
-    if (currentTrieNode.value.indexOf(':') === 0) {
+    if (currentTrieNode.value.charAt(0) === ':') {
       this.actions.shortCuts(currentTrieNode.value, +this.repeats || 1);
+      this.lastCommand.queue = this.queue;
+      this.lastCommand.repeats = +this.repeats || 1;
+      this.lastCommand.fn = 'shortCuts';
+      this.lastCommand.args = [currentTrieNode.value];
+      RUNTIME('updateLastCommand', {
+        data: JSON.stringify(this.lastCommand)
+      });
     } else {
       if (currentTrieNode.value !== 'repeatCommand') {
         if (!this.actions[currentTrieNode.value]) {
