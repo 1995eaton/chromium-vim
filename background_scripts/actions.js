@@ -54,7 +54,7 @@ actions.openLink = function() {
   } else {
     chrome.tabs.update({
       url: url,
-      pinned: sender.tab.pinned
+      pinned: request.tab.pinned || sender.tab.pinned
     });
   }
 };
