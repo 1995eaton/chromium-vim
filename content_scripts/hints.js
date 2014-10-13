@@ -477,94 +477,97 @@ Hints.genHints = function(M) {
 };
 
 Hints.create = function(type, multi) {
-  if (!Command.domElementsLoaded) {
-    return false;
-  }
-  this.shiftKeyInitiator = Key.shiftKey;
-  var links, main, frag, i, l;
-  this.type = type;
-  this.hideHints(true, multi);
-  if (document.body && document.body.style) {
-    Hints.documentZoom = +document.body.style.zoom || 1;
-  } else {
-    Hints.documentZoom = 1;
-  }
-  Hints.linkElementBase = document.createElement('div');
-  Hints.linkElementBase.cVim = true;
-  Hints.linkElementBase.className = 'cVim-link-hint';
-  links = this.getLinks();
-  if (type && type.indexOf('multi') !== -1) {
-    this.multi = true;
-  } else {
-    this.multi = false;
-  }
-  if (this.linkArr.length === 0) {
-    return this.hideHints();
-  }
+  var self = this;
+  window.setTimeout(function() {
+    if (!Command.domElementsLoaded) {
+      return false;
+    }
+    self.shiftKeyInitiator = Key.shiftKey;
+    var links, main, frag, i, l;
+    self.type = type;
+    self.hideHints(true, multi);
+    if (document.body && document.body.style) {
+      Hints.documentZoom = +document.body.style.zoom || 1;
+    } else {
+      Hints.documentZoom = 1;
+    }
+    Hints.linkElementBase = document.createElement('div');
+    Hints.linkElementBase.cVim = true;
+    Hints.linkElementBase.className = 'cVim-link-hint';
+    links = self.getLinks();
+    if (type && type.indexOf('multi') !== -1) {
+      self.multi = true;
+    } else {
+      self.multi = false;
+    }
+    if (self.linkArr.length === 0) {
+      return self.hideHints();
+    }
 
-  main = document.createElement('div');
-  if (settings && settings.linkanimations) {
-    main.style.opacity = '0';
-  }
-  main.cVim = true;
-  frag = document.createDocumentFragment();
+    main = document.createElement('div');
+    if (settings && settings.linkanimations) {
+      main.style.opacity = '0';
+    }
+    main.cVim = true;
+    frag = document.createDocumentFragment();
 
-  main.id = 'cVim-link-container';
-  main.top = document.body.scrollTop + 'px';
-  main.left = document.body.scrollLeft + 'px';
+    main.id = 'cVim-link-container';
+    main.top = document.body.scrollTop + 'px';
+    main.left = document.body.scrollLeft + 'px';
 
-  try {
-    document.lastChild.appendChild(main);
-  } catch(e) {
-    document.body.appendChild(main);
-  }
+    try {
+      document.lastChild.appendChild(main);
+    } catch(e) {
+      document.body.appendChild(main);
+    }
 
-  if (!multi && settings && settings.hud) {
-    HUD.display('Follow link ' + (function() {
-      switch (type) {
-        case 'yank':
-          return '(yank)';
-        case 'multiyank':
-          return '(multi-yank)';
-        case 'image':
-          return '(reverse image)';
-        case 'fullimage':
-          return '(full image)';
-        case 'tabbed':
-        case 'tabbedActive':
-          return '(tabbed)';
-        case 'window':
-          return '(window)';
-        case 'hover':
-          return '(hover)';
-        case 'unhover':
-          return '(unhover)';
-        case 'multi':
-          return '(multi)';
-        default:
-          return '';
+    if (!multi && settings && settings.hud) {
+      HUD.display('Follow link ' + (function() {
+        switch (type) {
+          case 'yank':
+            return '(yank)';
+          case 'multiyank':
+            return '(multi-yank)';
+          case 'image':
+            return '(reverse image)';
+          case 'fullimage':
+            return '(full image)';
+          case 'tabbed':
+          case 'tabbedActive':
+            return '(tabbed)';
+          case 'window':
+            return '(window)';
+          case 'hover':
+            return '(hover)';
+          case 'unhover':
+            return '(unhover)';
+          case 'multi':
+            return '(multi)';
+          default:
+            return '';
+        }
+      })());
+    }
+
+    if (!settings.numerichints) {
+      self.permutations = self.genHints(self.linkArr.length);
+      for (i = self.linkArr.length - 1; i >= 0; --i) {
+        self.linkArr[i][0].textContent = self.permutations[i];
+        frag.appendChild(self.linkArr[i][0]);
       }
-    })());
-  }
-
-  if (!settings.numerichints) {
-    this.permutations = this.genHints(this.linkArr.length);
-    for (i = this.linkArr.length - 1; i >= 0; --i) {
-      this.linkArr[i][0].textContent = this.permutations[i];
-      frag.appendChild(this.linkArr[i][0]);
+    } else {
+      self.linkArr = self.linkArr.sort(function(a, b) {
+        return a[0] - b[0];
+      }).map(function(e) {
+        return e.slice(1);
+      });
+      for (i = 0, l = self.linkArr.length; i < l; ++i) {
+        self.linkArr[i][0].textContent = (i + 1).toString() + (self.linkArr[i][3] ? ': ' + self.linkArr[i][3] : '');
+        frag.appendChild(self.linkArr[i][0]);
+      }
     }
-  } else {
-    this.linkArr = this.linkArr.sort(function(a, b) {
-      return a[0] - b[0];
-    }).map(function(e) {
-      return e.slice(1);
-    });
-    for (i = 0, l = this.linkArr.length; i < l; ++i) {
-      this.linkArr[i][0].textContent = (i + 1).toString() + (this.linkArr[i][3] ? ': ' + this.linkArr[i][3] : '');
-      frag.appendChild(this.linkArr[i][0]);
-    }
-  }
 
-  main.appendChild(frag);
-  main.style.opacity = '1';
+    main.appendChild(frag);
+    main.style.opacity = '1';
+  }, 0);
 };

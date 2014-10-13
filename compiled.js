@@ -478,104 +478,107 @@ Hints.genHints = function(M) {
 };
 
 Hints.create = function(type, multi) {
-  if (!Command.domElementsLoaded) {
-    return false;
-  }
-  this.shiftKeyInitiator = Key.shiftKey;
-  var links, main, frag, i, l;
-  this.type = type;
-  this.hideHints(true, multi);
-  if (document.body && document.body.style) {
-    Hints.documentZoom = +document.body.style.zoom || 1;
-  } else {
-    Hints.documentZoom = 1;
-  }
-  Hints.linkElementBase = document.createElement('div');
-  Hints.linkElementBase.cVim = true;
-  Hints.linkElementBase.className = 'cVim-link-hint';
-  links = this.getLinks();
-  if (type && type.indexOf('multi') !== -1) {
-    this.multi = true;
-  } else {
-    this.multi = false;
-  }
-  if (this.linkArr.length === 0) {
-    return this.hideHints();
-  }
+  var self = this;
+  window.setTimeout(function() {
+    if (!Command.domElementsLoaded) {
+      return false;
+    }
+    self.shiftKeyInitiator = Key.shiftKey;
+    var links, main, frag, i, l;
+    self.type = type;
+    self.hideHints(true, multi);
+    if (document.body && document.body.style) {
+      Hints.documentZoom = +document.body.style.zoom || 1;
+    } else {
+      Hints.documentZoom = 1;
+    }
+    Hints.linkElementBase = document.createElement('div');
+    Hints.linkElementBase.cVim = true;
+    Hints.linkElementBase.className = 'cVim-link-hint';
+    links = self.getLinks();
+    if (type && type.indexOf('multi') !== -1) {
+      self.multi = true;
+    } else {
+      self.multi = false;
+    }
+    if (self.linkArr.length === 0) {
+      return self.hideHints();
+    }
 
-  main = document.createElement('div');
-  if (settings && settings.linkanimations) {
-    main.style.opacity = '0';
-  }
-  main.cVim = true;
-  frag = document.createDocumentFragment();
+    main = document.createElement('div');
+    if (settings && settings.linkanimations) {
+      main.style.opacity = '0';
+    }
+    main.cVim = true;
+    frag = document.createDocumentFragment();
 
-  main.id = 'cVim-link-container';
-  main.top = document.body.scrollTop + 'px';
-  main.left = document.body.scrollLeft + 'px';
+    main.id = 'cVim-link-container';
+    main.top = document.body.scrollTop + 'px';
+    main.left = document.body.scrollLeft + 'px';
 
-  try {
-    document.lastChild.appendChild(main);
-  } catch(e) {
-    document.body.appendChild(main);
-  }
+    try {
+      document.lastChild.appendChild(main);
+    } catch(e) {
+      document.body.appendChild(main);
+    }
 
-  if (!multi && settings && settings.hud) {
-    HUD.display('Follow link ' + (function() {
-      switch (type) {
-        case 'yank':
-          return '(yank)';
-        case 'multiyank':
-          return '(multi-yank)';
-        case 'image':
-          return '(reverse image)';
-        case 'fullimage':
-          return '(full image)';
-        case 'tabbed':
-        case 'tabbedActive':
-          return '(tabbed)';
-        case 'window':
-          return '(window)';
-        case 'hover':
-          return '(hover)';
-        case 'unhover':
-          return '(unhover)';
-        case 'multi':
-          return '(multi)';
-        default:
-          return '';
+    if (!multi && settings && settings.hud) {
+      HUD.display('Follow link ' + (function() {
+        switch (type) {
+          case 'yank':
+            return '(yank)';
+          case 'multiyank':
+            return '(multi-yank)';
+          case 'image':
+            return '(reverse image)';
+          case 'fullimage':
+            return '(full image)';
+          case 'tabbed':
+          case 'tabbedActive':
+            return '(tabbed)';
+          case 'window':
+            return '(window)';
+          case 'hover':
+            return '(hover)';
+          case 'unhover':
+            return '(unhover)';
+          case 'multi':
+            return '(multi)';
+          default:
+            return '';
+        }
+      })());
+    }
+
+    if (!settings.numerichints) {
+      self.permutations = self.genHints(self.linkArr.length);
+      for (i = self.linkArr.length - 1; i >= 0; --i) {
+        self.linkArr[i][0].textContent = self.permutations[i];
+        frag.appendChild(self.linkArr[i][0]);
       }
-    })());
-  }
-
-  if (!settings.numerichints) {
-    this.permutations = this.genHints(this.linkArr.length);
-    for (i = this.linkArr.length - 1; i >= 0; --i) {
-      this.linkArr[i][0].textContent = this.permutations[i];
-      frag.appendChild(this.linkArr[i][0]);
+    } else {
+      self.linkArr = self.linkArr.sort(function(a, b) {
+        return a[0] - b[0];
+      }).map(function(e) {
+        return e.slice(1);
+      });
+      for (i = 0, l = self.linkArr.length; i < l; ++i) {
+        self.linkArr[i][0].textContent = (i + 1).toString() + (self.linkArr[i][3] ? ': ' + self.linkArr[i][3] : '');
+        frag.appendChild(self.linkArr[i][0]);
+      }
     }
-  } else {
-    this.linkArr = this.linkArr.sort(function(a, b) {
-      return a[0] - b[0];
-    }).map(function(e) {
-      return e.slice(1);
-    });
-    for (i = 0, l = this.linkArr.length; i < l; ++i) {
-      this.linkArr[i][0].textContent = (i + 1).toString() + (this.linkArr[i][3] ? ': ' + this.linkArr[i][3] : '');
-      frag.appendChild(this.linkArr[i][0]);
-    }
-  }
 
-  main.appendChild(frag);
-  main.style.opacity = '1';
+    main.appendChild(frag);
+    main.style.opacity = '1';
+  }, 0);
 };
-window.log = console.log.bind(console);
+LOG = console.log.bind(console);
 
-window.cVimError = function(message) {
+var cVimError = function(message) {
   console.error(message);
 };
 
-window.definePrototype = function(obj, name, fn) {
+var definePrototype = function(obj, name, fn) {
   Object.defineProperty(obj.prototype, name, {
     enumerable: false,
     configurable: false,
@@ -584,7 +587,7 @@ window.definePrototype = function(obj, name, fn) {
   });
 };
 
-window.httpRequest = function(request) {
+var httpRequest = function(request) {
   return new Promise(function(acc, rej) {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', request.url);
@@ -603,7 +606,7 @@ window.httpRequest = function(request) {
 
 // ------------ Begin reverse image
 
-window.isValidB64 = function(a) {
+var isValidB64 = function(a) {
   try {
     window.atob(a);
   } catch(e) {
@@ -612,12 +615,12 @@ window.isValidB64 = function(a) {
   return true;
 };
 
-window.reverseImagePost = function(url) {
+var reverseImagePost = function(url) {
   return '<html><head><title>cVim reverse image search</title></head><body><form id="f" method="POST" action="https://www.google.com/searchbyimage/upload" enctype="multipart/form-data"><input type="hidden" name="image_content" value="' + url.substring(url.indexOf(',') + 1).replace(/\+/g, '-').replace(/\//g, '_').replace(/\./g, '=') + '"><input type="hidden" name="filename" value=""><input type="hidden" name="image_url" value=""><input type="hidden" name="sbisrc" value=""></form><script>document.getElementById("f").submit();\x3c/script></body></html>';
 };
 
 // Based off of the 'Search by Image' Chrome Extension by Google
-window.googleReverseImage = function(url, source) {
+var googleReverseImage = function(url, source) {
   if (void 0 !== url && url.indexOf('data:') === 0) {
     if (url.search(/data:image\/(bmp|gif|jpe?g|png|webp|tiff|x-ico)/i) === 0) {
       var commaIndex = url.indexOf(',');
@@ -636,7 +639,7 @@ window.googleReverseImage = function(url, source) {
 
 // ------------ End reverse image
 
-window.getVisibleBoundingRect = function(node) {
+var getVisibleBoundingRect = function(node) {
   var i;
   var boundingRect = node.getClientRects()[0] || node.getBoundingClientRect();
   if (boundingRect.width <= 1 && boundingRect.height <= 1) {
@@ -684,7 +687,7 @@ definePrototype(HTMLElement, 'isVisible', function() {
     this.getAttribute('display') !== 'none';
 });
 
-window.isVisible = function(element) {
+var isVisible = function(element) {
   return element.offsetParent && !element.disabled &&
     element.getAttribute('type') !== 'hidden' &&
     getComputedStyle(element).visibility !== 'hidden' &&
@@ -698,7 +701,7 @@ definePrototype(HTMLElement, 'isInput', function() {
   );
 });
 
-window.simulateMouseEvents = function(element, events) {
+var simulateMouseEvents = function(element, events) {
   for (var i = 0; i < events.length; ++i) {
     var ev = document.createEvent('MouseEvents');
     ev.initMouseEvent(events[i], true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
@@ -801,7 +804,7 @@ definePrototype(String, 'convertLink', function() {
   return 'https://www.google.com/search?q=' + url;
 });
 
-window.matchLocation = function(url, pattern) { // Uses @match syntax
+var matchLocation = function(url, pattern) { // Uses @match syntax
   // See https://code.google.com/p/chromium/codesearch#chromium/src/extensions/common/url_pattern.h&sq=package:chromium
   if (typeof pattern !== 'string' || !pattern.trim()) {
     return false;
@@ -845,11 +848,7 @@ window.matchLocation = function(url, pattern) { // Uses @match syntax
   return true;
 };
 
-window.sameType = function(a, b) {
-  return a.constructor === b.constructor;
-};
-
-window.waitForLoad = function(callback, constructor) {
+var waitForLoad = function(callback, constructor) {
   if ((document.readyState === 'interactive' || document.readyState === 'complete') && document.activeElement) {
     return callback.call(constructor);
   }
@@ -858,13 +857,13 @@ window.waitForLoad = function(callback, constructor) {
   }, 5);
 };
 
-window.decodeHTMLEntities = function(string) {
+var decodeHTMLEntities = function(string) {
   var el = document.createElement('div');
   el.innerHTML = string;
   return el.textContent;
 };
 
-window.searchArray = function(array, search, limit, useRegex, fn) {
+var searchArray = function(array, search, limit, useRegex, fn) {
   if (search === '') {
     return array.slice(0, limit || settings.searchlimit);
   }
@@ -906,7 +905,7 @@ Object.extend = function() {
   return _ret;
 };
 
-window.Trie = (function() {
+var Trie = (function() {
   var _ = function(parent) {
     this.data = {};
     this.parent = parent || null;
@@ -2041,9 +2040,7 @@ Mappings.actions = {
     chrome.runtime.sendMessage({action: 'cancelAllWebRequests'});
   },
   percentScroll: function(repeats) {
-    if (Mappings.repeats === '0' || Mappings.repeats === '') {
-      repeats = 0;
-    }
+    repeats = (Mappings.repeats === '0' || Mappings.repeats === '') ? 0 : repeats;
     document.body.scrollTop =
       (document.body.scrollHeight - window.innerHeight) * repeats / 100;
   },
@@ -2297,58 +2294,19 @@ Mappings.actions = {
     }
   },
   setMark: function() {
-    Scroll.positions[Mappings.lastCommand.queue.slice(-1)] = [document.body.scrollLeft, document.body.scrollTop];
+    Scroll.positions[Mappings.lastCommand.queue.slice(-1)] =
+      [document.body.scrollLeft, document.body.scrollTop];
   },
-  createHint: function() {
-    window.setTimeout(function() {
-      Hints.create();
-    }, 0);
-  },
-  createTabbedHint: function() {
-    window.setTimeout(function() {
-      Hints.create('tabbed');
-    }, 0);
-  },
-  createActiveTabbedHint: function() {
-    window.setTimeout(function() {
-      Hints.create('tabbedActive');
-    }, 0);
-  },
-  createMultiHint: function() {
-    window.setTimeout(function() {
-      Hints.create('multi');
-    }, 0);
-  },
-  createHintWindow: function() {
-    window.setTimeout(function() {
-      Hints.create('window');
-    }, 0);
-  },
-  createHoverHint: function() {
-    window.setTimeout(function() {
-      Hints.create('hover');
-    }, 0);
-  },
-  createUnhoverHint: function() {
-    window.setTimeout(function() {
-      Hints.create('unhover');
-    }, 0);
-  },
-  yankUrl: function() {
-    window.setTimeout(function() {
-      Hints.create('yank');
-    }, 0);
-  },
-  multiYankUrl: function() {
-    window.setTimeout(function() {
-      Hints.create('multiyank');
-    }, 0);
-  },
-  fullImageHint: function() {
-    window.setTimeout(function() {
-      Hints.create('fullimage');
-    }, 0);
-  },
+  createHint: function() { Hints.create(); },
+  createTabbedHint: function() { Hints.create('tabbed'); },
+  createActiveTabbedHint: function() { Hints.create('tabbedActive'); },
+  createMultiHint: function() { Hints.create('multi'); },
+  createHintWindow: function() { Hints.create('window'); },
+  createHoverHint: function() { Hints.create('hover'); },
+  createUnhoverHint: function() { Hints.create('unhover'); },
+  yankUrl: function() { Hints.create('yank'); },
+  multiYankUrl: function() { Hints.create('multiyank'); },
+  fullImageHint: function() { Hints.create('fullimage'); },
   yankDocumentUrl: function() {
     Clipboard.copy(document.URL);
     Status.setMessage(document.URL, 2);
@@ -2753,36 +2711,6 @@ Mappings.insertCommand = function(modifier, callback) {
     callback(true);
     this.insertFunctions.__setElement__(document.activeElement);
     this.insertFunctions[value]();
-  }
-};
-
-Mappings.indexFromKeybinding = function(obj, keybinding) {
-  for (var key in obj) {
-    if (Array.isArray(obj[key]) && obj[key].indexOf(keybinding) !== -1) {
-      return key;
-    }
-  }
-  return null;
-};
-
-Mappings.removeConflicts = function(obj, mapping) {
-  var mrep = mapping.replace(/<[^>]+>/g, '#');
-  for (var key in obj) {
-    if (Array.isArray(obj[key])) {
-      obj[key] = obj[key].filter(function(e) {
-        if (e === mapping) {
-          return false;
-        }
-        var erep = e.replace(/<[^>]+>/g, '#');
-        if (mapping.indexOf(e) === 0 && mrep.indexOf(erep) === 0) {
-          return false;
-        }
-        if (e.indexOf(mapping) === 0 && erep.indexOf(mrep) === 0) {
-          return false;
-        }
-        return true;
-      });
-    }
   }
 };
 

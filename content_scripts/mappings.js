@@ -78,9 +78,7 @@ Mappings.actions = {
     chrome.runtime.sendMessage({action: 'cancelAllWebRequests'});
   },
   percentScroll: function(repeats) {
-    if (Mappings.repeats === '0' || Mappings.repeats === '') {
-      repeats = 0;
-    }
+    repeats = (Mappings.repeats === '0' || Mappings.repeats === '') ? 0 : repeats;
     document.body.scrollTop =
       (document.body.scrollHeight - window.innerHeight) * repeats / 100;
   },
@@ -334,58 +332,19 @@ Mappings.actions = {
     }
   },
   setMark: function() {
-    Scroll.positions[Mappings.lastCommand.queue.slice(-1)] = [document.body.scrollLeft, document.body.scrollTop];
+    Scroll.positions[Mappings.lastCommand.queue.slice(-1)] =
+      [document.body.scrollLeft, document.body.scrollTop];
   },
-  createHint: function() {
-    window.setTimeout(function() {
-      Hints.create();
-    }, 0);
-  },
-  createTabbedHint: function() {
-    window.setTimeout(function() {
-      Hints.create('tabbed');
-    }, 0);
-  },
-  createActiveTabbedHint: function() {
-    window.setTimeout(function() {
-      Hints.create('tabbedActive');
-    }, 0);
-  },
-  createMultiHint: function() {
-    window.setTimeout(function() {
-      Hints.create('multi');
-    }, 0);
-  },
-  createHintWindow: function() {
-    window.setTimeout(function() {
-      Hints.create('window');
-    }, 0);
-  },
-  createHoverHint: function() {
-    window.setTimeout(function() {
-      Hints.create('hover');
-    }, 0);
-  },
-  createUnhoverHint: function() {
-    window.setTimeout(function() {
-      Hints.create('unhover');
-    }, 0);
-  },
-  yankUrl: function() {
-    window.setTimeout(function() {
-      Hints.create('yank');
-    }, 0);
-  },
-  multiYankUrl: function() {
-    window.setTimeout(function() {
-      Hints.create('multiyank');
-    }, 0);
-  },
-  fullImageHint: function() {
-    window.setTimeout(function() {
-      Hints.create('fullimage');
-    }, 0);
-  },
+  createHint: function() { Hints.create(); },
+  createTabbedHint: function() { Hints.create('tabbed'); },
+  createActiveTabbedHint: function() { Hints.create('tabbedActive'); },
+  createMultiHint: function() { Hints.create('multi'); },
+  createHintWindow: function() { Hints.create('window'); },
+  createHoverHint: function() { Hints.create('hover'); },
+  createUnhoverHint: function() { Hints.create('unhover'); },
+  yankUrl: function() { Hints.create('yank'); },
+  multiYankUrl: function() { Hints.create('multiyank'); },
+  fullImageHint: function() { Hints.create('fullimage'); },
   yankDocumentUrl: function() {
     Clipboard.copy(document.URL);
     Status.setMessage(document.URL, 2);
@@ -790,36 +749,6 @@ Mappings.insertCommand = function(modifier, callback) {
     callback(true);
     this.insertFunctions.__setElement__(document.activeElement);
     this.insertFunctions[value]();
-  }
-};
-
-Mappings.indexFromKeybinding = function(obj, keybinding) {
-  for (var key in obj) {
-    if (Array.isArray(obj[key]) && obj[key].indexOf(keybinding) !== -1) {
-      return key;
-    }
-  }
-  return null;
-};
-
-Mappings.removeConflicts = function(obj, mapping) {
-  var mrep = mapping.replace(/<[^>]+>/g, '#');
-  for (var key in obj) {
-    if (Array.isArray(obj[key])) {
-      obj[key] = obj[key].filter(function(e) {
-        if (e === mapping) {
-          return false;
-        }
-        var erep = e.replace(/<[^>]+>/g, '#');
-        if (mapping.indexOf(e) === 0 && mrep.indexOf(erep) === 0) {
-          return false;
-        }
-        if (e.indexOf(mapping) === 0 && erep.indexOf(mrep) === 0) {
-          return false;
-        }
-        return true;
-      });
-    }
   }
 };
 

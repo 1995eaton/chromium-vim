@@ -1,10 +1,10 @@
-window.log = console.log.bind(console);
+LOG = console.log.bind(console);
 
-window.cVimError = function(message) {
+var cVimError = function(message) {
   console.error(message);
 };
 
-window.definePrototype = function(obj, name, fn) {
+var definePrototype = function(obj, name, fn) {
   Object.defineProperty(obj.prototype, name, {
     enumerable: false,
     configurable: false,
@@ -13,7 +13,7 @@ window.definePrototype = function(obj, name, fn) {
   });
 };
 
-window.httpRequest = function(request) {
+var httpRequest = function(request) {
   return new Promise(function(acc, rej) {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', request.url);
@@ -29,10 +29,8 @@ window.httpRequest = function(request) {
   });
 };
 
-
 // ------------ Begin reverse image
-
-window.isValidB64 = function(a) {
+var isValidB64 = function(a) {
   try {
     window.atob(a);
   } catch(e) {
@@ -41,12 +39,12 @@ window.isValidB64 = function(a) {
   return true;
 };
 
-window.reverseImagePost = function(url) {
+var reverseImagePost = function(url) {
   return '<html><head><title>cVim reverse image search</title></head><body><form id="f" method="POST" action="https://www.google.com/searchbyimage/upload" enctype="multipart/form-data"><input type="hidden" name="image_content" value="' + url.substring(url.indexOf(',') + 1).replace(/\+/g, '-').replace(/\//g, '_').replace(/\./g, '=') + '"><input type="hidden" name="filename" value=""><input type="hidden" name="image_url" value=""><input type="hidden" name="sbisrc" value=""></form><script>document.getElementById("f").submit();\x3c/script></body></html>';
 };
 
 // Based off of the 'Search by Image' Chrome Extension by Google
-window.googleReverseImage = function(url, source) {
+var googleReverseImage = function(url, source) {
   if (void 0 !== url && url.indexOf('data:') === 0) {
     if (url.search(/data:image\/(bmp|gif|jpe?g|png|webp|tiff|x-ico)/i) === 0) {
       var commaIndex = url.indexOf(',');
@@ -62,10 +60,9 @@ window.googleReverseImage = function(url, source) {
     return 'https://www.google.com/searchbyimage?image_url=' + url;
   }
 };
-
 // ------------ End reverse image
 
-window.getVisibleBoundingRect = function(node) {
+var getVisibleBoundingRect = function(node) {
   var i;
   var boundingRect = node.getClientRects()[0] || node.getBoundingClientRect();
   if (boundingRect.width <= 1 && boundingRect.height <= 1) {
@@ -113,7 +110,7 @@ definePrototype(HTMLElement, 'isVisible', function() {
     this.getAttribute('display') !== 'none';
 });
 
-window.isVisible = function(element) {
+var isVisible = function(element) {
   return element.offsetParent && !element.disabled &&
     element.getAttribute('type') !== 'hidden' &&
     getComputedStyle(element).visibility !== 'hidden' &&
@@ -127,7 +124,7 @@ definePrototype(HTMLElement, 'isInput', function() {
   );
 });
 
-window.simulateMouseEvents = function(element, events) {
+var simulateMouseEvents = function(element, events) {
   for (var i = 0; i < events.length; ++i) {
     var ev = document.createEvent('MouseEvents');
     ev.initMouseEvent(events[i], true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
@@ -230,7 +227,7 @@ definePrototype(String, 'convertLink', function() {
   return 'https://www.google.com/search?q=' + url;
 });
 
-window.matchLocation = function(url, pattern) { // Uses @match syntax
+var matchLocation = function(url, pattern) { // Uses @match syntax
   // See https://code.google.com/p/chromium/codesearch#chromium/src/extensions/common/url_pattern.h&sq=package:chromium
   if (typeof pattern !== 'string' || !pattern.trim()) {
     return false;
@@ -274,11 +271,7 @@ window.matchLocation = function(url, pattern) { // Uses @match syntax
   return true;
 };
 
-window.sameType = function(a, b) {
-  return a.constructor === b.constructor;
-};
-
-window.waitForLoad = function(callback, constructor) {
+var waitForLoad = function(callback, constructor) {
   if ((document.readyState === 'interactive' || document.readyState === 'complete') && document.activeElement) {
     return callback.call(constructor);
   }
@@ -287,13 +280,13 @@ window.waitForLoad = function(callback, constructor) {
   }, 5);
 };
 
-window.decodeHTMLEntities = function(string) {
+var decodeHTMLEntities = function(string) {
   var el = document.createElement('div');
   el.innerHTML = string;
   return el.textContent;
 };
 
-window.searchArray = function(array, search, limit, useRegex, fn) {
+var searchArray = function(array, search, limit, useRegex, fn) {
   if (search === '') {
     return array.slice(0, limit || settings.searchlimit);
   }
@@ -335,7 +328,7 @@ Object.extend = function() {
   return _ret;
 };
 
-window.Trie = (function() {
+var Trie = (function() {
   var _ = function(parent) {
     this.data = {};
     this.parent = parent || null;

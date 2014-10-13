@@ -167,7 +167,8 @@ Settings.checkConfig = function(config) {
     return e.toLowerCase() === e;
   });
   for (var key in config) {
-    if (validSettings.indexOf(key) !== -1 && sameType(config[key], Settings.settings[key])) {
+    if (validSettings.indexOf(key) !== -1 &&
+        config[key].constructor === Settings.settings[key].constructor) {
       if (config[key].constructor === Object) {
         Settings.settings[key] = Object.extend(Settings.settings[key], config[key]);
       } else {
