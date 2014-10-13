@@ -91,29 +91,22 @@ Mappings.actions = {
     chrome.runtime.sendMessage({action: 'hideDownloadsShelf'});
   },
   goToRootUrl: function() {
-    if (window.location.pathname.length !== 0 && window.location.pathname !== '/') {
-      chrome.runtime.sendMessage({
-        action: 'openLink',
-        tab: {
-          pinned: false
-        },
-        url: window.location.origin
-      });
-    }
+    chrome.runtime.sendMessage({
+      action: 'openLink',
+      url: location.protocol + '//' + location.hostname,
+      tab: { pinned: null }
+    });
   },
   goUpUrl: function(repeats) {
-    var rxp = new RegExp('(\/([^\/])+){0,' + repeats + '}(\/)?$');
-    if (window.location.pathname.length !== 0 && window.location.pathname !== '/') {
-      var match = window.location.pathname.replace(rxp, '');
-      if (match !== window.location.pathname) {
-        chrome.runtime.sendMessage({
-          action: 'openLink',
-          tab: {
-            pinned: false
-          },
-          url: window.location.origin + match
-        });
-      }
+    var path = '/' + location.pathname.split('/')
+      .filter(function(e) { return e; })
+      .slice(0, -repeats).join('/');
+    if (path !== location.pathname) {
+      chrome.runtime.sendMessage({
+        action: 'openLink',
+        url: location.protocol + '//' + location.hostname + path,
+        tab: { pinned: null }
+      });
     }
   },
   nextFrame: function(repeats) {
