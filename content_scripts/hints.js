@@ -293,6 +293,9 @@ Hints.handleHint = function(key) {
   key = key.replace('<Space>', ' ');
   if (key === ';') {
     return this.changeFocus();
+  } else if (key === '/') {
+    document.getElementById('cVim-link-container').style.opacity = '0';
+    return;
   }
   if (settings.numerichints && key === '<Enter>') {
     return this.numericMatch ?

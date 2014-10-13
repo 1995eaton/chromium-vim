@@ -908,6 +908,9 @@ Hints.handleHint = function(key) {
   key = key.replace('<Space>', ' ');
   if (key === ';') {
     return this.changeFocus();
+  } else if (key === '/') {
+    document.getElementById('cVim-link-container').style.opacity = '0';
+    return;
   }
   if (settings.numerichints && key === '<Enter>') {
     return this.numericMatch ?
@@ -2167,7 +2170,8 @@ var Mappings = {
   lastCommand: {
     fn: '',
     queue: '',
-    repeats: 1
+    repeats: 1,
+    args: []
   }
 };
 
@@ -3014,7 +3018,7 @@ Mappings.convertToAction = function(key) {
   }
 
   if (currentTrieNode.value) {
-    if (currentTrieNode.value.indexOf(':') === 0) {
+    if (currentTrieNode.value.charAt(0) === ':') {
       this.actions.shortCuts(currentTrieNode.value, +this.repeats || 1);
       this.lastCommand.queue = this.queue;
       this.lastCommand.repeats = +this.repeats || 1;
