@@ -3026,7 +3026,7 @@ Mappings.convertToAction = function(key) {
           this.lastCommand.repeats = +this.repeats || 1;
           this.lastCommand.fn = currentTrieNode.value;
         }
-        this.actions[currentTrieNode.value](this.lastCommand.repeats);
+        this.actions[currentTrieNode.value](+this.repeats || 1);
         RUNTIME('updateLastCommand', {
           data: JSON.stringify(this.lastCommand)
         });
