@@ -327,15 +327,27 @@ actions.goToTab = function() {
 };
 
 actions.moveTabRight = function() {
-  chrome.tabs.move(sender.tab.id, {
-    index: sender.tab.index + request.repeats
-  });
+  if (sender.tab.pinned) {
+    chrome.windows.get(sender.tab.windowId, {populate: true}, function(window) {
+      var maxPinnedIndex = window.tabs.filter(function(tab){return tab.pinned;}).length - 1;
+      var requestedIndex = sender.tab.index + request.repeats;
+      chrome.tabs.move(sender.tab.id, {index: Math.min(requestedIndex, maxPinnedIndex)});
+    });
+  } else {
+    chrome.tabs.move(sender.tab.id, {index: sender.tab.index + request.repeats});
+  }
 };
 
 actions.moveTabLeft = function() {
-  chrome.tabs.move(sender.tab.id, {
-    index: (sender.tab.index - request.repeats <= -1) ? 0 : sender.tab.index - request.repeats
-  });
+  if (sender.tab.pinned) {
+    chrome.tabs.move(sender.tab.id, {index: Math.max(0, sender.tab.index - request.repeats)});
+  } else {
+    chrome.windows.get(sender.tab.windowId, {populate: true}, function(window) {
+      var minUnpinnedIndex = window.tabs.filter(function(tab){return tab.pinned;}).length;
+      var requestedIndex = sender.tab.index - request.repeats;
+      chrome.tabs.move(sender.tab.id, {index: Math.max(requestedIndex, minUnpinnedIndex)});
+    });
+  }
 };
 
 actions.openPasteTab = function() {
