@@ -1,5 +1,8 @@
 #cVim Changelog
 
+## 1.2.62
+ * Added autoupdategist option
+
 ## 1.2.61
  * Minor bug fixes from last update
  * Fix issue [#120](https://github.com/1995eaton/chromium-vim/issues/120)

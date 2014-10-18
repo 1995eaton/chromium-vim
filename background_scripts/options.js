@@ -25,6 +25,7 @@ var defaultSettings = {
   defaultnewtabpage: false,
   dimhintcharacters: true,
   smoothscroll: true,
+  autoupdategist: false,
   scrollduration: 500,
   zoomfactor: 0.10,
   locale: '',
@@ -135,6 +136,24 @@ Options.updateBlacklistsMappings = function() {
   Options.saveSettings({settings: Settings});
 };
 
+Options.fetchGist = function() {
+  httpRequest({
+    url: Settings.GISTURL + (Settings.GISTURL.indexOf('raw') === -1 &&
+             Settings.GISTURL.indexOf('github') !== -1 ? '/raw' : '')
+  }).then(function(res) {
+    var updated = RCParser.parse(res);
+    updated.GISTURL = Settings.GISTURL;
+    updated.COMMANDBARCSS = Settings.COMMANDBARCSS;
+    Options.saveSettings({
+      settings: updated,
+      sendSettings: true
+    });
+    if (updated.autoupdategist) {
+      window.setTimeout(Options.fetchGist, 1000 * 60 * 60);
+    }
+  });
+};
+
 chrome.storage[storageMethod].get('settings', function(data) {
   if (data.settings) {
     Settings = data.settings;
@@ -142,6 +161,9 @@ chrome.storage[storageMethod].get('settings', function(data) {
   }
   this.refreshSettings();
   this.updateBlacklistsMappings();
+  if (Settings.autoupdategist && Settings.GISTURL) {
+    this.fetchGist();
+  }
 }.bind(Options));
 
 chrome.runtime.onMessage.addListener(function(request, sender) {
