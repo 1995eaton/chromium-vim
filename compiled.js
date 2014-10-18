@@ -619,7 +619,7 @@ Hints.matchPatterns = function(forward) {
   var pattern = new RegExp('^' + (forward ? settings.nextmatchpattern : settings.previousmatchpattern) + '$', 'gi');
   var nodeIterator = document.createNodeIterator(document.body, 4, null, false);
   var node;
-  var isGoogleSearch = location.hostname + location.pathname === 'www.google.com/search';
+  var isGoogleSearch = /www\.google\.\w{2,3}\/search/.test(location.hostname + location.pathname);
   while (node = nodeIterator.nextNode()) {
     var localName = node.localName;
     if (/script|style|noscript/.test(localName)) {
