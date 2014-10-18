@@ -288,7 +288,7 @@ Actions.goToTab = function() {
     chrome.tabs.query({currentWindow: true}, function(tabs) {
       var ptabs = tabs.filter(function(e) { return e.pinned; });
       chrome.tabs.move(sender.tab.id, {
-        index: Math.min( sender.tab.pinned ? ptabs.length - 1 : ptabs.length + tabs.length,
+        index: Math.min( sender.tab.pinned ? ptabs.length - 1 : ptabs.length + tabs.length - 1,
                          Math.max(sender.tab.pinned ? 0 : ptabs.length, sender.tab.index + by) )
       });
     });
