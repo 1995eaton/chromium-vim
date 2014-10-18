@@ -1,5 +1,9 @@
 #cVim Changelog
 
+## 1.2.61
+ * Minor bug fixes from last update
+ * Fix issue [#120](https://github.com/1995eaton/chromium-vim/issues/120)
+
 ## 1.2.60
  * Removed the toggleImages command
  * Remove the `:date` command
