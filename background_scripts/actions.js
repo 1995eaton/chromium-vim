@@ -13,7 +13,8 @@ callAction = function(action, config) {
   } else if (request.url) {
     url = request.url;
   } else {
-    url = Settings.defaultnewtabpage ? 'chrome://newtab' : '../pages/blank.html';
+    url = Settings.defaultnewtabpage ?
+      'chrome://newtab' : '../pages/blank.html';
   }
   Actions[action]();
 };
@@ -76,10 +77,7 @@ Actions.openLinkTab = function() {
 
 Actions.addFrame = function() {
   if (Frames[sender.tab.id] === void 0 || request.isRoot) {
-    Frames[sender.tab.id] = {
-      length: 1,
-      index: 0
-    };
+    Frames[sender.tab.id] = {length: 1, index: 0};
   } else {
     Frames[sender.tab.id].length += 1;
   }
@@ -94,12 +92,13 @@ Actions.syncSettings = function() {
 };
 
 Actions.focusFrame = function() {
-  if (request.isRoot) {
-    Frames[sender.tab.id].index = 0;
-  } else {
-    Frames[sender.tab.id].index = (Frames[sender.tab.id].index + request.repeats).mod(Frames[sender.tab.id].length);
-  }
-  chrome.tabs.sendMessage(sender.tab.id, {action: 'focusFrame', index: Frames[sender.tab.id].index});
+  Frames[sender.tab.id].index = request.isRoot ? 0 :
+    (Frames[sender.tab.id].index + request.repeats)
+      .mod(Frames[sender.tab.id].length);
+  chrome.tabs.sendMessage(sender.tab.id, {
+    action: 'focusFrame',
+    index: Frames[sender.tab.id].index
+  });
 };
 
 Actions.openLinkWindow = function() {

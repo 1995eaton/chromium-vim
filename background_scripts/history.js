@@ -1,39 +1,41 @@
-var History = {};
+var History = {
 
-History.historyTypes = ['action', 'url', 'search'];
+  historyTypes: ['action', 'url', 'search'],
+  searchResults: null,
+  historyStore: [],
+  shouldRefresh: false,
 
-History.searchResults = null;
+  append: function(value, type) {
+    if (!localStorage[type] || localStorage[type] === '') {
+      localStorage[type] = value;
+    } else {
+      localStorage[type] += ',' + value;
+    }
+  },
 
-History.append = function(value, type) {
-  if (!localStorage[type] || localStorage[type] === '') {
-    localStorage[type] = value;
-  } else {
-    localStorage[type] += ',' + value;
+  retrieve: function(type) {
+    if (!localStorage[type]) {
+      localStorage[type] = '';
+    }
+    return [type, localStorage[type].split(',')];
+  },
+
+  refreshStore: function() {
+    this.shouldRefresh = false;
+    chrome.history.search({text: '', maxResults: 10000}, function(results) {
+      History.historyStore = results;
+    });
+  },
+
+  retrieveSearchHistory: function(search, limit, callback) {
+    if (History.shouldRefresh) {
+      History.refreshStore();
+    }
+    callback(searchArray(this.historyStore, search, limit, true, function(item) {
+      return item.title + item.url;
+    }));
   }
-};
 
-History.retrieve = function(type) {
-  if (!localStorage[type]) {
-    localStorage[type] = '';
-  }
-  return [type, localStorage[type].split(',')];
-};
-
-History.historyStore = [];
-History.shouldRefresh = false;
-History.refreshStore = function() {
-  this.shouldRefresh = false;
-  chrome.history.search({text: '', maxResults: 10000}, function(results) {
-    History.historyStore = results;
-  });
 };
 
 History.refreshStore();
-History.retrieveSearchHistory = function(search, limit, callback) {
-  if (History.shouldRefresh) {
-    History.refreshStore();
-  }
-  callback(searchArray(this.historyStore, search, limit, true, function(item) {
-    return item.title + item.url;
-  }));
-};

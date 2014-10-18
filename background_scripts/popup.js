@@ -1,10 +1,6 @@
-var Popup = {};
-Popup.active = true;
-
-function parseDomain(url) {
-  url = new URL(url);
-  return url.protocol + '//' + url.hostname + '/*';
-}
+var Popup = {
+  active: true
+};
 
 Popup.getBlacklisted = function(callback) {
   var blacklists = Settings.blacklists.compress();
@@ -81,7 +77,8 @@ Popup.toggleBlacklisted = function() {
       }
     }
     if (!foundMatch) {
-      blacklists.push(parseDomain(url));
+      url = new URL(url);
+      blacklists.push(url.protocol + '//' + url.hostname + '/*');
     }
     Settings.blacklists = blacklists;
     Options.saveSettings({settings: Settings});
