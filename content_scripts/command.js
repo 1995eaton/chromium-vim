@@ -523,6 +523,15 @@ Command.execute = function(value, repeats) {
       });
       return;
     }
+    if (this.completionResults.length &&
+        this.completionResults.some(function(e) { return e[1] === value.replace(/^\S+\s*/, ''); })) {
+      RUNTIME('openLink', {
+        tab: tab,
+        url: this.completionResults[0][2],
+        noconvert: true
+      });
+      return;
+    }
     RUNTIME('openLink', {
       tab: tab,
       url: value.replace(/^\S+\s+/, ''),
