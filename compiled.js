@@ -2384,11 +2384,11 @@ Mappings.actions = {
   closeTab: function(repeats) {
     RUNTIME('closeTab', {repeats: repeats});
   },
-  closeTabLeft: function() {
-    RUNTIME('closeTabLeft');
+  closeTabLeft: function(repeats) {
+    RUNTIME('closeTabLeft', {repeats: repeats});
   },
-  closeTabRight: function() {
-    RUNTIME('closeTabRight');
+  closeTabRight: function(repeats) {
+    RUNTIME('closeTabRight', {repeats: repeats});
   },
   closeTabsToLeft: function() {
     RUNTIME('closeTabsToLeft');

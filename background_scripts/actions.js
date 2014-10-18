@@ -125,55 +125,22 @@ Actions.closeTab = function() {
   });
 };
 
-Actions.closeTabLeft = function() {
-  chrome.tabs.query({currentWindow: true}, function(tabs) {
-    var tabIds = tabs.map(function(e) {
-      return e.id;
+(function() {
+  var closeTab = function(n) {
+    chrome.tabs.query({currentWindow: true}, function(tabs) {
+      tabs = tabs.map(function(e) { return e.id; });
+      chrome.tabs.remove(tabs.slice(sender.tab.index + (n < 0 ? n : 1),
+                         sender.tab.index + (n < 0 ? 0 : 1 + n)));
     });
-    var idex = tabIds.indexOf(sender.tab.id);
-    if (idex === -1) {
-      return;
-    }
-    chrome.tabs.remove(tabIds[(idex - 1).mod(tabIds.length)]);
-  });
-};
-
-Actions.closeTabRight = function() {
-  chrome.tabs.query({currentWindow: true}, function(tabs) {
-    var tabIds = tabs.map(function(e) {
-      return e.id;
-    });
-    var idex = tabIds.indexOf(sender.tab.id);
-    if (idex === -1) {
-      return;
-    }
-    chrome.tabs.remove(tabIds[(idex + 1) % tabIds.length]);
-  });
-};
-
-Actions.closeTabsToLeft = function() {
-  chrome.tabs.query({currentWindow: true}, function(tabs) {
-    var ct;
-    while (ct = tabs.shift()) {
-      if (ct.id === sender.tab.id) {
-        break;
-      }
-      chrome.tabs.remove(ct.id);
-    }
-  });
-};
-
-Actions.closeTabsToRight = function() {
-  chrome.tabs.query({currentWindow: true}, function(tabs) {
-    var ct;
-    while (ct = tabs.pop()) {
-      if (ct.id === sender.tab.id) {
-        break;
-      }
-      chrome.tabs.remove(ct.id);
-    }
-  });
-};
+  };
+  Actions.closeTabLeft  = function() { closeTab(-request.repeats); };
+  Actions.closeTabRight = function() { closeTab( request.repeats); };
+  Actions.closeTabsToLeft = function() { closeTab(-sender.tab.index); };
+  Actions.closeTabsToRight = function() {
+    chrome.tabs.query({currentWindow: true},
+        function(tabs) { closeTab(tabs.length - sender.tab.index); });
+  };
+})();
 
 Actions.getWindows = function() {
   var _ret = {};
