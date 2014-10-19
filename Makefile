@@ -1,5 +1,4 @@
 all:
-	./scripts/compile.sh
 	./scripts/create_pages.js
 
 release:

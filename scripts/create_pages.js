@@ -16,12 +16,31 @@ marked.setOptions({
   smartypants: false
 });
 
+var scripts = [
+  'utils',
+  'messenger',
+  'hints',
+  'bookmarks',
+  'keys',
+  'clipboard',
+  'complete',
+  'mappings',
+  'find',
+  'cursor',
+  'status',
+  'hud',
+  'visual',
+  'command',
+  'scroll',
+  'search',
+  'frames',
+];
+
 var makeHTML = function(data) {
   return '<!DOCTYPE html><html><head>' +
          '<link rel="stylesheet" href="./markdown.css">' +
          '<link rel="stylesheet" href="../content_scripts/main.css">' +
-         '<script src="../compiled.js"></script>' +
-         '<script src="../init.js"></script>' +
+         scripts.map(function(e) { return '<script src="../content_scripts/' + e + '.js"></script>'; }).join('\n') +
          '</head>' + marked(data) + '</html>';
 };
 
