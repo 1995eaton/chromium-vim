@@ -1,71 +1,54 @@
 #!/usr/bin/env python3
 
-"""
+'''
 USAGE: ./cvim_socket.py
 If you want to use native Vim to edit text boxes
 you must be running this script. To begin editing,
 press <C-i> inside a text box. By default, this
 script will spawn a urxvt shell, but this action
 can be changed via the COMMAND variable below.
-"""
+'''
 
 from platform import system
-import http.server
-import subprocess
-import stat
+import signal
 import os
+import sys
+import socket
+import subprocess
 
+PORT = 8001
 
-PORT_NUMBER = 8001
-
-if system() == "Windows": # tested on Windows 7 by @Praful
-    TMP_FILE = os.environ['TEMP'] + "\\cvim-tmp"
-    TMP_SCRIPT_FILE = os.environ['TEMP'] + "\\cvim-tmp-script.bat"
-    GVIM_PATH = "" # edit this to the location of gvim.exe
-    SCRIPT_COMMAND = GVIM_PATH + "gvim.exe %1"
-    COMMAND = TMP_SCRIPT_FILE + " {}"
+if system() == 'Windows': # tested on Windows 7 by @Praful
+    TMP = os.environ['TEMP'] + '\\cvim-tmp'
+    GVIM_PATH = '' # edit this to the location of gvim.exe
+    COMMAND = GVIM_PATH + 'gvim.exe %1'
 else: # tested on Arch Linux + urxvt
-    TMP_FILE = "/tmp/cvim-tmp"
-    TMP_SCRIPT_FILE = "/tmp/cvim-tmp-script.sh"
-    SCRIPT_COMMAND = "vim $1"
-    COMMAND = "urxvt -e " + TMP_SCRIPT_FILE + " {}"
+    TMP = '/tmp/cvim-tmp'
+    COMMAND = 'urxvt -e vim {}'.format(TMP)
 
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+sock.bind(('localhost', PORT))
+sock.listen(1)
 
-class CVHandler(http.server.BaseHTTPRequestHandler):
+def exit_handler(signum, stack):
+    sock.close()
+    if os.path.exists(TMP):
+        os.remove(TMP)
 
-    def do_HEAD(self):
-        self.send_response(200)
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
+signal.signal(signal.SIGTERM, exit_handler)
 
-    def do_POST(self):
-        self.send_response(200)
-        self.end_headers()
-        if self.headers["Host"] != "127.0.0.1:" + str(PORT_NUMBER):
-            print("cVim Warning: Connection from outside IP blocked -> " +
-                  self.headers["Host"])
-            return
-        post_body = self.rfile \
-            .read(int(self.headers["Content-Length"])).decode("utf8")
-        with open(TMP_FILE, "w") as tmp_file:
-            tmp_file.write(post_body)
-        proc = subprocess.Popen(COMMAND.format(TMP_FILE).split()).wait()
-        with open(TMP_FILE, "r") as tmp_file:
-            self.wfile.write(bytes(tmp_file.read(), "utf8"))
-        os.remove(TMP_FILE)
-
-
-if __name__ == '__main__':
-    script = open(TMP_SCRIPT_FILE, "w")
-    script.write(SCRIPT_COMMAND)
-    script.close()
-    script_permissions = os.stat(TMP_SCRIPT_FILE)
-    os.chmod(TMP_SCRIPT_FILE, script_permissions.st_mode | stat.S_IEXEC)
-    try:
-        server_class = http.server.HTTPServer
-        httpd = server_class(('', PORT_NUMBER), CVHandler)
-        httpd.serve_forever()
-    except KeyboardInterrupt:
-        pass
-    os.remove(TMP_SCRIPT_FILE)
-    httpd.server_close()
+try:
+    while True:
+        peer, addr = sock.accept()
+        data = peer.recv(1 << 16).decode('utf8').split('\r\n')
+        with open(TMP, 'w+') as f:
+            f.write(data[-1])
+            f.seek(0)
+            subprocess.Popen(COMMAND.split()).wait()
+            peer.send(f.read().encode('utf8'))
+        peer.close()
+except KeyboardInterrupt:
+    exit_handler(None, None)
+except InterruptedError:
+    pass
