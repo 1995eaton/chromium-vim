@@ -171,10 +171,15 @@ Actions.moveTab = function() {
     }).map(function(e) {
       return e.id;
     });
+    var wasPinned = sender.tab.pinned;
     if (info.indexOf(parseInt(request.windowId)) !== -1) {
       chrome.tabs.move(sender.tab.id, {
         windowId: parseInt(request.windowId),
         index: -1
+      }, function(tab) {
+        chrome.tabs.update(tab.id, {
+          pinned: wasPinned
+        });
       });
     }
   });
