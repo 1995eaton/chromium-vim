@@ -496,7 +496,14 @@ Actions.duplicateTab = function() {
 
 Actions.lastUsedTab = function() {
   if (LastUsedTabs.length === 2) {
-    chrome.tabs.update(LastUsedTabs[0], {active: true});
+    chrome.tabs.query({}, function(tabs) {
+      for (var i = 0; i < tabs.length; i++) {
+        if (LastUsedTabs[0] === tabs[i].id) {
+          chrome.tabs.update(LastUsedTabs[0], {active: true});
+          break;
+        }
+      }
+    });
   }
 };
 
