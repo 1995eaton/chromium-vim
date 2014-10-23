@@ -261,6 +261,7 @@ let blacklists = ["*://*/*.pdf <Up> <Down>"]
 | `]]`                      | click the "next" link on the page (see nextmatchpattern above)        | nextMatchPattern                |
 | `[[`                      | click the "back" link on the page (see previousmatchpattern above)    | previousMatchPattern            |
 | `gp`                      | pin/unpin the current tab                                             | pinTab                          |
+| `<C-6>`                   | toggle the focus between the last used tabs                           | lastUsedTab                     |
 | **Find Mode**             |                                                                       |                                 |
 | `n`                       | next search result                                                    | nextSearchResult                |
 | `N`                       | previous search result                                                | previousSearchResult            |

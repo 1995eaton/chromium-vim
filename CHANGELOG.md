@@ -2,6 +2,7 @@
 
 ## 1.2.62
  * Added autoupdategist option
+ * Added lastUsedTab command
 
 ## 1.2.61
  * Minor bug fixes from last update

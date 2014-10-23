@@ -119,12 +119,14 @@ Mappings.defaults = [
   ['/', 'openSearchBar' ],
   ['?', 'openSearchBarReverse' ],
   [':', 'openCommandBar' ],
+  ['<C-6>', 'lastUsedTab'],
   ['.', 'repeatCommand']
 ];
 Mappings.defaultsClone = Object.clone(Mappings.defaults);
 
 Mappings.actions = {
 
+  lastUsedTab: function() { RUNTIME('lastUsedTab'); },
   '<Nop>': function() {},
   toggleVisualMode: function() {
     if (!Command.domElementsLoaded) {

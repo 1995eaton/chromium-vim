@@ -1,7 +1,8 @@
 var sessions = {},
     Frames = {},
     ActiveTabs = {},
-    TabHistory = {};
+    TabHistory = {},
+    LastUsedTabs = [];
 
 chrome.tabs.onUpdated.addListener(function(id, changeInfo) {
   if (changeInfo.hasOwnProperty('url')) {
@@ -25,6 +26,10 @@ chrome.tabs.onUpdated.addListener(function(id, changeInfo) {
 });
 
 chrome.tabs.onActivated.addListener(function(tab) {
+  LastUsedTabs.push(tab.tabId);
+  if (LastUsedTabs.length > 2) {
+    LastUsedTabs.shift();
+  }
   if (ActiveTabs[tab.windowId] === void 0) {
     ActiveTabs[tab.windowId] = [];
   }

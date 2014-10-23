@@ -489,6 +489,12 @@ Actions.duplicateTab = function() {
   }
 };
 
+Actions.lastUsedTab = function() {
+  if (LastUsedTabs.length === 2) {
+    chrome.tabs.update(LastUsedTabs[0], {active: true});
+  }
+};
+
 
 // Port actions
 
