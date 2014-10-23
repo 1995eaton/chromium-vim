@@ -307,7 +307,7 @@ let blacklists = ["*://*/*.pdf <Up> <Down>"]
 | :file (autocomplete) [expirimental]         | open a local file                                                                      |
 | :duplicate                                  | duplicate the current tab                                                              |
 | :settings                                   | open the settings page                                                                 |
-| :nohl                                       | clear the highlighted text from the last search                                        |
+| :nohlsearch                                 | clear the highlighted text from the last search                                        |
 | :execute                                    | execute a sequence of keys (Useful for mappings. For example, "map j :execute 2j<CR>") |
 | :buffer (autocomplete)                      | change to a different tab                                                              |
 | :mksession                                  | create a new session from the current tabs in the active window                        |

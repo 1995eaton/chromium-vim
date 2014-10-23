@@ -225,7 +225,7 @@ Command.descriptions = [
   ['stopall',      'Stop all pages in Chrome from loading'],
   ['undo',         'Reopen the last closed tab'],
   ['togglepin',    'Toggle the tab\'s pinned state'],
-  ['nohl',         'Clears the search highlight'],
+  ['nohlsearch',         'Clears the search highlight'],
   ['viewsource',   'View the source for the current document']
 ];
 
@@ -442,6 +442,7 @@ Command.execute = function(value, repeats) {
   this.history.index = {};
 
   switch (value) {
+    case 'nohlsearch':
     case 'nohl':
       Find.clear();
       HUD.hide();
