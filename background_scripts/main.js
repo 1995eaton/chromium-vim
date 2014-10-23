@@ -4,6 +4,23 @@ var sessions = {},
     TabHistory = {},
     LastUsedTabs = [];
 
+
+var httpRequest = function(request) {
+  return new Promise(function(acc, rej) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', request.url);
+    xhr.addEventListener('load', function() {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        acc(request.json ? JSON.parse(xhr.responseText) : xhr.responseText);
+      }
+    });
+    xhr.addEventListener('error', function() {
+      rej(Error('cVim Error: Unable to resolve ' + request.url));
+    });
+    xhr.send();
+  });
+};
+
 chrome.tabs.onUpdated.addListener(function(id, changeInfo) {
   if (changeInfo.hasOwnProperty('url')) {
     History.shouldRefresh = true;

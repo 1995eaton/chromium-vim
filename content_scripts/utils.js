@@ -13,22 +13,6 @@ var definePrototype = function(obj, name, fn) {
   });
 };
 
-var httpRequest = function(request) {
-  return new Promise(function(acc, rej) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', request.url);
-    xhr.addEventListener('load', function() {
-      if (xhr.readyState === 4 && xhr.status === 200) {
-        acc(request.json ? JSON.parse(xhr.responseText) : xhr.responseText);
-      }
-    });
-    xhr.addEventListener('error', function() {
-      rej(Error('cVim Error: Unable to resolve ' + request.url));
-    });
-    xhr.send();
-  });
-};
-
 // ------------ Begin reverse image
 var isValidB64 = function(a) {
   try {

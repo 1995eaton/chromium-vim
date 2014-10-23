@@ -1,5 +1,23 @@
 var Complete = {};
 
+(function() {
+  var CALLBACKS = {};
+
+  window.httpCallback = function(id, response) {
+    if (typeof CALLBACKS[id] === 'function') {
+      CALLBACKS[id](response);
+    }
+    delete CALLBACKS[id];
+  };
+
+  window.httpRequest = function(request, callback) {
+    var id = Math.random().toString().slice(2);
+    CALLBACKS[id] = callback;
+    PORT('httpRequest', {request: request, id: id});
+  };
+
+})();
+
 Complete.engines = ['google', 'wikipedia', 'youtube', 'imdb', 'amazon', 'google-maps', 'wolframalpha', 'google-image', 'ebay', 'webster', 'wictionary', 'urbandictionary', 'duckduckgo', 'answers', 'google-trends', 'google-finance', 'yahoo', 'bing'];
 
 Complete.aliases = {
@@ -85,7 +103,7 @@ Complete.apis = {
   answers:        'https://search.yahoo.com/sugg/ss/gossip-us_ss-vertical_ss/?output=sd1&pubid=1307&appid=yanswer&command=%s&nresults=20',
   bing:           'http://api.bing.com/osjson.aspx?query=%s',
   imdb:           'http://sg.media-imdb.com/suggests/',
-  amazon:         'http://completion.amazon.com/search/complete?method=completion&search-alias=aps&client=amazon-search-ui&mkt=1&q=%s',
+  amazon:         'https://completion.amazon.com/search/complete?method=completion&search-alias=aps&client=amazon-search-ui&mkt=1&q=%s',
   wolframalpha:   'https://www.wolframalpha.com/input/autocomplete.jsp?qr=0&i=%s',
   ebay:           'https://autosug.ebay.com/autosug?kwd=%s',
   urbandictionary: 'http://api.urbandictionary.com/v0/autocomplete?term=%s',
@@ -170,16 +188,16 @@ Complete.wikipedia = function(query, callback) {
   httpRequest({
     url: this.apis.wikipedia.embedString(query),
     json: true
-  }).then(function(response) {
+  }, function(response) {
     callback(response[1]);
-  }, cVimError);
+  });
 };
 
 Complete.google = function(query, callback) {
   httpRequest({
     url: this.apis.google.embedString(query),
     json: true
-  }).then(function(response) {
+  }, function(response) {
     var data = response[1].map(function(e, i) {
       return {
         type: response[4]['google:suggesttype'][i],
@@ -189,14 +207,14 @@ Complete.google = function(query, callback) {
     callback(data.sort(function(a) {
       return a.type !== 'NAVIGATION';
     }).map(function(e) { return e.text; }));
-  }, cVimError);
+  });
 };
 
 Complete['google-maps'] = function(query, callback) {
   httpRequest({
     url: this.apis['google-maps'].embedString(query),
     json: false
-  }).then(function(response) {
+  }, function(response) {
     var data = JSON.parse(JSON.parse(JSON.stringify(response.replace(/\/\*[^\*]+\*\//g, '')))).d;
     data = data.replace(/^[^,]+,/, '')
                .replace(/\n\][^\]]+\][^\]]+$/, '')
@@ -208,56 +226,56 @@ Complete['google-maps'] = function(query, callback) {
       return e[0][0][0];
     });
     callback(data);
-  }, cVimError);
+  });
 };
 
 Complete['google-image'] = function(query, callback) {
   httpRequest({
     url: this.apis['google-image'].embedString(query),
     json: false
-  }).then(function(response) {
+  }, function(response) {
     callback(JSON.parse(response.replace(/^[^\(]+\(|\)$/g, ''))[1].map(function(e) {
       return e[0].replace(/<[^>]+>/g, '');
     }));
-  }, cVimError);
+  });
 };
 
 Complete['google-trends'] = function(query, callback) {
   httpRequest({
     url: this.apis['google-trends'].embedString(encodeURIComponent(query)),
     json: true
-  }).then(function(response) {
+  }, function(response) {
     callback(response.entityList.map(function(e) {
       return [e.title + ' - ' + e.type, Complete.requestUrls['google-trends'] + encodeURIComponent(e.mid)];
     }));
-  }, cVimError);
+  });
 };
 
 Complete['google-finance'] = function(query, callback) {
   httpRequest({
     url: this.apis['google-finance'].embedString(encodeURIComponent(query)),
     json: true
-  }).then(function(response) {
+  }, function(response) {
     callback(response.matches.map(function(e) {
       return [e.t + ' - ' + e.n + ' - ' + e.e, Complete.requestUrls['google-finance'] + e.e + ':' + e.t];
     }));
-  }, cVimError);
+  });
 };
 
 Complete.amazon = function(query, callback) {
   httpRequest({
     url: this.apis.amazon.embedString(encodeURIComponent(query)),
     json: true
-  }).then(function(response) {
+  }, function(response) {
     callback(response[1]);
-  }, cVimError);
+  });
 };
 
 Complete.yahoo = function(query, callback) {
   httpRequest({
     url: this.apis.yahoo.embedString(encodeURIComponent(query)),
     json: true
-  }).then(function(response) {
+  }, function(response) {
     var _ret = [];
     for (var key in response.r) {
       if (response.r[key].hasOwnProperty('k')) {
@@ -265,36 +283,36 @@ Complete.yahoo = function(query, callback) {
       }
     }
     callback(_ret);
-  }, cVimError);
+  });
 };
 
 Complete.answers = function(query, callback) {
   httpRequest({
     url: this.apis.answers.embedString(encodeURIComponent(query)),
     json: true
-  }).then(function(response) {
+  }, function(response) {
     callback(response.r.map(function(e) {
       return [e.k, 'https://answers.yahoo.com/question/index?qid=' + e.d.replace(/^\{qid:|,.*/g, '')];
     }));
-  }, cVimError);
+  });
 };
 
 Complete.bing = function(query, callback) {
   httpRequest({
     url: this.apis.bing.embedString(query),
     json: true
-  }).then(function(response) {
+  }, function(response) {
     callback(response[1].map(function(e) {
       return e;
     }));
-  }, cVimError);
+  });
 };
 
 Complete.ebay = function(query, callback) {
   httpRequest({
     url: this.apis.ebay.embedString(encodeURIComponent(query)),
     json: false
-  }).then(function(response) {
+  }, function(response) {
     var _ret = JSON.parse(response.replace(/^[^\(]+\(|\)$/g, ''));
     if (!_ret.res) {
       return false;
@@ -302,81 +320,81 @@ Complete.ebay = function(query, callback) {
     callback(_ret.res.sug.map(function(e) {
       return e;
     }));
-  }, cVimError);
+  });
 };
 
 Complete.youtube = function(query, callback) {
   httpRequest({
     url: this.apis.youtube.embedString(query),
     json: false
-  }).then(function(response) {
+  }, function(response) {
     var _ret = JSON.parse(response.replace(/^[^\(]+\(|\)$/g, ''));
     callback(_ret[1].map(function(e) {
       return e[0];
     }));
-  }, cVimError);
+  });
 };
 
 Complete.wolframalpha = function(query, callback) {
   httpRequest({
     url: this.apis.wolframalpha.embedString(encodeURIComponent(query)),
     json: true
-  }).then(function(response) {
+  }, function(response) {
     callback(response.results.map(function(e) {
       return e.input;
     }));
-  }, cVimError);
+  });
 };
 
 Complete.webster = function(query, callback) {
   httpRequest({
     url: this.apis.webster.embedString(encodeURIComponent(query)),
     json: true
-  }).then(function(response) {
+  }, function(response) {
     callback(response.suggestions.map(function(e) {
       return e;
     }));
-  }, cVimError);
+  });
 };
 
 Complete.wictionary = function(query, callback) {
   httpRequest({
     url: this.apis.wictionary.embedString(encodeURIComponent(query)),
     json: true
-  }).then(function(response) {
+  }, function(response) {
     callback(response[1].map(function(e) {
       return e;
     }));
-  }, cVimError);
+  });
 };
 
 Complete.duckduckgo = function(query, callback) {
   httpRequest({
     url: this.apis.duckduckgo.embedString(encodeURIComponent(query)),
     json: true
-  }).then(function(response) {
+  }, function(response) {
     callback(response.map(function(e) {
       return e.phrase;
     }).compress());
-  }, cVimError);
+  });
 };
 
 Complete.urbandictionary = function(query, callback) {
   httpRequest({
     url: this.apis.urbandictionary.embedString(encodeURIComponent(query)),
     json: true
-  }).then(function(response) {
+  }, function(response) {
     callback(response.slice(1).map(function(e) {
       return e;
     }));
-  }, cVimError);
+  });
 };
 
 Complete.imdb = function(query, callback) {
   httpRequest({
     url: this.apis.imdb + query[0] + '/' + query.replace(/ /g, '_') + '.json',
     json: false
-  }).then(function(response) {
+  }, function(response) {
     var _ret = JSON.parse(response.replace(/^[^\(]+\(|\)$/g, ''));
     callback(_ret.d.map(function(e) {
       if (/:\/\//.test(e.id)) {
@@ -388,5 +406,5 @@ Complete.imdb = function(query, callback) {
       }
       return [e.l + ' - ' + e.s, _url];
     }));
-  }, cVimError);
+  });
 };

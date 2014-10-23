@@ -507,7 +507,6 @@ Actions.lastUsedTab = function() {
   }
 };
 
-
 // Port actions
 
 Actions.sendLastSearch = function() {
@@ -631,4 +630,10 @@ Actions.editWithVim = function() {
     }
   });
   xhr.send('' + request.text);
+};
+
+Actions.httpRequest = function() {
+  httpRequest(request.request).then(function(res) {
+    callback({type: 'httpRequest', id: request.id, text: res});
+  });
 };

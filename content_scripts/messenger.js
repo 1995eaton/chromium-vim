@@ -108,6 +108,9 @@ port.onMessage.addListener(function(response) {
           response.text.replace(/\n$/, ''); // remove trailing line left by vim
       }
       break;
+    case 'httpRequest':
+      httpCallback(response.id, response.text);
+      break;
   }
 });
 
