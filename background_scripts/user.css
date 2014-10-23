@@ -17,14 +17,13 @@
   color: #ddd;
   padding: 2px !important;
   font-size: 11pt !important;
-  font-weight: 100 !important;
+  font-weight: bold !important;
   display: inline-block !important;
   border: 1px solid #ccc;
   vertical-align: middle !important;
   text-align: center !important;
   box-shadow: 2px 2px 1px rgba(0,0,0,0.25) !important;
   position: absolute !important;
-  transition: opacity 0.2s ease-out, background 0.2s ease-out;
   background: linear-gradient(to bottom, #636363 0%,#3f3f3f 39%,#3f3f3f 39%,#000000 100%);
 }
 
