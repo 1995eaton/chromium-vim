@@ -620,6 +620,8 @@ Command.execute = function(value, repeats) {
     }
     if (selectedBuffer !== void 0) {
       RUNTIME('goToTab', {id: selectedBuffer[3]});
+    } else if (Command.completionResults.length) {
+      RUNTIME('goToTab', {id: Command.completionResults[0][3]});
     }
     return;
   }
