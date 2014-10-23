@@ -23,11 +23,11 @@ Command.setup = function() {
   this.bar.appendChild(this.modeIdentifier);
   this.bar.appendChild(this.input);
   this.bar.spellcheck = false;
-  this.input.addEventListener('blur', function() { // Possible fix for #43
-    window.setTimeout(function() {
-      Command.hide.call(Command);
-    }, 0);
-  });
+  // this.input.addEventListener('blur', function() { // Possible fix for #43
+  //   window.setTimeout(function() {
+  //     Command.hide.call(Command);
+  //   }, 0);
+  // });
   try {
     document.lastChild.appendChild(this.bar);
     document.lastChild.appendChild(this.statusBar);
