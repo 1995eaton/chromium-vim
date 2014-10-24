@@ -1,1 +1,29 @@
-/home/jake/.jshintrc
+{
+    "esnext": true,
+    "bitwise": false,
+    "camelcase": false,
+    "loopfunc": true,
+    "curly": false,
+    "boss": true,
+    "eqeqeq": true,
+    "eqnull": true,
+    "immed": true,
+    "latedef": "nofunc",
+    "newcap": false,
+    /* "quotmark": "single", */
+    "noarg": true,
+    "multistr": true,
+    "undef": false,
+    "strict": false,
+    "smarttabs": true,
+    "indent": 2,
+    "white": false,
+    "unused": true,
+    "laxbreak": true,
+    "globals"   : {
+        "chrome": true,
+        "console": true,
+        "document": true,
+        "localStorage": true
+    }
+}
