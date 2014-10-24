@@ -176,7 +176,12 @@ Actions.moveTab = function() {
     });
     var repin = function() {
       chrome.tabs.update(sender.tab.id, {
-        pinned: sender.tab.pinned
+        pinned: sender.tab.pinned,
+        active: true
+      }, function(tab) {
+        chrome.windows.update(tab.windowId, {
+          focused: true
+        });
       });
     };
     if (info.indexOf(parseInt(request.windowId)) !== -1) {
