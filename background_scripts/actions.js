@@ -190,10 +190,14 @@ Actions.moveTab = function() {
         index: -1
       }, repin);
     } else {
-      chrome.windows.create({
-        tabId: sender.tab.id,
-        focused: true
-      }, repin);
+      chrome.tabs.query({currentWindow: true}, function(tabs) {
+        if (tabs.length > 1) {
+          chrome.windows.create({
+            tabId: sender.tab.id,
+            focused: true
+          }, repin);
+        }
+      });
     }
   });
 };
