@@ -238,6 +238,7 @@ let blacklists = ["*://*/*.pdf <Up> <Down>"]
 | `gU`                      | go to to the base URL                                                 | goToRootUrl                     |
 | `gs`                      | go to the view-source:// page for the current Url                     | goToSource                      |
 | `<C-b>`                   | create or toggle a bookmark for the current URL                       | createBookmark                  |
+| unmapped                  | close all browser windows                                             | quitChrome                      |
 | **Tab Navigation**        |                                                                       |                                 |
 | `gt`, `K`, `R`            | navigate to the next tab                                              | nextTab                         |
 | `gT`, `J`, `E`            | navigate to the previous tab                                          | previousTab                     |
@@ -303,6 +304,7 @@ let blacklists = ["*://*/*.pdf <Up> <Down>"]
 | :chrome:// (autocomplete)                   | open a chrome:// url                                                                   |
 | :tabhistory (autocomplete)                  | browse the different history states of the current tab                                 |
 | :quit                                       | close the current tab                                                                  |
+| :qall                                       | close the current window                                                               |
 | :restore (autocomplete)                     | restore a previously closed tab (newer versions of Chrome only)                        |
 | :tabattach (autocomplete)                   | move the current tab to another open window                                            |
 | :tabdetach                                  | move the current tab to a new window                                                   |

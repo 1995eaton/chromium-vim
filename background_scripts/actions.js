@@ -665,3 +665,11 @@ Actions.createBookmark = function() {
     }
   });
 };
+
+Actions.quitChrome = function() {
+  chrome.windows.getAll({populate: false}, function(windowList) {
+    windowList.forEach(function(e) {
+      chrome.windows.remove(e.id);
+    });
+  });
+};

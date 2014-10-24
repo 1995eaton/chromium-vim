@@ -121,7 +121,7 @@ Mappings.defaults = [
   [':',         'openCommandBar'],
   ['<C-6>',     'lastUsedTab'],
   ['.',         'repeatCommand'],
-  ['<C-b>',     'createBookmark']
+  ['<C-b>',     'createBookmark'],
 ];
 
 Mappings.defaultsClone = Object.clone(Mappings.defaults);
@@ -589,7 +589,8 @@ Mappings.actions = {
           (Mappings.lastCommand.args || []).concat(Mappings.lastCommand.repeats * repeats));
     }
   },
-  createBookmark: function() { PORT('createBookmark', {url: document.URL, title: document.title}); }
+  createBookmark: function() { PORT('createBookmark', {url: document.URL, title: document.title}); },
+  quitChrome: function() { PORT('quitChrome'); }
 
 };
 
