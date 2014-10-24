@@ -98,6 +98,9 @@ Search.nextResult = function(reverse) {
     case 'chromesessions':
       Command.input.value = Command.input.value.match(/^\S+/)[0] + ' ' + Command.completionResults[this.index][3].replace(/ .*/, '');
       break;
+    case 'markOptions':
+      Command.input.value = Command.input.value.replace(/-[a-zA-Z]*$/, Command.completionResults[this.index][1]);
+      break;
     case 'sessions':
       Command.input.value = Command.input.value.match(/^\S+/)[0] + ' ' + Command.completionResults[this.index][1];
       break;

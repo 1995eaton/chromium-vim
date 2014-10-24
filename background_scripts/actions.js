@@ -654,3 +654,14 @@ Actions.httpRequest = function() {
     callback({type: 'httpRequest', id: request.id, text: res});
   });
 };
+
+Actions.createBookmark = function() {
+  var url = request.url, title = request.title;
+  chrome.bookmarks.search({url: url}, function(results) {
+    if (!results.length) {
+      chrome.bookmarks.create({url: url, title: title});
+    } else if (results[0].parentId === '2') {
+      chrome.bookmarks.remove(results[0].id);
+    }
+  });
+};

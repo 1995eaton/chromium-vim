@@ -237,13 +237,14 @@ let blacklists = ["*://*/*.pdf <Up> <Down>"]
 | `gu`                      | go up one path in the URL                                             | goUpUrl                         |
 | `gU`                      | go to to the base URL                                                 | goToRootUrl                     |
 | `gs`                      | go to the view-source:// page for the current Url                     | goToSource                      |
+| `<C-b>`                   | create or toggle a bookmark for the current URL                       | createBookmark                  |
 | **Tab Navigation**        |                                                                       |                                 |
 | `gt`, `K`, `R`            | navigate to the next tab                                              | nextTab                         |
 | `gT`, `J`, `E`            | navigate to the previous tab                                          | previousTab                     |
 | `g0`, `g$`                | go to the first/last tab                                              | firstTab, lastTab               |
 | `<C-S-h>`, `gh`           | open the last URL in the current tab's history in a new tab           | openLastLinkInTab               |
 | `<C-S-l>`, `gl`           | open the next URL from the current tab's history in a new tab         | openNextLinkInTab               |
-| `x`                       | close the current tab                                                 | quit                            |
+| `x`                       | close the current tab                                                 | closeTab                        |
 | `gxT`                     | close the tab to the left of the current tab                          | closeTabLeft                    |
 | `gxt`                     | close the tab to the right of the current tab                         | closeTabRight                   |
 | `gx0`                     | close all tabs to the left of the current tab                         | closeTabsToLeft                 |
