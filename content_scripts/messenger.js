@@ -120,13 +120,14 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
       Mappings.lastCommand = JSON.parse(request.data);
       break;
     case 'getWindows':
-      if (request.windows && Command.active === true) {
+      if (Command.active === true) {
         Command.completions = {
           windows: Object.keys(request.windows).map(function(e, i) {
             var tlen = request.windows[e].length.toString();
             return [(i+1).toString() + ' (' + tlen + (tlen === '1' ? ' Tab)' : ' Tabs)'),  request.windows[e].join(', '), e];
           })
         };
+        Command.completions.windows.unshift(['0 (New window)', '']);
         Command.updateCompletions();
       }
       break;

@@ -553,7 +553,7 @@ Command.execute = function(value, repeats) {
 
   if (/^taba(ttach)? +/.test(value) && !/^\S+\s*$/.test(value)) {
     var windowId;
-    if (windowId = this.completionResults[parseInt(value.replace(/^\S+ */, '')) - 1]) {
+    if (windowId = this.completionResults[parseInt(value.replace(/^\S+ */, ''))]) {
       RUNTIME('moveTab', {
         windowId: windowId[3]
       });
