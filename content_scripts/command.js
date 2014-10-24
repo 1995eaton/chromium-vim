@@ -44,7 +44,7 @@ Command.setup = function() {
     } catch(e) {
       document.body.appendChild(this.data);
     }
-    this.barHeight = parseInt(getComputedStyle(this.bar).height);
+    this.barHeight = parseInt(getComputedStyle(this.bar).height, 10);
     if (this.onBottom) {
       this.barPaddingTop = 0;
       this.barPaddingBottom = this.barHeight;
@@ -553,7 +553,7 @@ Command.execute = function(value, repeats) {
 
   if (/^taba(ttach)? +/.test(value) && !/^\S+\s*$/.test(value)) {
     var windowId;
-    if (windowId = this.completionResults[parseInt(value.replace(/^\S+ */, ''))]) {
+    if (windowId = this.completionResults[parseInt(value.replace(/^\S+ */, ''), 10)]) {
       RUNTIME('moveTab', {
         windowId: windowId[3]
       });
