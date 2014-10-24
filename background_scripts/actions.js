@@ -165,22 +165,30 @@ Actions.getWindows = function() {
 };
 
 Actions.moveTab = function() {
+  if (request.windowId === sender.tab.windowId) {
+    return;
+  }
   chrome.windows.getAll(function(info) {
     info = info.filter(function(e) {
-      return e.type === 'normal' && e.id !== sender.tab.windowId;
+      return e.type === 'normal';
     }).map(function(e) {
       return e.id;
     });
-    var wasPinned = sender.tab.pinned;
+    var repin = function() {
+      chrome.tabs.update(sender.tab.id, {
+        pinned: sender.tab.pinned
+      });
+    };
     if (info.indexOf(parseInt(request.windowId)) !== -1) {
       chrome.tabs.move(sender.tab.id, {
         windowId: parseInt(request.windowId),
         index: -1
-      }, function(tab) {
-        chrome.tabs.update(tab.id, {
-          pinned: wasPinned
-        });
-      });
+      }, repin);
+    } else {
+      chrome.windows.create({
+        tabId: sender.tab.id,
+        focused: true
+      }, repin);
     }
   });
 };

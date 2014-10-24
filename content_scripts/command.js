@@ -214,6 +214,7 @@ Command.descriptions = [
   ['map',          'Map a command'],
   ['unmap',        'Unmap a command'],
   ['tabattach',    'Move current tab to another window'],
+  ['tabdetach',    'Move current tab to a new window'],
   ['chrome://',    'Opens Chrome urls'],
   ['duplicate',    'Clone the current tab'],
   ['settings',     'Open the options page for this extension'],
@@ -558,6 +559,11 @@ Command.execute = function(value, repeats) {
       });
       return;
     }
+  }
+
+  if (/^tabd(etach)?/.test(value)) {
+    RUNTIME('moveTab');
+    return;
   }
 
   if (/^file +/.test(value)) {
