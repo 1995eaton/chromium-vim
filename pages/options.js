@@ -117,7 +117,7 @@ var Config = {
         opt = opt.split(/\s+/).filter(function(e) { return e.trim(); });
         var obj;
         if (opt.length === 2) {
-          opt[0] += 's';
+          opt[0] += opt[0].charAt(opt[0].length - 1) === 's' ? 'es' : 's';
           if (!output.hasOwnProperty(opt[0]) || typeof output[opt[0]] !== 'object') {
             output[opt[0]] = {};
           }
