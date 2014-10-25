@@ -383,17 +383,7 @@ Command.complete = function(value) {
   }
 
   if (/^file +/.test(value)) {
-    if ((search.slice(-1) === '/' && Marks.lastSearchLength < search.length) || Marks.lastSearchLength > search.length || !(Marks.lastFileSearch && Marks.lastFileSearch.replace(/[^\/]+$/, '') === search) && (search.slice(-1) === '/' && !(Marks.lastFileSearch && Marks.lastFileSearch.slice(-1) === '/'))) {
-      Marks.lastFileSearch = search;
-      Marks.lastSearchLength = search.length;
-      if (settings.homedirectory) {
-        search = search.replace('~', settings.homedirectory);
-      }
-      RUNTIME('getFilePath', {path: search});
-    } else {
-      Marks.lastFileSearch = search;
-      Marks.filePath();
-    }
+    Marks.parseFileCommand(search);
     return;
   }
 

@@ -58,10 +58,8 @@ port.onMessage.addListener(function(response) {
           Command.updateCompletions(true);
         }
       }
-      Marks.history = matches;
       break;
     case 'bookmarks':
-      Marks.bookmarks = [];
       Marks.parse(response.bookmarks);
       break;
     case 'topsites':
@@ -83,14 +81,7 @@ port.onMessage.addListener(function(response) {
       sessions = response.sessions;
       break;
     case 'quickMarks':
-      Marks.quickMarks = {};
-      for (key in response.marks) {
-        if (Array.isArray(response.marks[key])) {
-          Marks.quickMarks[key] = response.marks[key];
-        } else if (typeof response.marks[key] === 'string') {
-          Marks.quickMarks[key] = [response.marks[key]];
-        }
-      }
+      Marks.parseQuickMarks(response.marks);
       break;
     case 'bookmarkPath':
       if (response.path.length) {
@@ -159,7 +150,7 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
       window.stop();
       break;
     case 'updateMarks':
-      Marks.quickMarks = request.marks;
+      Marks.parseQuickMarks(request.marks);
       break;
     case 'base64Image':
       RUNTIME('openLinkTab', {
@@ -195,9 +186,7 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
       }
       break;
     case 'getFilePath':
-      var parsed = request.data;
-      Marks.files = parsed;
-      Marks.filePath();
+      Marks.filePath(request.data);
       break;
     case 'toggleEnabled':
       addListeners();
