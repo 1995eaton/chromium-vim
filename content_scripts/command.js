@@ -227,7 +227,8 @@ Command.descriptions = [
   ['undo',         'Reopen the last closed tab'],
   ['togglepin',    'Toggle the tab\'s pinned state'],
   ['nohlsearch',   'Clears the search highlight'],
-  ['viewsource',   'View the source for the current document']
+  ['viewsource',   'View the source for the current document'],
+  ['script',       'Run JavaScript on the current page']
 ];
 
 Command.deleteCompletions = function(completions) {
@@ -722,6 +723,10 @@ Command.execute = function(value, repeats) {
       RUNTIME('syncSettings', {settings: settings});
     }
     return;
+  }
+
+  if (/^script +/.test(value)) {
+    RUNTIME('runScript', {code: value.slice(7)});
   }
 
 };

@@ -524,6 +524,10 @@ Actions.lastUsedTab = function() {
   }
 };
 
+Actions.runScript = function() {
+  chrome.tabs.executeScript(sender.tab.id, {code: request.code});
+};
+
 // Port actions
 
 Actions.sendLastSearch = function() {

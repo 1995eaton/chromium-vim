@@ -118,10 +118,18 @@ var Config = {
         }
         var site = opt[0].slice(1, -1);
         var parseBlock = '';
+        var lineStart = false;
         while (!stream.eof()) {
           var c = stream.get();
-          if (c === '}') {
+          if (c === '\n') {
+            lineStart = true;
+            continue;
+          }
+          if (c === '}' && lineStart) {
             break;
+          }
+          if (c !== ' ' && lineStart) {
+            lineStart = false;
           }
           parseBlock += c;
         }
