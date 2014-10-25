@@ -710,11 +710,13 @@ Mappings.parseLine = function(line) {
       case 'remap':
         map[1] = map[1].replace(/<leader>/ig, settings.mapleader);
         mappingTrie.remove(map[1]);
-        return mappingTrie.add(map[1], mappingTrie.at(map[2]) || map.slice(2).join(' '));
+        return mappingTrie.add(map[1], mappingTrie.at(map[2]) ||
+            map.slice(2).join(' ').replace(/\s+".*/, ''));
       case 'imap':
       case 'iremap':
         insertMappings.remove(map[1]);
-        return insertMappings.add(map[1], insertMappings.at(map[2]) || map.slice(2).join(' '));
+        return insertMappings.add(map[1], insertMappings.at(map[2]) ||
+            map.slice(2).join(' ').replace(/\s+".*/, ''));
       case 'iunmap':
         return insertMappings.remove(map[1]);
       case 'unmap':
