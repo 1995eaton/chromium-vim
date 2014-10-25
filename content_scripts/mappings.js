@@ -737,6 +737,10 @@ Mappings.parseCustom = function(config) {
     if (kw.length === 3 && kw[0] === 'site' && kw[2] === '{') {
       ignore = true;
     }
+    if (ignore && kw.length === 1 && kw[0] === '}') {
+      ignore = false;
+      return;
+    }
     if (!ignore) {
       Mappings.parseLine(e);
     }
