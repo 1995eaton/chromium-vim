@@ -707,12 +707,17 @@ Mappings.parseLine = function(line) {
         return;
       case 'map':
       case 'remap':
+        if (map[1] === map[2]) {
+          return;
+        }
         map[1] = map[1].replace(/<leader>/ig, settings.mapleader);
         mappingTrie.remove(map[1]);
-        return mappingTrie.add(map[1], mappingTrie.at(map[2]) ||
-            map.slice(2).join(' ').replace(/\s+".*/, ''));
+        return mappingTrie.add(map[1], map.slice(2).join(' '));
       case 'imap':
       case 'iremap':
+        if (map[1] === map[2]) {
+          return;
+        }
         insertMappings.remove(map[1]);
         return insertMappings.add(map[1], insertMappings.at(map[2]) ||
             map.slice(2).join(' ').replace(/\s+".*/, ''));
@@ -868,28 +873,33 @@ Mappings.convertToAction = function(key) {
     this.validMatch = true;
   }
 
-  if (currentTrieNode.value) {
-    if (currentTrieNode.value.charAt(0) === ':') {
-      this.actions.shortCuts(currentTrieNode.value, +this.repeats || 1);
+  var mapVal = currentTrieNode.value;
+
+  if (mapVal) {
+    while (!this.actions[mapVal] && mapVal.charAt(0) !== ':') {
+      mapVal = mappingTrie.at(mapVal);
+      if (mapVal === null) {
+        this.clearQueue();
+        return false;
+      }
+    }
+    if (mapVal.charAt(0) === ':') {
+      this.actions.shortCuts(mapVal, +this.repeats || 1);
       this.lastCommand.queue = this.queue;
       this.lastCommand.repeats = +this.repeats || 1;
       this.lastCommand.fn = 'shortCuts';
-      this.lastCommand.args = [currentTrieNode.value];
+      this.lastCommand.args = [mapVal];
       RUNTIME('updateLastCommand', {
         data: JSON.stringify(this.lastCommand)
       });
     } else {
-      if (currentTrieNode.value !== 'repeatCommand') {
-        if (!this.actions[currentTrieNode.value]) {
-          this.clearQueue();
-          return false;
-        }
-        if (this.nonRepeatableCommands.indexOf(currentTrieNode.value) === -1) {
+      if (mapVal !== 'repeatCommand') {
+        if (this.nonRepeatableCommands.indexOf(mapVal) === -1) {
           this.lastCommand.queue = this.queue;
           this.lastCommand.repeats = +this.repeats || 1;
-          this.lastCommand.fn = currentTrieNode.value;
+          this.lastCommand.fn = mapVal;
         }
-        this.actions[currentTrieNode.value](+this.repeats || 1);
+        this.actions[mapVal](+this.repeats || 1);
         RUNTIME('updateLastCommand', {
           data: JSON.stringify(this.lastCommand)
         });
