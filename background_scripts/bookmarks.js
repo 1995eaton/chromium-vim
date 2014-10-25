@@ -16,51 +16,48 @@ Bookmarks.containsFolder = function(path, directory) {
 };
 
 Bookmarks.getFolderLinks = function(path, callback) {
-  path = path.split('/').filter(function(e) { return e; });
+  path = path.split('/').compress();
   chrome.bookmarks.getTree(function(tree) {
     var dir = tree[0];
     while (dir = Bookmarks.containsFolder(path[0], dir)) {
       path = path.slice(1);
       if (!path || !path.length) {
-        callback(dir.children.filter(function(e) {
+        callback(dir.children.map(function(e) {
           return e.url;
-        }).map(function(e) {
-          return e.url;
-        }));
+        }).compress());
       }
     }
   });
 };
 
-Bookmarks.getPath = function(m, p, callback, initialPath) {
-  var _ret = [],
-  folder = null,
-  matchFound = false;
+Bookmarks.getPath = function(marks, path, callback, initialPath) {
+  var result = [],
+      folder = null,
+      matchFound = false;
   if (!initialPath) {
-    initialPath = p.replace(/\/[^\/]+$/, '/').replace(/\/+/g, '/');
+    initialPath = path.replace(/\/[^\/]+$/, '/').replace(/\/+/g, '/');
   }
-  if (typeof p !== 'string' || p[0] !== '/') {
+  if (typeof path !== 'string' || path[0] !== '/') {
     return false;
   }
-  p = p.split(/\//).filter(function(e) { return e; });
-  m.forEach(function(item) {
-    if (item.title === p[0]) {
+  path = path.split(/\//).compress();
+  marks.forEach(function(item) {
+    if (item.title === path[0]) {
       folder = item;
     }
-    if (p[0] && item.title.substring(0, p[0].length).toLowerCase() === p[0].toLowerCase()) {
-      _ret.push([item.title, (item.url || 'folder'), initialPath]);
+    if (path[0] && item.title.slice(0, path[0].length).toLowerCase() === path[0].toLowerCase()) {
+      result.push([item.title, (item.url || 'folder'), initialPath]);
     }
-    if (p.length === 0) {
+    if (path.length === 0) {
       if (!matchFound) {
-        _ret = [];
+        result = [];
       }
       matchFound = true;
-      _ret.push([item.title, (item.url || 'folder'), initialPath]);
+      result.push([item.title, (item.url || 'folder'), initialPath]);
     }
   });
-  if (p.length === 0 || !folder) {
-    return callback(_ret);
+  if (path.length === 0 || !folder) {
+    return callback(result);
   }
-  p = p.slice(1);
-  this.getPath(folder.children, '/' + p.join('/'), callback, initialPath);
+  this.getPath(folder.children, '/' + path.slice(1).join('/'), callback, initialPath);
 };

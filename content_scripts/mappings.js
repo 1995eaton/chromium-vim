@@ -781,9 +781,21 @@ Mappings.executeSequence = function(c, r) {
   var com = c[0];
   this.queue += com;
   this.queue = this.queue.slice(0, -1);
-  this.convertToAction(com);
+  if (Hints.active) {
+    Hints.handleHint(com);
+  } else if (Visual.caretModeActive || Visual.visualModeActive) {
+    Visual.action(com);
+  } else {
+    this.convertToAction(com);
+  }
   if (!commandMode && !document.activeElement.isInput()) {
-    this.executeSequence(c.substring(1), r);
+    setTimeout(function() {
+      Mappings.executeSequence(c.substring(1), r);
+    });
+  } else {
+    setTimeout(function() {
+      document.activeElement.value += c.substring(1);
+    });
   }
 };
 
