@@ -123,6 +123,7 @@ var Config = {
           var c = stream.get();
           if (c === '\n') {
             lineStart = true;
+            parseBlock += '\n';
             continue;
           }
           if (c === '}' && lineStart) {
@@ -174,6 +175,7 @@ var Config = {
         case 'iunmap':
         case 'iunmapAll':
         case 'unmapAll':
+        case 'call':
           var rest = stream.until('\n');
           if (rest) {
             output.MAPPINGS += word + ' ' + rest + '\n';

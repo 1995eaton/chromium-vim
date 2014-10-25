@@ -282,7 +282,7 @@ Actions.appendHistory = function() {
 
 Actions.pinTab = function() {
   chrome.tabs.update({
-    pinned: !sender.tab.pinned
+    pinned: request.pinned !== void 0 ? request.pinned : !sender.tab.pinned
   });
 };
 

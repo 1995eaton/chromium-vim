@@ -163,6 +163,7 @@ var RCParser = {
         case 'iunmap':
         case 'iunmapAll':
         case 'unmapAll':
+        case 'call':
           var rest = stream.until('\n');
           if (rest) {
             output.MAPPINGS += word + ' ' + rest + '\n';

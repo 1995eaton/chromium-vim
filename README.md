@@ -126,6 +126,17 @@ site '*://*.reddit.com/*' {
 }
 ```
 
+###Running commands when a page loads
+ * In a similar fashion to the site-specific configuration described above, cVim can run commands when a page is loaded with the `call` keyword
+```viml
+" In this case, when pages with a file ending in ".js" are loaded,
+" cVim will pin the tab and then scroll down
+site '*://*/*.js' {
+      call :pintab
+      call scrollDown
+}
+```
+
 ###Mappings
  * Normal mappings are defined with the following structure: ```map <KEY> <MAPPING_NAME>```
  * Insert mappings use the same structure, but use the command "imap" instead of "map"
@@ -321,6 +332,9 @@ site '*://*.reddit.com/*' {
 | :delsession (autocomplete)                  | delete a saved session                                                                 |
 | :session (autocomplete)                     | open the tabs from a saved session in a new window                                     |
 | :script                                     | run JavaScript on the current page                                                     |
+| :togglepin                                  | toggle the pin state of the current tab                                                |
+| :pintab                                     | pin the current tab                                                                    |
+| :unpintab                                   | unpin the current tab                                                                  |
 
 #Tips
 

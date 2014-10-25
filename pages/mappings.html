@@ -330,6 +330,17 @@ site &#39;*://*.reddit.com/*&#39; {
 </code></pre>
 </li>
 </ul>
+<h3 id="running-commands-when-a-page-loads">Running commands when a page loads</h3>
+<ul>
+<li>In a similar fashion to the site-specific configuration described above, cVim can run commands when a page is loaded with the <code>call</code> keyword<pre><code class="lang-viml">&quot; In this case, when pages with a file ending in &quot;.js&quot; are loaded,
+&quot; cVim will pin the tab and then scroll down
+site &#39;*://*/*.js&#39; {
+   call :pintab
+   call scrollDown
+}
+</code></pre>
+</li>
+</ul>
 <h3 id="mappings">Mappings</h3>
 <ul>
 <li>Normal mappings are defined with the following structure: <code>map &lt;KEY&gt; &lt;MAPPING_NAME&gt;</code></li>
@@ -1100,6 +1111,18 @@ site &#39;*://*.reddit.com/*&#39; {
 <tr>
 <td>:script</td>
 <td>run JavaScript on the current page</td>
+</tr>
+<tr>
+<td>:togglepin</td>
+<td>toggle the pin state of the current tab</td>
+</tr>
+<tr>
+<td>:pintab</td>
+<td>pin the current tab</td>
+</tr>
+<tr>
+<td>:unpintab</td>
+<td>unpin the current tab</td>
 </tr>
 </tbody>
 </table>

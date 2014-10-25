@@ -481,6 +481,12 @@ Command.execute = function(value, repeats) {
     case 'viewsource':
       RUNTIME('openLink', {tab: tab, url: 'view-source:' + document.URL, noconvert: true});
       return;
+    case 'pintab':
+      RUNTIME('pinTab', {pinned: true});
+      break;
+    case 'unpintab':
+      RUNTIME('pinTab', {pinned: false});
+      break;
     case 'togglepin':
       RUNTIME('pinTab');
       return;

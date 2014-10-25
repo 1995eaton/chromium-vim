@@ -729,6 +729,16 @@ Mappings.parseLine = function(line) {
         return insertMappings.remove(map[1]);
       case 'unmap':
         return mappingTrie.remove(map[1]);
+      case 'call':
+        waitForLoad(function() {
+          map = map.slice(1).join(' ');
+          if (map[0] === ':') {
+            Command.execute(map.slice(1).replace(/<CR>/i, ''), 1);
+          } else if (Mappings.actions[map]) {
+            Mappings.actions[map](1);
+          }
+        });
+        break;
     }
   }
 };
