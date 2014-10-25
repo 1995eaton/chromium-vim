@@ -5,7 +5,6 @@ var insertMappings = new Trie(),
 var Mappings = {
   repeats: '',
   queue: '',
-  siteSpecificBlacklists: '',
   lastCommand: {
     fn: '',
     queue: '',
@@ -732,8 +731,16 @@ Mappings.parseCustom = function(config) {
   this.insertDefaults.forEach(function(e) {
     insertMappings.add.apply(insertMappings, e);
   });
-  (config += this.siteSpecificBlacklists)
-    .split('\n').compress().forEach(this.parseLine);
+  var ignore = false; // ignore 'site DOMAIN {...}' blocks
+  config = config.split('\n').compress().forEach(function(e) {
+    var kw = e.split(' ').compress();
+    if (kw.length === 3 && kw[0] === 'site' && kw[2] === '{') {
+      ignore = true;
+    }
+    if (!ignore) {
+      Mappings.parseLine(e);
+    }
+  });
 };
 
 Mappings.executeSequence = function(c, r) {

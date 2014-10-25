@@ -8,6 +8,7 @@ var defaultSettings = {
   fullpagescrollpercent: 0,
   typelinkhintsdelay: 300,
   qmarks: {},
+  sites: {},
   searchengines: {},
   searchaliases: {},
   hud: true,

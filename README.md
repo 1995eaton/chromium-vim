@@ -112,16 +112,19 @@ map X :execute gTx<CR> "Close the current tab and move to the one before it
 ```
 
 ###Blacklists
- * You can blacklist specific commands on chosen domains by adding the keybinding after the blacklist URL. For instance, if you want smooth scrolling enabled with the &lt;Up&gt; and &lt;Down&gt; keys, but not on pages like Chrome's built-in PDF viewer (in which the up and down keys won't respond if they have been mapped), your cVimrc would look like this:
-```viml
-map <Up> scrollUp
-map <Down> scrollDown
-```
-and the blacklists setting would have look like this:
-```viml
-let blacklists = ["*://*/*.pdf <Up> <Down>"]
-```
  * The blacklists setting uses a custom inplementation of Chrome's @match pattern guidelines. See https://developer.chrome.com/extensions/match_patterns for a description of the syntax.
+
+
+###Site-specific Configuration
+ * You can enable certain rc settings for sites using the blacklist match pattern as described above
+```viml
+" this will enable the config block below on the domain 'reddit.com'
+site '*://*.reddit.com/*' {
+      unmap j
+      unmap k
+      set numerichints
+}
+```
 
 ###Mappings
  * Normal mappings are defined with the following structure: ```map <KEY> <MAPPING_NAME>```

@@ -39,8 +39,7 @@ Stream.prototype = {
 };
 
 var Config = {
-  parse: function() {
-    var input = Settings.rcEl.value;
+  parse: function(input) {
     input = input.replace(/\n\s*\\\s*/g, '');
     var output = {
       MAPPINGS: ''
@@ -112,6 +111,23 @@ var Config = {
         }
         output[opt] = value;
       },
+      'site': function() {
+        var opt = stream.until('\n').split(/\s+/).compress();
+        if (opt[1] !== '{') {
+          return;
+        }
+        var site = opt[0].slice(1, -1);
+        var parseBlock = '';
+        while (!stream.eof()) {
+          var c = stream.get();
+          if (c === '}') {
+            break;
+          }
+          parseBlock += c;
+        }
+        output.sites = output.sites || {};
+        output.sites[site] = parseBlock;
+      },
       'let': function() {
         var opt = stream.until('=');
         opt = opt.split(/\s+/).filter(function(e) { return e.trim(); });
@@ -140,6 +156,9 @@ var Config = {
           break;
         case 'let':
           F.let();
+          break;
+        case 'site':
+          F.site();
           break;
         case 'map':
         case 'unmap':
@@ -197,7 +216,7 @@ Settings.resetSettings = function() {
 
 Settings.saveSettings = function() {
   this.settings = Object.clone(this.defaults);
-  this.checkConfig(Config.parse());
+  this.checkConfig(Config.parse(Settings.rcEl.value));
   this.settings.COMMANDBARCSS = this.cssEl.getValue();
   this.settings.GISTURL = this.gistUrl.value;
   this.settings.MAPPINGS = this.rcEl.value;
@@ -287,6 +306,6 @@ chrome.extension.onMessage.addListener(function(request) {
   } else if (request.action === 'sendDefaultSettings') {
     Settings.settings = request.settings;
     Settings.defaults = Object.clone(request.settings);
-    Settings.checkConfig(Config.parse());
+    Settings.checkConfig(Config.parse(Settings.rcEl.value));
   }
 });

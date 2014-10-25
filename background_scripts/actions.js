@@ -673,3 +673,7 @@ Actions.quitChrome = function() {
     });
   });
 };
+
+Actions.parseRC = function() {
+  callback({type: 'parseRC', config: RCParser.parse(request.config)});
+};

@@ -73,7 +73,7 @@
     "persistant": false,
     "scripts": [
       "content_scripts/utils.js",
-      "background_scripts/rc_parser.js",
+      "background_scripts/rcparser.js",
       "background_scripts/clipboard.js",
       "background_scripts/bookmarks.js",
       "background_scripts/sites.js",

@@ -845,46 +845,58 @@ Command.onDOMLoad = function() {
   this.domElementsLoaded = true;
 };
 
+Command.updateSettings = function(config) {
+  var key;
+  if (Array.isArray(config.completionengines) && config.completionengines.length) {
+    Complete.engines = Complete.engines.filter(function(e) {
+      return ~config.completionengines.indexOf(e);
+    });
+  }
+  if (config.searchengines && config.searchengines.constructor === Object) {
+    for (key in config.searchengines) {
+      if (!~Complete.engines.indexOf(key) && typeof config.searchengines[key] === 'string') {
+        Complete.engines.push(key);
+        Complete.requestUrls[key] = config.searchengines[key];
+      }
+    }
+  }
+  if (config.searchaliases && config.searchaliases.constructor === Object) {
+    for (key in config.searchaliases) {
+      if (Complete.engines.indexOf(key)) {
+        Complete.aliases[key] = config.searchaliases[key];
+      }
+    }
+  }
+  if (config.locale) {
+    Complete.setLocale(config.locale);
+  }
+  if (config.hintcharacters && config.hintcharacters.split('').unique().length > 1) {
+    settings.hintcharacters = config.hintcharacters.split('').unique().join('');
+  }
+  if (config !== settings) {
+    for (key in config) {
+      if (key.toUpperCase() !== key && settings.hasOwnProperty(key)) {
+        settings[key] = config[key];
+      }
+    }
+  }
+};
+
 Command.init = function(enabled) {
   var key;
   Mappings.defaults = Object.clone(Mappings.defaultsClone);
   Mappings.parseCustom(settings.MAPPINGS);
   if (enabled) {
     this.loaded = true;
-
-    if (Array.isArray(settings.completionengines) && settings.completionengines.length) {
-      Complete.engines = Complete.engines.filter(function(e) {
-        return ~settings.completionengines.indexOf(e);
-      });
-    }
-    if (settings.searchengines && settings.searchengines.constructor === Object) {
-      for (key in settings.searchengines) {
-        if (!~Complete.engines.indexOf(key) && typeof settings.searchengines[key] === 'string') {
-          Complete.engines.push(key);
-          Complete.requestUrls[key] = settings.searchengines[key];
-        }
+    this.updateSettings(settings);
+    for (key in settings.sites) {
+      if (matchLocation(document.URL, key)) {
+        PORT('parseRC', {config: settings.sites[key]});
       }
     }
-    if (settings.searchaliases && settings.searchaliases.constructor === Object) {
-      for (key in settings.searchaliases) {
-        if (Complete.engines.indexOf(key)) {
-          Complete.aliases[key] = settings.searchaliases[key];
-        }
-      }
-    }
-
-    if (settings.locale) {
-      Complete.setLocale(settings.locale);
-    }
-
     waitForLoad(this.onDOMLoad, this);
     if (settings.autohidecursor) {
       waitForLoad(Cursor.init, Cursor);
-    }
-    Scroll.smoothScroll = settings.smoothscroll;
-    Scroll.stepSize = +settings.scrollstep;
-    if (settings.hintcharacters.split('').unique().length > 1) {
-      settings.hintcharacters = settings.hintcharacters.split('').unique().join('');
     }
   } else {
     this.loaded = false;
@@ -919,15 +931,6 @@ Command.configureSettings = function(_settings) {
         continue;
       }
       if (matchLocation(document.URL, blacklist[0])) {
-        if (blacklist.length > 1) {
-          var unmaps      = blacklist.slice(1),
-            unmapString = '';
-          for (var j = 0, q = unmaps.length; j < q; ++j) {
-            unmapString += '\nunmap ' + unmaps[j];
-          }
-          Mappings.siteSpecificBlacklists += unmapString;
-          break;
-        }
         return true;
       }
     }

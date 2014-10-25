@@ -111,6 +111,13 @@ port.onMessage.addListener(function(response) {
     case 'httpRequest':
       httpCallback(response.id, response.text);
       break;
+    case 'parseRC':
+      if (response.config.MAPPINGS) {
+        response.config.MAPPINGS.split('\n').compress().forEach(Mappings.parseLine);
+        delete response.config.MAPPINGS;
+      }
+      Command.updateSettings(response.config);
+      break;
   }
 });
 
