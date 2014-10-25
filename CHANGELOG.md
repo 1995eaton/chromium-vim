@@ -4,6 +4,8 @@
  * Added autoupdategist option
  * Added lastUsedTab command
  * The goToSource command is now `:viewsource&<CR>`
+ * Removed the mapping blacklist feature for the blacklists array (e.g. `let blacklists = ["*://*.reddit.com/* <Up> <Down>])
+  * The syntax for an extended version of this feature can now be found [here](https://github.com/1995eaton/chromium-vim#site-specific-configuration)
 
 ## 1.2.61
  * Minor bug fixes from last update
