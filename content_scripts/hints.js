@@ -530,29 +530,18 @@ Hints.create = function(type, multi) {
 
     if (!multi && settings && settings.hud) {
       HUD.display('Follow link ' + (function() {
-        switch (type) {
-          case 'yank':
-            return '(yank)';
-          case 'multiyank':
-            return '(multi-yank)';
-          case 'image':
-            return '(reverse image)';
-          case 'fullimage':
-            return '(full image)';
-          case 'tabbed':
-          case 'tabbedActive':
-            return '(tabbed)';
-          case 'window':
-            return '(window)';
-          case 'hover':
-            return '(hover)';
-          case 'unhover':
-            return '(unhover)';
-          case 'multi':
-            return '(multi)';
-          default:
-            return '';
-        }
+        return ({
+          yank: '(yank)',
+          multiyank: '(multi-yank)',
+          image: '(reverse-image)',
+          fullimage: '(full image)',
+          tabbed: '(tabbed)',
+          tabbedActive: '(tabbed)',
+          window: '(window)',
+          hover: '(hover)',
+          unhover: '(unhover)',
+          multi: '(multi)'
+        })[type] || '';
       })());
     }
 
