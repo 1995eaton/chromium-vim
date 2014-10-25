@@ -690,8 +690,12 @@ Mappings.insertCommand = function(modifier, callback) {
   var value = insertMappings.at(modifier);
   if (value) {
     callback(true);
-    this.insertFunctions.__setElement__(document.activeElement);
-    this.insertFunctions[value]();
+    if (this.insertFunctions[value]) {
+      this.insertFunctions.__setElement__(document.activeElement);
+      this.insertFunctions[value]();
+    } else if (this.actions[value]) {
+      this.actions[value]();
+    }
   }
 };
 
