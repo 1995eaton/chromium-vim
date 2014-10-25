@@ -149,11 +149,21 @@ definePrototype(Number, 'mod', function(n) {
 });
 
 Object.clone = function(obj) {
-  var old = history.state;
-  history.replaceState(obj);
-  var clone = history.state;
-  history.replaceState(old);
-  return clone;
+  return (function _(node) {
+    if (Array.isArray(node)) {
+      return node.map(function(e) {
+        return _(e);
+      });
+    } else if (typeof node === 'object') {
+      var o = {};
+      for (var key in node) {
+        o[key] = _(node[key]);
+      }
+      return o;
+    } else {
+      return node;
+    }
+  })(obj);
 };
 
 definePrototype(String, 'trimAround', function() {
