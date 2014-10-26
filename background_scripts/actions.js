@@ -536,7 +536,13 @@ Actions = (function() {
   };
 
   _.injectCSS = function() {
-    chrome.tabs.insertCSS(sender.tab.id, {code: request.css});
+    chrome.tabs.insertCSS(sender.tab.id, {code: request.css}, function() {
+      // prevent the background script from throwing exceptions
+      // when trying to insert CSS into unsupported URLs (chrome://*, etc)
+      if (!chrome.runtime.lastError) {
+        return true;
+      }
+    });
   };
 
   _.urlToBase64 = function() {

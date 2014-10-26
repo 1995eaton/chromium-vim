@@ -798,14 +798,10 @@ Command.insertCSS = function() {
   if (settings.linkanimations) {
     css += '.cVim-link-hint { transition: opacity 0.2s ease-out, background 0.2s ease-out; }';
   }
+
+  RUNTIME('injectCSS', {css: css, runAt: 'document_start'});
+
   var head = document.getElementsByTagName('head');
-  if (!head.length && location.protocol !== 'chrome-extensions:' &&
-      location.pathname !== '/_/chrome/newtab') {
-    if (location.protocol !== 'chrome:') {
-      RUNTIME('injectCSS', {css: css, runAt: 'document_start'});
-    }
-  }
-  // For some reason, Chrome's own implementation of CSS injection seems to miss some styles.
   if (head.length) {
     this.css = document.createElement('style');
     this.css.textContent = css;

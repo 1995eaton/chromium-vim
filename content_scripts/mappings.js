@@ -902,9 +902,14 @@ Mappings.convertToAction = function(key) {
   var mapVal = currentTrieNode.value;
 
   if (mapVal) {
-    while (!this.actions[mapVal] && mapVal.charAt(0) !== ':') {
+    for (var mapLinks = [mapVal]; !this.actions[mapVal] && mapVal.charAt(0) !== ':'; mapLinks.push(mapVal)) {
       mapVal = mappingTrie.at(mapVal);
       if (mapVal === null) {
+        this.clearQueue();
+        return false;
+      }
+      if (~mapLinks.indexOf(mapVal)) {
+        Status.setMessage('recursive mapping detected', void 0, 'error');
         this.clearQueue();
         return false;
       }
