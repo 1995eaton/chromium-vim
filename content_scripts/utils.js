@@ -148,22 +148,20 @@ definePrototype(Number, 'mod', function(n) {
   return ((this % n) + n) % n;
 });
 
-Object.clone = function(obj) {
-  return (function _(node) {
-    if (Array.isArray(node)) {
-      return node.map(function(e) {
-        return _(e);
-      });
-    } else if (typeof node === 'object') {
-      var o = {};
-      for (var key in node) {
-        o[key] = _(node[key]);
-      }
-      return o;
-    } else {
-      return node;
+Object.clone = function(node) {
+  if (Array.isArray(node)) {
+    return node.map(function(e) {
+      return Object.clone(e);
+    });
+  } else if (typeof node === 'object') {
+    var o = {};
+    for (var key in node) {
+      o[key] = Object.clone(node[key]);
     }
-  })(obj);
+    return o;
+  } else {
+    return node;
+  }
 };
 
 definePrototype(String, 'trimAround', function() {
