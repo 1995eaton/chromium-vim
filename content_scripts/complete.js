@@ -128,6 +128,12 @@ Complete.locales = {
     requestUrls: ['google'],
     baseUrls: ['google'],
     apis: ['google']
+  },
+  aus: {
+    tld: 'com.au',
+    requestUrls: ['google'],
+    baseUrls: ['google'],
+    apis: ['google']
   }
 };
 
