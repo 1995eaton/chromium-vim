@@ -61,9 +61,8 @@ Find.search = function(reverse, repeats, ignoreFocus) {
     document.activeElement.blur();
     document.body.focus();
   }
-  var node = this.matches[this.index];
-  while (node = node.parentElement) {
-    if (node.getAttribute('href') !== null) {
+  for (var node = this.matches[this.index]; node = node.parentElement;) {
+    if (node.hasAttribute('href')) {
       if (!ignoreFocus) {
         node.focus();
       }

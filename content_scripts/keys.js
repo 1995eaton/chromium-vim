@@ -360,7 +360,7 @@ KeyHandler.down = function(key, event) {
         Command.hide();
         Find.index = Command.modeIdentifier.textContent === '/' ? -1 : 1;
         Find.setIndex();
-        Find.search(Command.modeIdentifier.textContent === '?', 1, true);
+        Find.search(Command.modeIdentifier.textContent === '?', 1, false);
         PORT('updateLastSearch', {value: Find.lastSearch});
         break;
       default:
