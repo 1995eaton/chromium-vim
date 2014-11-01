@@ -23,6 +23,20 @@ Find.getSelectedTextNode = function() {
   return (this.matches[this.index] && this.matches[this.index].firstChild) || false;
 };
 
+Find.focusParentLink = function(node) {
+  do {
+    if (node.hasAttribute('href')) {
+      node.focus();
+      return true;
+    }
+  } while (node = node.parentElement);
+  return false;
+};
+
+Find.getCurrentMatch = function() {
+  return this.matches[this.index] || null;
+};
+
 Find.search = function(reverse, repeats, ignoreFocus) {
   var activeHighlight = settings.activehighlight;
   if (Find.swap) {
@@ -54,22 +68,13 @@ Find.search = function(reverse, repeats, ignoreFocus) {
   } else {
     this.tries = 0;
   }
-  var isLink = false;
   var br = this.matches[this.index].getBoundingClientRect();
   var origTop = document.body.scrollTop;
   if (!ignoreFocus) {
     document.activeElement.blur();
     document.body.focus();
   }
-  for (var node = this.matches[this.index]; node = node.parentElement;) {
-    if (node.hasAttribute('href')) {
-      if (!ignoreFocus) {
-        node.focus();
-      }
-      isLink = true;
-      break;
-    }
-  }
+  var isLink = this.focusParentLink(this.matches[this.index]);
   this.matches[this.index].style.backgroundColor = activeHighlight;
   HUD.display(this.index + 1 + ' / ' + this.matches.length);
   var paddingTop = 0,

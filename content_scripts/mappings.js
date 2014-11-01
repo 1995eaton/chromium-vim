@@ -820,10 +820,14 @@ Mappings.handleEscapeKey = function() {
         });
         Find.index = Find.lastIndex - 1;
         Find.search(false, 1, false);
+      } else {
+        Find.clear();
+        HUD.hide();
       }
     }
     Command.hideData();
-    return Command.hide();
+    Command.hide();
+    return;
   }
 
   if (document.activeElement.isInput()) {
@@ -832,7 +836,8 @@ Mappings.handleEscapeKey = function() {
       return;
     }
     this.actions.inputFocused = false;
-    return document.activeElement.blur();
+    document.activeElement.blur();
+    return;
   }
 
   if (Hints.active) {
@@ -841,7 +846,8 @@ Mappings.handleEscapeKey = function() {
 
   if (insertMode) {
     insertMode = false;
-    return HUD.hide();
+    HUD.hide();
+    return;
   }
 
   if (Hints.lastHover) {
@@ -852,7 +858,9 @@ Mappings.handleEscapeKey = function() {
 
   if (Find.matches.length) {
     Find.clear();
-    return HUD.hide();
+    document.activeElement.blur();
+    HUD.hide();
+    return;
   }
 };
 
