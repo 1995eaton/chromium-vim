@@ -164,6 +164,22 @@ Object.clone = function(node) {
   }
 };
 
+Object.compare = function(a, b, keys) {
+  if (!a || !b || typeof a !== 'object' || typeof b !== 'object') {
+    return a === b;
+  }
+  if (!Array.isArray(keys)) {
+    for (var key in a) {
+      if (a[key] !== b[key]) {
+        return false;
+      }
+    }
+  } else {
+    return keys.every(function(e) { return a[e] === b[e]; });
+  }
+  return true;
+};
+
 definePrototype(String, 'trimAround', function() {
   return this.replace(/^(\s+)?(.*\S)?(\s+)?$/g, '$2');
 });

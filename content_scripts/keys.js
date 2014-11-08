@@ -106,6 +106,8 @@ var KeyListener = (function() {
 
   var KeyEvents = {
 
+    lastHandledEvent: null,
+
     keypress: function(callback, event) {
       if (typeof callback === 'function') {
         callback(event);
@@ -119,6 +121,14 @@ var KeyListener = (function() {
       } else {
         // Vim-like representation
         return parseKeyDown(event);
+      }
+    },
+
+    keyup: function(event) {
+      if (Object.compare(event, KeyEvents.lastHandledEvent,
+            ['which', 'ctrlKey', 'shiftKey', 'metaKey', 'altKey'])) {
+        KeyEvents.lastHandledEvent = null;
+        event.stopPropagation();
       }
     },
 
@@ -150,6 +160,7 @@ var KeyListener = (function() {
       // will not be stopped. preventDefault on the other hand, can be.
       } else if (commandMode || (!insertMode && mappingTrie.at(Mappings.queue + KeyEvents.keyhandle(event, 'keydown'))))
       {
+        KeyEvents.lastHandledEvent = event;
         event.stopPropagation();
       }
 
@@ -197,12 +208,14 @@ var KeyListener = (function() {
     if (!this.active) {
       this.active = true;
       window.addEventListener('keydown', this.eventFn, true);
+      window.addEventListener('keyup', KeyEvents.keyup, true);
     }
   };
   listenerFn.prototype.deactivate = function() {
     if (this.active) {
       this.active = false;
       window.removeEventListener('keydown', this.eventFn, true);
+      window.removeEventListener('keyup', KeyEvents.keyup, true);
     }
   };
   return listenerFn;
