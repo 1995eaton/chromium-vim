@@ -938,7 +938,7 @@ Command.configureSettings = function(_settings) {
     Command.init(true);
   };
   Search.settings = Object.keys(settings).filter(function(e) {
-    return settings[e].constructor === Boolean;
+    return settings[e] && settings[e].constructor === Boolean;
   });
   removeListeners();
   settings.searchlimit = +settings.searchlimit;
