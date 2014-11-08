@@ -115,7 +115,9 @@ port.onMessage.addListener(function(response) {
 chrome.extension.onMessage.addListener(function(request, sender, callback) {
   switch (request.action) {
     case 'updateLastCommand':
-      Mappings.lastCommand = JSON.parse(request.data);
+      if (request.data) {
+        Mappings.lastCommand = JSON.parse(request.data);
+      }
       break;
     case 'getWindows':
       if (Command.active === true) {

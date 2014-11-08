@@ -1,0 +1,118 @@
+{
+  function extend(a, b) {
+    for (var key in b) {
+      if (key === 'MAPPINGS') {
+        a.MAPPINGS = a.MAPPINGS || '';
+        a.MAPPINGS += '\n' + b.MAPPINGS;
+      } else if (typeof a[key] === 'object' && typeof b[key] === 'object' && !Array.isArray(b)) {
+        extend(a[key], b[key]);
+      } else {
+        a[key] = b[key];
+      }
+    }
+  }
+  function parseScope(a) {
+    var OBJ = {};
+    if (Array.isArray(a)) {
+      a.forEach(function(e) {
+        extend(OBJ, e);
+      });
+    } else {
+      extend(OBJ, a);
+    }
+    return OBJ;
+  }
+}
+
+Start
+  = a:Scope { return parseScope(a); }
+
+ANY = [^.]
+WS = [\t ]
+EOF = !.
+EOL = [\n]+
+END
+  = WS* Comment? EOL
+  / EOF
+WSB = WS / Break { return ''; }
+LET = "let"
+MAP = "remap" / "map" / "imap"
+UNMAP = "unmap" / "iunmap"
+SET = "set"
+SITE = "site"
+VARLETTER = [a-zA-Z_]
+VAR = a:VARLETTER+ { return a.join(''); }
+Comment = '"' [^\n]*
+
+Break
+  = [\n] WS* '\\' { return ''; }
+
+Scope
+  = WS* EOL EOF { return null; }
+  / WS* EOL b:(Scope / EOF) { return b || null; }
+  / WS* a:(Expression END) WS* b:Scope { return [a[0]].concat(b); }
+  / WS* a:Expression END WS* { return a; }
+
+StringEscape
+  = "\\" a:. { return a; }
+
+String
+  = '"' + a:(StringEscape / Break / [^"\n])* '"' { return a.join(''); }
+  / "'" + a:(StringEscape / Break / [^'\n])* "'" { return a.join(''); }
+
+ArrayLoop
+  = WSB* a:Object WSB* "," WSB* "]" { return a; }
+  / WSB* a:Object WSB* "," b:ArrayLoop { return [a].concat(b); }
+  / WSB* a:Object WSB* "]" { return [a]; }
+
+Array
+  = "[" a:ArrayLoop { return a; }
+  / "[" WSB* "]" { return []; }
+
+Integer
+  = a:[1-9]+ b:[0-9]* { return parseInt(a.join('') + b.join(''), 10); }
+  / "0" { return 0; }
+
+Decimal
+  = a:Integer "." b:[0-9]+ { return a + parseFloat('.' + b.join('')); }
+
+Number
+  = Decimal
+  / Integer
+
+Object
+  = String
+  / Array
+  / Number
+
+Expression
+  = WSB* SITE WSB+ a:String WSB+ "{" ("\n" / WS)* b:Scope END* WSB* "}" WSB* {
+    var result = {
+      sites: {}
+    };
+    result.sites[a] = parseScope(b);
+    console.log(b);
+    return result;
+  }
+  / WSB* LET WSB+ a:VAR WSB+ b:VAR WSB* "=" WSB* c:Object {
+    var result = {};
+    a += a.charAt(a.length - 1) === 's' ? 'es' : 's';
+    result[a] = {};
+    result[a][b] = c;
+    return result;
+  }
+  / WSB* Comment WSB* { return null; }
+  / WSB* LET WSB+ a:VAR WSB* "=" WSB* b:Object { var result = {}; result[a] = b; return result; }
+  / WSB* a:MAP WSB* b:[^ ]+ WSB* c:[^\n]+ {
+    return {
+      MAPPINGS: [a, b.join(''), c.join('')].join(' ')
+    };
+  }
+  / WSB* a:UNMAP WSB* b:[^ \n]+ WSB* {
+    return {
+      MAPPINGS: [a, b.join('')].join(' ')
+    };
+  }
+  / WSB* SET WSB+ "no" a:VAR WS* { var result = {}; result[a] = false; return result; }
+  / WSB* SET WSB+ !"no" a:VAR WS* { var result = {}; result[a] = true; return result; }
+  / WSB* '\\' WSB* { return null; }
