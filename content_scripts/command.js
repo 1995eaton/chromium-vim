@@ -415,6 +415,7 @@ Command.execute = function(value, repeats) {
   // & == whether the tab will be active
   // * == whether the tab will be pinned
   var tab = {
+    isURL: value !== (value = value.replace(/^([^\s]+\s+)=/, '$1')),
     active: value === (value = value.replace(/(^[^\s&]+)&([*!]*)/, '$1$2')),
     pinned: value !== (value = value.replace(/(^[^\s*]+)\*([!]*)/, '$1$2')),
     tabbed: value !== (value = value.replace(/(^[^\s!]+)!/, '$1'))
@@ -575,7 +576,7 @@ Command.execute = function(value, repeats) {
   if (/^(new|winopen|wo)$/.test(value.replace(/ .*/, '')) && !/^\S+\s*$/.test(value)) {
     RUNTIME('openLinkWindow', {
       tab: tab,
-      url: Complete.convertToLink(value),
+      url: Complete.convertToLink(value, tab.isURL),
       repeats: repeats,
       noconvert: true
     });
@@ -592,7 +593,7 @@ Command.execute = function(value, repeats) {
     tab.tabbed = true;
     RUNTIME('openLink', {
       tab: tab,
-      url: Complete.convertToLink(value),
+      url: Complete.convertToLink(value, tab.isURL),
       repeats: repeats,
       noconvert: true
     });
@@ -602,7 +603,7 @@ Command.execute = function(value, repeats) {
   if (/^(o|open)$/.test(value.replace(/ .*/, '')) && !/^\S+\s*$/.test(value)) {
     RUNTIME('openLink', {
       tab: tab,
-      url: Complete.convertToLink(value),
+      url: Complete.convertToLink(value, tab.isURL),
       noconvert: true
     });
     return;

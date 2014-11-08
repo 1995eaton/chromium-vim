@@ -152,7 +152,7 @@ Complete.setLocale = function(locale) {
   }
 };
 
-Complete.convertToLink = function(input) {
+Complete.convertToLink = function(input, isURL) {
   var prefix, suffix;
   input = input.replace(/@%/g, document.URL);
   input = input.split(/\s+/).compress();
@@ -168,11 +168,9 @@ Complete.convertToLink = function(input) {
       return Complete.baseUrls[input[0]];
     }
   } else {
-    if (input.join(' ').validURL()) {
-      if (!/:\/\//.test(input.join(' '))) {
-        return 'http://' + input.join(' ');
-      }
-      return input.join(' ');
+    if (isURL || input.join(' ').validURL()) {
+      return (!/:\/\//.test(input.join(' ')) ? 'http://' : '') +
+        input.join(' ');
     }
     return (Complete.requestUrls[settings.defaultengine] ||
       Complete.requestUrls.google) + encodeURIComponent(input.join(' '));

@@ -168,55 +168,39 @@ definePrototype(String, 'trimAround', function() {
   return this.replace(/^(\s+)?(.*\S)?(\s+)?$/g, '$2');
 });
 
-definePrototype(String, 'validURL', function() {
-  var url = this.trimLeft().trimRight();
-  if (url.length === 0) {
-    return 'chrome://newtab';
-  }
-  if (/^\//.test(url)) {
-    url = 'file://' + url;
-  }
-  if (/^(chrome|chrome-extension|file):\/\/\S+$/.test(url)) {
-    return url;
-  }
-  var pattern = new RegExp('^((https?|ftp):\\/\\/)?'+
-  '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+
-  '((\\d{1,3}\\.){3}\\d{1,3})|'+
-  'localhost)' +
-  '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+
-  '(\\?[;:&a-z\\d%_.~+=-]*)?'+
-  '(\\#[#:-a-z\\d_]*)?$','i');
-  if (pattern.test(url)) {
-    return true;
-  }
-});
+definePrototype(String, 'validURL', (function() {
+  var TLDs = ['ac', 'ad', 'ae', 'aero', 'af', 'ag', 'ai', 'al', 'am', 'an', 'ao', 'aq', 'ar', 'as', 'at', 'au', 'aw', 'ax', 'az', 'ba', 'bb', 'bd', 'be', 'bf', 'bg', 'bh', 'bi', 'biz', 'bj', 'bm', 'bn', 'bo', 'br', 'bs', 'bt', 'bv', 'bw', 'by', 'bz', 'ca', 'cc', 'cf', 'cg', 'ch', 'ci', 'ck', 'cl', 'cm', 'cn', 'co', 'com', 'edu', 'coop', 'cr', 'cs', 'cu', 'cv', 'cx', 'cy', 'cz', 'de', 'dj', 'dk', 'dm', 'dz', 'ec', 'ee', 'eg', 'eh', 'er', 'es', 'et', 'eu', 'fi', 'fj', 'fk', 'fo', 'fr', 'ga', 'gb', 'gd', 'ge', 'gf', 'gg', 'gh', 'gi', 'gl', 'gm', 'gn', 'gov', 'gp', 'gq', 'gr', 'gt', 'gu', 'gw', 'gy', 'hk', 'hn', 'hr', 'ht', 'hu', 'id', 'ie', 'il', 'im', 'in', 'info', 'iq', 'ir', 'is', 'it', 'je', 'jm', 'jo', 'jobs', 'jp', 'ke', 'kg', 'kh', 'ki', 'km', 'kn', 'kr', 'kw', 'ky', 'kz', 'lb', 'lc', 'li', 'lk', 'lr', 'ls', 'lt', 'lu', 'lv', 'ly', 'ma', 'mc', 'md', 'mg', 'mh', 'mil', 'ml', 'mm', 'mn', 'mo', 'mp', 'mq', 'mr', 'ms', 'mt', 'mu', 'museum', 'mv', 'mw', 'mx', 'my', 'mz', 'na', 'name', 'nc', 'ne', 'net', 'nf', 'ng', 'ni', 'nl', 'no', 'np', 'nr', 'nu', 'nz', 'om', 'org', 'pa', 'pe', 'pf', 'pg', 'ph', 'pk', 'pl', 'pm', 'pn', 'pr', 'pro', 'ps', 'pt', 'pw', 'py', 'qa', 're', 'ro', 'ru', 'rw', 'sa', 'sb', 'sc', 'sd', 'se', 'sg', 'sh', 'si', 'sk', 'sl', 'sm', 'sn', 'so', 'sr', 'st', 'sv', 'sy', 'sz', 'tc', 'td', 'tf', 'tg', 'th', 'tj', 'tk', 'tl', 'tm', 'tn', 'to', 'tp', 'tr', 'travel', 'tt', 'tv', 'tw', 'tz', 'ua', 'ug', 'uk', 'us', 'uy', 'uz', 've', 'vg', 'vi', 'vn', 'vu', 'wf', 'ws', 'ye', 'yt', 'yu', 'za', 'zm', 'zw'];
+  return function() {
+    var url = this.trimAround();
+    if (~url.indexOf(' ')) {
+      return false;
+    }
+    url = url.replace(/^[^:]+:\/\//, '')
+             .replace(/[#\/].*/g, '')
+             .split('.');
+    if (url.length === 4) {
+      if (url.every(function(e) { // IP addresses
+        return /^[0-9]+$/.test(e) && +e >= 0 && +e < 256;
+      })) {
+        return true;
+      }
+    }
+    return url.every(function(e) { return /^[a-z0-9\-]+$/i.test(e); }) &&
+      TLDs.indexOf(url[url.length - 1]) !== -1;
+  };
+})());
 
 definePrototype(String, 'embedString', function(string) {
   return this.split('%s').join(string);
 });
 
 definePrototype(String, 'convertLink', function() {
-  var url = this.trimAround();
-  if (url.length === 0) {
-    return 'chrome://newtab';
+  if (this.validURL) {
+    return this.replace(/[#\/].*/, function(e) {
+      return e.split('/').map(encodeURIComponent);
+    });
   }
-  if (/^\//.test(url)) {
-    url = 'file://' + url;
-  }
-  if (/^(chrome|chrome-extension|file):\/\/\S+$/.test(url)) {
-    return url;
-  }
-  var pattern = new RegExp('^((https?|ftp):\\/\\/)?'+
-    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+
-    '((\\d{1,3}\\.){3}\\d{1,3})|'+
-    'localhost)' +
-    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+
-    '(\\?[;&a-z\\d%_.~+=-]*)?'+
-    '(\\#[-a-z\\d_]*)?$','i');
-  if (pattern.test(url)) {
-    return (/:\/\//.test(url) ? '' : 'http://') + url;
-  }
-  return 'https://www.google.com/search?q=' + url;
+  return 'https://www.google.com/search?q=' + encodeURIComponent(this);
 });
 
 var matchLocation = function(url, pattern) { // Uses @match syntax
