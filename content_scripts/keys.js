@@ -434,16 +434,15 @@ KeyHandler.listener = new KeyListener(KeyHandler.down);
 
 removeListeners = function() {
   KeyHandler.listenersActive = false;
-  document.removeEventListener('keyup', KeyHandler.up, true);
+  window.removeEventListener('keyup', KeyHandler.up, true);
   KeyHandler.listener.deactivate();
 };
 
 addListeners = function() {
-  if (KeyHandler.listenersActive) {
+  if (KeyHandler.listenersActive)
     removeListeners();
-  }
   KeyHandler.listenersActive = true;
-  document.addEventListener('keyup', KeyHandler.up, true);
+  window.addEventListener('keyup', KeyHandler.up, true);
   KeyHandler.listener.activate();
 };
 
