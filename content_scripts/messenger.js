@@ -169,7 +169,7 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
       sessions = request.sessions;
       break;
     case 'nextCompletionResult':
-      if (settings.cncpcompletion && Command.type === 'action' && commandMode && document.activeElement.id === 'cVim-command-bar-input') {
+      if (settings.cncpcompletion && Command.commandBarFocused() && Command.type === 'action') {
         Search.nextResult();
         break;
       }
@@ -180,9 +180,8 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
     case 'deleteBackWord':
       if (!insertMode && document.activeElement.isInput()) {
         Mappings.insertFunctions.deleteWord();
-        if (document.activeElement.id === 'cVim-command-bar-input') {
+        if (Command.commandBarFocused())
           Command.complete(Command.input.value);
-        }
       }
       break;
     case 'getFilePath':

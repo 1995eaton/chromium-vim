@@ -160,6 +160,9 @@ var KeyListener = (function() {
       // will not be stopped. preventDefault on the other hand, can be.
       } else if (commandMode || (!insertMode && mappingTrie.at(Mappings.queue + KeyEvents.keyhandle(event, 'keydown'))))
       {
+        if (Command.commandBarFocused() && event.which >= 37 && event.which <= 40) {
+          event.preventDefault();
+        }
         KeyEvents.lastHandledEvent = event;
         event.stopPropagation();
       }
@@ -249,7 +252,7 @@ KeyHandler.down = function(key, event) {
     Cursor.wiggleWindow();
   }
 
-  if (Command.active && document.activeElement && document.activeElement.id === 'cVim-command-bar-input') {
+  if (Command.commandBarFocused()) {
     event.stopPropagation();
   }
 
@@ -310,7 +313,7 @@ KeyHandler.down = function(key, event) {
     }
   }
 
-  if (commandMode && document.activeElement.id === 'cVim-command-bar-input') {
+  if (Command.commandBarFocused()) {
     window.setTimeout(function() {
       Command.lastInputValue = Command.input.value;
     }, 0);
@@ -407,7 +410,7 @@ KeyHandler.down = function(key, event) {
   if (settings && settings.insertmappings && isInput) {
     Mappings.insertCommand(key, function() {
       event.preventDefault();
-      if (document.activeElement.id === 'cVim-command-bar-input' && Command.type !== 'search') {
+      if (Command.commandBarFocused() && Command.type !== 'search') {
         window.setTimeout(function() {
           Command.complete(Command.input.value);
         }, 0);
@@ -418,7 +421,7 @@ KeyHandler.down = function(key, event) {
 };
 
 KeyHandler.up = function(event) {
-  if ((document.activeElement && document.activeElement.id === 'cVim-command-bar-input') || (!insertMode && Mappings.queue.length && Mappings.validMatch)) {
+  if (Command.commandBarFocused() || (!insertMode && Mappings.queue.length && Mappings.validMatch)) {
     event.stopPropagation();
     event.preventDefault();
   }

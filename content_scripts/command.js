@@ -23,11 +23,6 @@ Command.setup = function() {
   this.bar.appendChild(this.modeIdentifier);
   this.bar.appendChild(this.input);
   this.bar.spellcheck = false;
-  // this.input.addEventListener('blur', function() { // Possible fix for #43
-  //   window.setTimeout(function() {
-  //     Command.hide.call(Command);
-  //   }, 0);
-  // });
   try {
     document.lastChild.appendChild(this.bar);
     document.lastChild.appendChild(this.statusBar);
@@ -55,6 +50,11 @@ Command.setup = function() {
       this.data.style.top = this.barHeight + 'px';
     }
   }
+};
+
+Command.commandBarFocused = function() {
+  return commandMode && this.active && document.activeElement &&
+    document.activeElement.id === 'cVim-command-bar-input';
 };
 
 Command.history = {
@@ -756,7 +756,7 @@ Command.show = function(search, value) {
     this.input.focus();
 
     // Temp fix for Chromium issue in #97
-    if (document.activeElement.id === 'cVim-command-bar-input') {
+    if (this.commandBarFocused()) {
       document.activeElement.select();
       document.getSelection().collapseToEnd();
     }
@@ -822,7 +822,7 @@ Command.onDOMLoad = function() {
     var initialFocus = window.setInterval(function() {
       if (document.activeElement) {
         if (/input|textarea/i.test(document.activeElement.localName) && !manualFocus &&
-            document.activeElement.id !== 'cVim-command-bar-input') {
+            !Command.commandBarFocused()) {
           document.activeElement.blur();
         }
       }

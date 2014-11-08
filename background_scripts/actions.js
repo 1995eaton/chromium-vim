@@ -254,12 +254,8 @@ Actions = (function() {
     if (sender.tab.incognito === false) {
       History.append(request.value, request.type);
       chrome.tabs.query({}, function(tabs) {
-        var hist = {};
-        for (var i = 0; i < History.historyTypes.length; ++i) {
-          hist[History.historyTypes[i]] = localStorage[History.historyTypes[i]].split(',');
-        }
         tabs.forEach(function(tab) {
-          chrome.tabs.sendMessage(tab.id, {action: 'commandHistory', history: hist});
+          chrome.tabs.sendMessage(tab.id, {action: 'commandHistory', history: History.commandHistory});
         });
       });
     }
@@ -597,14 +593,7 @@ Actions = (function() {
   };
 
   _.retrieveAllHistory = function() {
-    var hist = {};
-    for (var i = 0; i < History.historyTypes.length; ++i) {
-      if (localStorage[History.historyTypes[i]] === void 0) {
-        localStorage[History.historyTypes[i]] = '';
-      }
-      hist[History.historyTypes[i]] = localStorage[History.historyTypes[i]].split(',');
-    }
-    callback({type: 'commandHistory', history: hist});
+    callback({type: 'commandHistory', history: History.commandHistory});
   };
 
   _.getBookmarkPath = function() {

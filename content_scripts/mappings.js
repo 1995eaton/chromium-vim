@@ -420,14 +420,12 @@ Mappings.actions = {
     }
   },
   nextCompletionResult: function() {
-    if (commandMode && document.activeElement.id === 'cVim-command-bar-input' && Command.type === 'action') {
+    if (Command.commandBarFocused())
       Search.nextResult(false);
-    }
   },
   previousCompletionResult: function() {
-    if (commandMode && document.activeElement.id === 'cVim-command-bar-input' && Command.type === 'action') {
+    if (Command.commandBarFocused())
       Search.nextResult(true);
-    }
   },
   addQuickMark: function() {
     Marks.addQuickMark(Mappings.lastCommand.queue.slice(-1));

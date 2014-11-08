@@ -3,21 +3,26 @@ var History = {
   historyTypes: ['action', 'url', 'search'],
   searchResults: null,
   historyStore: [],
+  commandHistory: {},
   shouldRefresh: false,
 
+  saveCommandHistory: function() {
+    Object.keys(this.commandHistory).forEach(function(e) {
+      localStorage[e] = JSON.stringify(this.commandHistory[e]);
+    }.bind(this));
+  },
+
   append: function(value, type) {
-    if (!localStorage[type] || localStorage[type] === '') {
-      localStorage[type] = value;
-    } else {
-      localStorage[type] += ',' + value;
+    if (~this.historyTypes.indexOf(type)) {
+      this.commandHistory[type].push('' + value);
+      this.commandHistory[type] =
+        this.commandHistory[type].splice(-500);
+      this.saveCommandHistory();
     }
   },
 
   retrieve: function(type) {
-    if (!localStorage[type]) {
-      localStorage[type] = '';
-    }
-    return [type, localStorage[type].split(',')];
+    return [type, this.commandHistory[type]];
   },
 
   refreshStore: function() {
@@ -37,5 +42,17 @@ var History = {
   }
 
 };
+
+(function() {
+  History.historyTypes.forEach(function(type) {
+    var data = localStorage[type];
+    try {
+      data = JSON.parse(data);
+    } catch (e) {
+      data = typeof data === 'string' ? data.split(',') : [];
+    }
+    History.commandHistory[type] = data;
+  });
+})();
 
 History.refreshStore();

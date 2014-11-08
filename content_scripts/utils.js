@@ -191,6 +191,12 @@ definePrototype(String, 'validURL', (function() {
     if (~url.indexOf(' ')) {
       return false;
     }
+    var protocol = (url.match(/^([^:]+):\/\//) || [''])[0];
+    if (protocol === 'file://' ||
+        protocol === 'chrome-extension://' ||
+        protocol === 'chrome://') {
+      return true;
+    }
     url = url.replace(/^[^:]+:\/\//, '')
              .replace(/[#\/].*/g, '')
              .split('.');
@@ -213,7 +219,7 @@ definePrototype(String, 'embedString', function(string) {
 definePrototype(String, 'convertLink', function() {
   if (this.validURL()) {
     var url = this.replace(/[#\/].*/, function(e) {
-      return e.split('/').map(encodeURIComponent);
+      return e.split('/').map(encodeURIComponent).join('/');
     });
     return (!~url.indexOf('://') ? 'http://' : '') + url;
   }
