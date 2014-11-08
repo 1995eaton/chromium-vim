@@ -211,10 +211,11 @@ definePrototype(String, 'embedString', function(string) {
 });
 
 definePrototype(String, 'convertLink', function() {
-  if (this.validURL) {
-    return this.replace(/[#\/].*/, function(e) {
+  if (this.validURL()) {
+    var url = this.replace(/[#\/].*/, function(e) {
       return e.split('/').map(encodeURIComponent);
     });
+    return (!~url.indexOf('://') ? 'http://' : '') + url;
   }
   return 'https://www.google.com/search?q=' + encodeURIComponent(this);
 });
