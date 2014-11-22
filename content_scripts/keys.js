@@ -97,8 +97,13 @@ var KeyListener = (function() {
     }
     modifiers = modifiers.filter(function(e) { return e; });
     if (modifiers.length) {
-      key = '<' + modifiers.join('-') + '-' + key + '>';
-    } else if (typeof codeMap[event.which.toString()] === 'string' || isFKey) {
+      if (Array.isArray(codeMap[event.which]) && modifiers[0] === 'S') {
+        key = codeMap[event.which][1];
+      } else {
+        key = '<' + modifiers.join('-') + '-' + key + '>';
+      }
+    } else if (key.length !== 1 &&
+        (typeof codeMap[event.which.toString()] === 'string' || isFKey)) {
       key = '<' + (event.shiftKey ? 'S-' : '') + key + '>';
     }
     return key;
@@ -134,6 +139,8 @@ var KeyListener = (function() {
 
     keydown: function(callback, event) {
 
+      var keyString = KeyEvents.keyhandle(event, 'keydown');
+
       // Alt key hint focus toggle
       if (Hints.active && event.which === 18) {
         return Hints.changeFocus();
@@ -158,7 +165,8 @@ var KeyListener = (function() {
         return callback(code, event);
       // Ugly, but this NEEDS to be checked before setTimeout is called. Otherwise, non-cVim keyboard listeners
       // will not be stopped. preventDefault on the other hand, can be.
-      } else if (commandMode || (!insertMode && mappingTrie.at(Mappings.queue + KeyEvents.keyhandle(event, 'keydown'))))
+      } else if (commandMode || (!insertMode && mappingTrie.at(Mappings.queue + keyString)) ||
+          (keyString[0] >= '0' && keyString[0] <= '9'))
       {
         if (Command.commandBarFocused() && event.which >= 37 && event.which <= 40) {
           event.preventDefault();
