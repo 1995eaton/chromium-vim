@@ -1,5 +1,8 @@
 #cVim Changelog
 
+## 1.2.63
+ * Fix for Google search and the `:` key (and some others)
+
 ## 1.2.62
  * Added autoupdategist option
  * Added lastUsedTab command
