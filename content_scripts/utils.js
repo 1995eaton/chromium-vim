@@ -218,10 +218,7 @@ definePrototype(String, 'embedString', function(string) {
 
 definePrototype(String, 'convertLink', function() {
   if (this.validURL()) {
-    var url = this.replace(/[#\/].*/, function(e) {
-      return e.split('/').map(encodeURIComponent).join('/');
-    });
-    return (!~url.indexOf('://') ? 'http://' : '') + url;
+    return (!~this.indexOf('://') ? 'http://' : '') + this;
   }
   return 'https://www.google.com/search?q=' + encodeURIComponent(this);
 });

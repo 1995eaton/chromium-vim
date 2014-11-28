@@ -307,7 +307,7 @@ Actions = (function() {
     }
     paste = paste.split('\n').filter(function(e) { return e.trim(); });
     if (paste.length && paste[0].convertLink() !== paste[0]) {
-      paste = encodeURIComponent(paste.join('\n'));
+      paste = paste.join('\n');
       return chrome.tabs.create({
         url: paste.convertLink(),
         index: sender.tab.index + 1
