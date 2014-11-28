@@ -240,28 +240,26 @@ Settings.saveSettings = function() {
 
 Settings.editMode = function(e) {
   if (this.cssEl) {
-    if (e.target.value === 'Vim') {
-      this.cssEl.setOption('keyMap', 'vim');
-    } else {
-      this.cssEl.setOption('keyMap', 'default');
-    }
+    this.cssEl.setOption('keyMap',
+        e.target.value === 'Vim' ? 'vim' : 'default');
   }
 };
 
 Settings.syncGist = function() {
-  var url = this.gistUrl.value;
-  if (url.trim() === '') {
-    return false;
+  var url = new URL(this.gistUrl.value.trimAround());
+  if (url.hostname === 'gist.github.com') {
+    url.hostname = 'gist.githubusercontent.com';
+    url.pathname += '/raw';
+  } else if (url.hostname === 'github.com') {
+    url.hostname = 'raw.githubusercontent.com';
+    var path = url.pathname.split('/').compress();
+    if (path[path.length - 3] === 'blob')
+      path.splice(path.length - 3, 1);
+    url.pathname = path.join('/');
   }
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', url + (url.indexOf('raw') === -1 &&
-        url.indexOf('github') !== -1 ? '/raw' : ''));
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState === 4 && xhr.status === 200) {
-      document.getElementById('mappings').value = xhr.responseText;
-    }
-  };
-  xhr.send();
+  httpRequest({url: url.toString()}, function(res) {
+    this.rcEl.value = res;
+  }.bind(this));
 };
 
 Settings.init = function() {
