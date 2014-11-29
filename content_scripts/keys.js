@@ -133,7 +133,7 @@ var KeyListener = (function() {
       if (Object.compare(event, KeyEvents.lastHandledEvent,
             ['which', 'ctrlKey', 'shiftKey', 'metaKey', 'altKey'])) {
         KeyEvents.lastHandledEvent = null;
-        event.stopPropagation();
+        event.stopImmediatePropagation();
       }
     },
 
@@ -158,7 +158,7 @@ var KeyListener = (function() {
         var code = KeyEvents.keyhandle(event, 'keydown');
         for (var key in Mappings.defaults) {
           if (Mappings.defaults[key].indexOf(code) !== -1) {
-            event.stopPropagation();
+            event.stopImmediatePropagation();
             break;
           }
         }
@@ -172,7 +172,7 @@ var KeyListener = (function() {
           event.preventDefault();
         }
         KeyEvents.lastHandledEvent = event;
-        event.stopPropagation();
+        event.stopImmediatePropagation();
       }
 
       // Create a temporary keypress listener to check if a keycode contains an
@@ -184,7 +184,7 @@ var KeyListener = (function() {
           // use it if the setTimeout function below hasn't already timed out
           if (Hints.active || Visual.caretModeActive || Visual.visualModeActive) {
             event.preventDefault();
-            event.stopPropagation();
+            event.stopImmediatePropagation();
           }
           keypressTriggered = true;
           callback(KeyEvents.keyhandle(event, 'keypress'), event);
@@ -199,7 +199,7 @@ var KeyListener = (function() {
         if (!keypressTriggered) { // keypress match wasn't found
           if (Hints.active || Visual.caretModeActive || Visual.visualModeActive) {
             event.preventDefault();
-            event.stopPropagation();
+            event.stopImmediatePropagation();
           }
           callback(KeyEvents.keyhandle(event, 'keydown'), event);
         }
@@ -241,7 +241,7 @@ KeyHandler.down = function(key, event) {
   KeyHandler.shiftKey = event.shiftKey;
 
   if (Hints.active) {
-    event.stopPropagation();
+    event.stopImmediatePropagation();
     if (event.which === 18) {
       return Hints.changeFocus();
     } else if (event.which === 191) {
@@ -251,7 +251,7 @@ KeyHandler.down = function(key, event) {
   }
 
   if (Hints.keyDelay) {
-    event.stopPropagation();
+    event.stopImmediatePropagation();
     return event.preventDefault();
   }
 
@@ -261,13 +261,13 @@ KeyHandler.down = function(key, event) {
   }
 
   if (Command.commandBarFocused()) {
-    event.stopPropagation();
+    event.stopImmediatePropagation();
   }
 
   escapeKey = key === '<Esc>' || key === '<C-[>';
 
   if (Visual.caretModeActive || Visual.visualModeActive) {
-    event.stopPropagation();
+    event.stopImmediatePropagation();
     Visual.selection = document.getSelection();
     if (event.which === 8) {
       event.preventDefault();
@@ -299,7 +299,7 @@ KeyHandler.down = function(key, event) {
       return Mappings.actions.inputFocused = false;
     }
     event.preventDefault();
-    event.stopPropagation();
+    event.stopImmediatePropagation();
     Mappings.actions.inputElementsIndex = ((event.shiftKey ? -1 : 1) + Mappings.actions.inputElementsIndex).mod(Mappings.actions.inputElements.length);
     Mappings.actions.inputElements[Mappings.actions.inputElementsIndex].focus();
     if (Mappings.actions.inputElements[Mappings.actions.inputElementsIndex].getAttribute('readonly')) {
@@ -313,11 +313,11 @@ KeyHandler.down = function(key, event) {
   if (!isInput) {
     if (Mappings.queue.length) {
       event.preventDefault();
-      event.stopPropagation();
+      event.stopImmediatePropagation();
     }
     if (Mappings.convertToAction(key)) {
       event.preventDefault();
-      return event.stopPropagation();
+      return event.stopImmediatePropagation();
     }
   }
 
@@ -430,7 +430,7 @@ KeyHandler.down = function(key, event) {
 
 KeyHandler.up = function(event) {
   if (Command.commandBarFocused() || (!insertMode && Mappings.queue.length && Mappings.validMatch)) {
-    event.stopPropagation();
+    event.stopImmediatePropagation();
     event.preventDefault();
   }
   if (Hints.active && event.which === 191) {
