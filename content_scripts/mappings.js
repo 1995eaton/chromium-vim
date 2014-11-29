@@ -888,7 +888,7 @@ Mappings.convertToAction = function(key) {
   }
 
   if (/^[0-9]$/.test(key) &&
-      !currentTrieNode.at(key) &&
+      !(currentTrieNode.at(key) && this.repeats === '') &&
       !(key === '0' && this.repeats === '')) {
     this.repeats += key;
     return;
