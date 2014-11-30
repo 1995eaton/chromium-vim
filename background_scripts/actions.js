@@ -8,6 +8,9 @@ Actions = (function() {
 
   _.updateLastCommand = function() {
     lastCommand = request.data;
+    if (!lastCommand) {
+      return;
+    }
     chrome.tabs.query({currentWindow: true}, function(tabs) {
       tabs.forEach(function(tab) {
         chrome.tabs.sendMessage(tab.id, {
