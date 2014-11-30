@@ -1,118 +1,142 @@
 {
-  function extend(a, b) {
-    for (var key in b) {
-      if (key === 'MAPPINGS') {
-        a.MAPPINGS = a.MAPPINGS || '';
-        a.MAPPINGS += '\n' + b.MAPPINGS;
-      } else if (typeof a[key] === 'object' && typeof b[key] === 'object' && !Array.isArray(b)) {
-        extend(a[key], b[key]);
+  function merge(a, b) {
+    for (var p in b) {
+      if (typeof b[p] === 'object' && !Array.isArray(b[p])) {
+        if (!a.hasOwnProperty(p)) {
+          a[p] = {};
+        }
+        merge(a[p], b[p]);
       } else {
-        a[key] = b[key];
+        a[p] = b[p];
       }
     }
   }
-  function parseScope(a) {
-    var OBJ = {};
-    if (Array.isArray(a)) {
-      a.forEach(function(e) {
-        extend(OBJ, e);
-      });
-    } else {
-      extend(OBJ, a);
-    }
-    return OBJ;
+  function parseScope(data) {
+    var result = {MAPPINGS: []};
+    data.forEach(function(e) {
+      if (e.MAPPINGS) {
+        result.MAPPINGS.push(e.MAPPINGS);
+      } else {
+        merge(result, e);
+      }
+    });
+    result.MAPPINGS = result.MAPPINGS.join('\n');
+    return result;
+  }
+  function objectPlural(key) {
+    var replacements = {
+      qmark: 's',
+      searchengine: 's',
+      searchalias: 'es'
+    };
+    if (replacements.hasOwnProperty(key))
+      key += replacements[key];
+    return key;
   }
 }
 
 Start
-  = a:Scope { return parseScope(a); }
+  = a:Scope { return a; }
 
-ANY = [^.]
-WS = [\t ]
 EOF = !.
-EOL = [\n]+
-END
-  = WS* Comment? EOL
-  / EOF
-WSB = WS / Break { return ''; }
-LET = "let"
-MAP = "remap" / "map" / "imap"
-UNMAP = "unmap" / "iunmap"
-SET = "set"
-SITE = "site"
-VARLETTER = [a-zA-Z_]
-VAR = a:VARLETTER+ { return a.join(''); }
-Comment = '"' [^\n]*
+EOL = [\n\r]
+WhiteSpace = [ \t]
+__ = (EOL / WhiteSpace)*
+MapIdentifier = a:(!WhiteSpace !EOL .)+ { return text(); }
+SEPVAL
+  = WhiteSpace* EOL+ WhiteSpace* "\\" WhiteSpace* { return null; }
+  / WhiteSpace+ { return null; }
+SEP
+  = SEPVAL+
 
-Break
-  = [\n] WS* '\\' { return ''; }
+Identifier = [a-zA-Z_$][a-zA-Z_$0-9]* { return text(); }
 
-Scope
-  = WS* EOL EOF { return null; }
-  / WS* EOL b:(Scope / EOF) { return b || null; }
-  / WS* a:(Expression END) WS* b:Scope { return [a[0]].concat(b); }
-  / WS* a:Expression END WS* { return a; }
+LET    = 'let'
+SET    = 'set'
+SITE   = 'site'
+CALL   = 'call'
+MAP    = 'map'
+IMAP   = 'imap'
+UNMAP  = 'unmap'
+IUNMAP = 'iunmap'
 
-StringEscape
-  = "\\" a:. { return a; }
+StringCharacter
+  = '\\' a:[^\n] { return a; }
+  / [^\n]
+  / SEP { return ''; }
 
-String
-  = '"' + a:(StringEscape / Break / [^"\n])* '"' { return a.join(''); }
-  / "'" + a:(StringEscape / Break / [^'\n])* "'" { return a.join(''); }
+DoubleStringCharacter
+  = !'"' a:StringCharacter { return a; }
+SingleStringCharacter
+  = !'\'' a:StringCharacter { return a; }
 
-ArrayLoop
-  = WSB* a:Object WSB* "," WSB* "]" { return a; }
-  / WSB* a:Object WSB* "," b:ArrayLoop { return [a].concat(b); }
-  / WSB* a:Object WSB* "]" { return [a]; }
+StringLiteral
+  = '"' a:DoubleStringCharacter* '"' { return a.join(''); }
+  / '\'' a:SingleStringCharacter* '\'' { return a.join(''); }
 
-Array
-  = "[" a:ArrayLoop { return a; }
-  / "[" WSB* "]" { return []; }
+IntegerLiteral
+  = '0' { return 0; }
+  / [1-9][0-9]* { return parseInt(text(), 10); }
 
-Integer
-  = a:[1-9]+ b:[0-9]* { return parseInt(a.join('') + b.join(''), 10); }
-  / "0" { return 0; }
+ArrayList
+  = SEP? a:Expression SEP? ',' b:ArrayList SEP? { return [a].concat(b); }
+  / SEP? a:Expression SEP? { return a; }
 
-Decimal
-  = a:Integer "." b:[0-9]+ { return a + parseFloat('.' + b.join('')); }
-
-Number
-  = Decimal
-  / Integer
-
-Object
-  = String
-  / Array
-  / Number
+ArrayLiteral
+  = '[' a:ArrayList ']' { return a; }
+  / '[' SEP? ']' { return []; }
 
 Expression
-  = WSB* SITE WSB+ a:String WSB+ "{" ("\n" / WS)* b:Scope END* WSB* "}" WSB* {
-    var result = {
-      sites: {}
-    };
-    result.sites[a] = parseScope(b);
-    console.log(b);
-    return result;
+  = StringLiteral
+  / IntegerLiteral
+  / ArrayLiteral
+
+LetStatement
+  = LET SEP a:Identifier SEP? '=' SEP? b:Expression {
+    var r = {}; r[a] = b; return r;
   }
-  / WSB* LET WSB+ a:VAR WSB+ b:VAR WSB* "=" WSB* c:Object {
-    var result = {};
-    a += a.charAt(a.length - 1) === 's' ? 'es' : 's';
-    result[a] = {};
-    result[a][b] = c;
-    return result;
+  / LET SEP a:Identifier SEP b:Identifier SEP? '=' SEP? c:Expression {
+    a = objectPlural(a);
+    var r = {}; r[a] = {}; r[a][b] = c; return r;
   }
-  / WSB* Comment WSB* { return null; }
-  / WSB* LET WSB+ a:VAR WSB* "=" WSB* b:Object { var result = {}; result[a] = b; return result; }
-  / WSB* a:MAP WSB* b:[^ ]+ WSB* c:[^\n]+ {
-    return {
-      MAPPINGS: [a, b.join(''), c.join('')].join(' ')
-    };
+
+SetStatement
+  = SET SEP 'no' a:Identifier { var r = {}; r[a] = false; return r; }
+  / SET SEP !'no' a:Identifier { var r = {}; r[a] = true; return r; }
+
+SiteStatement
+  = SITE SEP a:StringLiteral SEP? '{' WhiteSpace* EOL b:Scope '}' {
+    var r = {sites: {}}; r.sites[a] = b; return r;
   }
-  / WSB* a:UNMAP WSB* b:[^ \n]+ WSB* {
-    return {
-      MAPPINGS: [a, b.join('')].join(' ')
-    };
+
+UnmapStatement
+  = a:(UNMAP / IUNMAP) SEP b:MapIdentifier {
+    return { MAPPINGS: a + ' ' + b };
   }
-  / WSB* SET WSB+ "no" a:VAR WS* { var result = {}; result[a] = false; return result; }
-  / WSB* SET WSB+ !"no" a:VAR WS* { var result = {}; result[a] = true; return result; }
-  / WSB* '\\' WSB* { return null; }
+
+MapStatement
+  = a:(MAP / IMAP) SEP b:MapIdentifier SEP c:[^\n]* {
+    return { MAPPINGS: [a, b, c.join('')].join(' ') };
+  }
+
+CallStatement
+  = CALL SEP a:[^\n]* {
+    return { MAPPINGS: 'call ' + a.join('') };
+  }
+
+StatementValue
+  = LetStatement
+  / SetStatement
+  / SiteStatement
+  / ('unmapAll' / 'iunmapAll') {
+    return {MAPPINGS: text() };
+  }
+  / CallStatement
+  / MapStatement
+  / UnmapStatement
+
+Statement
+  = __ a:StatementValue WhiteSpace* (EOF / EOL __) { return a; }
+
+Scope
+  = a:Statement* { return parseScope(a); }

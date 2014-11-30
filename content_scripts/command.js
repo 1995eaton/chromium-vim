@@ -880,7 +880,8 @@ Command.updateSettings = function(config) {
 Command.addSettingBlock = function(config) {
   for (var key in config) {
     if (key === 'MAPPINGS') {
-      Mappings.parseCustom(settings.MAPPINGS + config[key]);
+      settings.MAPPINGS += '\n' + config[key];
+      Mappings.parseCustom(settings.MAPPINGS);
     } else if (config[key].constructor === Object) {
       settings[key] = Object.extend(settings[key], config[key]);
     } else {

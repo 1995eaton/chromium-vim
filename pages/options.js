@@ -2,15 +2,13 @@ var Settings = {};
 
 Settings.checkConfig = function(config) {
   for (var key in config) {
-    if (config[key].constructor === Settings.settings[key].constructor) {
-      if (key === 'MAPPINGS') {
-        Settings.settings.MAPPINGS = Settings.settings.MAPPINGS || '';
-        Settings.settings.MAPPINGS += '\n' + config[key];
-      } else if (config[key].constructor === Object) {
-        Settings.settings[key] = Object.extend(Settings.settings[key], config[key]);
-      } else {
-        Settings.settings[key] = config[key];
-      }
+    if (key === 'MAPPINGS') {
+      Settings.settings.MAPPINGS = Settings.settings.MAPPINGS || '';
+      Settings.settings.MAPPINGS += '\n' + config[key];
+    } else if (config[key].constructor === Object) {
+      Settings.settings[key] = Object.extend(Settings.settings[key], config[key]);
+    } else {
+      Settings.settings[key] = config[key];
     }
   }
 };
@@ -33,17 +31,11 @@ Settings.resetSettings = function() {
 };
 
 Settings.parseLines = function(value) {
-  value = value.split('\n');
-  for (var i = 0; i < value.length; i++) {
-    if (value[i].trim() === '') {
-      continue;
-    }
-    try {
-      this.checkConfig(RCParser.parse(value[i]));
-    } catch (e) {
-      console.error('Line ' + i + ': ' + e.message);
-      Status.setMessage('Error in cVimrc (line ' + i + ')', 2, 'error');
-    }
+  try {
+      this.checkConfig(RCParser.parse(value));
+  } catch (e) {
+    console.error('Line ' + e.line + ': ' + e.message);
+    Status.setMessage('Error in cVimrc (line ' + e.line + ')', 2, 'error');
   }
 };
 

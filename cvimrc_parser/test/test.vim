@@ -1,12 +1,9 @@
 set nosmoothscroll
 set nodimhintcharacters
 set noautofocus
-
-
 set cncpcompletion
 set nohud
 set typelinkhints
-map <BS> j
 let scrollduration = 250
 let homedirectory = '/home/jake'
 let searchlimit = 25
@@ -27,7 +24,6 @@ map <Space> l
 map <S-Space> h
 map <A-r> nextTab
 map <A-e> previousTab
-map <C-Space> closeTab
 map gq :restore<Space>
 map a<Space> z<Enter>
 map ab :bookmarks&<Space>
@@ -45,4 +41,10 @@ map aa :tabopen g<Space>
 map T :tabopen<CR>
 map , :set numerichints!<CR>
 map ga :settings<CR>
-let blacklists = ["http://localhost/*"]
+
+site '*://*/*' {
+  call :script [].slice.call(document.querySelectorAll('*[accesskey]')).forEach(function(e){e.removeAttribute('accesskey')});
+  call :script console.log(3);
+}
+
+let blacklists = ["http://localhost/*","http://lo-th.github.io/*"]
