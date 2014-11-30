@@ -352,4 +352,4 @@ Solving issues is always appreciated. If you're going to add a feature, it would
 1. Navigate to `chrome://extensions`
 1. Toggle into Developer Mode
 1. Click on "Load Unpacked Extension..."
-1. Select the Vimium directory.
+1. Select the cVim directory.
