@@ -14,6 +14,8 @@
   function parseScope(data) {
     var result = {MAPPINGS: []};
     data.forEach(function(e) {
+      if (e === null)
+        return;
       if (e.MAPPINGS) {
         result.MAPPINGS.push(e.MAPPINGS);
       } else {
@@ -43,6 +45,9 @@ EOL = [\n\r]
 WhiteSpace = [ \t]
 __ = (EOL / WhiteSpace)*
 MapIdentifier = a:(!WhiteSpace !EOL .)+ { return text(); }
+MapValue
+  = ':' [^\n]* { return text(); }
+  / Identifier
 SEPVAL
   = WhiteSpace* EOL+ WhiteSpace* "\\" WhiteSpace* { return null; }
   / WhiteSpace+ { return null; }
@@ -59,6 +64,9 @@ MAP    = 'map'
 IMAP   = 'imap'
 UNMAP  = 'unmap'
 IUNMAP = 'iunmap'
+
+Comment
+  = WhiteSpace* '"' [^\n]+ { return null; }
 
 StringCharacter
   = '\\' a:[^\n] { return a; }
@@ -134,9 +142,10 @@ StatementValue
   / CallStatement
   / MapStatement
   / UnmapStatement
+  / Comment
 
 Statement
-  = __ a:StatementValue WhiteSpace* (EOF / EOL __) { return a; }
+  = __ a:StatementValue Comment? WhiteSpace* (EOF / EOL __) { return a; }
 
 Scope
   = a:Statement* { return parseScope(a); }
