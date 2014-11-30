@@ -239,6 +239,7 @@ KeyHandler.down = function(key, event) {
 
   var escapeKey, isInput;
   KeyHandler.shiftKey = event.shiftKey;
+  KeyHandler.hasPressedKey = true; // noautofocus workaround for stopimmediatepropagation
 
   if (Hints.active) {
     event.stopImmediatePropagation();

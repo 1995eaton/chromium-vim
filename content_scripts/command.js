@@ -826,17 +826,13 @@ Command.onDOMLoad = function() {
           document.activeElement.blur();
         }
       }
-      if (manualFocus) {
+      if (manualFocus || KeyHandler.hasPressedKey) {
         window.clearInterval(initialFocus);
       }
     }, 5);
-    var initialKeyDown = window.addEventListener('keydown', function() {
+    var initialMouseDown = window.addEventListener('mousedown', function() {
       manualFocus = true;
-      document.removeEventListener('keydown', initialKeyDown, true);
-    }, true);
-    var initialMouseDown = document.addEventListener('mousedown', function() {
-      manualFocus = true;
-      document.removeEventListener('mousedown', initialMouseDown, true);
+      window.removeEventListener('mousedown', initialMouseDown, true);
     }, true);
   }
   this.setup();
