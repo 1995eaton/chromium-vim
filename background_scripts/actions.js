@@ -506,7 +506,11 @@ Actions = (function() {
   };
 
   _.runScript = function() {
-    chrome.tabs.executeScript(sender.tab.id, {code: request.code});
+    chrome.tabs.executeScript(sender.tab.id, {code: request.code}, function() {
+      if (!chrome.runtime.lastError) {
+        return true;
+      }
+    });
   };
 
   // Port actions
