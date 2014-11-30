@@ -1,6 +1,9 @@
 var Status = {
   defaultTimeout: 3,
   setMessage: function(message, timeout, type) {
+    if (!Command.domElementsLoaded) {
+      return;
+    }
     window.clearTimeout(this.delay);
     this.hide();
     if (timeout === void 0) {

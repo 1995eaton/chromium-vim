@@ -876,6 +876,20 @@ Command.updateSettings = function(config) {
   }
 };
 
+
+Command.addSettingBlock = function(config) {
+  for (var key in config) {
+    if (key === 'MAPPINGS') {
+      Mappings.parseCustom(settings.MAPPINGS + config[key]);
+    } else if (config[key].constructor === Object) {
+      settings[key] = Object.extend(settings[key], config[key]);
+    } else {
+      settings[key] = config[key];
+    }
+  }
+};
+
+
 Command.init = function(enabled) {
   var key;
   Mappings.defaults = Object.clone(Mappings.defaultsClone);
@@ -885,7 +899,7 @@ Command.init = function(enabled) {
     this.updateSettings(settings);
     for (key in settings.sites) {
       if (matchLocation(document.URL, key)) {
-        PORT('parseRC', {config: settings.sites[key]});
+        Command.addSettingBlock(settings.sites[key]);
       }
     }
     waitForLoad(this.onDOMLoad, this);
