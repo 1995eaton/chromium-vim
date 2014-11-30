@@ -1,5 +1,5 @@
 all:
-	./scripts/create_pages.js
+	node scripts/create_pages.js
 	cd ./cvimrc_parser && make
 
 release: all

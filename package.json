@@ -8,6 +8,7 @@
   },
   "private": true,
   "devDependencies": {
-      "marked": "0.3.2"
+    "marked": "0.3.2",
+    "pegjs": "latest"
   }
 }
