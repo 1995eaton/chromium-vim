@@ -262,8 +262,17 @@ Settings.syncGist = function() {
   }.bind(this));
 };
 
+function addVersionInfo() {
+  var el = document.getElementById('version-number');
+  var version = chrome.runtime.getManifest().version;
+  if (version) {
+    el.textContent = '(' + version + ')';
+  }
+}
+
 Settings.init = function() {
 
+  addVersionInfo();
   document.body.spellcheck = false;
   this.initialLoad = true;
 

@@ -173,3 +173,7 @@ textarea {
 textarea:hover, input:hover, textarea:focus, input:focus {
   opacity: 1;
 }
+
+#version-number {
+  color: #999;
+}
