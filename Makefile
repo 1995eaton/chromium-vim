@@ -1,8 +1,8 @@
 all:
 	./scripts/create_pages.js
 
-release:
+release: all
 	./scripts/build.sh
 
 clean:
-	rm -r release*
+	rm -rf release*
