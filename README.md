@@ -343,3 +343,15 @@ site '*://*/*.js' {
  * You can use @% in "open" commands to specify the current URL. For example, ":open @%" would essentially refresh the current page.
  * Prepend a number to the command to repeat that command N times
  * Use the up/down arrows in command/find mode to navigate through previously executed commands/searches -- you can also use this to search for previously executed commands starting with a certain combination of letters (for example, entering "ta" in the command bar and pressing the up arrow will search command history for all matches beginning with "ta"
+
+# Contributing
+
+Nice that you want to spend some time improving this extension.
+Solving issues is always appreciated. If you're going to add a feature, it would be best to [submit an issue](https://github.com/1995eaton/chromium-vim/issues). You'll get feedback whether it will likely be merged.
+
+1. Run `npm install` in the repository's root folder
+1. Run `make`
+1. Navigate to `chrome://extensions`
+1. Toggle into Developer Mode
+1. Click on "Load Unpacked Extension..."
+1. Select the cVim directory.
