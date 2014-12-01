@@ -169,8 +169,9 @@ Complete.convertToLink = function(input, isURL) {
     }
   } else {
     if (isURL || input.join(' ').validURL()) {
-      return (!/:\/\//.test(input.join(' ')) ? 'http://' : '') +
-        input.join(' ');
+      input = input.join(' ');
+      return (!/:\/\//.test(input) && input.indexOf('about:') ? 'http://' : '') +
+        input;
     }
     return (Complete.requestUrls[settings.defaultengine] ||
       Complete.requestUrls.google) + encodeURIComponent(input.join(' '));
@@ -181,7 +182,7 @@ Complete.convertToLink = function(input, isURL) {
     suffix = input.slice(1).join(' ');
   }
   if (suffix.validURL()) {
-    return suffix;
+    return suffix.convertLink();
   }
   return (prefix.indexOf('%s') !== -1 ?
             prefix.embedString(suffix) :
