@@ -68,8 +68,8 @@ Settings.syncGist = function() {
   } else if (url.hostname === 'github.com') {
     url.hostname = 'raw.githubusercontent.com';
     var path = url.pathname.split('/').compress();
-    if (path[path.length - 3] === 'blob')
-      path.splice(path.length - 3, 1);
+    if (path[2] === 'blob')
+      path.splice(2, 1);
     url.pathname = path.join('/');
   }
   httpRequest({url: url.toString()}, function(res) {
