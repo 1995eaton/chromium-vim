@@ -241,7 +241,7 @@ Command.deleteCompletions = function(completions) {
 Command.complete = function(value) {
   Search.index = null;
   this.typed = this.input.value;
-  value = value.replace(/(^[^\s&!*]+)[&!*]*/, '$1');
+  value = value.replace(/(^[^\s&!*?=]+)[&!*?=]*/, '$1');
   var search = value.replace(/^(chrome:\/\/|\S+ +)/, '');
 
   if (/^(tabnew|tabedit|tabe|tabopen|to|open|o|wo|new|winopen)(\s+)/.test(value)) {
@@ -414,23 +414,34 @@ Command.execute = function(value, repeats) {
   // ! == whether to open in a new tab or not
   // & == whether the tab will be active
   // * == whether the tab will be pinned
+  // = == force cVim to treat text as a URL
+  // ? == force cVim to tread text as a search
   var tab = {
-    isURL: value !== (value = value.replace(/^([^\s]+\s+)=/, '$1')),
-    active: value === (value = value.replace(/(^[^\s&]+)&([*!]*)/, '$1$2')),
-    pinned: value !== (value = value.replace(/(^[^\s*]+)\*([!]*)/, '$1$2')),
-    tabbed: value !== (value = value.replace(/(^[^\s!]+)!/, '$1'))
+    active: true,
+    isURL: false,
+    isLink: false,
+    pinned: false,
+    tabbed: false
   };
-  var glob = {
-    active: value === (value = value.replace(/&([*!]*)$/, '$1')),
-    pinned: value !== (value = value.replace(/\*([!]*)$/, '$1')),
-    tabbed: value !== (value = value.replace(/!$/, ''))
-  };
-  tab.active = tab.active && glob.active;
-  tab.pinned = tab.pinned || glob.pinned;
-  tab.tabbed = tab.tabbed || glob.tabbed;
-  if (!tab.active && !tab.tabbed) {
-    tab.tabbed = true;
-  }
+  (value.match(/^[^\s&!*=?]*([&!*=?]+)/) || [])
+    .concat(value.match(/[&!*=?]*$/) || [])
+    .join('').split('')
+    .forEach(function(e) {
+      switch (e) {
+        case '&': tab.active = false; break;
+        case '!': tab.tabbed = true;  break;
+        case '*': tab.pinned = true;  break;
+        case '?': tab.isLink = true;
+                  tab.isURL  = false; break;
+        case '=': tab.isLink = false;
+                  tab.isURL  = true;  break;
+      }
+    });
+  value = value.replace(/^([^\s&*!=?]*)[&*!=?]*\s/, '$1 ');
+  value = value.replace(/[&*!=?]+$/, function(e) {
+    return e.replace(/[^=?]/g, ''); });
+  if ( !~Complete.engines.indexOf(value.split(/\s+/g).compress()[1]) )
+    value = value.replace(/[=?]+$/, '');
 
   this.history.index = {};
 
@@ -576,7 +587,7 @@ Command.execute = function(value, repeats) {
   if (/^(new|winopen|wo)$/.test(value.replace(/ .*/, '')) && !/^\S+\s*$/.test(value)) {
     RUNTIME('openLinkWindow', {
       tab: tab,
-      url: Complete.convertToLink(value, tab.isURL),
+      url: Complete.convertToLink(value, tab.isURL, tab.isLink),
       repeats: repeats,
       noconvert: true
     });
@@ -593,7 +604,7 @@ Command.execute = function(value, repeats) {
     tab.tabbed = true;
     RUNTIME('openLink', {
       tab: tab,
-      url: Complete.convertToLink(value, tab.isURL),
+      url: Complete.convertToLink(value, tab.isURL, tab.isLink),
       repeats: repeats,
       noconvert: true
     });
@@ -603,7 +614,7 @@ Command.execute = function(value, repeats) {
   if (/^(o|open)$/.test(value.replace(/ .*/, '')) && !/^\S+\s*$/.test(value)) {
     RUNTIME('openLink', {
       tab: tab,
-      url: Complete.convertToLink(value, tab.isURL),
+      url: Complete.convertToLink(value, tab.isURL, tab.isLink),
       noconvert: true
     });
     return;

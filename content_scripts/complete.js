@@ -152,14 +152,14 @@ Complete.setLocale = function(locale) {
   }
 };
 
-Complete.convertToLink = function(input, isURL) {
+Complete.convertToLink = function(input, isURL, isLink) {
   var prefix, suffix;
-  input = input.replace(/@%/g, document.URL);
-  input = input.split(/\s+/).compress();
-  input.shift();
-  if (input.length === 0) {
+  input = input.replace(/@%/g, document.URL)
+               .split(/\s+/)
+               .compress()
+               .slice(1);
+  if (input.length === 0)
     return '';
-  }
   input[0] = this.getAlias(input[0]) || input[0];
   if (Complete.engines.indexOf(input[0]) !== -1) {
     if (input.length > 1) {
@@ -168,7 +168,7 @@ Complete.convertToLink = function(input, isURL) {
       return Complete.baseUrls[input[0]];
     }
   } else {
-    if (isURL || input.join(' ').validURL()) {
+    if (!isLink && (isURL || input.join(' ').validURL())) {
       input = input.join(' ');
       return (!/:\/\//.test(input) && input.indexOf('about:') ? 'http://' : '') +
         input;
@@ -184,9 +184,9 @@ Complete.convertToLink = function(input, isURL) {
   if (suffix.validURL()) {
     return suffix.convertLink();
   }
-  return (prefix.indexOf('%s') !== -1 ?
-            prefix.embedString(suffix) :
-            prefix + suffix);
+  return ~prefix.indexOf('%s') ?
+    prefix.embedString(suffix) :
+    prefix + suffix;
 };
 
 Complete.wikipedia = function(query, callback) {

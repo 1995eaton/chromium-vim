@@ -154,6 +154,8 @@ site '*://*/*.js' {
   * `!` => Open in a new tab
   * `&` => Open in a new tab (inactive/unfocused)
   * `*` => Pin the tab
+  * `?` => Treat the query as a search
+  * `=` => Treat the query as a URL
  * The use of these properties are best explained with examples:
 
 ```viml
