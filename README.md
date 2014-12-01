@@ -86,7 +86,7 @@ let searchengine dogpile = "http://www.dogpile.com/search/web?q=%s" "If you leav
 let completionengines = ["google", "amazon", "imdb", "dogpile"]
 let searchalias g = "google" "Create a shortcut for search engines. For example, typing ':tabnew g example' would act the same way as ':tabnew google example'
 let qmark a = ["http://www.reddit.com", "http://www.google.com", "http://twitter.com"]  "Open all of these in a tab with `gnb` or open one of these with <N>goa where <N>
-let blacklists = ["https://mail.google.com/*", "*://*.reddit.com/*"]
+let blacklists = ["https://mail.google.com/*", "*://mail.google.com/*"]
 let mapleader = ","
 
 " Mappings
@@ -94,21 +94,40 @@ let mapleader = ","
 map <Leader>r reloadTabUncached
 map <Leader>x :restore<Space>
 
-map j scrollUp "This remaps the default 'j' mapping
-map gb :buffer<Space> "You can use <Space>, which is interpreted as a literal " " character, to enter buffer completion mode
-unmap k "The unmaps the default 'k' mapping
+"This remaps the default 'j' mapping
+map j scrollUp
 
-map f F "This remaps the default 'f' mapping to the current 'F' mapping
+"You can use <Space>, which is interpreted as a literal " " character, to enter buffer completion mode
+map gb :buffer<Space>
 
-map <C-h> :set hud!<CR> "Toggle the current HUD display value
-map <C-i> :set numerichints!<CR> "Switch between alphabetical hint characters and numeric hints
+"The unmaps the default 'k' mapping
+unmap k
+
+"This remaps the default 'f' mapping to the current 'F' mapping
+map f F
+
+"Toggle the current HUD display value
+map <C-h> :set hud!<CR>
+
+"Switch between alphabetical hint characters and numeric hints
+map <C-i> :set numerichints!<CR>
+
 map <C-u> rootFrame
 map <M-h> previousTab
 map <C-d> scrollPageDown
 map <C-e> scrollPageUp
 iunmap <C-y>
 imap <C-m> deleteWord
-map X :execute gTx<CR> "Close the current tab and move to the one before it
+
+" Create a variable that can be used/referenced in the command bar
+let @@reddit_prog = 'http://www.reddit.com/r/programming'
+let @@top_all = 'top?sort=top&t=all'
+let @@top_day = 'top?sort=top&t=day'
+
+" TA binding opens 'http://www.reddit.com/r/programming/top?sort=top&t=all'
+" in a new tab
+map TA :to @@reddit_prog/@@top_all<CR>
+map TD :to @@reddit_prog/@@top_day<CR>
 ```
 
 ###Blacklists

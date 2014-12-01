@@ -41,6 +41,7 @@ map aa :tabopen g<Space>
 map T :tabopen<CR>
 map , :set numerichints!<CR>
 map ga :settings<CR>
+let @@a = 3
 
 site '*://*/*' {
   call :script [].slice.call(document.querySelectorAll('*[accesskey]')).forEach(function(e){e.removeAttribute('accesskey')});

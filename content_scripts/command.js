@@ -409,6 +409,10 @@ Command.complete = function(value) {
 
 Command.execute = function(value, repeats) {
 
+  value = value.replace(/@@[a-zA-Z_$][a-zA-Z0-9_$]*/g, function(e) {
+    return settings.hasOwnProperty(e) ? settings[e] : e;
+  });
+
   // Match commands like ':tabnew*&! search' before commands like ':tabnew search&*!'
   // e.g. :tabnew& google asdf* => opens a new pinned tab
   // ! == whether to open in a new tab or not
