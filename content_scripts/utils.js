@@ -193,14 +193,15 @@ definePrototype(String, 'validURL', (function() {
       return false;
     if (~url.search(/^about:[^:]/))
       return true;
-    var protocol = (url.match(/^([^:]+:)[^:]/) || [''])[0].slice(0, -1);
+    var protocol = (url.match(/^([a-zA-Z\-]+:)[^:]/) || [''])[0].slice(0, -1);
     var protocolMatch = PROTOCOLS.indexOf(protocol) !== -1;
-    url = url.replace(/.*:\/*/, '');
-    if (protocolMatch && /[a-zA-Z0-9@!]/.test(url))
+    if (protocolMatch)
+      url = url.replace(/^[a-zA-Z\-]+:\/*/, '');
+    url = url.replace(/(:[0-9]+)?([#\/].*|$)/g, '').split('.');
+    if (protocolMatch && /^[a-zA-Z0-9@!]+$/.test(url))
       return true;
-    if (protocol && !protocolMatch)
+    if (protocol && !protocolMatch && protocol !== 'localhost:')
       return false;
-    url = url.replace(/[#\/].*/g, '').split('.');
     var isIP = url.every(function(e) { // IP addresses
       return /^[0-9]+$/.test(e) && +e >= 0 && +e < 256;
     });
