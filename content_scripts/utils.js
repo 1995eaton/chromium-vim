@@ -218,7 +218,7 @@ definePrototype(String, 'embedString', function(string) {
 
 definePrototype(String, 'convertLink', function() {
   if (this.validURL()) {
-    return (!/^[a-zA-Z]+:/.test(this) ? 'http://' : '') + this;
+    return (!/^[a-zA-Z\-]+:/.test(this) ? 'http://' : '') + this;
   }
   return 'https://www.google.com/search?q=' + encodeURIComponent(this);
 });
