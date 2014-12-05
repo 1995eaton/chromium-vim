@@ -283,7 +283,7 @@ var decodeHTMLEntities = function(string) {
   return el.textContent;
 };
 
-var searchArray = function(array, search, limit, useRegex, fn) {
+var searchArray = function(array, search, limit, useRegex, fn, ignoreIndex) {
   if (search === '') {
     return array.slice(0, limit || settings.searchlimit);
   }
@@ -302,7 +302,7 @@ var searchArray = function(array, search, limit, useRegex, fn) {
   fn = fn || function(item) { return item; };
   for (var i = 0; i < array.length; i++) {
     var matchIndex = fn(array[i])[useRegex ? 'search' : 'indexOf'](search);
-    if (matchIndex === 0) {
+    if (!ignoreIndex && matchIndex === 0) {
       matches[0].push(array[i]);
       exactMatchCount++;
       if (exactMatchCount === limit) {

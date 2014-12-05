@@ -44,9 +44,6 @@ port.onMessage.addListener(function(response) {
           }
         }
       }
-      matches = matches.sort(function(a, b) {
-        return a[1].length - b[1].length;
-      });
       if (Command.historyMode) {
         if (Command.active && Command.bar.style.display !== 'none') {
           Command.completions = { history: matches };
