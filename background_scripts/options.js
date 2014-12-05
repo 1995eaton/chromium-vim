@@ -79,6 +79,12 @@ Options.saveSettings = function(request) {
 };
 
 Options.sendSettings = function() {
+  activePorts.forEach(function(port) {
+    port.postMessage({
+      type: 'sendSettings',
+      settings: Settings
+    });
+  });
   chrome.tabs.query({}, function(tabs) {
     for (var i = 0; i < tabs.length; ++i) {
       if (tabs[i]) {

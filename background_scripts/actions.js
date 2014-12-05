@@ -617,6 +617,25 @@ Actions = (function() {
     }
   };
 
+  _.getSettings = function() {
+    Options.refreshSettings(function() {
+      callback({
+        type: 'sendSettings',
+        settings: request.reset ? defaultSettings : Settings
+      });
+    });
+  };
+
+  _.setIconEnabled = function() {
+    chrome.browserAction.setIcon({
+      path: 'icons/38.png',
+      tabId: sender.tab.id
+    }, function() {
+      if (chrome.runtime.lastError)
+        return false;
+    });
+  };
+
   _.getFilePath = function() {
     Files.getPath(request.path, function(data) {
       chrome.tabs.sendMessage(sender.tab.id, {action: 'getFilePath', data: data});

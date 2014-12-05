@@ -2,6 +2,7 @@ var sessions = {},
     Frames = {},
     ActiveTabs = {},
     TabHistory = {},
+    activePorts = [],
     LastUsedTabs = [];
 
 var httpRequest = function(request) {
@@ -93,15 +94,27 @@ var Listeners = {
 
   extension: {
     onConnect: function(port) {
+      if (activePorts.indexOf(port) !== -1) {
+        return;
+      }
       port.postMessage({type: 'hello'});
+      activePorts.push(port);
       port.onMessage.addListener(function(request) {
-        Actions(request, null, port.postMessage.bind(port));
+        Actions(request, port.sender, port.postMessage.bind(port));
+      });
+      port.onDisconnect.addListener(function() {
+        for (var i = 0; i < activePorts.length; i++) {
+          if (activePorts[i] === port) {
+            activePorts.splice(i, 1);
+            break;
+          }
+        }
       });
     }
   },
 
   runtime: { onMessage: Actions },
-  
+
   commands: {
     onCommand: function(command) {
       switch (command) {

@@ -128,14 +128,18 @@ Settings.init = function() {
 
 document.addEventListener('DOMContentLoaded', Settings.init.bind(Settings));
 
-chrome.extension.onMessage.addListener(function(request) {
-  if (request.action === 'sendSettings') {
+port.onMessage.addListener(function(response) {
+  if (response.type === 'sendSettings') {
     if (Settings.initialLoad) {
       Settings.cssEl = CodeMirror.fromTextArea(document.getElementById('commandBarCSS'), {lineNumbers: true});
       Settings.initialLoad = false;
-      Settings.loadrc(request.settings);
+      Settings.loadrc(response.settings);
     }
-  } else if (request.action === 'sendDefaultSettings') {
+  }
+});
+
+chrome.extension.onMessage.addListener(function(request) {
+  if (request.action === 'sendDefaultSettings') {
     Settings.settings = request.settings;
     Settings.defaults = Object.clone(request.settings);
     Settings.parseLines(Settings.rcEl.value);

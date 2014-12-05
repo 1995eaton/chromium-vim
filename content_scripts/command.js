@@ -942,7 +942,6 @@ Command.init = function(enabled) {
 };
 
 Command.configureSettings = function(_settings) {
-
   settings = _settings;
   this.initialLoadStarted = true;
   var checkBlacklist = function() {
@@ -961,7 +960,7 @@ Command.configureSettings = function(_settings) {
   };
   var loadMain = function() {
     Command.loaded = true;
-    RUNTIME('setIconEnabled');
+    PORT('setIconEnabled');
     Command.init(true);
   };
   Search.settings = Object.keys(settings).filter(function(e) {
@@ -982,7 +981,3 @@ Command.configureSettings = function(_settings) {
     this.init(false);
   }
 };
-
-if (!Command.loaded) {
-  RUNTIME('getSettings');
-}

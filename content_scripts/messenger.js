@@ -16,6 +16,7 @@ port.onMessage.addListener(function(response) {
   var key;
   switch (response.type) {
     case 'hello':
+      port.postMessage({action: 'getSettings'});
       port.postMessage({action: 'getBookmarks'});
       port.postMessage({action: 'getQuickMarks'});
       port.postMessage({action: 'getSessionNames'});
@@ -108,6 +109,15 @@ port.onMessage.addListener(function(response) {
         delete response.config.MAPPINGS;
       }
       Command.updateSettings(response.config);
+      break;
+    case 'sendSettings':
+      Mappings.defaults = Object.clone(Mappings.defaultsClone);
+      if (!Command.initialLoadStarted) {
+        Command.configureSettings(response.settings);
+      } else {
+        Mappings.parseCustom(response.settings.MAPPINGS);
+        settings = response.settings;
+      }
       break;
   }
 });
