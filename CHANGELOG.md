@@ -1,5 +1,13 @@
 #cVim Changelog
 
+## 1.2.64
+ * Improved cVimrc parsing (with [PEG.js](http://pegjs.majda.cz/))
+  * The options page will now report errors on which line has improper syntax.
+You can check Chrome's JavaScript console for more info on what the error was
+and why it occurred.
+ * Better history searching
+ * Several bug fixes
+
 ## 1.2.63
  * Fix for Google search and the `:` key (and some others)
 
