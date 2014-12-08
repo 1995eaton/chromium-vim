@@ -37,7 +37,7 @@ var Scroll = {
     scroll.ty += time - scroll.tyo;
     scroll.tyo = time;
     $.scrollTo($.scrollX, delta);
-    if (scroll.ty <= scroll.dy) {
+    if (!holdKeyScroll && scroll.ty <= scroll.dy) {
       animationYFrame = $.requestAnimationFrame(scrollYFunction);
     } else {
       $.cancelAnimationFrame(animationYFrame);
@@ -53,7 +53,7 @@ var Scroll = {
     scroll.tx += time - scroll.txo;
     scroll.txo = time;
     $.scrollTo(delta, $.scrollY);
-    if (scroll.tx <= scroll.dx) {
+    if (!holdKeyScroll && scroll.tx <= scroll.dx) {
       animationXFrame = $.requestAnimationFrame(scrollXFunction);
     } else {
       $.cancelAnimationFrame(animationXFrame);
