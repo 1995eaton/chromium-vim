@@ -130,6 +130,7 @@ var KeyListener = (function() {
     },
 
     keyup: function(event) {
+      window.scrollKeyUp = true;
       if (Object.compare(event, KeyEvents.lastHandledEvent,
             ['which', 'ctrlKey', 'shiftKey', 'metaKey', 'altKey'])) {
         KeyEvents.lastHandledEvent = null;

@@ -6,6 +6,7 @@ var Scroll = {
 
   var animationYFrame, animationXFrame,
       scrollXFunction, scrollYFunction;
+  var holdKeyScroll = false;
 
   var easeFn = function(t, b, c, d) {
     return (t===d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b;
@@ -85,7 +86,26 @@ var Scroll = {
     }
   };
 
+  var holdFunction = function(dx, dy) {
+    return (function animationLoop() {
+      if ($.scrollKeyUp) {
+        holdKeyScroll = false;
+        return;
+      }
+      $.scrollBy(dx, dy);
+      $.requestAnimationFrame(animationLoop);
+    })();
+  };
+
   $.smoothScrollBy = function(x, y, d) {
+    if (!$.scrollKeyUp) {
+      if (!holdKeyScroll) {
+        holdKeyScroll = true;
+        holdFunction(x * 0.25, y * 0.25);
+      }
+      return;
+    }
+    $.scrollKeyUp = false;
     if (x) {
       var oldDx = scroll.x1 - scroll.xc;
       $.cancelAnimationFrame(animationXFrame);
@@ -107,6 +127,8 @@ var Scroll = {
       scrollYFunction();
     }
   };
+
+  $.scrollKeyUp = true;
 
 })(this);
 
