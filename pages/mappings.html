@@ -270,7 +270,7 @@ the command <code>&#39;set&#39; + no&lt;SETTING_NAME&gt;</code> (for example, <c
 </tr>
 <tr>
 <td>barposition</td>
-<td>string &lt;br&gt;[&quot;top&quot;, &quot;bottom&quot;]</td>
+<td>string [&quot;top&quot;, &quot;bottom&quot;]</td>
 <td>set the default position of the command bar</td>
 <td style="text-align:right">&quot;top&quot;</td>
 </tr>
@@ -280,17 +280,31 @@ the command <code>&#39;set&#39; + no&lt;SETTING_NAME&gt;</code> (for example, <c
 <pre><code class="lang-viml">&quot; Settings
 set nohud
 set nosmoothscroll
-set noautofocus &quot;The opposite of autofocus; this setting stops sites from focusing on an input box when they load
+set noautofocus &quot; The opposite of autofocus; this setting stops
+                &quot; sites from focusing on an input box when they load
 set typelinkhints
 let searchlimit = 30
 let scrollstep = 70
 let barposition = &quot;bottom&quot;
-let locale = &quot;uk&quot; &quot;Current choices are &#39;jp&#39; and &#39;uk&#39;. This allows cVim to use sites like google.co.uk or google.co.jp to search rather than google.com. Support is currently very limited. Let me know if you need a different locale for one of the completion/search engines
+
+let locale = &quot;uk&quot; &quot; Current choices are &#39;jp&#39; and &#39;uk&#39;. This allows cVim to use sites like google.co.uk
+                  &quot; or google.co.jp to search rather than google.com. Support is currently limited.
+                  &quot; Let me know if you need a different locale for one of the completion/search engines
 let hintcharacters = &quot;abc123&quot;
-let searchengine dogpile = &quot;http://www.dogpile.com/search/web?q=%s&quot; &quot;If you leave out the &#39;%s&#39; at the end of the URL, your query will be appended to the link. Otherwise, your query will replace the &#39;%s&#39;.
+
+let searchengine dogpile = &quot;http://www.dogpile.com/search/web?q=%s&quot; &quot; If you leave out the &#39;%s&#39; at the end of the URL,
+                                                                    &quot; your query will be appended to the link.
+                                                                    &quot; Otherwise, your query will replace the &#39;%s&#39;.
+
 let completionengines = [&quot;google&quot;, &quot;amazon&quot;, &quot;imdb&quot;, &quot;dogpile&quot;]
-let searchalias g = &quot;google&quot; &quot;Create a shortcut for search engines. For example, typing &#39;:tabnew g example&#39; would act the same way as &#39;:tabnew google example&#39;
-let qmark a = [&quot;http://www.reddit.com&quot;, &quot;http://www.google.com&quot;, &quot;http://twitter.com&quot;]  &quot;Open all of these in a tab with `gnb` or open one of these with &lt;N&gt;goa where &lt;N&gt;
+
+let searchalias g = &quot;google&quot; &quot; Create a shortcut for search engines.
+                             &quot; For example, typing &#39;:tabnew g example&#39;
+                             &quot; would act the same way as &#39;:tabnew google example&#39;
+
+&quot; Open all of these in a tab with `gnb` or open one of these with &lt;N&gt;goa where &lt;N&gt;
+let qmark a = [&quot;http://www.reddit.com&quot;, &quot;http://www.google.com&quot;, &quot;http://twitter.com&quot;]
+
 let blacklists = [&quot;https://mail.google.com/*&quot;, &quot;*://mail.google.com/*&quot;]
 let mapleader = &quot;,&quot;
 
@@ -299,22 +313,23 @@ let mapleader = &quot;,&quot;
 map &lt;Leader&gt;r reloadTabUncached
 map &lt;Leader&gt;x :restore&lt;Space&gt;
 
-&quot;This remaps the default &#39;j&#39; mapping
+&quot; This remaps the default &#39;j&#39; mapping
 map j scrollUp
 
-&quot;You can use &lt;Space&gt;, which is interpreted as a literal &quot; &quot; character, to enter buffer completion mode
+&quot; You can use &lt;Space&gt;, which is interpreted as a
+&quot; literal &quot; &quot; character, to enter buffer completion mode
 map gb :buffer&lt;Space&gt;
 
-&quot;The unmaps the default &#39;k&#39; mapping
+&quot; The unmaps the default &#39;k&#39; mapping
 unmap k
 
-&quot;This remaps the default &#39;f&#39; mapping to the current &#39;F&#39; mapping
+&quot; This remaps the default &#39;f&#39; mapping to the current &#39;F&#39; mapping
 map f F
 
-&quot;Toggle the current HUD display value
+&quot; Toggle the current HUD display value
 map &lt;C-h&gt; :set hud!&lt;CR&gt;
 
-&quot;Switch between alphabetical hint characters and numeric hints
+&quot; Switch between alphabetical hint characters and numeric hints
 map &lt;C-i&gt; :set numerichints!&lt;CR&gt;
 
 map &lt;C-u&gt; rootFrame
@@ -329,14 +344,14 @@ let @@reddit_prog = &#39;http://www.reddit.com/r/programming&#39;
 let @@top_all = &#39;top?sort=top&amp;t=all&#39;
 let @@top_day = &#39;top?sort=top&amp;t=day&#39;
 
-&quot; TA binding opens &#39;http://www.reddit.com/r/programming/top?sort=top&amp;t=all&#39;
-&quot; in a new tab
+&quot; TA binding opens &#39;http://www.reddit.com/r/programming/top?sort=top&amp;t=all&#39; in a new tab
 map TA :to @@reddit_prog/@@top_all&lt;CR&gt;
 map TD :to @@reddit_prog/@@top_day&lt;CR&gt;
 </code></pre>
 <h3 id="blacklists">Blacklists</h3>
 <ul>
-<li>The blacklists setting uses a custom inplementation of Chrome&#39;s @match pattern guidelines. See <a href="https://developer.chrome.com/extensions/match_patterns">https://developer.chrome.com/extensions/match_patterns</a> for a description of the syntax.</li>
+<li>The blacklists setting uses a custom inplementation of Chrome&#39;s @match pattern guidelines.
+See <a href="https://developer.chrome.com/extensions/match_patterns">https://developer.chrome.com/extensions/match_patterns</a> for a description of the syntax.</li>
 </ul>
 <h3 id="site-specific-configuration">Site-specific Configuration</h3>
 <ul>
@@ -364,9 +379,9 @@ site &#39;*://*/*.js&#39; {
 <ul>
 <li>Normal mappings are defined with the following structure: <code>map &lt;KEY&gt; &lt;MAPPING_NAME&gt;</code></li>
 <li>Insert mappings use the same structure, but use the command &quot;imap&quot; instead of &quot;map&quot;</li>
-<li>Control, meta, and alt can be used also:<pre><code class="lang-viml">&lt;C-u&gt; &quot;Ctrl + u
-&lt;M-u&gt; &quot;Meta + u
-&lt;A-u&gt; &quot;Alt  + u
+<li>Control, meta, and alt can be used also:<pre><code class="lang-viml">&lt;C-u&gt; &quot; Ctrl + u
+&lt;M-u&gt; &quot; Meta + u
+&lt;A-u&gt; &quot; Alt  + u
 </code></pre>
 </li>
 <li>It is also possible to unmap default bindings with <code>unmap &lt;KEY&gt;</code> and insert bindings with <code>iunmap &lt;KEY&gt;</code></li>
@@ -384,22 +399,28 @@ site &#39;*://*/*.js&#39; {
 </li>
 <li>The use of these properties are best explained with examples:</li>
 </ul>
-<pre><code class="lang-viml">:open! google&lt;CR&gt; &quot;This is the same as :tabnew google&lt;CR&gt;
-:open google!&lt;CR&gt; &quot;This is another way of writing the above (these flags can can be added to either the base command or the end of the final command)
+<pre><code class="lang-viml">:open! google&lt;CR&gt; &quot; This is the same as :tabnew google&lt;CR&gt;
 
-:open&amp; google&lt;CR&gt; &quot;This will open Google in a new inactive tab
+:open google!&lt;CR&gt; &quot; This is another way of writing the above
+                  &quot; (these flags can can be added to either
+                  &quot; the base command or the end of the final command)
 
-:open&amp;* google&lt;CR&gt; &quot;The will open Google in a new inactive, pinned tab
-:tabnew google&amp;*&lt;CR&gt; &quot;Once again, this will do the same thing as the above command
-:open google&amp;*&lt;CR&gt; &quot;Again, same as above
+:open&amp; google&lt;CR&gt; &quot; This will open Google in a new inactive tab
 
-:open google!&amp; &quot;Here, the &amp; flag will cancel out the ! flag, opening Google in a new inactive tab
+:open&amp;* google&lt;CR&gt; &quot; The will open Google in a new inactive, pinned tab
 
-&quot;More examples
-:bookmarks my_bookmark.com&amp; &quot;inactive,new tab
-:bookmarks&amp;* my_bookmark.com &quot;inactive,pinned,new tab
-:bookmarks! my_bookmark.com &quot;new tab
-:bookmarks my_bookmark.com &quot;same tab
+:tabnew google&amp;*&lt;CR&gt; &quot; Once again, this will do the same thing as the above command
+
+:open google&amp;*&lt;CR&gt; &quot; Again, same as above
+
+:open google!&amp; &quot; Here, the &amp; flag will cancel out the ! flag,
+               &quot; opening Google in a new inactive tab
+
+&quot; More examples
+:bookmarks my_bookmark.com&amp;  &quot; inactive,new tab
+:bookmarks&amp;* my_bookmark.com &quot; inactive,pinned,new tab
+:bookmarks! my_bookmark.com  &quot; new tab
+:bookmarks my_bookmark.com   &quot; same tab
 </code></pre>
 <h1 id="keybindings">Keybindings</h1>
 <table>
@@ -1144,13 +1165,20 @@ site &#39;*://*/*.js&#39; {
 </table>
 <h1 id="tips">Tips</h1>
 <ul>
-<li>You can use @% in &quot;open&quot; commands to specify the current URL. For example, &quot;:open @%&quot; would essentially refresh the current page.</li>
+<li>You can use <code>@%</code> in &quot;open&quot; commands to specify the current URL.
+For example, <code>:open @%</code> would essentially refresh the current page.</li>
 <li>Prepend a number to the command to repeat that command N times</li>
-<li>Use the up/down arrows in command/find mode to navigate through previously executed commands/searches -- you can also use this to search for previously executed commands starting with a certain combination of letters (for example, entering &quot;ta&quot; in the command bar and pressing the up arrow will search command history for all matches beginning with &quot;ta&quot;</li>
+<li>Use the up/down arrows in command/find mode to navigate through previously
+executed commands/searches -- you can also use this to search for previously
+executed commands starting with a certain combination of letters (for example,
+entering <code>ta</code> in the command bar and pressing the up arrow will search command
+history for all matches beginning with <code>ta</code></li>
 </ul>
 <h1 id="contributing">Contributing</h1>
 <p>Nice that you want to spend some time improving this extension.
-Solving issues is always appreciated. If you&#39;re going to add a feature, it would be best to <a href="https://github.com/1995eaton/chromium-vim/issues">submit an issue</a>. You&#39;ll get feedback whether it will likely be merged.</p>
+Solving issues is always appreciated. If you&#39;re going to add a feature,
+it would be best to <a href="https://github.com/1995eaton/chromium-vim/issues">submit an issue</a>.
+You&#39;ll get feedback whether it will likely be merged.</p>
 <ol>
 <li>Run <code>npm install</code> in the repository&#39;s root folder</li>
 <li>Run <code>make</code></li>

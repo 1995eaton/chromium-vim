@@ -68,24 +68,38 @@ These extensions do a wonderful job of adding Vim-like keybindings to Google Chr
 | previousmatchpattern                | string (regexp)                    | the pattern looked for when navigating a page's back button                               | ((?!last)(prev(ious)?&#124;back&#124;«&#124;less&#124;&lt;&#124;‹&#124; )+) |
 | nextmatchpattern                    | string (regexp)                    | the pattern looked for when navigation a page's next button                               | ((?!first)(next&#124;more&#124;&gt;&#124;›&#124;»&#124;forward&#124; )+)    |
 | hintcharacters                      | string (alphanumeric)              | set the default characters to be used in link hint mode                                   | "asdfgqwertzxcvb"                                                           |
-| barposition                         | string &lt;br&gt;["top", "bottom"] | set the default position of the command bar                                               | "top"                                                                       |
+| barposition                         | string ["top", "bottom"] | set the default position of the command bar                                               | "top"                                                                       |
 
 ###Example configuration
 ```viml
 " Settings
 set nohud
 set nosmoothscroll
-set noautofocus "The opposite of autofocus; this setting stops sites from focusing on an input box when they load
+set noautofocus " The opposite of autofocus; this setting stops
+                " sites from focusing on an input box when they load
 set typelinkhints
 let searchlimit = 30
 let scrollstep = 70
 let barposition = "bottom"
-let locale = "uk" "Current choices are 'jp' and 'uk'. This allows cVim to use sites like google.co.uk or google.co.jp to search rather than google.com. Support is currently very limited. Let me know if you need a different locale for one of the completion/search engines
+
+let locale = "uk" " Current choices are 'jp' and 'uk'. This allows cVim to use sites like google.co.uk
+                  " or google.co.jp to search rather than google.com. Support is currently limited.
+                  " Let me know if you need a different locale for one of the completion/search engines
 let hintcharacters = "abc123"
-let searchengine dogpile = "http://www.dogpile.com/search/web?q=%s" "If you leave out the '%s' at the end of the URL, your query will be appended to the link. Otherwise, your query will replace the '%s'.
+
+let searchengine dogpile = "http://www.dogpile.com/search/web?q=%s" " If you leave out the '%s' at the end of the URL,
+                                                                    " your query will be appended to the link.
+                                                                    " Otherwise, your query will replace the '%s'.
+
 let completionengines = ["google", "amazon", "imdb", "dogpile"]
-let searchalias g = "google" "Create a shortcut for search engines. For example, typing ':tabnew g example' would act the same way as ':tabnew google example'
-let qmark a = ["http://www.reddit.com", "http://www.google.com", "http://twitter.com"]  "Open all of these in a tab with `gnb` or open one of these with <N>goa where <N>
+
+let searchalias g = "google" " Create a shortcut for search engines.
+                             " For example, typing ':tabnew g example'
+                             " would act the same way as ':tabnew google example'
+
+" Open all of these in a tab with `gnb` or open one of these with <N>goa where <N>
+let qmark a = ["http://www.reddit.com", "http://www.google.com", "http://twitter.com"]
+
 let blacklists = ["https://mail.google.com/*", "*://mail.google.com/*"]
 let mapleader = ","
 
@@ -94,22 +108,23 @@ let mapleader = ","
 map <Leader>r reloadTabUncached
 map <Leader>x :restore<Space>
 
-"This remaps the default 'j' mapping
+" This remaps the default 'j' mapping
 map j scrollUp
 
-"You can use <Space>, which is interpreted as a literal " " character, to enter buffer completion mode
+" You can use <Space>, which is interpreted as a
+" literal " " character, to enter buffer completion mode
 map gb :buffer<Space>
 
-"The unmaps the default 'k' mapping
+" The unmaps the default 'k' mapping
 unmap k
 
-"This remaps the default 'f' mapping to the current 'F' mapping
+" This remaps the default 'f' mapping to the current 'F' mapping
 map f F
 
-"Toggle the current HUD display value
+" Toggle the current HUD display value
 map <C-h> :set hud!<CR>
 
-"Switch between alphabetical hint characters and numeric hints
+" Switch between alphabetical hint characters and numeric hints
 map <C-i> :set numerichints!<CR>
 
 map <C-u> rootFrame
@@ -124,14 +139,14 @@ let @@reddit_prog = 'http://www.reddit.com/r/programming'
 let @@top_all = 'top?sort=top&t=all'
 let @@top_day = 'top?sort=top&t=day'
 
-" TA binding opens 'http://www.reddit.com/r/programming/top?sort=top&t=all'
-" in a new tab
+" TA binding opens 'http://www.reddit.com/r/programming/top?sort=top&t=all' in a new tab
 map TA :to @@reddit_prog/@@top_all<CR>
 map TD :to @@reddit_prog/@@top_day<CR>
 ```
 
 ###Blacklists
- * The blacklists setting uses a custom inplementation of Chrome's @match pattern guidelines. See https://developer.chrome.com/extensions/match_patterns for a description of the syntax.
+ * The blacklists setting uses a custom inplementation of Chrome's @match pattern guidelines.
+   See https://developer.chrome.com/extensions/match_patterns for a description of the syntax.
 
 
 ###Site-specific Configuration
@@ -161,9 +176,9 @@ site '*://*/*.js' {
  * Insert mappings use the same structure, but use the command "imap" instead of "map"
  * Control, meta, and alt can be used also:
 ```viml
-<C-u> "Ctrl + u
-<M-u> "Meta + u
-<A-u> "Alt  + u
+<C-u> " Ctrl + u
+<M-u> " Meta + u
+<A-u> " Alt  + u
 ```
  * It is also possible to unmap default bindings with ```unmap <KEY>``` and insert bindings with ```iunmap <KEY>```
  * To unmap all default keybindings, use ```unmapAll```. To unmap all default insert bindings, use ```iunmapAll```
@@ -178,22 +193,28 @@ site '*://*/*.js' {
  * The use of these properties are best explained with examples:
 
 ```viml
-:open! google<CR> "This is the same as :tabnew google<CR>
-:open google!<CR> "This is another way of writing the above (these flags can can be added to either the base command or the end of the final command)
+:open! google<CR> " This is the same as :tabnew google<CR>
 
-:open& google<CR> "This will open Google in a new inactive tab
+:open google!<CR> " This is another way of writing the above
+                  " (these flags can can be added to either
+                  " the base command or the end of the final command)
 
-:open&* google<CR> "The will open Google in a new inactive, pinned tab
-:tabnew google&*<CR> "Once again, this will do the same thing as the above command
-:open google&*<CR> "Again, same as above
+:open& google<CR> " This will open Google in a new inactive tab
 
-:open google!& "Here, the & flag will cancel out the ! flag, opening Google in a new inactive tab
+:open&* google<CR> " The will open Google in a new inactive, pinned tab
 
-"More examples
-:bookmarks my_bookmark.com& "inactive,new tab
-:bookmarks&* my_bookmark.com "inactive,pinned,new tab
-:bookmarks! my_bookmark.com "new tab
-:bookmarks my_bookmark.com "same tab
+:tabnew google&*<CR> " Once again, this will do the same thing as the above command
+
+:open google&*<CR> " Again, same as above
+
+:open google!& " Here, the & flag will cancel out the ! flag,
+               " opening Google in a new inactive tab
+
+" More examples
+:bookmarks my_bookmark.com&  " inactive,new tab
+:bookmarks&* my_bookmark.com " inactive,pinned,new tab
+:bookmarks! my_bookmark.com  " new tab
+:bookmarks my_bookmark.com   " same tab
 ```
 
 
@@ -358,14 +379,21 @@ site '*://*/*.js' {
 
 #Tips
 
- * You can use @% in "open" commands to specify the current URL. For example, ":open @%" would essentially refresh the current page.
+ * You can use `@%` in "open" commands to specify the current URL.
+   For example, `:open @%` would essentially refresh the current page.
  * Prepend a number to the command to repeat that command N times
- * Use the up/down arrows in command/find mode to navigate through previously executed commands/searches -- you can also use this to search for previously executed commands starting with a certain combination of letters (for example, entering "ta" in the command bar and pressing the up arrow will search command history for all matches beginning with "ta"
+ * Use the up/down arrows in command/find mode to navigate through previously
+   executed commands/searches -- you can also use this to search for previously
+   executed commands starting with a certain combination of letters (for example,
+   entering `ta` in the command bar and pressing the up arrow will search command
+   history for all matches beginning with `ta`
 
 # Contributing
 
 Nice that you want to spend some time improving this extension.
-Solving issues is always appreciated. If you're going to add a feature, it would be best to [submit an issue](https://github.com/1995eaton/chromium-vim/issues). You'll get feedback whether it will likely be merged.
+Solving issues is always appreciated. If you're going to add a feature,
+it would be best to [submit an issue](https://github.com/1995eaton/chromium-vim/issues).
+You'll get feedback whether it will likely be merged.
 
 1. Run `npm install` in the repository's root folder
 1. Run `make`
