@@ -240,7 +240,6 @@ site '*://*/*.js' {
 | `a`                       | alias to ":tabnew google "                                            | :tabnew google                  |
 | `.`                       | repeat the last command                                               | repeatCommand                   |
 | `:`                       | open command bar                                                      | openCommandBar                  |
-| `<A-z>`                   | toggle cVim (same as disable cVim option in toolbar icon)             | toggleCvim                      |
 | unmapped                  | toggle the blacklist on the current domain                            | toggleBlacklisted               |
 | `/`                       | open search bar                                                       | openSearchBar                   |
 | `?`                       | open search bar (reverse search)                                      | openSearchBarReverse            |
