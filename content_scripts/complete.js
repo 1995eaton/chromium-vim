@@ -184,6 +184,7 @@ Complete.convertToLink = function(input, isURL, isLink) {
   if (suffix.validURL()) {
     return suffix.convertLink();
   }
+  suffix = encodeURIComponent(suffix);
   return ~prefix.indexOf('%s') ?
     prefix.embedString(suffix) :
     prefix + suffix;
