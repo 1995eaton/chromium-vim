@@ -1,5 +1,9 @@
 #cVim Changelog
 
+## 1.2.65
+ * Better smooth scrolling performance
+ * Fix a URI encoding bug with search engines
+
 ## 1.2.64
  * Improved cVimrc parsing (with [PEG.js](http://pegjs.majda.cz/))
   * The options page will now report errors on which line has improper syntax.

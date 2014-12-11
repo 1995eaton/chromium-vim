@@ -3,8 +3,8 @@
   "author": "Jake Eaton <1995eaton@gmail.com>",
   "description": "Vim bindings for Google Chrome.",
   "repository": {
-      "type": "git",
-      "url": "https://github.com/1995eaton/chromium-vim"
+    "type": "git",
+    "url": "https://github.com/1995eaton/chromium-vim"
   },
   "private": true,
   "devDependencies": {
