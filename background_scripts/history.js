@@ -49,7 +49,6 @@ var History = {
     return function() {
       utime = new Date().getTime();
       this.shouldRefresh = false;
-      M=[];
       chrome.history.search({
         text: '',
         startTime: 0,
@@ -58,7 +57,6 @@ var History = {
         History.historyStore = results.sort(function(a, b) {
           return calculateWeight(b) - calculateWeight(a);
         });
-        History.historyStore.forEach(function(e){M.push([e, calculateWeight(e)]);});
       });
     };
   })(),
