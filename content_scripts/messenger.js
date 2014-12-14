@@ -16,14 +16,14 @@ port.onMessage.addListener(function(response) {
   var key;
   switch (response.type) {
     case 'hello':
-      port.postMessage({action: 'getSettings'});
-      port.postMessage({action: 'getBookmarks'});
-      port.postMessage({action: 'getQuickMarks'});
-      port.postMessage({action: 'getSessionNames'});
-      port.postMessage({action: 'retrieveAllHistory'});
-      port.postMessage({action: 'sendLastSearch'});
-      port.postMessage({action: 'getTopSites'});
-      port.postMessage({action: 'getLastCommand'});
+      PORT('getSettings');
+      PORT('getBookmarks');
+      PORT('getQuickMarks');
+      PORT('getSessionNames');
+      PORT('retrieveAllHistory');
+      PORT('sendLastSearch');
+      PORT('getTopSites');
+      PORT('getLastCommand');
       break;
     case 'updateLastCommand':
       Mappings.lastCommand = JSON.parse(response.data);

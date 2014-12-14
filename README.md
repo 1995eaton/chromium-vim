@@ -294,6 +294,8 @@ site '*://*/*.js' {
 | `gs`                      | go to the view-source:// page for the current Url                     | goToSource                      |
 | `<C-b>`                   | create or toggle a bookmark for the current URL                       | createBookmark                  |
 | unmapped                  | close all browser windows                                             | quitChrome                      |
+| `g-`                      | decrement the first number in the URL path (e.g `www.example.com/5` => `www.example.com/4`) | decrementURLPath |
+| `g+`                      | increment the first number in the URL path                            | incrementURLPath                |
 | **Tab Navigation**        |                                                                       |                                 |
 | `gt`, `K`, `R`            | navigate to the next tab                                              | nextTab                         |
 | `gT`, `J`, `E`            | navigate to the previous tab                                          | previousTab                     |

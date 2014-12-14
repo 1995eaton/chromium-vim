@@ -121,6 +121,8 @@ Mappings.defaults = [
   ['<C-6>',     'lastUsedTab'],
   ['.',         'repeatCommand'],
   ['<C-b>',     'createBookmark'],
+  ['g+',        'incrementURLPath'],
+  ['g-',        'decrementURLPath']
 ];
 
 Mappings.defaultsClone = Object.clone(Mappings.defaults);
@@ -586,10 +588,29 @@ Mappings.actions = {
           (Mappings.lastCommand.args || []).concat(Mappings.lastCommand.repeats * repeats));
     }
   },
-  createBookmark: function() { PORT('createBookmark', {url: document.URL, title: document.title}); },
+  createBookmark: function() {
+    PORT('createBookmark', {
+      url: document.URL,
+      title: document.title
+    });
+  },
   quitChrome: function() { PORT('quitChrome'); }
 
 };
+
+(function() {
+  var replaceURLNumber = function(callback) {
+    var url = document.URL.replace(/\b\d+\b/, callback);
+    if (url !== document.URL)
+      RUNTIME('openLink', { url: url, tab: { tabbed: false } });
+  };
+  Mappings.actions.incrementURLPath = function(repeats) {
+    replaceURLNumber(function(e) { return +e + repeats; });
+  };
+  Mappings.actions.decrementURLPath = function(repeats) {
+    replaceURLNumber(function(e) { return Math.max(0, +e - repeats); });
+  };
+})();
 
 Mappings.insertDefaults = [
   ['<C-y>', 'deleteWord' ],
