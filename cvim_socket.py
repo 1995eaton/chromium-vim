@@ -4,8 +4,8 @@
 USAGE: ./cvim_socket.py
 If you want to use native Vim to edit text boxes
 you must be running this script. To begin editing,
-press <C-i> inside a text box. By default, this
-script will spawn a urxvt shell, but this action
+first map the editWithVim (e.g. "imap <C-o> editWithVim") mapping.
+By default, this script will spawn a urxvt shell, but this action
 can be changed via the COMMAND variable below.
 '''
 

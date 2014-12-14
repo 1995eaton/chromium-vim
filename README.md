@@ -346,6 +346,7 @@ site '*://*/*.js' {
 | `<C-l>`                   | move cursor forward one word                                          | forwardWord                     |
 | `<C-f>`                   | move cursor forward one letter                                        | forwardChar                     |
 | `<C-b>`                   | move cursor back one letter                                           | backwardChar                    |
+| unmapped                  | edit with Vim in a terminal (need the [cvim_socket.py](https://github.com/1995eaton/chromium-vim/blob/master/cvim_socket.py) script running for this to work) | editWithVim     |
 
 #Command Mode
 
