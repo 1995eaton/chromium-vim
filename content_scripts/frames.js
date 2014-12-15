@@ -13,9 +13,26 @@ var Frames = {
   },
   init: function(isRoot) {
     if (Frames.isVisible()) {
-      RUNTIME('addFrame', {isRoot: isRoot}, function(index) {
-        Frames.index = index;
+      RUNTIME('addFrame', {
+        isRoot: isRoot,
+        url: document.URL
+      }, function(id) {
+        Frames.id = id;
       });
+    }
+    var subFrames = document.querySelectorAll('iframe[src],frame[src]');
+    for (var i = 0; i < subFrames.length; i++) {
+      var frame = subFrames[i],
+          computedStyle = getComputedStyle(frame, null);
+      if (frame.clientWidth <= 1 || frame.clientHeight <= 1 ||
+          frame.getAttribute('aria-hidden') === 'true' ||
+          computedStyle.visibility === 'hidden' ||
+          computedStyle.opacity === '0' ||
+          computedStyle.display === 'none') {
+        PORT('hideFrame', {
+          url: frame.src
+        });
+      }
     }
   }
 };

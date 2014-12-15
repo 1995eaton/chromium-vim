@@ -170,7 +170,7 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
       });
       break;
     case 'focusFrame':
-      if (request.index === Frames.index) {
+      if (request.id === Frames.id) {
         Frames.focus();
       }
       break;

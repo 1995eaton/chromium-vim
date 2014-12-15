@@ -64,12 +64,42 @@ Actions = (function() {
   };
 
   _.addFrame = function() {
-    if (Frames[sender.tab.id] === void 0 || request.isRoot) {
-      Frames[sender.tab.id] = {length: 1, index: 0};
+    var frame = Frames[sender.tab.id];
+    if (frame === void 0 || request.isRoot) {
+      Frames[sender.tab.id] = {
+        index: 0,
+        ids: [request.url],
+        hidden: []
+      };
+      frame = Frames[sender.tab.id];
     } else {
-      Frames[sender.tab.id].length += 1;
+      if (!~frame.hidden.indexOf(request.url))
+        frame.ids.push(request.url);
     }
-    callback(Frames[sender.tab.id].length - 1);
+    callback(frame.ids[frame.ids.length - 1]);
+  };
+
+  _.hideFrame = function() {
+    var frame = Frames[sender.tab.id];
+    if (frame === void 0)
+      return;
+    frame.hidden.push(request.url);
+  };
+
+  _.focusFrame = function() {
+    var frame = Frames[sender.tab.id];
+    if (frame === void 0)
+      return;
+    var index = 0;
+    if (!request.isRoot) {
+      index = (frame.index + request.repeats)
+        .mod(frame.ids.length);
+    }
+    frame.index = index;
+    chrome.tabs.sendMessage(sender.tab.id, {
+      action: 'focusFrame',
+      id: frame.ids[index]
+    });
   };
 
   _.syncSettings = function() {
@@ -77,16 +107,6 @@ Actions = (function() {
       Settings[key] = request.settings[key];
     }
     Options.sendSettings();
-  };
-
-  _.focusFrame = function() {
-    Frames[sender.tab.id].index = request.isRoot ? 0 :
-      (Frames[sender.tab.id].index + request.repeats)
-        .mod(Frames[sender.tab.id].length);
-    chrome.tabs.sendMessage(sender.tab.id, {
-      action: 'focusFrame',
-      index: Frames[sender.tab.id].index
-    });
   };
 
   _.openLinkWindow = function() {
