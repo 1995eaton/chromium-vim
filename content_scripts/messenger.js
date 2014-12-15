@@ -209,5 +209,9 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
     case 'alert':
       alert(request.message);
       break;
+    case 'getHiddenFrameURLs':
+      if (self === top)
+        callback(Frames.getHiddenFrameURLs());
+      break;
   }
 });

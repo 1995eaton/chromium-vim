@@ -68,37 +68,40 @@ Actions = (function() {
     if (frame === void 0 || request.isRoot) {
       Frames[sender.tab.id] = {
         index: 0,
-        ids: [request.url],
-        hidden: []
+        ids: [request.url]
       };
       frame = Frames[sender.tab.id];
     } else {
-      if (!~frame.hidden.indexOf(request.url))
-        frame.ids.push(request.url);
+      frame.ids.push(request.url);
     }
     callback(frame.ids[frame.ids.length - 1]);
   };
 
-  _.hideFrame = function() {
-    var frame = Frames[sender.tab.id];
-    if (frame === void 0)
-      return;
-    frame.hidden.push(request.url);
-  };
-
   _.focusFrame = function() {
-    var frame = Frames[sender.tab.id];
-    if (frame === void 0)
-      return;
-    var index = 0;
-    if (!request.isRoot) {
-      index = (frame.index + request.repeats)
-        .mod(frame.ids.length);
-    }
-    frame.index = index;
+    var _request = Object.clone(request);
     chrome.tabs.sendMessage(sender.tab.id, {
-      action: 'focusFrame',
-      id: frame.ids[index]
+      action: 'getHiddenFrameURLs'
+    }, function(urls) {
+      var frame = Frames[sender.tab.id];
+      if (frame === void 0)
+        return;
+      var visibleFrames = frame.ids.slice(0);
+      urls.forEach(function(e) {
+        var index = visibleFrames.indexOf(e);
+        if (~index) {
+          visibleFrames.splice(index, 1);
+        }
+      });
+      var index = 0;
+      if (!_request.isRoot) {
+        index = (frame.index + _request.repeats)
+          .mod(visibleFrames.length);
+      }
+      frame.index = index;
+      chrome.tabs.sendMessage(sender.tab.id, {
+        action: 'focusFrame',
+        id: visibleFrames[index]
+      });
     });
   };
 
