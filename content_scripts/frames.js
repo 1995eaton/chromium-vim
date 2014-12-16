@@ -22,14 +22,12 @@ var Frames = {
     return hiddenURLs;
   },
   init: function(isRoot) {
-    if (Frames.isVisible()) {
-      RUNTIME('addFrame', {
-        isRoot: isRoot,
-        url: document.URL
-      }, function(id) {
-        Frames.id = id;
-      });
-    }
+    RUNTIME('addFrame', {
+      isRoot: isRoot,
+      url: document.URL
+    }, function(id) {
+      Frames.id = id;
+    });
   }
 };
 
