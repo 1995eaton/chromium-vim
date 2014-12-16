@@ -70,11 +70,10 @@ Actions = (function() {
         index: 0,
         ids: [request.url]
       };
-      frame = Frames[sender.tab.id];
     } else {
       frame.ids.push(request.url);
     }
-    callback(frame.ids[frame.ids.length - 1]);
+    callback(request.url);
   };
 
   _.focusFrame = function() {
