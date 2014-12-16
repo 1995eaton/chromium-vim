@@ -3,6 +3,7 @@ var addListeners, removeListeners, insertMode, commandMode, settings;
 var KeyListener = (function() {
 
   'use strict';
+  var isActive = false;
 
   var codeMap = {
     0:   '\\',
@@ -139,7 +140,6 @@ var KeyListener = (function() {
     },
 
     keydown: function(callback, event) {
-
       var keyString = KeyEvents.keyhandle(event, 'keydown');
 
       // Alt key hint focus toggle
@@ -163,7 +163,7 @@ var KeyListener = (function() {
             break;
           }
         }
-        return callback(code, event);
+        return callback.call(this, code, event);
       // Ugly, but this NEEDS to be checked before setTimeout is called. Otherwise, non-cVim keyboard listeners
       // will not be stopped. preventDefault on the other hand, can be.
       } else if (commandMode || (!insertMode && mappingTrie.at(Mappings.queue + keyString)) ||
@@ -188,7 +188,7 @@ var KeyListener = (function() {
             event.stopImmediatePropagation();
           }
           keypressTriggered = true;
-          callback(KeyEvents.keyhandle(event, 'keypress'), event);
+          callback.call(this, KeyEvents.keyhandle(event, 'keypress'), event);
         }
       });
 
@@ -202,32 +202,39 @@ var KeyListener = (function() {
             event.preventDefault();
             event.stopImmediatePropagation();
           }
-          callback(KeyEvents.keyhandle(event, 'keydown'), event);
+          callback.call(this, KeyEvents.keyhandle(event, 'keydown'), event);
         }
       }, 0);
 
     }
 
   };
+  var createEventListener = function(element, type, callback) {
+    element.addEventListener(type, function() {
+      return isActive ? callback.apply(this, arguments) : true;
+    }, true);
+  };
 
   var listenerFn = function(callback) {
     this.callback = callback;
     this.eventFn = KeyEvents.keydown.bind(null, this.callback);
-    this.active = false;
+    isActive = false;
     return this;
   };
+  var initialSetup = false;
   listenerFn.prototype.activate = function() {
-    if (!this.active) {
-      this.active = true;
-      window.addEventListener('keydown', this.eventFn, true);
-      window.addEventListener('keyup', KeyEvents.keyup, true);
+    if (!isActive) {
+      isActive = true;
+      if (!initialSetup) {
+        initialSetup = true;
+        createEventListener(window, 'keydown', this.eventFn);
+        createEventListener(window, 'keyup', KeyEvents.keyup);
+      }
     }
   };
   listenerFn.prototype.deactivate = function() {
-    if (this.active) {
-      this.active = false;
-      window.removeEventListener('keydown', this.eventFn, true);
-      window.removeEventListener('keyup', KeyEvents.keyup, true);
+    if (isActive) {
+      isActive = false;
     }
   };
   return listenerFn;
