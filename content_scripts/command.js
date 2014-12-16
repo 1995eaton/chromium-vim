@@ -238,9 +238,28 @@ Command.deleteCompletions = function(completions) {
   }
 };
 
+Command.expandCompletion = function(value) {
+  var firstWord = value.match(/^[a-z]+(\s|$)/);
+  var exactMatch = this.descriptions.some(function(e) {
+    return e[0] === firstWord;
+  });
+  if (firstWord && !exactMatch) {
+    firstWord = firstWord[0];
+    var completedWord = (function() {
+      for (var i = 0; i < this.descriptions.length; i++)
+        if (this.descriptions[i][0].indexOf(firstWord) === 0)
+          return this.descriptions[i][0];
+    }.bind(this))();
+    if (completedWord)
+      return value.replace(firstWord, completedWord);
+  }
+  return value;
+};
+
 Command.complete = function(value) {
   Search.index = null;
   this.typed = this.input.value;
+  value = this.expandCompletion(value);
   value = value.replace(/(^[^\s&!*?=]+)[&!*?=]*/, '$1');
   var search = value.replace(/^(chrome:\/\/|\S+ +)/, '');
 
@@ -409,6 +428,7 @@ Command.complete = function(value) {
 
 Command.execute = function(value, repeats) {
 
+  value = this.expandCompletion(value);
   value = value.replace(/@@[a-zA-Z_$][a-zA-Z0-9_$]*/g, function(e) {
     return settings.hasOwnProperty(e) ? settings[e] : e;
   });
@@ -451,7 +471,6 @@ Command.execute = function(value, repeats) {
 
   switch (value) {
     case 'nohlsearch':
-    case 'nohl':
       Find.clear();
       HUD.hide();
       return;
