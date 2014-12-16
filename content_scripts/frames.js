@@ -8,9 +8,6 @@ var Frames = {
       document.body.removeChild(outline);
     }, 500);
   },
-  isVisible: function() {
-    return document.body && window.innerWidth && window.innerHeight;
-  },
   getHiddenFrameURLs: function() {
     var subFrames = document.querySelectorAll('iframe[src],frame[src]');
     var hiddenURLs = [];
