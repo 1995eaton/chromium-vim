@@ -259,6 +259,8 @@ Command.expandCompletion = function(value) {
 Command.complete = function(value) {
   Search.index = null;
   this.typed = this.input.value;
+  var originalValue = value; // prevent expandCompletion from
+                             // limiting command completions
   value = this.expandCompletion(value);
   value = value.replace(/(^[^\s&!*?=]+)[&!*?=]*/, '$1');
   var search = value.replace(/^(chrome:\/\/|\S+ +)/, '');
@@ -417,6 +419,8 @@ Command.complete = function(value) {
     }.bind(this));
     return;
   }
+
+  value = originalValue;
 
   this.completions = {
     complete: this.descriptions.filter(function(element) {
