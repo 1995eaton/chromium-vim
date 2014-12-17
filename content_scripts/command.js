@@ -239,7 +239,7 @@ Command.deleteCompletions = function(completions) {
 };
 
 Command.expandCompletion = function(value) {
-  var firstWord = value.match(/^[a-z]+(\s|$)/);
+  var firstWord = value.match(/^[a-z]+(\b|$)/);
   var exactMatch = this.descriptions.some(function(e) {
     return e[0] === firstWord;
   });
