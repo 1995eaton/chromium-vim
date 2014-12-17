@@ -8,15 +8,34 @@ var Frames = {
       document.body.removeChild(outline);
     }, 500);
   },
-  getHiddenFrameURLs: function() {
+  frameIsVisible: function(e) {
+    if (e.getAttribute('aria-hidden') === 'true' ||
+        e.getAttribute('height') === '0' ||
+        e.getAttribute('width') === '0')
+      return false;
+    var style = getComputedStyle(e, null);
+    if (style.display === 'none' ||
+        style.opacity === '0' ||
+        style.width === '0' ||
+        style.height === '0' ||
+        style.visibility === 'hidden')
+      return false;
+    var rect = e.getBoundingClientRect();
+    if (rect.width <= 3 ||
+        rect.height <= 3 ||
+        rect.top < 0 ||
+        rect.left < 0)
+      return false;
+    return true;
+  },
+  getSubFrames: function() {
     var subFrames = document.querySelectorAll('iframe[src],frame[src]');
-    var hiddenURLs = [];
+    var result = [document.URL];
     for (var i = 0; i < subFrames.length; i++) {
-      var frame = subFrames[i];
-      if (!getVisibleBoundingRect(frame))
-        hiddenURLs.push(frame.src);
+      if (this.frameIsVisible(subFrames[i]))
+        result.push(subFrames[i].src);
     }
-    return hiddenURLs;
+    return result;
   },
   init: function(isRoot) {
     RUNTIME('addFrame', {

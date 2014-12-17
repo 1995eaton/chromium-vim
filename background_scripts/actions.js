@@ -79,18 +79,11 @@ Actions = (function() {
   _.focusFrame = function() {
     var _request = Object.clone(request);
     chrome.tabs.sendMessage(sender.tab.id, {
-      action: 'getHiddenFrameURLs'
-    }, function(urls) {
+      action: 'getSubFrames'
+    }, function(visibleFrames) {
       var frame = Frames[sender.tab.id];
       if (frame === void 0)
         return;
-      var visibleFrames = frame.ids.slice(0);
-      urls.forEach(function(e) {
-        var index = visibleFrames.indexOf(e);
-        if (~index) {
-          visibleFrames.splice(index, 1);
-        }
-      });
       var index = 0;
       if (!_request.isRoot) {
         index = (frame.index + _request.repeats)
