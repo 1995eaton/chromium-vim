@@ -71,7 +71,8 @@ Search.nextResult = function(reverse) {
   }
   switch (Command.completionResults[this.index][0]) {
     case 'chrome':
-      Command.input.value = 'chrome://' + Command.completionResults[this.index][1];
+      Command.input.value = Command.input.value.match(/^\S+ /)[0] +
+                            Command.completionResults[this.index][1];
       break;
     case 'bookmarks':
     case 'history':

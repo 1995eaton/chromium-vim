@@ -215,7 +215,7 @@ Command.descriptions = [
   ['unmap',        'Unmap a command'],
   ['tabattach',    'Move current tab to another window'],
   ['tabdetach',    'Move current tab to a new window'],
-  ['chrome://',    'Opens Chrome urls'],
+  ['chrome',       'Opens Chrome urls'],
   ['duplicate',    'Clone the current tab'],
   ['settings',     'Open the options page for this extension'],
   ['help',         'Shows the help page'],
@@ -322,7 +322,7 @@ Command.complete = function(value) {
 
   }
 
-  if (/^chrome:\/\//.test(value)) {
+  if (/^chrome +/.test(value)) {
     Search.chromeMatch(search, function(matches) {
       this.completions = { chrome: matches };
       this.updateCompletions();
@@ -544,10 +544,10 @@ Command.execute = function(value, repeats) {
       return;
   }
 
-  if (/^chrome:\/\/\S+$/.test(value)) {
+  if (/^chrome +/.test(value)) {
     RUNTIME('openLink', {
       tab: tab,
-      url: value,
+      url: value.replace(' ', '://'),
       noconvert: true
     });
     return;
