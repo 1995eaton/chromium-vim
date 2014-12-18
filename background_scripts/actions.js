@@ -290,14 +290,14 @@ Actions = (function() {
   };
 
   _.goToTab = function() {
-    chrome.tabs.query({}, function(tabs) {
+    chrome.tabs.query({currentWindow: true}, function(tabs) {
       if (request.id) {
         return chrome.tabs.get(request.id, function(tabInfo) {
           chrome.windows.update(tabInfo.windowId, {focused: true}, function() {
             chrome.tabs.update(request.id, {active: true, highlighted: true});
           });
         });
-      } else if (request.index) {
+      } else if (request.index !== void 0) {
         chrome.tabs.update((request.index < tabs.length ? tabs[request.index].id :
             tabs.slice(-1)[0].id), {active: true});
       }
