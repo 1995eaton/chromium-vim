@@ -21,8 +21,8 @@ var Frames = {
         style.visibility === 'hidden')
       return false;
     var rect = e.getBoundingClientRect();
-    if (rect.width <= 3 ||
-        rect.height <= 3 ||
+    if (rect.width <= 1 ||
+        rect.height <= 1 ||
         rect.top < 0 ||
         rect.left < 0)
       return false;
