@@ -27,6 +27,7 @@ var defaultSettings = {
   dimhintcharacters: true,
   smoothscroll: true,
   autoupdategist: false,
+  nativelinkorder: false,
   scrollduration: 500,
   zoomfactor: 0.10,
   locale: '',

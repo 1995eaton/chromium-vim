@@ -28,7 +28,7 @@ Actions = (function() {
           url: url,
           active: request.tab.active,
           pinned: request.tab.pinned,
-          index: sender.tab.index + 1
+          index: getTabOrderIndex(sender.tab)
         });
       }
     } else {
@@ -47,7 +47,7 @@ Actions = (function() {
             url: url,
             active: request.active,
             pinned: request.pinned,
-            index: tab[0].index + 1
+            index: getTabOrderIndex(tab)
           });
         }
       });
@@ -57,7 +57,7 @@ Actions = (function() {
           url: url,
           active: request.active,
           pinned: request.pinned,
-          index: sender.tab.index + 1
+          index: getTabOrderIndex(sender.tab)
         });
       }
     }
@@ -328,14 +328,14 @@ Actions = (function() {
       paste = paste.join('\n');
       return chrome.tabs.create({
         url: paste.convertLink(),
-        index: sender.tab.index + 1
+        index: getTabOrderIndex(sender.tab)
       });
     }
     for (var i = 0; i < request.repeats; ++i) {
       for (var j = 0, l = paste.length; j < l; ++j) {
         chrome.tabs.create({
           url: paste[j].convertLink(),
-          index: sender.tab.index + 1
+          index: getTabOrderIndex(sender.tab)
         });
       }
     }

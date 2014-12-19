@@ -85,7 +85,8 @@
       "background_scripts/options.js",
       "background_scripts/sessions.js",
       "background_scripts/popup.js",
-      "background_scripts/update.js"
+      "background_scripts/update.js",
+      "background_scripts/tab_creation_order.js"
     ]
   },
   "content_scripts": [
