@@ -256,117 +256,93 @@ Command.expandCompletion = function(value) {
   return value;
 };
 
-Command.complete = function(value) {
-  Search.index = null;
-  this.typed = this.input.value;
-  var originalValue = value; // prevent expandCompletion from
-                             // limiting command completions
-  value = this.expandCompletion(value);
-  value = value.replace(/(^[^\s&!*?=]+)[&!*?=]*/, '$1');
-  var search = value.replace(/^(chrome:\/\/|\S+ +)/, '');
+Command.callCompletionFunction = (function() {
 
-  if (/^(tabnew|tabedit|tabe|tabopen|to|open|o|wo|new|winopen)(\s+)/.test(value)) {
+  var self = Command;
+  var search;
 
-    this.deleteCompletions('engines,bookmarks,complete,chrome,search');
+  var searchCompletion = function(value) {
+    self.deleteCompletions('engines,bookmarks,complete,chrome,search');
     search = search.split(/ +/).compress();
-
-    if ((search.length < 2 || !~Complete.engines.indexOf(search[0])) && !Complete.hasAlias(search[0]) || (Complete.hasAlias(search[0]) &&  value.slice(-1) !== ' ' && search.length < 2)) {
-
+    if ((search.length < 2 || !~Complete.engines.indexOf(search[0])) &&
+        !Complete.hasAlias(search[0]) ||
+        (Complete.hasAlias(search[0]) && value.slice(-1) !== ' ' &&
+         search.length < 2))
+    {
       if (~Complete.engines.indexOf(search[0])) {
-        this.hideData();
+        self.hideData();
         return;
       }
-
-      this.completions.engines = [];
-      for (var i = 0, l = Complete.engines.length; i < l; ++i) {
-        if (!search[0] || Complete.engines[i].indexOf(search.join(' ')) === 0) {
-          this.completions.engines.push([Complete.engines[i], Complete.requestUrls[Complete.engines[i]]]);
+      self.completions.engines = [];
+      for (var i = 0; i < Complete.engines.length; i++) {
+        if (!search[0] || !Complete.engines[i].indexOf(search.join(' '))) {
+          self.completions.engines.push([
+            Complete.engines[i],
+            Complete.requestUrls[Complete.engines[i]]
+          ]);
         }
       }
-      this.updateCompletions(true);
-
-      this.completions.topsites = Search.topSites.filter(function(e) {
-        return ~(e[0] + ' ' + e[1]).toLowerCase().indexOf(search.slice(0).join(' ').toLowerCase());
+      self.updateCompletions(true);
+      self.completions.topsites = Search.topSites.filter(function(e) {
+        return ~(e[0] + ' ' + e[1]).toLowerCase()
+          .indexOf(search.slice(0).join(' ').toLowerCase());
       }).slice(0, 5).map(function(e) {
         return [e[0], e[1]];
       });
-      this.updateCompletions(true);
-
+      self.updateCompletions(true);
       if (search.length) {
         Marks.match(search.join(' '), function(response) {
-          this.completions.bookmarks = response;
-          this.updateCompletions(true);
-        }.bind(this), 2);
+          self.completions.bookmarks = response;
+          self.updateCompletions(true);
+        }, 2);
       }
-
-      this.historyMode = false;
-      this.searchMode = true;
-      PORT('searchHistory', {search: value.replace(/^\S+\s+/, ''), limit: settings.searchlimit});
+      self.historyMode = false;
+      self.searchMode = true;
+      PORT('searchHistory', {
+        search: value.replace(/^\S+\s+/, ''),
+        limit: settings.searchlimit
+      });
       return;
-
     }
-
     if (search[0] = (Complete.getAlias(search[0]) || search[0])) {
       if (search.length < 2) {
-        this.hideData();
+        self.hideData();
         return;
       }
     }
-    if (~Complete.engines.indexOf(search[0]) && Complete.hasOwnProperty(search[0])) {
+    if (~Complete.engines.indexOf(search[0]) &&
+        Complete.hasOwnProperty(search[0])) {
       Complete[search[0]](search.slice(1).join(' '), function(response) {
-        this.completions = { search: response };
-        this.updateCompletions();
-      }.bind(this));
+        self.completions = { search: response };
+        self.updateCompletions();
+      });
     }
-    return;
+  };
 
-  }
-
-  if (/^chrome +/.test(value)) {
-    Search.chromeMatch(search, function(matches) {
-      this.completions = { chrome: matches };
-      this.updateCompletions();
-    }.bind(this));
-    return;
-  }
-
-  if (/^tabhistory +/.test(value)) {
+  var tabHistoryCompletion = function(value) {
     RUNTIME('getHistoryStates', null, function(response) {
-      this.completions = {
+      self.completions = {
         tabhistory: searchArray(response.links, value.replace(/\S+\s+/, ''), settings.searchlimit, true)
       };
-      this.updateCompletions();
-    }.bind(this));
-    return;
-  }
+      self.updateCompletions();
+    });
+  };
 
-  if (/^taba(ttach)? +/.test(value)) {
-    RUNTIME('getWindows');
-    this.completions = { };
-    return;
-  }
-
-  if (/^buffer(\s+)/.test(value)) {
-    PORT('getBuffers');
-    return;
-  }
-
-  if (/^restore\s+/.test(value)) {
+  var restoreTabCompletion = function(value) {
     RUNTIME('getChromeSessions', null, function(sessions) {
-      this.completions = {
+      self.completions = {
         chromesessions: Object.keys(sessions).map(function(e) {
           return [sessions[e].id + ': ' + sessions[e].title, sessions[e].url, sessions[e].id];
         }).filter(function(e) {
           return ~e.join('').toLowerCase().indexOf(value.replace(/^\S+\s+/, '').toLowerCase());
         })
       };
-      this.updateCompletions();
-    }.bind(this));
-    return;
-  }
+      self.updateCompletions();
+    });
+  };
 
-  if (/^(del)?session(\s+)/.test(value)) {
-    this.completions = {
+  var deleteSessionCompletion = function() {
+    self.completions = {
       sessions: sessions.filter(function(e) {
         var regexp;
         var isValidRegex = true;
@@ -381,50 +357,88 @@ Command.complete = function(value) {
         return e[0].substring(0, search.length) === search;
       })
     };
-    this.updateCompletions();
-    return;
-  }
+    self.updateCompletions();
+  };
 
-  if (/^set(\s+)/.test(value)) {
-    Search.settingsMatch(search, function(matches) {
-      this.completions = {settings: matches};
-      this.updateCompletions();
-    }.bind(this));
-    return;
-  }
-
-  if (/^hist(ory)?(\s+)/.test(value)) {
-    if (search.trim() === '') {
-      this.hideData();
-      return;
+  return function(value) {
+    search = value.replace(/^(chrome:\/\/|\S+ +)/, '');
+    var baseCommand = (value.match(/^\S+/) || [null])[0];
+    switch (baseCommand) {
+    case 'tabnew':
+    case 'tabedit':
+    case 'tabopen':
+    case 'open':
+    case 'new':
+      searchCompletion(value);
+      return true;
+    case 'chrome':
+      Search.chromeMatch(search, function(matches) {
+        self.completions = { chrome: matches };
+        self.updateCompletions();
+      });
+      return true;
+    case 'tabhistory':
+      tabHistoryCompletion(value);
+      return true;
+    case 'tabattach':
+      RUNTIME('getWindows');
+      self.completions = {};
+      return true;
+    case 'buffer':
+      PORT('getBuffers');
+      return true;
+    case 'restore':
+      restoreTabCompletion(value);
+      return true;
+    case 'delsession':
+      deleteSessionCompletion(value);
+      return true;
+    case 'set':
+      Search.settingsMatch(search, function(matches) {
+        self.completions = {settings: matches};
+        self.updateCompletions();
+      });
+      return true;
+    case 'history':
+      if (search.trim() === '') {
+        self.hideData();
+        return;
+      }
+      self.historyMode = true;
+      PORT('searchHistory', {search: search, limit: settings.searchlimit});
+      return true;
+    case 'file':
+      Marks.parseFileCommand(search);
+      return true;
+    case 'bookmarks':
+      self.completions = {};
+      if (search[0] === '/') {
+        return Marks.matchPath(search);
+      }
+      Marks.match(search, function(response) {
+        self.completions.bookmarks = response;
+        self.updateCompletions();
+      });
+      return true;
     }
-    this.historyMode = true;
-    PORT('searchHistory', {search: search, limit: settings.searchlimit});
+    return false;
+  };
+
+})();
+
+Command.complete = function(value) {
+  Search.index = null;
+  this.typed = this.input.value;
+  var originalValue = value; // prevent expandCompletion from
+                             // limiting command completions
+  value = this.expandCompletion(value).replace(/(^[^\s&!*?=]+)[&!*?=]*/, '$1');
+  if (~value.indexOf(' ') && this.callCompletionFunction(value) === true) {
     return;
   }
-
-  if (/^file +/.test(value)) {
-    Marks.parseFileCommand(search);
-    return;
-  }
-
-  if (/^b(ook)?marks(\s+)/.test(value)) {
-    this.completions = {};
-    if (search[0] === '/') {
-      return Marks.matchPath(search);
-    }
-    Marks.match(search, function(response) {
-      this.completions.bookmarks = response;
-      this.updateCompletions();
-    }.bind(this));
-    return;
-  }
-
-  value = originalValue;
-
+  // Default completion for commands
   this.completions = {
     complete: this.descriptions.filter(function(element) {
-      return value === element[0].slice(0, value.length);
+      return originalValue === element[0].slice(0, originalValue.length);
     })
   };
   this.updateCompletions();
