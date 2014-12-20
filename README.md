@@ -40,6 +40,7 @@ These extensions do a wonderful job of adding Vim-like keybindings to Google Chr
 | typelinkhintsdelay                  | integer                            | the amount of time (in milliseconds) to wait before taking input after opening a link hint with typelinkhints and numerichints enabled | 500                            |
 | scrollduration                      | integer                            | the duration of smooth scrolling                                                          | 20                                                                          |
 | zoomfactor                          | integer                            | the step size when zooming the page in/out                                                | 0.1                                                                         |
+| vimport                             | integer                            | set the port to be used with the `editWithVim` insert mode command                        | 8001                                                                        |
 | hud                                 | boolean                            | show the heads-up-display                                                                 | true                                                                        |
 | regexp                              | boolean                            | use regexp in find mode                                                                   | true                                                                        |
 | ignorecase                          | boolean                            | ignore search case in find mode                                                           | true                                                                        |
@@ -69,7 +70,8 @@ These extensions do a wonderful job of adding Vim-like keybindings to Google Chr
 | previousmatchpattern                | string (regexp)                    | the pattern looked for when navigating a page's back button                               | ((?!last)(prev(ious)?&#124;back&#124;«&#124;less&#124;&lt;&#124;‹&#124; )+) |
 | nextmatchpattern                    | string (regexp)                    | the pattern looked for when navigation a page's next button                               | ((?!first)(next&#124;more&#124;&gt;&#124;›&#124;»&#124;forward&#124; )+)    |
 | hintcharacters                      | string (alphanumeric)              | set the default characters to be used in link hint mode                                   | "asdfgqwertzxcvb"                                                           |
-| barposition                         | string ["top", "bottom"] | set the default position of the command bar                                               | "top"                                                                       |
+| barposition                         | string ["top", "bottom"]           | set the default position of the command bar                                               | "top"                                                                       |
+| vimcommand                          | string                             | set the command to be issued with the `editWithVim` command                               | "gvim -f"                                                                   |
 
 ###Example configuration
 ```viml
@@ -347,7 +349,7 @@ site '*://*/*.js' {
 | `<C-l>`                   | move cursor forward one word                                          | forwardWord                     |
 | `<C-f>`                   | move cursor forward one letter                                        | forwardChar                     |
 | `<C-b>`                   | move cursor back one letter                                           | backwardChar                    |
-| unmapped                  | edit with Vim in a terminal (need the [cvim_socket.py](https://github.com/1995eaton/chromium-vim/blob/master/cvim_socket.py) script running for this to work) | editWithVim     |
+| unmapped                  | edit with Vim in a terminal (need the [cvim_server.py](https://github.com/1995eaton/chromium-vim/blob/master/cvim_server.py) script running for this to work) | editWithVim     |
 
 #Command Mode
 

@@ -42,6 +42,8 @@ var defaultSettings = {
   nextmatchpattern: '((?!first)(next|older|more|>|›|»|forward| )+)',
   previousmatchpattern: '((?!last)(prev(ious)?|newer|back|«|less|<|‹| )+)',
   barposition: 'top',
+  vimport: 8001,
+  vimcommand: 'gvim -f',
   blacklists: [],
   RC: '',
   MAPPINGS: '',

@@ -101,6 +101,12 @@ the command <code>&#39;set&#39; + no&lt;SETTING_NAME&gt;</code> (for example, <c
 <td style="text-align:right">0.1</td>
 </tr>
 <tr>
+<td>vimport</td>
+<td>integer</td>
+<td>set the port to be used with the <code>editWithVim</code> insert mode command</td>
+<td style="text-align:right">8001</td>
+</tr>
+<tr>
 <td>hud</td>
 <td>boolean</td>
 <td>show the heads-up-display</td>
@@ -279,6 +285,12 @@ the command <code>&#39;set&#39; + no&lt;SETTING_NAME&gt;</code> (for example, <c
 <td>string [&quot;top&quot;, &quot;bottom&quot;]</td>
 <td>set the default position of the command bar</td>
 <td style="text-align:right">&quot;top&quot;</td>
+</tr>
+<tr>
+<td>vimcommand</td>
+<td>string</td>
+<td>set the command to be issued with the <code>editWithVim</code> command</td>
+<td style="text-align:right">&quot;gvim -f&quot;</td>
 </tr>
 </tbody>
 </table>
@@ -1060,7 +1072,7 @@ site &#39;*://*/*.js&#39; {
 </tr>
 <tr>
 <td>unmapped</td>
-<td style="text-align:left">edit with Vim in a terminal (need the <a href="https://github.com/1995eaton/chromium-vim/blob/master/cvim_socket.py">cvim_socket.py</a> script running for this to work)</td>
+<td style="text-align:left">edit with Vim in a terminal (need the <a href="https://github.com/1995eaton/chromium-vim/blob/master/cvim_server.py">cvim_server.py</a> script running for this to work)</td>
 <td style="text-align:left">editWithVim</td>
 </tr>
 </tbody>

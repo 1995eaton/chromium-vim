@@ -1,5 +1,9 @@
 #cVim Changelog
 
+## 1.2.66
+ * Added `nativelinkeorder`, `vimcommand`, and `vimport` options
+ * `cvim_socket.py` is now `cvim_server.py`
+
 ## 1.2.65
  * Better smooth scrolling performance
  * Fix a URI encoding bug with search engines
