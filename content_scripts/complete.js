@@ -170,7 +170,7 @@ Complete.convertToLink = function(input, isURL, isLink) {
   } else {
     if (!isLink && (isURL || input.join(' ').validURL())) {
       input = input.join(' ');
-      return (!/^[a-zA-Z]+:/.test(input) ? 'http://' : '') +
+      return (!/^[a-zA-Z\-]+:/.test(input) ? 'http://' : '') +
         input;
     }
     return (Complete.requestUrls[settings.defaultengine] ||

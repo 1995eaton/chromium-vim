@@ -192,7 +192,7 @@ definePrototype(String, 'validURL', (function() {
     var url = this.trimAround();
     if (~url.indexOf(' '))
       return false;
-    if (~url.search(/^about:[^:]/))
+    if (~url.search(/^(about|file):[^:]/))
       return true;
     var protocol = (url.match(/^([a-zA-Z\-]+:)[^:]/) || [''])[0].slice(0, -1);
     var protocolMatch = PROTOCOLS.indexOf(protocol) !== -1;
