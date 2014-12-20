@@ -140,24 +140,26 @@ Find.highlight = function(params) {
     }
   }
 
-  nodeIterator = document.createNodeIterator(params.base, NodeFilter.SHOW_TEXT, { acceptNode: function(node) { // Make sure HTML element isn't a script/style
-    if (!node.data.trim()) {
-      return NodeFilter.FILTER_REJECT;
-    }
-    var nodeName = node.parentNode.localName.toLowerCase();
-    if (nodeName === 'script' || nodeName === 'style' || nodeName === 'noscript' || nodeName === 'mark') {
-      return NodeFilter.FILTER_REJECT;
-    }
-    if (isVisible(node.parentNode)) {
-      return NodeFilter.FILTER_ACCEPT;
-    }
-    return NodeFilter.FILTER_REJECT;
-  }}, false);
+  nodeIterator = document.createNodeIterator(params.base, NodeFilter.SHOW_TEXT, {
+    acceptNode: function(node) { // Make sure HTML element isn't a script/style
+      if (!node.data.trim())
+        return NodeFilter.FILTER_REJECT;
+      switch (node.parentNode.localName.toLowerCase()) {
+      case 'script':
+      case 'style':
+      case 'noscript':
+      case 'mark':
+        return NodeFilter.FILTER_REJECT;
+      }
+      return isVisible(node.parentNode) ?
+        NodeFilter.FILTER_ACCEPT :
+        NodeFilter.FILTER_REJECT;
+    }}, false);
 
+  while (node = nodeIterator.nextNode()) {
+    nodes.push(node);
+  }
   if (useRegex) {
-    while (node = nodeIterator.nextNode()) {
-      nodes.push(node);
-    }
     for (i = 0, l = nodes.length; i < l; i++) {
       node = nodes[i];
       var matches = node.data.match(search);
@@ -174,9 +176,6 @@ Find.highlight = function(params) {
       }
     }
   } else {
-    while (node = nodeIterator.nextNode()) {
-      nodes.push(node);
-    }
     for (i = 0, l = nodes.length; i < l; i++) {
       node = nodes[i];
       matchPosition = (containsCap || !settings.ignorecase ? node.data.indexOf(search) : node.data.toLowerCase().indexOf(search));

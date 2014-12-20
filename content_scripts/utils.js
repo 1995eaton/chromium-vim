@@ -95,10 +95,11 @@ definePrototype(HTMLElement, 'isVisible', function() {
 });
 
 var isVisible = function(element) {
-  return element.offsetParent && !element.disabled &&
-    element.getAttribute('type') !== 'hidden' &&
-    getComputedStyle(element).visibility !== 'hidden' &&
-    element.getAttribute('display') !== 'none';
+  return element.offsetParent &&
+         !element.disabled &&
+         element.getAttribute('type') !== 'hidden' &&
+         getComputedStyle(element).visibility !== 'hidden' &&
+         element.getAttribute('display') !== 'none';
 };
 
 definePrototype(HTMLElement, 'isInput', function() {
