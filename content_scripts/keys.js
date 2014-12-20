@@ -172,7 +172,8 @@ var KeyListener = (function() {
       } else if (commandMode || (!insertMode && mappingTrie.at(Mappings.queue + keyString)) ||
           (keyString[0] >= '0' && keyString[0] <= '9'))
       {
-        if (Command.commandBarFocused() && event.which >= 37 && event.which <= 40) {
+        if (Command.commandBarFocused() &&
+            (event.which === 38 || event.which === 40)) {
           event.preventDefault();
         }
         KeyEvents.lastHandledEvent = event;
