@@ -17,10 +17,10 @@ Find.setIndex = function() {
 };
 
 Find.getSelectedTextNode = function() {
-  if (!this.matches.length) {
-    return false;
-  }
-  return (this.matches[this.index] && this.matches[this.index].firstChild) || false;
+  return (this.matches.length &&
+          this.matches[this.index] &&
+          this.matches[this.index].firstChild)
+    || false;
 };
 
 Find.focusParentLink = function(node) {
@@ -50,10 +50,12 @@ Find.search = function(reverse, repeats, ignoreFocus) {
   }
   if (reverse && repeats === 1 && this.index === 0) {
     this.index = this.matches.length - 1;
-  } else if (!reverse && repeats === 1 && this.index + 1 === this.matches.length) {
+  } else if (!reverse && repeats === 1 &&
+             this.index + 1 === this.matches.length) {
     this.index = 0;
   } else {
-    this.index = (this.index + (reverse ? -1 : 1) * repeats).mod(this.matches.length);
+    this.index = (this.index + (reverse ? -1 : 1) * repeats)
+      .mod(this.matches.length);
   }
   if (!this.matches[this.index].isVisible()) {
     this.matches.splice(this.index, 1);
@@ -84,12 +86,14 @@ Find.search = function(reverse, repeats, ignoreFocus) {
     paddingTop    = Command.barPaddingTop;
   }
   var documentZoom = parseFloat(document.body.style.zoom) || 1;
-  if (br.top * documentZoom + br.height * documentZoom > window.innerHeight - paddingBottom) {
+  if (br.top * documentZoom + br.height * documentZoom >
+      window.innerHeight - paddingBottom) {
     if (isLink && !reverse) {
       origTop += br.height * documentZoom;
     }
     window.scrollTo(0, origTop + paddingTop + paddingBottom);
-    window.scrollBy(0, br.top * documentZoom + br.height * documentZoom - window.innerHeight);
+    window.scrollBy(0, br.top * documentZoom + br.height *
+                       documentZoom - window.innerHeight);
   } else if (br.top < paddingTop) {
     window.scrollTo(0, origTop - paddingTop - paddingBottom);
     window.scrollBy(0, br.top * documentZoom);
@@ -105,23 +109,22 @@ Find.highlight = function(params) {
   //   setIndex       -> find the first match within the viewport
   //   executesearch  -> run Find.search after highlighting
   //   saveSearch     -> add search to search history
+  var self = this;
   var regexMode = '',
       containsCap = params.search.search(/[A-Z]/) !== -1,
       useRegex = settings.regexp,
       markBase = document.createElement('mark'),
-      nodes = [],
-      i = 0,
-      node, mark, mid, search, nodeIterator, matchPosition;
+      nodes = [];
 
   markBase.style.backgroundColor = settings.highlight;
 
-  if (params.saveSearch) {
+  if (params.saveSearch)
     this.lastSearch = params.search;
-  }
 
-  search = params.search;
+  var search = params.search;
 
-  if ((settings.ignorecase || /\/i$/.test(params.search)) && !(settings.smartcase && containsCap)) {
+  if ((settings.ignorecase || /\/i$/.test(params.search)) &&
+      !(settings.smartcase && containsCap)) {
     search = search.replace(/\/i$/, '');
     regexMode = 'i';
   }
@@ -140,7 +143,9 @@ Find.highlight = function(params) {
     }
   }
 
-  nodeIterator = document.createNodeIterator(params.base, NodeFilter.SHOW_TEXT, {
+  var nodeIterator = document.createNodeIterator(
+    params.base,
+    NodeFilter.SHOW_TEXT, {
     acceptNode: function(node) { // Make sure HTML element isn't a script/style
       if (!node.data.trim())
         return NodeFilter.FILTER_REJECT;
@@ -156,70 +161,52 @@ Find.highlight = function(params) {
         NodeFilter.FILTER_REJECT;
     }}, false);
 
-  while (node = nodeIterator.nextNode()) {
-    nodes.push(node);
-  }
-  if (useRegex) {
-    for (i = 0, l = nodes.length; i < l; i++) {
-      node = nodes[i];
-      var matches = node.data.match(search);
-      if (matches) {
-        for (var j = 0, k = matches.length; j < k; j++) {
-          mark = markBase.cloneNode(false);
-          mid = node.splitText(node.data.indexOf(matches[j]));
-          mid.splitText(matches[j].length);
+  for (var node; node = nodeIterator.nextNode(); nodes.push(node));
+
+  nodes.forEach((function() {
+    if (useRegex) {
+      return function(node) {
+        var matches = node.data.match(search) || [];
+        matches.forEach(function(match) {
+          var mark = markBase.cloneNode(false);
+          var mid = node.splitText(node.data.indexOf(match));
+          mid.splitText(match.length);
           mark.appendChild(mid.cloneNode(true));
           mid.parentNode.replaceChild(mark, mid);
-          this.matches.push(mark);
+          self.matches.push(mark);
           node = mark.nextSibling;
-        }
-      }
+        });
+      };
     }
-  } else {
-    for (i = 0, l = nodes.length; i < l; i++) {
-      node = nodes[i];
-      matchPosition = (containsCap || !settings.ignorecase ? node.data.indexOf(search) : node.data.toLowerCase().indexOf(search));
-      if (matchPosition !== -1) {
-        mark = markBase.cloneNode(false);
-        mid = node.splitText(matchPosition);
+
+    return function(node) {
+      var pos = containsCap || !settings.ignorecase ?
+        node.data.indexOf(search) :
+        node.data.toLowerCase().indexOf(search);
+      if (~pos) {
+        var mark = markBase.cloneNode(false),
+            mid = node.splitText(pos);
         mid.splitText(search.length);
         mark.appendChild(mid.cloneNode(true));
         mid.parentNode.replaceChild(mark, mid);
-        this.matches.push(mark);
+        self.matches.push(mark);
       }
-    }
-  }
+    };
+  })());
 
   document.body.normalize();
-
   HUD.display(this.matches.length || 'No matches');
-
-  if (params.setIndex) {
+  if (params.setIndex)
     this.setIndex();
-  }
-  if (params.executeSearch) {
+  if (params.executeSearch)
     this.search(params.reverse, 1);
-  }
-
 };
 
 Find.clear = function() {
-  // Not pretty, but this is WAY faster than calling Node.normalize()
   var nodes = this.matches;
-  for (var i = 0; i < nodes.length; i++) {
-    if (nodes[i] && nodes[i].parentNode) {
-      nodes[i].parentNode.innerHTML = nodes[i].parentNode.innerHTML.replace(/<mark[^>]*>([^<]+)<\/mark>/gi, '$1');
-    }
-  }
-  // More elegant solution, but 1000's of times slower
-  // for (var i = 0; i < this.matches.length; i++) {
-  //   try { // Ignore text nodes that have changed or been removed since last search
-  //     var parent = this.matches[i].parentNode;
-  //     parent.replaceChild(this.matches[i].firstChild, this.matches[i]);
-  //     parent.normalize();
-  //   } catch(e) {
-  //     continue;
-  //   }
-  // }
+  for (var i = 0; i < nodes.length; i++)
+    if (nodes[i] && nodes[i].parentNode)
+      nodes[i].parentNode.innerHTML = nodes[i].parentNode.innerHTML
+        .replace(/<mark[^>]*>([^<]+)<\/mark>/gi, '$1');
   this.matches = [];
 };
