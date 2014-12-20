@@ -382,55 +382,67 @@ Hints.siteFilters = {
   }
 };
 
-Hints.getLinks = function() {
-  var node, nodeIterator, name, role, applicableFiltersLength, filterCatch,
-      i = 0,
-      applicableFilters = [];
+Hints.acceptHint = function(node) {
 
-  nodeIterator = document.createNodeIterator(document.body, 1, {
-    acceptNode: function(node) {
-      name = node.localName.toLowerCase();
-      if (Hints.type) {
-        if (Hints.type.indexOf('yank') !== -1) {
-          return name === 'a' || name === 'textarea' || name === 'input';
-        } else if (Hints.type.indexOf('image') !== -1) {
-          return name === 'img';
-        }
-      }
-      if (name === 'a' || name === 'button' || name === 'select' || name === 'textarea' || name === 'input' || name === 'area') {
-        return NodeFilter.FILTER_ACCEPT;
-      }
-      if (node.hasAttribute('contenteditable') || node.hasAttribute('onclick') || node.hasAttribute('tabindex') || node.hasAttribute('aria-haspopup') || node.hasAttribute('data-cmd') || node.hasAttribute('jsaction')) {
-        return NodeFilter.FILTER_ACCEPT;
-      }
-      if (role = node.getAttribute('role')) {
-        if (role === 'button' || role === 'checkbox' || role.indexOf('menu') === 0) {
-          return NodeFilter.FILTER_ACCEPT;
-        }
-      }
-      return NodeFilter.FILTER_REJECT;
+  if (node.nodeType !== Node.ELEMENT_NODE)
+    return false;
+
+  var name = node.localName.toLowerCase();
+
+  if (Hints.type) {
+    if (Hints.type.indexOf('yank') !== -1) {
+      return name === 'a'        ||
+             name === 'textarea' ||
+             name === 'input';
+    } else if (Hints.type.indexOf('image') !== -1) {
+      return name === 'img';
     }
-  });
+  }
 
+  switch (name) {
+  case 'a':
+  case 'button':
+  case 'select':
+  case 'textarea':
+  case 'input':
+  case 'area':
+    return true;
+  }
+
+  switch (true) {
+  case node.hasAttribute('onclick'):
+  case node.hasAttribute('contenteditable'):
+  case node.hasAttribute('tabindex'):
+  case node.hasAttribute('aria-haspopup'):
+  case node.hasAttribute('data-cmd'):
+  case node.hasAttribute('jsaction'):
+    return true;
+  }
+
+  var role = node.getAttribute('role');
+  if (role) {
+    if (role === 'button' ||
+        role === 'checkbox' ||
+        role.indexOf('menu') === 0)
+      return true;
+  }
+  return false;
+};
+
+Hints.getLinks = function() {
+  var nodes = traverseDOM(document.body, this.acceptHint);
+  var applicableFiltersLength,
+      applicableFilters = [];
   for (var key in this.siteFilters) {
     if (window.location.origin.indexOf(key) !== -1) {
       applicableFilters.push(this.siteFilters[key]);
     }
   }
   applicableFiltersLength = applicableFilters.length;
-
-  while (node = nodeIterator.nextNode()) {
-    filterCatch = false;
-    for (var j = 0; j < applicableFiltersLength; j++) {
-      if (!applicableFilters[j](node)) {
-        filterCatch = true;
-        break;
-      }
-    }
-    if (!filterCatch) {
-      this.evaluateLink(node, i++);
-    }
-  }
+  nodes.forEach(function(node, i) {
+    if (applicableFilters.every(function(filter) { return filter(node); }))
+      Hints.evaluateLink(node, i);
+  });
 };
 
 

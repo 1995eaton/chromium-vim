@@ -403,3 +403,17 @@ var Trie = (function() {
   };
   return _;
 })();
+
+var traverseDOM = function(root, accept) {
+  var nodes = [root];
+  for (var i = 0; i < nodes.length; i++) {
+    var node = nodes[i];
+    node = node.firstChild;
+    while (node !== null) {
+      nodes.push(node);
+      node = node.nextSibling;
+    }
+  }
+  nodes.shift();
+  return nodes.filter(accept);
+};
