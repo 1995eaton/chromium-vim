@@ -345,10 +345,14 @@ site '*://*/*.js' {
 | `<C-o>`                   | delete to the end of the line                                         | deleteToEnd                     |
 | `<C-y>`                   | delete back one word                                                  | deleteWord                      |
 | `<C-p>`                   | delete forward one word                                               | deleteForwardWord               |
+| unmapped                  | delete back one character                                             | deleteChar                      |
+| unmapped                  | delete forward one character                                          | deleteForwardChar               |
 | `<C-h>`                   | move cursor back one word                                             | backwardWord                    |
 | `<C-l>`                   | move cursor forward one word                                          | forwardWord                     |
 | `<C-f>`                   | move cursor forward one letter                                        | forwardChar                     |
 | `<C-b>`                   | move cursor back one letter                                           | backwardChar                    |
+| unmapped                  | move cursor forward one line                                          | forwardLine                     |
+| unmapped                  | move cursor back one line                                             | backwardLine                    |
 | unmapped                  | edit with Vim in a terminal (need the [cvim_server.py](https://github.com/1995eaton/chromium-vim/blob/master/cvim_server.py) script running for this to work) | editWithVim     |
 
 #Command Mode

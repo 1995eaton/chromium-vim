@@ -701,6 +701,20 @@ Mappings.insertFunctions = (function() {
         modify('extend', 'right', 'word');
       }
       deleteSelection();
+    },
+    deleteChar: function() {
+      modify('extend', 'left', 'character');
+      deleteSelection();
+    },
+    deleteForwardChar: function() {
+      modify('extend', 'right', 'character');
+      deleteSelection();
+    },
+    forwardLine: function() {
+      modify('move', 'right', 'line');
+    },
+    backwardLine: function() {
+      modify('move', 'left', 'line');
     }
   };
 })();
