@@ -88,7 +88,8 @@ Command.history = {
     index += reverse ? -1 : 1;
     if (Command.typed && Command.typed.trim()) {
       while (this.setInfo(type, index)) {
-        if (this[type][index].substring(0, Command.typed.length) === Command.typed) {
+        if (this[type][index].substring(0, Command.typed.length)
+            === Command.typed) {
           break;
         }
         index += reverse ? -1 : 1;
@@ -135,7 +136,8 @@ Command.updateCompletions = function(useStyles) {
   this.data.innerHTML = '';
   var key, i;
   var completionKeys = Object.keys(this.completions).sort(function(a, b) {
-    return this.completionOrder.getImportance(b) - this.completionOrder.getImportance(a);
+    return this.completionOrder.getImportance(b) -
+           this.completionOrder.getImportance(a);
   }.bind(this));
   for (i = 0; i < completionKeys.length; i++) {
     key = completionKeys[i];
@@ -150,7 +152,8 @@ Command.updateCompletions = function(useStyles) {
     var item = document.createElement('div');
     item.className = 'cVim-completion-item';
     var identifier;
-    if (useStyles && this.completionStyles.hasOwnProperty(this.completionResults[i][0])) {
+    if (useStyles &&
+        this.completionStyles.hasOwnProperty(this.completionResults[i][0])) {
       var styles = this.completionStyles[this.completionResults[i][0]];
       identifier = document.createElement('span');
       identifier.style.color = styles[1];
@@ -322,7 +325,8 @@ Command.callCompletionFunction = (function() {
   var tabHistoryCompletion = function(value) {
     RUNTIME('getHistoryStates', null, function(response) {
       self.completions = {
-        tabhistory: searchArray(response.links, value.replace(/\S+\s+/, ''), settings.searchlimit, true)
+        tabhistory: searchArray(response.links, value.replace(/\S+\s+/, ''),
+                                settings.searchlimit, true)
       };
       self.updateCompletions();
     });
@@ -332,9 +336,12 @@ Command.callCompletionFunction = (function() {
     RUNTIME('getChromeSessions', null, function(sessions) {
       self.completions = {
         chromesessions: Object.keys(sessions).map(function(e) {
-          return [sessions[e].id + ': ' + sessions[e].title, sessions[e].url, sessions[e].id];
+          return [sessions[e].id + ': ' + sessions[e].title,
+                  sessions[e].url,
+                  sessions[e].id];
         }).filter(function(e) {
-          return ~e.join('').toLowerCase().indexOf(value.replace(/^\S+\s+/, '').toLowerCase());
+          return ~e.join('').toLowerCase()
+            .indexOf(value.replace(/^\S+\s+/, '').toLowerCase());
         })
       };
       self.updateCompletions();
@@ -451,7 +458,8 @@ Command.execute = function(value, repeats) {
     return settings.hasOwnProperty(e) ? settings[e] : e;
   });
 
-  // Match commands like ':tabnew*&! search' before commands like ':tabnew search&*!'
+  // Match commands like ':tabnew*&! search' before
+  // commands like ':tabnew search&*!'
   // e.g. :tabnew& google asdf* => opens a new pinned tab
   // ! == whether to open in a new tab or not
   // & == whether the tab will be active
@@ -513,7 +521,10 @@ Command.execute = function(value, repeats) {
       return;
     case 'help':
       tab.tabbed = true;
-      RUNTIME('openLink', {tab: tab, url: chrome.extension.getURL('/pages/mappings.html')});
+      RUNTIME('openLink', {
+        tab: tab,
+        url: chrome.extension.getURL('/pages/mappings.html')
+      });
       return;
     case 'stop':
       window.stop();
@@ -522,7 +533,10 @@ Command.execute = function(value, repeats) {
       RUNTIME('cancelAllWebRequests');
       return;
     case 'viewsource':
-      RUNTIME('openLink', {tab: tab, url: 'view-source:' + document.URL, noconvert: true});
+      RUNTIME('openLink', {
+        tab: tab,
+        url: 'view-source:' + document.URL, noconvert: true
+      });
       return;
     case 'pintab':
       RUNTIME('pinTab', {pinned: true});
@@ -576,7 +590,8 @@ Command.execute = function(value, repeats) {
       return;
     }
     if (this.completionResults.length &&
-        !this.completionResults.some(function(e) { return e[2] === value.replace(/^\S+\s*/, ''); })) {
+        !this.completionResults.some(function(e)
+          { return e[2] === value.replace(/^\S+\s*/, ''); })) {
       RUNTIME('openLink', {
         tab: tab,
         url: this.completionResults[0][2],
@@ -603,7 +618,8 @@ Command.execute = function(value, repeats) {
 
   if (/^taba(ttach)? +/.test(value) && !/^\S+\s*$/.test(value)) {
     var windowId;
-    if (windowId = this.completionResults[parseInt(value.replace(/^\S+ */, ''), 10)]) {
+    if (windowId = this.completionResults[parseInt(
+          value.replace(/^\S+ */, ''), 10)]) {
       RUNTIME('moveTab', {
         windowId: windowId[3]
       });
@@ -619,13 +635,15 @@ Command.execute = function(value, repeats) {
   if (/^file +/.test(value)) {
     RUNTIME('openLink', {
       tab: tab,
-      url: 'file://' + value.replace(/\S+ +/, '').replace(/^~/, settings.homedirectory),
+      url: 'file://' + value.replace(/\S+ +/, '')
+        .replace(/^~/, settings.homedirectory),
       noconvert: true
     });
     return;
   }
 
-  if (/^(new|winopen|wo)$/.test(value.replace(/ .*/, '')) && !/^\S+\s*$/.test(value)) {
+  if (/^(new|winopen|wo)$/.test(value.replace(/ .*/, '')) &&
+      !/^\S+\s*$/.test(value)) {
     RUNTIME('openLinkWindow', {
       tab: tab,
       url: Complete.convertToLink(value, tab.isURL, tab.isLink),
@@ -641,7 +659,8 @@ Command.execute = function(value, repeats) {
     });
   }
 
-  if (/^(tabnew|tabedit|tabe|to|tabopen|tabhistory)$/.test(value.replace(/ .*/, ''))) {
+  if (/^(tabnew|tabedit|tabe|to|tabopen|tabhistory)$/
+      .test(value.replace(/ .*/, ''))) {
     tab.tabbed = true;
     RUNTIME('openLink', {
       tab: tab,
@@ -714,7 +733,8 @@ Command.execute = function(value, repeats) {
       return;
     }
     if (/[^a-zA-Z0-9_-]/.test(value)) {
-      Status.setMessage('only alphanumeric characters, dashes, and underscores are allowed', 1, 'error');
+      Status.setMessage('only alphanumeric characters, dashes, ' +
+                        'and underscores are allowed', 1, 'error');
       return;
     }
     if (!~sessions.indexOf(value)) {
@@ -849,7 +869,8 @@ Command.insertCSS = function() {
     return;
   }
   if (settings.linkanimations) {
-    css += '.cVim-link-hint { transition: opacity 0.2s ease-out, background 0.2s ease-out; }';
+    css += '.cVim-link-hint { transition: opacity 0.2s ease-out, ' +
+           'background 0.2s ease-out; }';
   }
 
   RUNTIME('injectCSS', {css: css, runAt: 'document_start'});
@@ -873,7 +894,8 @@ Command.onDOMLoad = function() {
     var manualFocus = false;
     var initialFocus = window.setInterval(function() {
       if (document.activeElement) {
-        if (/input|textarea/i.test(document.activeElement.localName) && !manualFocus &&
+        if (/input|textarea/i.test(document.activeElement.localName) &&
+            !manualFocus &&
             !Command.commandBarFocused()) {
           document.activeElement.blur();
         }
@@ -893,14 +915,16 @@ Command.onDOMLoad = function() {
 
 Command.updateSettings = function(config) {
   var key;
-  if (Array.isArray(config.completionengines) && config.completionengines.length) {
+  if (Array.isArray(config.completionengines) &&
+      config.completionengines.length) {
     Complete.engines = Complete.engines.filter(function(e) {
       return ~config.completionengines.indexOf(e);
     });
   }
   if (config.searchengines && config.searchengines.constructor === Object) {
     for (key in config.searchengines) {
-      if (!~Complete.engines.indexOf(key) && typeof config.searchengines[key] === 'string') {
+      if (!~Complete.engines.indexOf(key) &&
+          typeof config.searchengines[key] === 'string') {
         Complete.engines.push(key);
         Complete.requestUrls[key] = config.searchengines[key];
       }
@@ -916,8 +940,10 @@ Command.updateSettings = function(config) {
   if (config.locale) {
     Complete.setLocale(config.locale);
   }
-  if (config.hintcharacters && config.hintcharacters.split('').unique().length > 1) {
-    settings.hintcharacters = config.hintcharacters.split('').unique().join('');
+  if (config.hintcharacters &&
+      config.hintcharacters.split('').unique().length > 1) {
+    settings.hintcharacters = config.hintcharacters
+      .split('').unique().join('');
   }
   if (config !== settings) {
     for (key in config) {
