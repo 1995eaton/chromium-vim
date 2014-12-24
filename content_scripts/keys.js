@@ -1,7 +1,6 @@
-var addListeners, removeListeners, insertMode, commandMode, settings;
+var insertMode, commandMode, settings;
 
 var KeyListener = (function() {
-
   'use strict';
   var isActive = false;
 
@@ -111,15 +110,12 @@ var KeyListener = (function() {
   };
 
   var KeyEvents = {
-
     lastHandledEvent: null,
-
     keypress: function(callback, event) {
       if (typeof callback === 'function') {
         callback(event);
       }
     },
-
     keyhandle: function(event, type) {
       if (type === 'keypress') {
         // ascii representation of keycode
@@ -129,7 +125,6 @@ var KeyListener = (function() {
         return parseKeyDown(event);
       }
     },
-
     keyup: function(event) {
       window.scrollKeyUp = true;
       if (Hints.active && event.which === 191) {
@@ -141,7 +136,6 @@ var KeyListener = (function() {
         event.stopImmediatePropagation();
       }
     },
-
     keydown: function(callback, event) {
       var keyString = KeyEvents.keyhandle(event, 'keydown');
 
@@ -151,14 +145,15 @@ var KeyListener = (function() {
       }
 
       // Modifier keys C-A-S-M
-      if ([16,17,18,91,123].indexOf(event.which) !== -1) {
+      if (~[16, 17, 18, 91, 123].indexOf(event.which))
         return true;
-      }
 
       // Don't let the keypress listener attempt to parse the key event
-      // if it contains a modifier (or key that should be parsed by the parseKeyDown function
-      // such as { return (13) <BR> } or { space (32) <Space> }
-      if ([9,13,32].indexOf(event.which) !== -1 || event.ctrlKey || event.metaKey || event.altKey) {
+      // if it contains a modifier (or key that should be parsed by the
+      // parseKeyDown function such as { return (13) <BR> } or
+      // { space (32) <Space> }
+      if ([9, 13, 32].indexOf(event.which) !== -1 || event.ctrlKey ||
+          event.metaKey || event.altKey) {
         var code = KeyEvents.keyhandle(event, 'keydown');
         for (var key in Mappings.defaults) {
           if (Mappings.defaults[key].indexOf(code) !== -1) {
@@ -167,9 +162,11 @@ var KeyListener = (function() {
           }
         }
         return callback.call(this, code, event);
-      // Ugly, but this NEEDS to be checked before setTimeout is called. Otherwise, non-cVim keyboard listeners
-      // will not be stopped. preventDefault on the other hand, can be.
-      } else if (commandMode || (!insertMode && mappingTrie.at(Mappings.queue + keyString)) ||
+      // Ugly, but this NEEDS to be checked before setTimeout is called.
+      // Otherwise, non-cVim keyboard listeners will not be stopped.
+      // "preventDefault" on the other hand, can be.
+      } else if (commandMode ||
+          (!insertMode && mappingTrie.at(Mappings.queue + keyString)) ||
           (keyString[0] >= '0' && keyString[0] <= '9'))
       {
         if (Command.commandBarFocused() &&
@@ -187,7 +184,9 @@ var KeyListener = (function() {
         if (!keypressTriggered) {
           // found a matching character...
           // use it if the setTimeout function below hasn't already timed out
-          if (Hints.active || Visual.caretModeActive || Visual.visualModeActive) {
+          if (Hints.active ||
+              Visual.caretModeActive ||
+              Visual.visualModeActive) {
             event.preventDefault();
             event.stopImmediatePropagation();
           }
@@ -202,16 +201,16 @@ var KeyListener = (function() {
       window.setTimeout(function() {
         window.removeEventListener('keypress', boundMethod, true);
         if (!keypressTriggered) { // keypress match wasn't found
-          if (Hints.active || Visual.caretModeActive || Visual.visualModeActive) {
+          if (Hints.active ||
+              Visual.caretModeActive ||
+              Visual.visualModeActive) {
             event.preventDefault();
             event.stopImmediatePropagation();
           }
           callback.call(this, KeyEvents.keyhandle(event, 'keydown'), event);
         }
       }, 0);
-
     }
-
   };
   var createEventListener = function(element, type, callback) {
     element.addEventListener(type, function() {
@@ -242,108 +241,118 @@ var KeyListener = (function() {
     }
   };
   return listenerFn;
-
 })();
 
-var KeyHandler = {};
+var KeyHandler = {
+  down: function(key, event) {
+    KeyHandler.shiftKey = event.shiftKey;
 
-KeyHandler.down = function(key, event) {
+    // noautofocus workaround for stopimmediatepropagation
+    KeyHandler.hasPressedKey = true;
 
-  var escapeKey, isInput;
-  KeyHandler.shiftKey = event.shiftKey;
-  KeyHandler.hasPressedKey = true; // noautofocus workaround for stopimmediatepropagation
-
-  if (Hints.active) {
-    event.stopImmediatePropagation();
-    if (event.which === 18) {
-      return Hints.changeFocus();
-    } else if (event.which === 191) {
-      event.preventDefault();
-      return document.getElementById('cVim-link-container').style.opacity = '0';
-    }
-  }
-
-  if (Hints.keyDelay) {
-    event.stopImmediatePropagation();
-    return event.preventDefault();
-  }
-
-  if (Cursor.overlay && settings.autohidecursor) {
-    Cursor.overlay.style.display = 'block';
-    Cursor.wiggleWindow();
-  }
-
-  if (Command.commandBarFocused()) {
-    event.stopImmediatePropagation();
-  }
-
-  escapeKey = key === '<Esc>' || key === '<C-[>';
-
-  if (Visual.caretModeActive || Visual.visualModeActive) {
-    event.stopImmediatePropagation();
-    Visual.selection = document.getSelection();
-    if (event.which === 8) {
-      event.preventDefault();
-    }
-    if (escapeKey) {
-      Visual.lineMode = false;
-      if (Visual.visualModeActive === false) {
-        Visual.exit();
-        insertMode = false;
+    if (Hints.active) {
+      event.stopImmediatePropagation();
+      switch (event.which) {
+      case 18:   // Alt
+        Hints.changeFocus();
+        return;
+      case 191: // Slash
+        event.preventDefault();
+        document.getElementById('cVim-link-container').style.opacity = '0';
         return;
       }
-      HUD.setMessage(' -- CARET -- ');
-      Visual.collapse();
+    }
+
+    if (Hints.keyDelay) {
+      event.stopImmediatePropagation();
+      event.preventDefault();
       return;
     }
-    return Visual.action(key.replace(/^<BS>$/, 'h').replace(/^<Space>$/, 'l'));
-  }
 
-  if (escapeKey) {
-    return Mappings.handleEscapeKey();
-  }
-
-  if (insertMode) {
-    return false;
-  }
-
-  if (!commandMode && Mappings.actions.inputFocused && event.which === 9) { // When <Tab> or <S-Tab> is pressed in 'gi' mode
-    if (document.activeElement && (!document.activeElement.isInput() || !Mappings.actions.inputElements.length)) {
-      return Mappings.actions.inputFocused = false;
+    if (Cursor.overlay && settings.autohidecursor) {
+      Cursor.overlay.style.display = 'block';
+      Cursor.wiggleWindow();
     }
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    Mappings.actions.inputElementsIndex = ((event.shiftKey ? -1 : 1) + Mappings.actions.inputElementsIndex).mod(Mappings.actions.inputElements.length);
-    Mappings.actions.inputElements[Mappings.actions.inputElementsIndex].focus();
-    if (Mappings.actions.inputElements[Mappings.actions.inputElementsIndex].getAttribute('readonly')) {
-      Mappings.actions.inputElements[Mappings.actions.inputElementsIndex].select();
+
+    if ( Command.commandBarFocused() )
+      event.stopImmediatePropagation();
+
+    var escapeKey = key === '<Esc>' || key === '<C-[>';
+
+    if (Visual.caretModeActive || Visual.visualModeActive) {
+      event.stopImmediatePropagation();
+      Visual.selection = document.getSelection();
+      if (event.which === 8)
+        event.preventDefault();
+      if (escapeKey) {
+        Visual.lineMode = false;
+        if (Visual.visualModeActive === false) {
+          Visual.exit();
+          insertMode = false;
+          return;
+        }
+        HUD.setMessage(' -- CARET -- ');
+        Visual.collapse();
+        return;
+      }
+      Visual.action(key.replace(/^<BS>$/, 'h').replace(/^<Space>$/, 'l'));
+      return;
     }
-    return;
-  }
 
-  isInput = document.activeElement && document.activeElement.isInput();
+    if (escapeKey) {
+      Mappings.handleEscapeKey();
+      return;
+    }
 
-  if (!isInput) {
-    if (Mappings.queue.length) {
+    if (insertMode)
+      return;
+
+    // When <Tab> or <S-Tab> is pressed in 'gi' mode
+    if (!commandMode && Mappings.actions.inputFocused && event.which === 9) {
+      if (document.activeElement && (!document.activeElement.isInput() ||
+                                     !Mappings.actions.inputElements.length)) {
+        Mappings.actions.inputFocused = false;
+        return;
+      }
       event.preventDefault();
       event.stopImmediatePropagation();
+      Mappings.actions.inputElementsIndex =
+        ((event.shiftKey ? -1 : 1) + Mappings.actions.inputElementsIndex)
+        .mod(Mappings.actions.inputElements.length);
+      Mappings.actions.inputElements[Mappings.actions.inputElementsIndex]
+        .focus();
+      if (Mappings.actions.inputElements[Mappings.actions.inputElementsIndex]
+          .hasAttribute('readonly'))
+        Mappings.actions.inputElements[Mappings.actions.inputElementsIndex]
+          .select();
+      return;
     }
-    if (Mappings.convertToAction(key)) {
-      event.preventDefault();
-      return event.stopImmediatePropagation();
-    }
-  }
 
-  if (Command.commandBarFocused()) {
-    window.setTimeout(function() {
-      Command.lastInputValue = Command.input.value;
-    }, 0);
-    switch (key) {
+    var isInput = document.activeElement && document.activeElement.isInput();
+
+    if (!isInput) {
+      if (Mappings.queue.length) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+      if (Mappings.convertToAction(key)) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        return;
+      }
+    }
+
+    if (Command.commandBarFocused()) {
+      window.setTimeout(function() {
+        Command.lastInputValue = Command.input.value;
+      }, 0);
+      switch (key) {
       case '<Tab>': // Tab navigation/completion
       case '<S-Tab>':
         if (Command.type === 'action') {
           event.preventDefault();
-          Mappings.actions[ (key === '<Tab>' ? 'next' : 'previous') + 'CompletionResult' ]();
+          Mappings.actions[ (key === '<Tab>' ? 'next' : 'previous') +
+                            'CompletionResult' ]();
         }
         break;
       case '<C-p>':
@@ -352,26 +361,24 @@ KeyHandler.down = function(key, event) {
           Mappings.actions.previousCompletionResult();
         }
         return;
-
       case '<Up>': // Command history navigation/search
       case '<Down>':
         event.preventDefault();
         Command.history.cycle(Command.type, (key === '<Up>'));
         break;
-
       case '<Enter>':
       case '<C-Enter>':
         event.preventDefault();
         document.activeElement.blur();
-
-        if (!(Command.history[Command.type].length > 0 && Command.history[Command.type].slice(-1)[0] === Command.input.value)) {
+        if (!(Command.history[Command.type].length > 0 &&
+              Command.history[Command.type].slice(-1)[0] ===
+              Command.input.value)) {
           Command.history[Command.type].push(Command.input.value);
           RUNTIME('appendHistory', {
             value: Command.input.value,
             type: Command.type
           });
         }
-
         if (Command.type === 'action') {
           var inputValue = Command.input.value + (event.ctrlKey ? '&!' : '');
           Command.hide(function() {
@@ -379,9 +386,9 @@ KeyHandler.down = function(key, event) {
           });
           break;
         }
-
         if (Command.input.value) {
-          if (Command.input.value !== Find.lastSearch || !Find.matches.length) {
+          if (Command.input.value !== Find.lastSearch ||
+              !Find.matches.length) {
             Find.clear();
             Find.highlight({
               base: document.body,
@@ -393,7 +400,6 @@ KeyHandler.down = function(key, event) {
             });
           }
         }
-
         Command.hide();
         Find.index = Command.modeIdentifier.textContent === '/' ? -1 : 1;
         Find.setIndex();
@@ -401,7 +407,8 @@ KeyHandler.down = function(key, event) {
         PORT('updateLastSearch', {value: Find.lastSearch});
         break;
       default:
-        if (key === '<BS>' && Command.lastInputValue.length === 0 && Command.input.value.length === 0) {
+        if (key === '<BS>' && Command.lastInputValue.length === 0 &&
+            Command.input.value.length === 0) {
           Command.hide();
           event.preventDefault();
           break;
@@ -409,57 +416,58 @@ KeyHandler.down = function(key, event) {
         setTimeout(function() {
           Command.history.reset = true;
           if (Command.type === 'action') {
-            return Command.complete(Command.input.value);
+            Command.complete(Command.input.value);
+            return;
           }
           if (Command.input.value.length > 2) {
-            if (settings.incsearch && (Command.input.value !== Find.lastSearch || !Find.highlights.length)) {
+            if (settings.incsearch && (Command.input.value !==
+                Find.lastSearch || !Find.highlights.length)) {
               Find.clear();
               Find.highlight({
                 base: document.body,
                 search: Command.input.value
               });
-              Find.index = Command.modeIdentifier.textContent === '/' ? -1 : 1;
+              Find.index = Command.modeIdentifier.textContent === '/' ?
+                -1 : 1;
               Find.setIndex();
-              Find.search(Command.modeIdentifier.textContent === '?', 1, true);
+              Find.search(Command.modeIdentifier.textContent ===
+                          '?', 1, true);
             }
           }
         }, 0);
         break;
-    }
-  }
-
-  if (settings && settings.insertmappings && isInput) {
-    Mappings.insertCommand(key, function() {
-      event.preventDefault();
-      if (Command.commandBarFocused() && Command.type !== 'search') {
-        window.setTimeout(function() {
-          Command.complete(Command.input.value);
-        }, 0);
       }
-    });
+    }
+    if (settings && settings.insertmappings && isInput) {
+      Mappings.insertCommand(key, function() {
+        event.preventDefault();
+        if (Command.commandBarFocused() && Command.type !== 'search') {
+          window.setTimeout(function() {
+            Command.complete(Command.input.value);
+          }, 0);
+        }
+      });
+    }
+  },
+  up: function(event) {
+    if (Command.commandBarFocused() ||
+        (!insertMode && Mappings.queue.length && Mappings.validMatch)) {
+      event.stopImmediatePropagation();
+      event.preventDefault();
+    }
+    if (Hints.active && event.which === 191)
+      document.getElementById('cVim-link-container').style.opacity = '1';
   }
-
 };
-
-KeyHandler.up = function(event) {
-  if (Command.commandBarFocused() || (!insertMode && Mappings.queue.length && Mappings.validMatch)) {
-    event.stopImmediatePropagation();
-    event.preventDefault();
-  }
-  if (Hints.active && event.which === 191) {
-    document.getElementById('cVim-link-container').style.opacity = '1';
-  }
-};
-
 KeyHandler.listener = new KeyListener(KeyHandler.down);
 
-removeListeners = function() {
+var removeListeners = function() {
   KeyHandler.listenersActive = false;
   window.removeEventListener('keyup', KeyHandler.up, true);
   KeyHandler.listener.deactivate();
 };
 
-addListeners = function() {
+var addListeners = function() {
   if (KeyHandler.listenersActive)
     removeListeners();
   KeyHandler.listenersActive = true;
