@@ -192,7 +192,8 @@ Mappings.actions = {
     RUNTIME('cancelAllWebRequests');
   },
   percentScroll: function(repeats) {
-    repeats = (Mappings.repeats === '0' || Mappings.repeats === '') ? 0 : repeats;
+    repeats = (Mappings.repeats === '0' || Mappings.repeats === '')
+              ? 0 : repeats;
     document.body.scrollTop =
       (document.body.scrollHeight - window.innerHeight) * repeats / 100;
   },
@@ -262,7 +263,8 @@ Mappings.actions = {
     RUNTIME('lastActiveTab');
   },
   reverseImage: function() {
-    if (/\(\d+×\d+\)$/.test(document.title) === true && document.body.firstChild.localName === 'img') {
+    if (/\(\d+×\d+\)$/.test(document.title) === true &&
+        document.body.firstChild.localName === 'img') {
       if (document.body.firstChild.src) {
         RUNTIME('openLinkTab', {
           active: false,
@@ -294,13 +296,15 @@ Mappings.actions = {
   zoomPageIn: function(repeats) {
     RUNTIME('zoomIn', {repeats: repeats}, function() {
       document.body.style.zoom =
-        (+document.body.style.zoom ? parseFloat(document.body.style.zoom) : 1) + settings.zoomfactor * repeats;
+        (+document.body.style.zoom ? parseFloat(document.body.style.zoom) : 1)
+        + settings.zoomfactor * repeats;
     });
   },
   zoomPageOut: function(repeats) {
     RUNTIME('zoomOut', {repeats: repeats}, function() {
       document.body.style.zoom =
-        (+document.body.style.zoom ? parseFloat(document.body.style.zoom) : 1) - settings.zoomfactor * repeats;
+        (+document.body.style.zoom ? parseFloat(document.body.style.zoom) : 1)
+        - settings.zoomfactor * repeats;
     });
   },
   zoomOrig: function() {
@@ -311,7 +315,8 @@ Mappings.actions = {
   centerMatchT: function() {
     var documentZoom = parseFloat(document.body.style.zoom) || 1;
     if (Find.matches.length && Find.matches[Find.index]) {
-      window.scrollBy(0, Find.matches[Find.index].getBoundingClientRect().top * documentZoom);
+      window.scrollBy(0, Find.matches[Find.index].getBoundingClientRect().top *
+                         documentZoom);
     }
   },
   centerMatchH: function() {
@@ -389,7 +394,8 @@ Mappings.actions = {
   goToMark: function() {
     var key = Mappings.lastCommand.queue.slice(-1);
     if (Scroll.positions.hasOwnProperty(key)) {
-      Scroll.lastPosition = [document.body.scrollLeft, document.body.scrollTop];
+      Scroll.lastPosition =
+        [document.body.scrollLeft, document.body.scrollTop];
       window.scrollTo.apply(null, Scroll.positions[key]);
     } else {
       Status.setMessage('Mark not set', 1, 'error');
@@ -459,7 +465,8 @@ Mappings.actions = {
   nextSearchResult: function(repeats) {
     if (Find.matches.length) {
       Find.search(false, repeats);
-    } else if (Find.lastSearch !== void 0 && typeof Find.lastSearch === 'string') {
+    } else if (Find.lastSearch !== void 0 &&
+               typeof Find.lastSearch === 'string') {
       Find.highlight({
         base: document.body,
         search: Find.lastSearch,
@@ -471,7 +478,8 @@ Mappings.actions = {
   previousSearchResult: function(repeats) {
     if (Find.matches.length) {
       Find.search(true, repeats);
-    } else if (Find.lastSearch !== void 0 && typeof Find.lastSearch === 'string') {
+    } else if (Find.lastSearch !== void 0 &&
+               typeof Find.lastSearch === 'string') {
       Find.highlight({
         base: document.body,
         search: Find.lastSearch,
@@ -500,10 +508,12 @@ Mappings.actions = {
   },
   goToInput: function(repeats) {
     this.inputElements = [];
-    var allInput = document.querySelectorAll('input,textarea,*[contenteditable]'),
-        i;
-    for (i = 0, l = allInput.length; i < l; i++) {
-      if (allInput[i].isInput() && allInput[i].isVisible() && allInput[i].id !== 'cVim-command-bar-input') {
+    var allInput = document.
+      querySelectorAll('input,textarea,*[contenteditable]');
+    for (var i = 0, l = allInput.length; i < l; i++) {
+      if (allInput[i].isInput() &&
+          allInput[i].isVisible() &&
+          allInput[i].id !== 'cVim-command-bar-input') {
         this.inputElements.push(allInput[i]);
       }
     }
@@ -585,7 +595,8 @@ Mappings.actions = {
   repeatCommand: function(repeats) {
     if (this.hasOwnProperty(Mappings.lastCommand.fn)) {
       this[Mappings.lastCommand.fn].apply(this,
-          (Mappings.lastCommand.args || []).concat(Mappings.lastCommand.repeats * repeats));
+          (Mappings.lastCommand.args || [])
+          .concat(Mappings.lastCommand.repeats * repeats));
     }
   },
   createBookmark: function() {
@@ -663,7 +674,8 @@ Mappings.insertFunctions = (function() {
     forwardWord: function() {
       if (element.value !== void 0) {
         var start = element.selectionStart;
-        var end = element.value.slice(start).match(/[a-zA-Z_0-9]+[\s\n]*|(\n|[^a-zA-Z_0-9])\1*/);
+        var end = element.value.slice(start)
+          .match(/[a-zA-Z_0-9]+[\s\n]*|(\n|[^a-zA-Z_0-9])\1*/);
         end = start + (end ? end[0].length : 0);
         element.selectionStart = end;
         element.selectionEnd = end;
@@ -693,7 +705,8 @@ Mappings.insertFunctions = (function() {
     deleteForwardWord: function() {
       if (element.value !== void 0) {
         var start = element.selectionStart;
-        var end = element.value.slice(start).match(/[a-zA-Z_0-9]+[\s\n]*|(\n|[^a-zA-Z_0-9])\1*/);
+        var end = element.value.slice(start)
+          .match(/[a-zA-Z_0-9]+[\s\n]*|(\n|[^a-zA-Z_0-9])\1*/);
         end = start + (end ? end[0].length : 0);
         element.selectionStart = start;
         element.selectionEnd = end;
@@ -841,7 +854,10 @@ Mappings.handleEscapeKey = function() {
   if (commandMode) {
     if (Command.type === 'search') {
       document.body.scrollTop = Command.lastScrollTop;
-      if (Find.previousMatches && Command.input.value && Find.lastSearch && Find.lastSearch !== Command.input.value) {
+      if (Find.previousMatches &&
+          Command.input.value &&
+          Find.lastSearch &&
+          Find.lastSearch !== Command.input.value) {
         Find.clear();
         HUD.hide();
         Find.highlight({ base: document.body,
@@ -945,7 +961,9 @@ Mappings.convertToAction = function(key) {
   var mapVal = currentTrieNode.value;
 
   if (mapVal) {
-    for (var mapLinks = [mapVal]; !this.actions[mapVal] && mapVal.charAt(0) !== ':'; mapLinks.push(mapVal)) {
+    for (var mapLinks = [mapVal];
+         !this.actions[mapVal] && mapVal.charAt(0) !== ':';
+         mapLinks.push(mapVal)) {
       mapVal = mappingTrie.at(mapVal);
       if (mapVal === null) {
         this.clearQueue();
