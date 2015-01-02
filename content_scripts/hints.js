@@ -1,25 +1,76 @@
 var Hints = {};
 
+function findAndFollowRel(value) {
+  var relTags = ["link", "a", "area"];
+  for (var i=0; i < relTags.length; ++i) {
+    var els = document.getElementsByTagName(relTags[i]);
+    for (var j=0; j < els.length; ++j) {
+      var el = els[j];
+      if (el.hasAttribute("rel") &&
+          el.rel.toLowerCase() === value) {
+          window.location.href = el.href;
+          return true;
+      }
+    }
+  }
+  return false;
+}
+
+function isGoogleSearch() {
+  // NOTE: "duck" checking this is google search page.
+  var ids = [
+    'navcnt',
+    'mngb',
+    'gbztm',
+    'gbztms',
+    'gbztms1',
+    'gbmm',
+    'gbmmb'
+  ];
+  for (var i=0; i < ids.length; ++i) {
+    if (window[ids[i]] === undefined)
+      return false;
+  }
+  return true;
+}
+
 Hints.matchPatterns = function(forward) {
   var pattern = new RegExp('^' + (forward ? settings.nextmatchpattern : settings.previousmatchpattern) + '$', 'gi');
-  var nodeIterator = document.createNodeIterator(document.body, 4, null, false);
+  var direction = forward ? 'next' : 'prev';
+  if (findAndFollowRel(direction))
+    return true;
+  if (isGoogleSearch()) {
+    window.location.href = document.getElementById('pn' + direction).href;
+    return true;
+  }
+  var nodeIterator = document.createNodeIterator(
+    document.body,
+    5,
+    function(node) {
+      var localName = node.localName;
+      return (localName === null || localName === 'input') ? 1 : 0;
+    },
+    false
+  );
   var node;
-  var isGoogleSearch = /www\.google\.\w{2,3}\/search/.test(location.hostname + location.pathname);
   while (node = nodeIterator.nextNode()) {
-    var localName = node.localName;
-    if (/script|style|noscript/.test(localName)) {
-      continue;
+    var nodeText = node.data ? node.data.trim() : false;
+    var nodeValue = node.value ? node.value.trim() : false;
+    if (nodeValue && pattern.test(nodeValue)) {
+      node.click();
+      break;
     }
-    var nodeText = node.data.trim();
-    if (isGoogleSearch && nodeText === 'More') {
-      continue;
-    }
-    if (pattern.test(nodeText)) {
+    if (nodeText && pattern.test(nodeText)) {
       var parentNode = node.parentNode;
-      if (/a|button/.test(parentNode.localName) || parentNode.getAttribute('jsaction') || parentNode.getAttribute('onclick')) {
+      if (/^(a|button)$/.test(parentNode.localName) ||
+          parentNode.getAttribute('jsaction') ||
+          parentNode.getAttribute('onclick') ||
+          parentNode.getAttribute('href')) {
         var computedStyle = getComputedStyle(parentNode);
-        if (computedStyle.opacity !== '0' && computedStyle.visibility === 'visible' && computedStyle.display !== 'none') {
-          node.parentNode.click();
+        if (computedStyle.opacity !== '0' &&
+            computedStyle.visibility === 'visible' &&
+            computedStyle.display !== 'none') {
+          parentNode.click();
           break;
         }
       }
