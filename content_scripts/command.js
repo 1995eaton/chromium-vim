@@ -681,23 +681,19 @@ Command.execute = function(value, repeats) {
   }
 
   if (/^buffer +/.test(value)) {
-    var index = +value.replace(/^\S+\s+/, ''),
+    var index = +value.replace(/^\S+\s+/, '') - 1,
         selectedBuffer;
     if (Number.isNaN(index)) {
       selectedBuffer = Command.completionResults[0];
-      if (selectedBuffer === void 0) {
+      if (selectedBuffer === void 0)
         return;
-      }
     } else {
       selectedBuffer = Command.completionResults.filter(function(e) {
-        return e[1].indexOf(index.toString()) === 0;
+        return e[1].indexOf((index + 1).toString()) === 0;
       })[0];
     }
-    if (selectedBuffer !== void 0) {
+    if (selectedBuffer !== void 0)
       RUNTIME('goToTab', {id: selectedBuffer[3]});
-    } else if (Command.completionResults.length) {
-      RUNTIME('goToTab', {id: Command.completionResults[0][3]});
-    }
     return;
   }
 

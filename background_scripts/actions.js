@@ -604,7 +604,7 @@ Actions = (function() {
       callback({
         type: 'buffers',
         buffers: tabs.map(function(e, i) {
-          return [i + ': ' + e.title, e.url, e.id];
+          return [(i + 1) + ': ' + e.title, e.url, e.id];
         })
       });
     });
