@@ -1,39 +1,32 @@
 var Hints = {};
 
-Hints.matchPatterns = function(forward) {
-  var pattern = new RegExp('^' + (forward ? settings.nextmatchpattern : settings.previousmatchpattern) + '$', 'gi');
-  var nodeIterator = document.createNodeIterator(document.body, 4, null, false);
-  var node;
-  var isGoogleSearch = /www\.google\.\w{2,3}\/search/.test(location.hostname + location.pathname);
-  while (node = nodeIterator.nextNode()) {
-    var localName = node.localName;
-    if (/script|style|noscript/.test(localName)) {
-      continue;
-    }
-    var nodeText = node.data.trim();
-    if (isGoogleSearch && nodeText === 'More') {
-      continue;
-    }
-    if (pattern.test(nodeText)) {
-      var parentNode = node.parentNode;
-      if (/a|button/.test(parentNode.localName) || parentNode.getAttribute('jsaction') || parentNode.getAttribute('onclick')) {
-        var computedStyle = getComputedStyle(parentNode);
-        if (computedStyle.opacity !== '0' && computedStyle.visibility === 'visible' && computedStyle.display !== 'none') {
-          node.parentNode.click();
-          break;
-        }
-      }
-    }
-  }
+Hints.tryGooglePattern = function(forward) {
+  if (new URL(document.URL).hostname.indexOf('www.google.') !== 0 ||
+      !document.querySelector('li.g div.rc'))
+    return false;
+  var target = document.getElementById(forward ? 'pnnext' : 'pnprev');
+  if (target)
+    target.click();
+  return !!target;
+};
+
+Hints.matchPatterns = function(pattern) {
+  if (this.tryGooglePattern(pattern === settings.nextmatchpattern))
+    return;
+  var link = findFirstOf(getLinkableElements(), function(e) {
+    return pattern.test(e.textContent);
+  });
+  if (link)
+    link.click();
 };
 
 Hints.hideHints = function(reset, multi, useKeyDelay) {
   if (reset && document.getElementById('cVim-link-container') !== null) {
-    document.getElementById('cVim-link-container').parentNode.removeChild(document.getElementById('cVim-link-container'));
+    document.getElementById('cVim-link-container')
+      .parentNode.removeChild(document.getElementById('cVim-link-container'));
   } else if (document.getElementById('cVim-link-container') !== null) {
-    if (!multi) {
+    if (!multi)
       HUD.hide();
-    }
     main = document.getElementById('cVim-link-container');
     if (settings.linkanimations) {
       main.addEventListener('transitionend', function() {
@@ -44,7 +37,8 @@ Hints.hideHints = function(reset, multi, useKeyDelay) {
       });
       main.style.opacity = '0';
     } else {
-      document.getElementById('cVim-link-container').parentNode.removeChild(document.getElementById('cVim-link-container'));
+      document.getElementById('cVim-link-container')
+        .parentNode.removeChild(document.getElementById('cVim-link-container'));
     }
   }
   this.numericMatch = void 0;
@@ -53,7 +47,8 @@ Hints.hideHints = function(reset, multi, useKeyDelay) {
   this.linkArr = [];
   this.linkHints = [];
   this.permutations = [];
-  if (useKeyDelay && !this.active && settings.numerichints && settings.typelinkhints) {
+  if (useKeyDelay && !this.active &&
+      settings.numerichints && settings.typelinkhints) {
     Hints.keyDelay = true;
     window.setTimeout(function() {
       Hints.keyDelay = false;
@@ -62,22 +57,20 @@ Hints.hideHints = function(reset, multi, useKeyDelay) {
 };
 
 Hints.changeFocus = function() {
-  this.linkArr.forEach(function(item) { item[0].style.zIndex = 1 - +item[0].style.zIndex; });
+  this.linkArr.forEach(function(item) {
+    item[0].style.zIndex = 1 - +item[0].style.zIndex;
+  });
 };
 
 Hints.removeContainer = function() {
   var hintContainer = document.getElementById('cVim-link-container');
-  if (hintContainer !== null) {
+  if (hintContainer !== null)
     hintContainer.parentNode.removeChild(hintContainer);
-  }
 };
 
 Hints.dispatchAction = function(link) {
-
-  if (!link) {
+  if (!link)
     return false;
-  }
-
   var node = link.localName;
   this.lastClicked = link;
 
@@ -130,34 +123,41 @@ Hints.dispatchAction = function(link) {
       link.unhover();
       break;
     case 'window':
-      RUNTIME('openLinkWindow', {focused: false, url: link.href, noconvert: true});
+      RUNTIME('openLinkWindow', {
+        focused: false,
+        url: link.href,
+        noconvert: true
+      });
       break;
     default:
-      if (node === 'textarea' || (node === 'input' && /^(text|password|email|search)$/i.test(link.type)) ||
+      if (node === 'textarea' || (node === 'input' &&
+            /^(text|password|email|search)$/i.test(link.type)) ||
           link.hasAttribute('contenteditable')) {
         setTimeout(function() {
           link.focus();
-          if (link.getAttribute('readonly')) {
+          if (link.hasAttribute('readonly')) {
             link.select();
           }
         }.bind(this), 0);
         break;
       }
-      if (node === 'input' || /button|select/i.test(node) || /^(button|checkbox|menu)$/.test(link.getAttribute('role')) ||
-          link.getAttribute('jsaction') || link.getAttribute('onclick') || link.getAttribute('role') === 'checkbox') {
-        window.setTimeout(function() {
-          link.simulateClick();
-        }, 0);
+      if (node === 'input' ||
+          /button|select/i.test(node) ||
+          /^(button|checkbox|menu)$/.test(link.getAttribute('role')) ||
+          link.hasAttribute('jsaction') ||
+          link.hasAttribute('onclick') ||
+          link.getAttribute('role') === 'checkbox') {
+        window.setTimeout(function() { link.simulateClick(); }, 0);
         break;
       }
-      if (link.getAttribute('target') !== '_top' && (/tabbed/.test(this.type) || this.type === 'multi')) {
-        RUNTIME('openLinkTab', {active: this.type === 'tabbedActive', url: link.href, noconvert: true});
+      if (link.getAttribute('target') !== '_top' &&
+          (/tabbed/.test(this.type) || this.type === 'multi')) {
+        RUNTIME('openLinkTab', {
+          active: this.type === 'tabbedActive',
+          url: link.href, noconvert: true
+        });
       } else {
-        if (link.getAttribute('href')) {
-          link.click();
-        } else {
-          link.simulateClick();
-        }
+        link[link.hasAttribute('href') ? 'click' : 'simulateClick']();
       }
       break;
   }
@@ -165,14 +165,12 @@ Hints.dispatchAction = function(link) {
   if (this.multi) {
     this.removeContainer();
     window.setTimeout(function() {
-      if (!document.activeElement.isInput()) {
+      if (!document.activeElement.isInput())
         this.create(this.type, true);
-      }
     }.bind(this), 0);
   } else {
     this.hideHints(false, false, true);
   }
-
 };
 
 Hints.handleHintFeedback = function() {
@@ -372,10 +370,10 @@ Hints.evaluateLink = function(link, linkIndex) {
 
 Hints.siteFilters = {
   'reddit.com': function(node) {
-    if (node.localName === 'a' && !node.getAttribute('href')) {
+    if (node.localName === 'a' && !node.hasAttribute('href')) {
       return false;
     }
-    if (node.getAttribute('onclick') && node.getAttribute('onclick').indexOf('click_thing') === 0) {
+    if (node.hasAttribute('onclick') && node.getAttribute('onclick').indexOf('click_thing') === 0) {
       return false;
     }
     return true;

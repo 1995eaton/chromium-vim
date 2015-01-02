@@ -180,10 +180,10 @@ Mappings.actions = {
     Hints.dispatchAction(Hints.lastClicked);
   },
   nextMatchPattern: function() {
-    Hints.matchPatterns(true);
+    Hints.matchPatterns(settings.nextmatchpattern);
   },
   previousMatchPattern: function() {
-    Hints.matchPatterns(false);
+    Hints.matchPatterns(settings.previousmatchpattern);
   },
   cancelWebRequest: function() {
     window.stop();
