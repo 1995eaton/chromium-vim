@@ -14,7 +14,7 @@ Hints.matchPatterns = function(pattern) {
   if (this.tryGooglePattern(pattern === settings.nextmatchpattern))
     return;
   var link = findFirstOf(getLinkableElements(), function(e) {
-    return pattern.test(e.textContent);
+    return pattern.test(e.textContent) || pattern.test(e.getAttribute('value'));
   });
   if (link)
     link.click();
