@@ -422,37 +422,34 @@ var traverseDOM = function(root, accept) {
 var hasAttributes = function(node) {
   if (arguments.length < 2)
     return false;
-  var ret = false;
   for (var i = 1; i < arguments.length; i++) {
-    ret = ret || node.hasAttribute(arguments[i]);
+    if (node.hasAttribute(arguments[i]))
+      return true;
   }
-  return ret;
+  return false;
 };
 
-var getLinkableElements = function() {
+var getLinkableElements = (function() {
   var visible = function(node) {
     var cs = getComputedStyle(node, null);
-    return cs.opacity !== '0' &&
-      cs.visibility === 'visible' &&
-      cs.display !== 'none';
+    return cs.opacity    !== '0' &&
+           cs.visibility === 'visible' &&
+           cs.display    !== 'none';
   };
-  return traverseDOM(document.body, function(node) {
-    if (node.nodeType !== Node.ELEMENT_NODE || !visible(node))
-      return false;
-    var name = node.localName.toLowerCase();
-    switch (name) {
-      case 'a':
-      case 'button':
-        return true;
-      default:
-        if (hasAttributes(node, 'jsaction', 'onclick')) {
+  return function() {
+    return traverseDOM(document.body, function(node) {
+      if (node.nodeType !== Node.ELEMENT_NODE || !visible(node))
+        return false;
+      switch (node.localName.toLowerCase()) {
+        case 'a':
+        case 'button':
           return true;
-        } else {
-          return false;
-        }
-    }
-  });
-};
+        default:
+          return hasAttributes(node, 'jsaction', 'onclick');
+      }
+    });
+  };
+})();
 
 var findFirstOf = function(array, callback) {
   for (var i = 0; i < array.length; i++) {
