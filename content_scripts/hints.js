@@ -11,6 +11,8 @@ Hints.tryGooglePattern = function(forward) {
 };
 
 Hints.matchPatterns = function(pattern) {
+  if (typeof pattern === 'string')
+    pattern = new RegExp('^' + pattern + '$', 'i');
   if (this.tryGooglePattern(pattern === settings.nextmatchpattern))
     return;
   var link = findFirstOf(getLinkableElements(), function(e) {

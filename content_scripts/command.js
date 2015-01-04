@@ -911,10 +911,6 @@ Command.onDOMLoad = function() {
 
 Command.updateSettings = function(config) {
   var key;
-  config.nextmatchpattern =
-    new RegExp('^' + config.nextmatchpattern + '$', 'i');
-  config.previousmatchpattern =
-    new RegExp('^' + config.previousmatchpattern + '$', 'i');
   if (Array.isArray(config.completionengines) &&
       config.completionengines.length) {
     Complete.engines = Complete.engines.filter(function(e) {
