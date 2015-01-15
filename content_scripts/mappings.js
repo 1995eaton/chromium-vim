@@ -132,32 +132,31 @@ Mappings.actions = {
   lastUsedTab: function() { RUNTIME('lastUsedTab'); },
   '<Nop>': function() {},
   toggleVisualMode: function() {
-    if (!Command.domElementsLoaded) {
-      return false;
-    }
-    Visual.caretModeActive = true;
-    Visual.getTextNodes();
-    Visual.lineMode = false;
-    document.body.spellcheck = false;
-    document.designMode = 'on';
-    Visual.selection = document.getSelection();
-    if (document.getSelection().type === 'Range') {
-      return false;
-    }
-    if (Find.matches.length) {
-      Visual.focusSearchResult();
-    } else {
-      var closestNode = Visual.closestNode();
-      if (closestNode) {
-        Visual.selection.setPosition(Visual.closestNode(), 0);
-        HUD.display(' -- CARET -- ');
-        Visual.scrollIntoView();
-      } else {
-        Visual.lineMode = false;
-        Visual.visualModeActive = false;
-        Visual.exit();
+    Command.callOnCvimLoad(function() {
+      Visual.caretModeActive = true;
+      Visual.getTextNodes();
+      Visual.lineMode = false;
+      document.body.spellcheck = false;
+      document.designMode = 'on';
+      Visual.selection = document.getSelection();
+      if (document.getSelection().type === 'Range') {
+        return false;
       }
-    }
+      if (Find.matches.length) {
+        Visual.focusSearchResult();
+      } else {
+        var closestNode = Visual.closestNode();
+        if (closestNode) {
+          Visual.selection.setPosition(Visual.closestNode(), 0);
+          HUD.display(' -- CARET -- ');
+          Visual.scrollIntoView();
+        } else {
+          Visual.lineMode = false;
+          Visual.visualModeActive = false;
+          Visual.exit();
+        }
+      }
+    });
   },
   toggleVisualLineMode: function() {
     if (Visual.caretModeActive || Visual.visualModeActive) {
@@ -445,10 +444,10 @@ Mappings.actions = {
     Marks.openQuickMark(Mappings.lastCommand.queue.slice(-1), true, repeats);
   },
   insertMode: function() {
-    if (Command.domElementsLoaded) {
+    Command.callOnCvimLoad(function() {
       HUD.display(' -- INSERT -- ');
-      insertMode = true;
-    }
+    });
+    insertMode = true;
   },
   reloadTab: function() {
     RUNTIME('reloadTab', {nocache: false});

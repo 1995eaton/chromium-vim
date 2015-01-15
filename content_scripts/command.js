@@ -798,6 +798,9 @@ Command.execute = function(value, repeats) {
 
 Command.show = function(search, value) {
   if (!this.domElementsLoaded) {
+    Command.callOnCvimLoad(function() {
+      Command.show(search, value);
+    });
     return;
   }
   this.type = '';
@@ -879,6 +882,25 @@ Command.insertCSS = function() {
   }
 };
 
+Command.callOnCvimLoad = (function() {
+  var fnQueue = [];
+  return function(FN) {
+    if (!this.domElementsLoaded) {
+      if (typeof FN === 'function') {
+        fnQueue.push(FN);
+      }
+    } else {
+      if (typeof FN === 'function') {
+        FN();
+      }
+      fnQueue.forEach(function(FN) {
+        FN();
+      });
+      fnQueue.length = 0;
+    }
+  };
+})();
+
 Command.onDOMLoad = function() {
   this.insertCSS();
   this.onBottom = settings.barposition === 'bottom';
@@ -907,6 +929,7 @@ Command.onDOMLoad = function() {
   }
   this.setup();
   this.domElementsLoaded = true;
+  this.callOnCvimLoad();
 };
 
 Command.updateSettings = function(config) {

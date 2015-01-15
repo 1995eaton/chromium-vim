@@ -2,6 +2,9 @@ var Status = {
   defaultTimeout: 3,
   setMessage: function(message, timeout, type) {
     if (!Command.domElementsLoaded) {
+      Command.callOnCvimLoad(function() {
+        Status.setMessage(message, timeout, type);
+      });
       return;
     }
     window.clearTimeout(this.delay);

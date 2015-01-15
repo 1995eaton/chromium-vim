@@ -497,6 +497,9 @@ Hints.create = function(type, multi) {
   var self = this;
   window.setTimeout(function() {
     if (!Command.domElementsLoaded) {
+      Command.callOnCvimLoad(function() {
+        self.create(type, multi);
+      });
       return false;
     }
     self.shiftKeyInitiator = KeyHandler.shiftKey;
