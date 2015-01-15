@@ -144,11 +144,9 @@ Hints.dispatchAction = function(link) {
         break;
       }
       if (node === 'input' ||
-          /button|select/i.test(node) ||
-          /^(button|checkbox|menu)$/.test(link.getAttribute('role')) ||
-          link.hasAttribute('jsaction') ||
-          link.hasAttribute('onclick') ||
-          link.getAttribute('role') === 'checkbox') {
+          node === 'select' ||
+          /^(checkbox|menu)$/.test(link.getAttribute('role')))
+      {
         window.setTimeout(function() { link.simulateClick(); }, 0);
         break;
       }

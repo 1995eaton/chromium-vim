@@ -22,9 +22,7 @@ var Frames = {
       return false;
     var rect = e.getBoundingClientRect();
     if (rect.width <= 1 ||
-        rect.height <= 1 ||
-        rect.top < 0 ||
-        rect.left < 0)
+        rect.height <= 1)
       return false;
     return true;
   },
