@@ -11,10 +11,10 @@ Hints.tryGooglePattern = function(forward) {
 };
 
 Hints.matchPatterns = function(pattern) {
-  if (typeof pattern === 'string')
-    pattern = new RegExp('^' + pattern + '$', 'i');
   if (this.tryGooglePattern(pattern === settings.nextmatchpattern))
     return;
+  if (typeof pattern === 'string')
+    pattern = new RegExp('^' + pattern + '$', 'i');
   var link = findFirstOf(getLinkableElements(), function(e) {
     return pattern.test(e.textContent) || pattern.test(e.getAttribute('value'));
   });
