@@ -11,34 +11,22 @@
   },
    "commands": {
       "nextTab": {
-         "description": "Go to the next tab",
-         "suggested_key": {
-            "default": "Alt+K"
-         }
+         "description": "Go to the next tab"
       },
       "previousTab": {
-         "description": "Go to the previous tab",
-         "suggested_key": {
-            "default": "Alt+J"
-         }
+         "description": "Go to the previous tab"
       },
       "togglecVim": {
          "description": "Toggle the enabled state of cVim"
       },
       "nextCompletionResult": {
-        "description": "Let Chrome use <C-n> for cncpcompletion setting (see Help file)",
-        "suggested_key": {
-          "default": "Ctrl+N"
-        }
+        "description": "Let Chrome use <C-n> for cncpcompletion setting (see Help file)"
       },
       "deleteBackWord": {
         "description": "Let Chrome use <C-w> for the deleteBackWord insert mapping"
       },
       "closeTab": {
-         "description": "Close the current tab",
-         "suggested_key": {
-            "default": "Alt+W"
-         }
+         "description": "Close the current tab"
       },
       "reloadTab": {
         "description": "Reload the current tab"
