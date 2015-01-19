@@ -117,6 +117,9 @@ var KeyListener = (function() {
       }
     },
     keyhandle: function(event, type) {
+      if (Visual.visualModeActive || Visual.caretModeActive) {
+        event.preventDefault();
+      }
       if (type === 'keypress') {
         // ascii representation of keycode
         return String.fromCharCode(event.which);
