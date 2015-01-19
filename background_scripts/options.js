@@ -2,6 +2,27 @@ var storageMethod = 'local',
     Settings = {},
     Options = {};
 
+var settingsObserver = function(changes) {
+  changes.forEach(function(change) {
+    switch (change.name) {
+    case 'hud':
+      if (change.oldValue === true && change.object.hud === false) {
+        chrome.tabs.query({}, function(tabs) {
+          tabs.forEach(function(tab) {
+            chrome.tabs.sendMessage(tab.id, {action: 'hideHud'});
+          });
+        });
+      }
+      break;
+    }
+  });
+};
+
+var setupSettingsObserver = function() {
+  Object.unobserve(Settings, settingsObserver);
+  Object.observe(Settings, settingsObserver);
+};
+
 var defaultSettings = {
   searchlimit: 25,
   scrollstep: 70,
@@ -54,6 +75,7 @@ var defaultSettings = {
 chrome.storage.onChanged.addListener(function(changes) {
   if (!changes.hasOwnProperty('sessions')) {
     Settings = changes.settings ? changes.settings.newValue : defaultSettings;
+    setupSettingsObserver();
   }
 });
 
@@ -70,6 +92,7 @@ Options.refreshSettings = function(callback) {
 
 Options.saveSettings = function(request) {
   Settings = request.settings;
+  setupSettingsObserver();
   for (var key in Settings.qmarks) {
     Quickmarks[key] = Settings.qmarks[key];
   }
@@ -87,16 +110,6 @@ Options.sendSettings = function() {
       type: 'sendSettings',
       settings: Settings
     });
-  });
-  chrome.tabs.query({}, function(tabs) {
-    for (var i = 0; i < tabs.length; ++i) {
-      if (tabs[i]) {
-        chrome.tabs.sendMessage(tabs[i].id, {
-          action: 'sendSettings',
-          settings: Settings
-        });
-      }
-    }
   });
 };
 
@@ -173,6 +186,7 @@ Options.fetchGist = function() {
 chrome.storage[storageMethod].get('settings', function(data) {
   if (data.settings) {
     Settings = data.settings;
+    setupSettingsObserver();
     Quickmarks = Settings.qmarks;
   }
   this.refreshSettings();

@@ -123,15 +123,18 @@ port.onMessage.addListener(function(response) {
         settings = response.settings;
       }
       break;
+    case 'updateLastCommand':
+      if (request.data) {
+        Mappings.lastCommand = JSON.parse(request.data);
+      }
+      break;
   }
 });
 
 chrome.extension.onMessage.addListener(function(request, sender, callback) {
   switch (request.action) {
-    case 'updateLastCommand':
-      if (request.data) {
-        Mappings.lastCommand = JSON.parse(request.data);
-      }
+    case 'hideHud':
+      HUD.hide(true);
       break;
     case 'getWindows':
       if (Command.active === true) {
