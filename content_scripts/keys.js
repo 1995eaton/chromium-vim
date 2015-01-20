@@ -136,7 +136,9 @@ var KeyListener = (function() {
       if (Object.compare(event, KeyEvents.lastHandledEvent,
             ['which', 'ctrlKey', 'shiftKey', 'metaKey', 'altKey'])) {
         KeyEvents.lastHandledEvent = null;
-        event.stopImmediatePropagation();
+        if (!document.activeElement.isInput()) {
+          event.stopImmediatePropagation();
+        }
       }
     },
     keydown: function(callback, event) {
@@ -177,7 +179,9 @@ var KeyListener = (function() {
           event.preventDefault();
         }
         KeyEvents.lastHandledEvent = event;
-        event.stopImmediatePropagation();
+        if (!document.activeElement.isInput()) {
+          event.stopImmediatePropagation();
+        }
       }
 
       // Create a temporary keypress listener to check if a keycode contains an
@@ -443,6 +447,7 @@ var KeyHandler = {
     }
     if (settings && settings.insertmappings && isInput) {
       Mappings.insertCommand(key, function() {
+        event.stopImmediatePropagation();
         event.preventDefault();
         if (Command.commandBarFocused() && Command.type !== 'search') {
           window.setTimeout(function() {
