@@ -353,6 +353,7 @@ site '*://*/*.js' {
 | `<C-b>`                   | move cursor back one letter                                           | backwardChar                    |
 | unmapped                  | move cursor forward one line                                          | forwardLine                     |
 | unmapped                  | move cursor back one line                                             | backwardLine                    |
+| unmapped                  | select input text (equivalent to `<C-a>`)                             | selectAll                       |
 | unmapped                  | edit with Vim in a terminal (need the [cvim_server.py](https://github.com/1995eaton/chromium-vim/blob/master/cvim_server.py) script running for this to work) | editWithVim     |
 
 #Command Mode

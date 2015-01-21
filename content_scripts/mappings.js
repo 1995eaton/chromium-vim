@@ -727,6 +727,11 @@ Mappings.insertFunctions = (function() {
     },
     backwardLine: function() {
       modify('move', 'left', 'line');
+    },
+    selectAll: function() {
+      if (element.select) {
+        element.select();
+      }
     }
   };
 })();
