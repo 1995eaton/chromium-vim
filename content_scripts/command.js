@@ -397,6 +397,8 @@ Command.callCompletionFunction = (function() {
     case 'restore':
       restoreTabCompletion(value);
       return true;
+    case 'session':
+    case 'mksession':
     case 'delsession':
       deleteSessionCompletion(value);
       return true;
