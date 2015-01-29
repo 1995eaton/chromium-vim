@@ -88,7 +88,7 @@ IntegerLiteral
 
 ArrayList
   = SEP? a:Expression SEP? ',' b:ArrayList SEP? { return [a].concat(b); }
-  / SEP? a:Expression SEP? { return a; }
+  / SEP? a:Expression SEP? { return [a]; }
 
 ArrayLiteral
   = '[' a:ArrayList ']' { return a; }
