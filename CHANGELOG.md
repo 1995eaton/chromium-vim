@@ -3,6 +3,7 @@
 ## 1.2.66
  * Added `nativelinkeorder`, `vimcommand`, and `vimport` options
  * `cvim_socket.py` is now `cvim_server.py`
+ * Bug fixes
 
 ## 1.2.65
  * Better smooth scrolling performance
