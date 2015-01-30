@@ -1,0 +1,1 @@
+window.isCommandFrame = true;

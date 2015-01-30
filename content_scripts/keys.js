@@ -389,29 +389,44 @@ var KeyHandler = {
         if (Command.type === 'action') {
           var inputValue = Command.input.value + (event.ctrlKey ? '&!' : '');
           Command.hide(function() {
-            Command.execute(inputValue, 1);
+            // prevent tab from switching back after
+            // the iframe hides if the command triggers a tab change
+            setTimeout(function() {
+              Command.execute(inputValue, 1);
+            }, 10);
           });
           break;
         }
         if (Command.input.value) {
-          if (Command.input.value !== Find.lastSearch ||
-              !Find.matches.length) {
-            Find.clear();
-            Find.highlight({
-              base: document.body,
+          PORT('callFind', {
+            command: 'clear',
+            params: []
+          });
+          PORT('callFind', {
+            command: 'highlight',
+            params: [{
+              base: null,
               search: Command.input.value,
               setIndex: true,
               executeSearch: false,
               reverse: key === '<C-Enter>',
               saveSearch: true
-            });
-          }
+            }]
+          });
         }
+        PORT('setFindIndex', {
+          index: Command.modeIdentifier.textContent === '/' ? -1 : 1
+        });
+        PORT('callFind', {
+          command: 'setIndex',
+          params: []
+        });
+        PORT('callFind', {
+          command: 'search',
+          params: [Command.modeIdentifier.textContent === '?', 1, false]
+        });
+        PORT('updateLastSearch', {value: Command.input.value});
         Command.hide();
-        Find.index = Command.modeIdentifier.textContent === '/' ? -1 : 1;
-        Find.setIndex();
-        Find.search(Command.modeIdentifier.textContent === '?', 1, false);
-        PORT('updateLastSearch', {value: Find.lastSearch});
         break;
       default:
         if (key === '<BS>' && Command.lastInputValue.length === 0 &&
@@ -427,18 +442,18 @@ var KeyHandler = {
             return;
           }
           if (Command.input.value.length > 2) {
-            if (settings.incsearch && (Command.input.value !==
-                Find.lastSearch || !Find.highlights.length)) {
-              Find.clear();
-              Find.highlight({
-                base: document.body,
-                search: Command.input.value
+            if (settings.incsearch) {
+              PORT('callFind', {
+                command: 'clear',
+                params: []
               });
-              Find.index = Command.modeIdentifier.textContent === '/' ?
-                -1 : 1;
-              Find.setIndex();
-              Find.search(Command.modeIdentifier.textContent ===
-                          '?', 1, true);
+              PORT('callFind', {
+                command: 'highlight',
+                params: [{
+                  base: null,
+                  search: Command.input.value
+                }]
+              });
             }
           }
         }, 0);

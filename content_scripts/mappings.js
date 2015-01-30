@@ -545,23 +545,19 @@ Mappings.actions = {
   shortCuts: function(command, repeats) {
     commandMode = true;
     return window.setTimeout(function() {
-      Command.show(false,
-          command
-          .replace(/^:/, '')
-          .replace(/<cr>(\s+)?$/i, '')
-          .replace(/<space>/ig, ' ')
-          .replace(/@%/g, document.URL)
-      );
+      var shouldComplete = !/<cr>(\s+)?$/i.test(command);
+      command = command
+        .replace(/^:/, '')
+        .replace(/<cr>(\s+)?$/i, '')
+        .replace(/<space>/ig, ' ')
+        .replace(/@%/g, document.URL);
+      if (!shouldComplete) {
+        Command.execute(command, repeats);
+        return;
+      }
+      Command.show(false, command, shouldComplete);
       this.queue = '';
       this.repeats = '';
-      if (/<cr>(\s+)?$/i.test(command)) {
-        var inputValue = Command.input.value;
-        Command.hide(function() {
-          Command.execute(inputValue, repeats);
-        });
-      } else {
-        Command.complete(Command.input.value);
-      }
     }, 0);
   },
   openSearchBar: function() {

@@ -720,6 +720,36 @@ Actions = (function() {
     callback({type: 'parseRC', config: RCParser.parse(request.config)});
   };
 
+  _.showCommandFrame = function() {
+    chrome.tabs.sendMessage(sender.tab.id, {
+      action: request.action,
+      search: request.search,
+      value: request.value,
+      complete: request.complete
+    });
+  };
+
+  _.hideCommandFrame = function() {
+    chrome.tabs.sendMessage(sender.tab.id, {
+      action: request.action
+    });
+  };
+
+  _.callFind = function() {
+    chrome.tabs.sendMessage(sender.tab.id, {
+      action: request.action,
+      command: request.command,
+      params: request.params
+    });
+  };
+
+  _.setFindIndex = function() {
+    chrome.tabs.sendMessage(sender.tab.id, {
+      action: request.action,
+      index: request.index
+    });
+  };
+
   return function(_request, _sender, _callback) {
     var action = _request.action;
     if (!_[action]) {

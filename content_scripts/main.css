@@ -1,59 +1,59 @@
+#cVim-command-frame {
+  display: none;
+  border: 0;
+  position: fixed;
+  margin: 0;
+  padding: 0;
+  left: 0;
+  width: 100%;
+  top: 0;
+  height: 100%;
+  z-index: 24724289;
+}
+
 #cVim-link-container {
-  min-height: 0 !important;background: none !important; background-repeat: none !important;background-position: none !important;box-sizing: content-box !important;vertical-align: none !important;-webkit-appearance: none !important;padding: 0 !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;outline: 0 !important;margin: 0 !important;outline-style: none !important;line-height: 1 !important;border: 0 !important; font-style: normal !important;
   transition: opacity 0.1s ease;
 }
 .cVim-link-hint {
-  min-height: 0 !important;background-repeat: none !important;background-position: none !important;box-sizing: content-box !important;vertical-align: none !important;-webkit-appearance: none !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;outline: 0 !important;margin: 0 !important;outline-style: none !important;line-height: 1 !important; width: auto; font-style: normal !important;
 }
 .cVim-link-hint_match {
-  min-height: 0 !important;background-repeat: none !important;background-position: none !important;box-sizing: content-box !important;vertical-align: none !important;-webkit-appearance: none !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;outline: 0 !important;margin: 0 !important;outline-style: none !important;line-height: 1 !important; width: auto; font-style: normal !important;
   opacity: 0.6 !important;
 }
 .cVim-link-hint_match_hidden {
-  min-height: 0 !important;background-repeat: none !important;background-position: none !important;box-sizing: content-box !important;vertical-align: none !important;-webkit-appearance: none !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;outline: 0 !important;margin: 0 !important;outline-style: none !important;line-height: 1 !important; width: auto; font-style: normal !important;
   display: none !important;
 }
 
 #cVim-command-bar {
-  min-height: 0 !important;background-repeat: none !important;background-position: none !important;border-radius: 0 !important;box-sizing: content-box !important;vertical-align: none !important;outline: 0 !important;border: 0 !important;-webkit-appearance: none !important;padding: 0 !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;text-align: start !important;outline: 0 !important;margin: 0 !important;outline-style: none !important;line-height: 1 !important; font-style: normal !important;direction: ltr !important;
 }
 
 #cVim-command-bar-mode {
-  min-height: 0 !important;background-repeat: none !important;background-position: none !important;border-radius: 0 !important;box-sizing: content-box !important;vertical-align: none !important;box-shadow: none !important;outline: 0 !important;margin: 0 !important;-webkit-appearance: none !important;padding: 0 !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;text-align: start !important;outline: 0 !important;border: 0 !important;margin: 0 !important;outline-style: none !important;line-height: 1 !important;background: none !important; font-style: normal !important;
 }
 #cVim-command-bar-input {
-  min-height: 0 !important;background-repeat: none !important;background-position: none !important;border-radius: 0 !important;box-sizing: content-box !important;vertical-align: none !important;box-shadow: none !important;outline: 0 !important;border: 0 !important;margin: 0 !important;-webkit-appearance: none !important;padding: 0 !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;text-align: start !important;outline: 0 !important;margin: 0 !important;outline-style: none !important;line-height: 1 !important; font-style: normal !important; background: none !important;
+  border: none;
 }
 
 #cVim-command-bar-search-results {
-  min-height: 0 !important;background-repeat: none !important;background-position: none !important;border-radius: 0 !important;box-sizing: content-box !important;vertical-align: none !important;outline: 0 !important;border: 0 !important;margin: 0 !important;-webkit-appearance: none !important;padding: 0 !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;text-align: start !important;outline: 0 !important;margin: 0 !important;padding: 0 !important;outline-style: none !important;line-height: 1 !important; font-style: normal !important;
 }
 
 .cVim-completion-item {
-  min-height: 0 !important;background-repeat: none !important;background-position: none !important;border-radius: 0 !important;box-sizing: content-box !important;vertical-align: none !important;box-shadow: none !important;outline: 0 !important;border: 0 !important;margin: 0 !important;-webkit-appearance: none !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;text-align: start !important;outline: 0 !important;margin: 0 !important;outline-style: none !important;line-height: 1 !important; background: none; font-style: normal !important; direction: ltr !important;
 }
 
 .cVim-completion-item .cVim-full {
-  min-height: 0 !important;background-repeat: none !important;background-position: none !important;border-radius: 0 !important;box-sizing: content-box !important;vertical-align: none !important;box-shadow: none !important;outline: 0 !important;margin: 0 !important;-webkit-appearance: none !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;text-align: start !important;outline: 0 !important;border: 0 !important;outline-style: none !important;line-height: 1 !important; font-style: normal !important;
 }
 
 .cVim-completion-item .cVim-left {
-  min-height: 0 !important;background-repeat: none !important;background-position: none !important;border: none !important;border-radius: 0 !important;box-sizing: content-box !important;vertical-align: none !important;box-shadow: none !important;border: 0 !important;margin: 0 !important;-webkit-appearance: none !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;text-align: start !important;outline: 0 !important;border: 0 !important;margin: 0 !important;outline-style: none !important;line-height: 1 !important; font-style: normal !important;
 }
 
 .cVim-completion-item .cVim-right {
-  min-height: 0 !important;background-repeat: none !important;background-position: none !important;border-radius: 0 !important;box-sizing: content-box !important;vertical-align: none !important;box-shadow: none !important;margin: 0 !important;-webkit-appearance: none !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;text-align: start !important;outline: 0 !important;border: 0 !important;outline-style: none !important;line-height: 1 !important;
 }
 
 .cVim-highlight {
-  min-height: 0 !important;background-repeat: none !important;background-position: none !important;border-radius: 0 !important;outline: 0 !important;border: 0 !important;text-shadow: none !important;outline: 0 !important;outline-style: none !important;
   background-color: yellow;
   padding: 0 !important;
   margin: 0 !important;
 }
 
 #cVim-hud {
-  min-height: 0 !important;background-repeat: none !important;background-position: none !important;border-radius: 0 !important;box-sizing: border-box !important;vertical-align: none !important;box-shadow: none !important;margin: 0 !important;-webkit-appearance: none !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;text-align: start !important;outline: 0 !important;border: 0 !important;outline-style: none !important;line-height: 1 !important; font-style: normal !important;
   bottom: 0;
   display: inline-block !important;
   vertical-align: middle !important;
@@ -68,7 +68,6 @@
 }
 
 #cVim-status-bar {
-  min-height: 0 !important;background-repeat: none !important;background-position: none !important;border-radius: 0 !important;box-sizing: content-box !important;vertical-align: none !important;outline: 0 !important;border: 0 !important;-webkit-appearance: none !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;text-align: start !important;outline: 0 !important;margin: 0 !important;outline-style: none !important;font-style: normal !important;
   position: fixed !important;
   z-index: 2147483646 !important;
   background-color: #1b1d1e !important;
@@ -85,11 +84,9 @@
 }
 
 .cVim-error {
-  min-height: 0 !important;background-repeat: none !important;background-position: none !important;border-radius: 0 !important;box-sizing: content-box !important;vertical-align: none !important;box-shadow: none !important;margin: 0 !important;-webkit-appearance: none !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;text-align: start !important;outline: 0 !important;border: 0 !important;outline-style: none !important;line-height: 1 !important; font-style: normal !important;
 }
 
 #cVim-cursor {
-  min-height: 0 !important;background-repeat: none !important;background-position: none !important;border-radius: 0 !important;box-sizing: content-box !important;vertical-align: none !important;box-shadow: none !important;margin: 0 !important;-webkit-appearance: none !important;letter-spacing: normal !important;word-spacing: normal !important;text-transform: none !important;text-indent: 0px !important;text-shadow: none !important;text-align: start !important;outline: 0 !important;border: 0 !important;outline-style: none !important;line-height: 1 !important; font-style: normal !important;
   position: fixed !important; background: none !important; background-image: none !important;
   left: 0 !important;
   width: 100% !important;

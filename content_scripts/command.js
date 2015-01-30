@@ -798,13 +798,25 @@ Command.execute = function(value, repeats) {
 
 };
 
-Command.show = function(search, value) {
+Command.show = function(search, value, complete) {
   if (!this.domElementsLoaded) {
     Command.callOnCvimLoad(function() {
       Command.show(search, value);
     });
     return;
   }
+  if (!window.isCommandFrame && document.hasFocus()) {
+    window.wasFocused = true;
+  }
+  if (window.isCommandFrame === void 0) {
+    PORT('showCommandFrame', {
+      search: search,
+      value: value,
+      complete: complete ? value : null
+    });
+    return;
+  }
+  commandMode = true;
   this.type = '';
   this.active = true;
   if (document.activeElement) {
@@ -827,6 +839,9 @@ Command.show = function(search, value) {
   this.bar.style.display = 'inline-block';
   setTimeout(function() {
     this.input.focus();
+    if (complete) {
+      this.complete(value);
+    }
 
     // Temp fix for Chromium issue in #97
     if (this.commandBarFocused()) {
@@ -861,6 +876,10 @@ Command.hide = function(callback) {
   this.dataElements = [];
   if (callback) {
     callback();
+  }
+  if (window.isCommandFrame) {
+    PORT('hideCommandFrame');
+    return;
   }
 };
 
@@ -1065,3 +1084,12 @@ Command.configureSettings = function(_settings) {
     this.init(false);
   }
 };
+
+if (window.self === window.top) {
+  waitForLoad(function() {
+    Command.frame = document.createElement('iframe');
+    Command.frame.src = chrome.runtime.getURL('cmdline_frame.html');
+    Command.frame.id = 'cVim-command-frame';
+    document.lastElementChild.appendChild(Command.frame);
+  });
+}

@@ -109,6 +109,7 @@ Find.highlight = function(params) {
   //   setIndex       -> find the first match within the viewport
   //   executesearch  -> run Find.search after highlighting
   //   saveSearch     -> add search to search history
+  params.base = params.base || document.body;
   var self = this;
   var regexMode = '',
       containsCap = params.search.search(/[A-Z]/) !== -1,

@@ -223,5 +223,37 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
       if (self === top)
         callback(Frames.getSubFrames());
       break;
+    case 'showCommandFrame':
+      if (Command.frame) {
+        Command.frame.style.display = 'block';
+        Command.frame.contentWindow.focus();
+      }
+      if (window.isCommandFrame === true) {
+        window.focus();
+        Command.show(request.search, request.value, request.complete);
+      }
+      break;
+    case 'hideCommandFrame':
+      if (window.wasFocused) {
+        window.wasFocused = false;
+        window.focus();
+        document.activeElement.focus();
+        Mappings.handleEscapeKey();
+        Mappings.clearQueue();
+      }
+      if (Command.frame) {
+        Command.frame.style.display = 'none';
+      }
+      break;
+    case 'callFind':
+      if (window.wasFocused) {
+        Find[request.command].apply(Find, request.params);
+      }
+      break;
+    case 'setFindIndex':
+      if (window.wasFocused) {
+        Find.index = request.index;
+      }
+      break;
   }
 });

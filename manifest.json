@@ -105,5 +105,6 @@
       "all_frames": true
     }
   ],
-  "options_page": "pages/options.html"
+  "options_page": "pages/options.html",
+  "web_accessible_resources": ["cmdline_frame.html"]
 }
