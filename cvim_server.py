@@ -10,13 +10,18 @@ can be changed via the "vimcommand" cVimrc option
 '''
 
 import os
+import sys
 from json import loads
 import subprocess
 from tempfile import mkstemp
 from http.server import HTTPServer, BaseHTTPRequestHandler
+from uuid import uuid4
 
 PORT = 8001
 
+uid = str(uuid4())
+with open(sys.path[0] + '/.cvim_server.token', 'w') as output:
+  output.write(uid)
 
 def edit_file(command, content):
     fd, fn = mkstemp(suffix='.txt', prefix='cvim-', text=True)
@@ -34,11 +39,12 @@ class CvimServer(BaseHTTPRequestHandler):
     def do_POST(self):
         length = int(self.headers['Content-Length'])
         content = loads(self.rfile.read(length).decode('utf8'))
-        edit = edit_file(content['command'], content['data'])
-        self.send_response(200)
-        self.send_header('Content-Type', 'text/plain')
-        self.end_headers()
-        self.wfile.write(edit.encode('utf8'))
+        if content['token'] == uid:
+          edit = edit_file(content['command'], content['data'])
+          self.send_response(200)
+          self.send_header('Content-Type', 'text/plain')
+          self.end_headers()
+          self.wfile.write(edit.encode('utf8'))
 
 
 def init_server(server_class=HTTPServer, handler_class=BaseHTTPRequestHandler):

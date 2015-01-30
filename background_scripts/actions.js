@@ -661,19 +661,34 @@ Actions = (function() {
     });
   };
 
-  _.editWithVim = function() {
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', 'http://127.0.0.1:' + Settings.vimport);
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState === 4 && xhr.status === 200) {
-        callback({type: 'editWithVim', text: xhr.responseText});
-      }
+
+  _.editWithVim = (function() {
+    var editWithVimUID;
+    (function() {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', chrome.runtime.getURL('.cvim_server.token'));
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          editWithVimUID = xhr.responseText;
+        }
+      };
+      xhr.send();
+    })();
+    return function() {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', 'http://127.0.0.1:' + Settings.vimport);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          callback({type: 'editWithVim', text: xhr.responseText});
+        }
+      };
+      xhr.send(JSON.stringify({
+        command: Settings.vimcommand,
+        data: '' + (request.text || ''),
+        token: editWithVimUID
+      }));
     };
-    xhr.send(JSON.stringify({
-      command: Settings.vimcommand,
-      data: '' + (request.text || '')
-    }));
-  };
+  })();
 
   _.httpRequest = function() {
     httpRequest(request.request).then(function(res) {
