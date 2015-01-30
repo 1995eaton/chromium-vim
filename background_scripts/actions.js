@@ -663,30 +663,31 @@ Actions = (function() {
 
 
   _.editWithVim = (function() {
-    var editWithVimUID;
-    (function() {
+    var readToken = function(callback) {
       var xhr = new XMLHttpRequest();
       xhr.open('GET', chrome.runtime.getURL('.cvim_server.token'));
       xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {
-          editWithVimUID = xhr.responseText;
+          callback(xhr.responseText);
         }
       };
       xhr.send();
-    })();
+    };
     return function() {
-      var xhr = new XMLHttpRequest();
-      xhr.open('POST', 'http://127.0.0.1:' + Settings.vimport);
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          callback({type: 'editWithVim', text: xhr.responseText});
-        }
-      };
-      xhr.send(JSON.stringify({
-        command: Settings.vimcommand,
-        data: '' + (request.text || ''),
-        token: editWithVimUID
-      }));
+      readToken(function(token) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'http://127.0.0.1:' + Settings.vimport);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            callback({type: 'editWithVim', text: xhr.responseText});
+          }
+        };
+        xhr.send(JSON.stringify({
+          command: Settings.vimcommand,
+          data: '' + (request.text || ''),
+          token: token
+        }));
+      });
     };
   })();
 
