@@ -1086,7 +1086,7 @@ Command.configureSettings = function(_settings) {
 };
 
 if (window.self === window.top) {
-  waitForLoad(function() {
+  Command.callOnCvimLoad(function() {
     Command.frame = document.createElement('iframe');
     Command.frame.src = chrome.runtime.getURL('cmdline_frame.html');
     Command.frame.id = 'cVim-command-frame';
