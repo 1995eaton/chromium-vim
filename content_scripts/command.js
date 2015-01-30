@@ -948,9 +948,7 @@ Command.onDOMLoad = function() {
       window.removeEventListener('mousedown', initialMouseDown, true);
     }, true);
   }
-  if (window.isCommandFrame) {
-    this.setup();
-  }
+  this.setup();
   this.domElementsLoaded = true;
   this.callOnCvimLoad();
 };
