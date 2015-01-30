@@ -98,7 +98,6 @@ Find.search = function(reverse, repeats, ignoreFocus) {
     window.scrollTo(0, origTop - paddingTop - paddingBottom);
     window.scrollBy(0, br.top * documentZoom);
   }
-  Command.input.focus();
 };
 
 Find.highlight = function(params) {

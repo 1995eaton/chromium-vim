@@ -214,7 +214,7 @@ Command.descriptions = [
   ['restore',      'Open a recently closed tab'],
   ['mksession',    'Create a saved session of current tabs'],
   ['delsession',   'Delete sessions'],
-  ['map',          'Map a command'],
+  // ['map',          'Map a command'],
   ['unmap',        'Unmap a command'],
   ['tabattach',    'Move current tab to another window'],
   ['tabdetach',    'Move current tab to a new window'],
@@ -754,10 +754,10 @@ Command.execute = function(value, repeats) {
     return;
   }
 
-  if (/^((i?(re)?map)|i?unmap(All)?)+/.test(value)) {
-    Mappings.parseLine(value);
-    return;
-  }
+  // if (/^((i?(re)?map)|i?unmap(All)?)+/.test(value)) {
+  //   Mappings.parseLine(value);
+  //   return;
+  // }
 
   if (/^set +/.test(value) && value !== 'set') {
     value = value.replace(/^set +/, '').split(/[ =]+/);
@@ -948,7 +948,9 @@ Command.onDOMLoad = function() {
       window.removeEventListener('mousedown', initialMouseDown, true);
     }, true);
   }
-  this.setup();
+  if (window.isCommandFrame) {
+    this.setup();
+  }
   this.domElementsLoaded = true;
   this.callOnCvimLoad();
 };
