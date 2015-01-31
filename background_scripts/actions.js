@@ -45,7 +45,7 @@ Actions = (function() {
             url: url,
             active: request.active,
             pinned: request.pinned,
-            index: getTabOrderIndex(tab)
+            index: getTabOrderIndex(tab[0])
           });
         }
       });
