@@ -33,6 +33,8 @@
 #cVim-command-bar-mode {
 }
 #cVim-command-bar-input {
+  box-sizing: border-box;
+  outline-style: none;
   border: 0;
 }
 
