@@ -854,9 +854,6 @@ Command.show = function(search, value, complete) {
 };
 
 Command.hide = function(callback) {
-  if (document.activeElement) {
-    document.activeElement.blur();
-  }
   this.hideData();
   if (this.bar) {
     this.bar.style.display = 'none';
