@@ -871,20 +871,20 @@ Command.hide = function(callback) {
   this.history.index = {};
   this.typed = '';
   this.dataElements = [];
+  this.hideData();
+  if (this.bar) {
+    this.bar.style.display = 'none';
+  }
+  if (this.input) {
+    this.input.value = '';
+  }
+  if (this.data) {
+    this.data.style.display = 'none';
+  }
   if (callback) {
     callback();
   }
   if (window.isCommandFrame) {
-    this.hideData();
-    if (this.bar) {
-      this.bar.style.display = 'none';
-    }
-    if (this.input) {
-      this.input.value = '';
-    }
-    if (this.data) {
-      this.data.style.display = 'none';
-    }
     PORT('hideCommandFrame');
     return;
   }
