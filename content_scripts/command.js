@@ -5,18 +5,11 @@ Command.dataElements = [];
 Command.matches = [];
 Command.lastInputValue = '';
 
-Command.setup = function() {
+Command.setupFrameElements = function() {
   this.bar = document.createElement('div');
   this.bar.id = 'cVim-command-bar';
   this.bar.cVim = true;
   this.bar.style[(this.onBottom) ? 'bottom' : 'top'] = '0';
-  this.input = document.createElement('input');
-  this.input.type = 'text';
-  this.input.id = 'cVim-command-bar-input';
-  this.input.cVim = true;
-  this.statusBar = document.createElement('div');
-  this.statusBar.id = 'cVim-status-bar';
-  this.statusBar.style[(this.onBottom) ? 'bottom' : 'top'] = '0';
   this.modeIdentifier = document.createElement('span');
   this.modeIdentifier.id = 'cVim-command-bar-mode';
   this.modeIdentifier.cVim = true;
@@ -25,10 +18,8 @@ Command.setup = function() {
   this.bar.spellcheck = false;
   try {
     document.lastChild.appendChild(this.bar);
-    document.lastChild.appendChild(this.statusBar);
   } catch(e) {
     document.body.appendChild(this.bar);
-    document.body.appendChild(this.statusBar);
   }
   if (!this.data) {
     this.data = document.createElement('div');
@@ -50,6 +41,23 @@ Command.setup = function() {
       this.data.style.top = this.barHeight + 'px';
     }
   }
+};
+
+Command.setup = function() {
+  this.input = document.createElement('input');
+  this.input.type = 'text';
+  this.input.id = 'cVim-command-bar-input';
+  this.input.cVim = true;
+  this.statusBar = document.createElement('div');
+  this.statusBar.id = 'cVim-status-bar';
+  this.statusBar.style[(this.onBottom) ? 'bottom' : 'top'] = '0';
+  try {
+    document.lastChild.appendChild(this.statusBar);
+  } catch(e) {
+    document.body.appendChild(this.statusBar);
+  }
+  if (window.isCommandFrame)
+    Command.setupFrameElements();
 };
 
 Command.commandBarFocused = function() {
@@ -854,16 +862,6 @@ Command.show = function(search, value, complete) {
 };
 
 Command.hide = function(callback) {
-  this.hideData();
-  if (this.bar) {
-    this.bar.style.display = 'none';
-  }
-  if (this.input) {
-    this.input.value = '';
-  }
-  if (this.data) {
-    this.data.style.display = 'none';
-  }
   this.historyMode = false;
   this.active = false;
   commandMode = false;
@@ -875,6 +873,16 @@ Command.hide = function(callback) {
     callback();
   }
   if (window.isCommandFrame) {
+    this.hideData();
+    if (this.bar) {
+      this.bar.style.display = 'none';
+    }
+    if (this.input) {
+      this.input.value = '';
+    }
+    if (this.data) {
+      this.data.style.display = 'none';
+    }
     PORT('hideCommandFrame');
     return;
   }
