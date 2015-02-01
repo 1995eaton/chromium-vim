@@ -251,8 +251,8 @@ Mappings.actions = {
   lastTab: function() {
     RUNTIME('lastTab');
   },
-  lastClosedTab: function() {
-    RUNTIME('openLast');
+  lastClosedTab: function(repeats) {
+    RUNTIME('openLast', { repeats: repeats });
   },
   moveTabRight: function(repeats) {
     RUNTIME('moveTabRight', {repeats: repeats});

@@ -426,10 +426,11 @@ Actions = (function() {
   };
 
   _.openLast = function() {
-    if (Sessions.nativeSessions) {
-      Sessions.nativeStepBack();
-    } else {
-      Sessions.stepBack(sender);
+    var stepBackFN = Sessions.nativeSessions ?
+      Sessions.nativeStepBack.bind(Sessions) :
+      Sessions.stepBack.bind(Sessions, sender);
+    for (var i = 0; i < request.repeats; i++) {
+      stepBackFN();
     }
   };
 
