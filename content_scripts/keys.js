@@ -450,16 +450,10 @@ var KeyHandler = {
           }
           if (Command.input.value.length > 2) {
             if (settings.incsearch) {
-              PORT('callFind', {
-                command: 'clear',
-                params: []
-              });
-              PORT('callFind', {
-                command: 'highlight',
-                params: [{
-                  base: null,
-                  search: Command.input.value
-                }]
+              PORT('doIncSearch', {
+                search: Command.input.value,
+                index: Command.modeIdentifier.textContent === '/' ?
+                  -1 : 1
               });
             }
           }

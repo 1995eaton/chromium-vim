@@ -76,7 +76,7 @@ Find.search = function(reverse, repeats, ignoreFocus) {
     document.activeElement.blur();
     document.body.focus();
   }
-  var isLink = this.focusParentLink(this.matches[this.index]);
+  var isLink = ignoreFocus ? false : this.focusParentLink(this.matches[this.index]);
   this.matches[this.index].style.backgroundColor = activeHighlight;
   HUD.display(this.index + 1 + ' / ' + this.matches.length);
   var paddingTop = 0,

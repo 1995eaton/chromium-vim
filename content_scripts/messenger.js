@@ -258,5 +258,39 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
         Find.index = request.index;
       }
       break;
+    case 'doIncSearch':
+      if (!window.wasFocused)
+        break;
+      Find.clear();
+      Find.highlight({
+        base: document.body,
+        search: request.search
+      });
+      Find.index = request.index;
+      Find.setIndex();
+      Find.search(request.index === 1, 1, true);
+      break;
+    case 'cancelIncSearch':
+      document.body.scrollTop = Command.lastScrollTop;
+      if (Find.previousMatches &&
+          request.search &&
+          Find.lastSearch &&
+          Find.lastSearch !== request.search) {
+        Find.clear();
+        HUD.hide();
+        Find.highlight({ base: document.body,
+          search: Find.lastSearch,
+          setIndex: false,
+          executeSearch: false,
+          reverse: true,
+          saveSearch: true
+        });
+        Find.index = Find.lastIndex - 1;
+        Find.search(false, 1, false);
+      } else {
+        Find.clear();
+        HUD.hide();
+      }
+      break;
   }
 });

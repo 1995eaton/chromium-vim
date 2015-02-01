@@ -862,26 +862,9 @@ Mappings.handleEscapeKey = function() {
 
   if (commandMode) {
     if (Command.type === 'search') {
-      document.body.scrollTop = Command.lastScrollTop;
-      if (Find.previousMatches &&
-          Command.input.value &&
-          Find.lastSearch &&
-          Find.lastSearch !== Command.input.value) {
-        Find.clear();
-        HUD.hide();
-        Find.highlight({ base: document.body,
-          search: Find.lastSearch,
-          setIndex: false,
-          executeSearch: false,
-          reverse: true,
-          saveSearch: true
-        });
-        Find.index = Find.lastIndex - 1;
-        Find.search(false, 1, false);
-      } else {
-        Find.clear();
-        HUD.hide();
-      }
+      PORT('cancelIncSearch', {
+        search: Command.input.value
+      });
     }
     Command.hideData();
     Command.hide();

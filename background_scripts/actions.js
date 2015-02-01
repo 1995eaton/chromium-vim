@@ -760,6 +760,14 @@ Actions = (function() {
     });
   };
 
+  _.doIncSearch = function() {
+    chrome.tabs.sendMessage(sender.tab.id, request);
+  };
+
+  _.cancelIncSearch = function() {
+    chrome.tabs.sendMessage(sender.tab.id, request);
+  };
+
   return function(_request, _sender, _callback) {
     var action = _request.action;
     if (!_[action]) {
