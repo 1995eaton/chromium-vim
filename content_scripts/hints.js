@@ -44,6 +44,7 @@ Hints.hideHints = function(reset, multi, useKeyDelay) {
     }
   }
   this.numericMatch = void 0;
+  this.shouldShowLinkInfo = false;
   this.active = reset;
   this.currentString = '';
   this.linkArr = [];
@@ -70,7 +71,7 @@ Hints.removeContainer = function() {
     hintContainer.parentNode.removeChild(hintContainer);
 };
 
-Hints.dispatchAction = function(link) {
+Hints.dispatchAction = function(link, shift) {
   if (!link)
     return false;
   var node = link.localName;
@@ -83,7 +84,7 @@ Hints.dispatchAction = function(link) {
     }, settings.typelinkhintsdelay);
   }
 
-  if (KeyHandler.shiftKey && !this.shiftKeyInitiator) {
+  if (shift || KeyHandler.shiftKey) {
     switch (this.type) {
       case void 0:
         this.type = 'tabbed';
@@ -178,6 +179,15 @@ Hints.dispatchAction = function(link) {
   } else {
     this.hideHints(false, false, true);
   }
+};
+
+Hints.showLinkInfo = function(hint) {
+  var loc = hint[1].href || hint[1].src || hint[1].onclick;
+  if (!loc) {
+    return false;
+  }
+  hint[0].textContent = loc;
+  return true;
 };
 
 Hints.handleHintFeedback = function() {
@@ -287,8 +297,16 @@ Hints.handleHintFeedback = function() {
     this.hideHints(false, false, true);
   }
   if (linksFound === 1) {
-    this.dispatchAction(this.linkArr[index][1]);
-    this.hideHints(false);
+    if (this.shouldShowLinkInfo && this.showLinkInfo(this.linkArr[index])) {
+      this.acceptLink = function(shift) {
+        this.dispatchAction(this.linkArr[index][1], shift);
+        this.hideHints(false);
+        this.acceptLink = null;
+      };
+    } else {
+      this.dispatchAction(this.linkArr[index][1]);
+      this.hideHints(false);
+    }
   }
 
 };
@@ -296,10 +314,13 @@ Hints.handleHintFeedback = function() {
 
 Hints.handleHint = function(key) {
   key = key.replace('<Space>', ' ');
-  if (key === ';') {
+  switch (key) {
+  case ';':
     return this.changeFocus();
-  } else if (key === '/') {
-    document.getElementById('cVim-link-container').style.opacity = '0';
+  case '/':
+    return document.getElementById('cVim-link-container').style.opacity = '0';
+  case '<Tab>':
+    Hints.shouldShowLinkInfo = !Hints.shouldShowLinkInfo;
     return;
   }
   if (settings.numerichints && key === '<Enter>') {
@@ -511,7 +532,6 @@ Hints.create = function(type, multi) {
       });
       return false;
     }
-    self.shiftKeyInitiator = KeyHandler.shiftKey;
     var links, main, frag, i, l;
     self.type = type;
     self.hideHints(true, multi);

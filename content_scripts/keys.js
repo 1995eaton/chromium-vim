@@ -146,7 +146,14 @@ var KeyListener = (function() {
 
       // Alt key hint focus toggle
       if (Hints.active && event.which === 18) {
-        return Hints.changeFocus();
+        Hints.changeFocus();
+        return;
+      }
+      if (Hints.shouldShowLinkInfo &&
+          typeof Hints.acceptLink === 'function' &&
+          (keyString === '<Enter>' || keyString === '<S-Enter>')) {
+        Hints.acceptLink(keyString === '<S-Enter>');
+        return;
       }
 
       // Modifier keys C-A-S-M

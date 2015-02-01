@@ -1,4 +1,4 @@
-DOM = {
+window.DOM = {
   isSubmittable: function(element) {
     if (element.localName !== 'input')
       return false;

@@ -139,6 +139,8 @@ Command.completionOrder = {
 };
 
 Command.updateCompletions = function(useStyles) {
+  if (!window.isCommandFrame)
+    return;
   this.completionResults = [];
   this.dataElements = [];
   this.data.innerHTML = '';
