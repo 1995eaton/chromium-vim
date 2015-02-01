@@ -121,6 +121,13 @@ Hints.dispatchAction = function(link) {
       link.hover();
       Hints.lastHover = link;
       break;
+    case 'edit':
+      Mappings.insertFunctions.__setElement__(link);
+      link.focus();
+      PORT('editWithVim', {
+        text: link.value || link.textContent
+      });
+      break;
     case 'unhover':
       link.unhover();
       break;
@@ -165,7 +172,7 @@ Hints.dispatchAction = function(link) {
   if (this.multi) {
     this.removeContainer();
     window.setTimeout(function() {
-      if (!document.activeElement.isInput())
+      if (!DOM.isEditable(document.activeElement))
         this.create(this.type, true);
     }.bind(this), 0);
   } else {
@@ -394,6 +401,8 @@ Hints.acceptHint = function(node) {
              name === 'input';
     } else if (Hints.type.indexOf('image') !== -1) {
       return name === 'img';
+    } else if (Hints.type === 'edit') {
+      return DOM.isEditable(node);
     }
   }
 
@@ -544,16 +553,17 @@ Hints.create = function(type, multi) {
     if (!multi && settings && settings.hud) {
       HUD.display('Follow link ' + (function() {
         return ({
-          yank: '(yank)',
-          multiyank: '(multi-yank)',
-          image: '(reverse-image)',
-          fullimage: '(full image)',
-          tabbed: '(tabbed)',
-          tabbedActive: '(tabbed)',
-          window: '(window)',
-          hover: '(hover)',
-          unhover: '(unhover)',
-          multi: '(multi)'
+          yank:          '(yank)',
+          multiyank:     '(multi-yank)',
+          image:         '(reverse-image)',
+          fullimage:     '(full image)',
+          tabbed:        '(tabbed)',
+          tabbedActive:  '(tabbed)',
+          window:        '(window)',
+          edit:          '(edit)',
+          hover:         '(hover)',
+          unhover:       '(unhover)',
+          multi:         '(multi)'
         })[type] || '';
       })());
     }

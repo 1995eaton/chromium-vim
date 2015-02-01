@@ -412,6 +412,7 @@ Mappings.actions = {
   createActiveTabbedHint: function() { Hints.create('tabbedActive'); },
   createMultiHint: function() { Hints.create('multi'); },
   createHintWindow: function() { Hints.create('window'); },
+  createEditHint: function() { Hints.create('edit'); },
   createHoverHint: function() { Hints.create('hover'); },
   createUnhoverHint: function() { Hints.create('unhover'); },
   yankUrl: function() { Hints.create('yank'); },
@@ -516,7 +517,7 @@ Mappings.actions = {
     var allInput = document.
       querySelectorAll('input,textarea,*[contenteditable]');
     for (var i = 0, l = allInput.length; i < l; i++) {
-      if (allInput[i].isInput() &&
+      if (DOM.isEditable(allInput[i]) &&
           allInput[i].isVisible() &&
           allInput[i].id !== 'cVim-command-bar-input') {
         this.inputElements.push(allInput[i]);
@@ -842,7 +843,7 @@ Mappings.executeSequence = function(c, r) {
   } else {
     this.convertToAction(com);
   }
-  if (!commandMode && !document.activeElement.isInput()) {
+  if (!commandMode && !DOM.isEditable(document.activeElement)) {
     setTimeout(function() {
       Mappings.executeSequence(c.substring(1), r);
     });
@@ -887,7 +888,7 @@ Mappings.handleEscapeKey = function() {
     return;
   }
 
-  if (document.activeElement.isInput()) {
+  if (DOM.isEditable(document.activeElement)) {
     if (document.getSelection().type === 'Range') {
       document.getSelection().collapseToEnd();
       return;

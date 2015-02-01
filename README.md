@@ -251,6 +251,7 @@ site '*://*/*.js' {
 | `q`                       | trigger a hover event (mouseover + mouseenter)                        | createHoverHint                 |
 | `Q`                       | trigger a unhover event (mouseout + mouseleave)                       | createUnhoverHint               |
 | `mf`                      | open multiple links                                                   | createMultiHint                 |
+| unmapped                  | edit text with external editor                                        | createEditHint                  |
 | `mr`                      | reverse image search multiple links                                   | multiReverseImage               |
 | `my`                      | yank multiple links (open the list of links with P)                   | multiYankUrl                    |
 | `gy`                      | copy URL from link to clipboard                                       | yankUrl                         |

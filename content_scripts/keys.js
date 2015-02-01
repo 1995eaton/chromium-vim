@@ -136,7 +136,7 @@ var KeyListener = (function() {
       if (Object.compare(event, KeyEvents.lastHandledEvent,
             ['which', 'ctrlKey', 'shiftKey', 'metaKey', 'altKey'])) {
         KeyEvents.lastHandledEvent = null;
-        if (!document.activeElement.isInput()) {
+        if (!DOM.isEditable(document.activeElement)) {
           event.stopImmediatePropagation();
         }
       }
@@ -179,7 +179,7 @@ var KeyListener = (function() {
           event.preventDefault();
         }
         KeyEvents.lastHandledEvent = event;
-        if (!document.activeElement.isInput()) {
+        if (!DOM.isEditable(document.activeElement)) {
           event.stopImmediatePropagation();
         }
       }
@@ -316,7 +316,7 @@ var KeyHandler = {
 
     // When <Tab> or <S-Tab> is pressed in 'gi' mode
     if (!commandMode && Mappings.actions.inputFocused && event.which === 9) {
-      if (document.activeElement && (!document.activeElement.isInput() ||
+      if (document.activeElement && (!DOM.isEditable(document.activeElement) ||
                                      !Mappings.actions.inputElements.length)) {
         Mappings.actions.inputFocused = false;
         return;
@@ -335,7 +335,7 @@ var KeyHandler = {
       return;
     }
 
-    var isInput = document.activeElement && document.activeElement.isInput();
+    var isInput = document.activeElement && DOM.isEditable(document.activeElement);
 
     if (!isInput) {
       if (Mappings.queue.length) {

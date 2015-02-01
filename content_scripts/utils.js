@@ -102,13 +102,6 @@ var isVisible = function(element) {
          element.getAttribute('display') !== 'none';
 };
 
-definePrototype(HTMLElement, 'isInput', function() {
-  return (
-    (this.localName === 'textarea' || this.localName === 'input' || this.hasAttribute('contenteditable')) && !this.disabled &&
-    !/button|radio|file|image|checkbox|submit/i.test(this.getAttribute('type'))
-  );
-});
-
 var simulateMouseEvents = function(element, events) {
   for (var i = 0; i < events.length; ++i) {
     var ev = document.createEvent('MouseEvents');

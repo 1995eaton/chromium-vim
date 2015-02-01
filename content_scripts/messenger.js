@@ -200,7 +200,7 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
       }
       break;
     case 'deleteBackWord':
-      if (!insertMode && document.activeElement.isInput()) {
+      if (!insertMode && DOM.isEditable(document.activeElement)) {
         Mappings.insertFunctions.deleteWord();
         if (Command.commandBarFocused())
           Command.complete(Command.input.value);
