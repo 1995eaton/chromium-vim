@@ -86,6 +86,7 @@
       "js": [
         "cvimrc_parser/parser.js",
         "content_scripts/utils.js",
+        "content_scripts/dom.js",
         "content_scripts/messenger.js",
         "content_scripts/hints.js",
         "content_scripts/bookmarks.js",

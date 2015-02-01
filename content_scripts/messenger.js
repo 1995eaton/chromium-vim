@@ -102,6 +102,9 @@ port.onMessage.addListener(function(response) {
       if (lastInputElement) {
         lastInputElement[lastInputElement.value !== void 0 ? 'value' : 'innerHTML'] =
           response.text.replace(/\n$/, ''); // remove trailing line left by vim
+        if (!DOM.isSubmittable(lastInputElement)) {
+          lastInputElement.blur();
+        }
       }
       break;
     case 'httpRequest':
