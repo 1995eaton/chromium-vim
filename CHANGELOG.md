@@ -1,5 +1,9 @@
 #cVim Changelog
 
+## 1.2.67
+ * Moved command bar to separate frame (issue [#85](https://github.com/1995eaton/chromium-vim/issues/85)).
+ * Several security patches
+
 ## 1.2.66
  * Added `nativelinkeorder`, `vimcommand`, and `vimport` options
  * `cvim_socket.py` is now `cvim_server.py`
