@@ -160,6 +160,9 @@ var Listeners = {
         case 'newTab':
           chrome.tabs.create({url: chrome.runtime.getURL('pages/blank.html')});
           break;
+        case 'restartcVim':
+          chrome.runtime.reload();
+          break;
         default:
           break;
       }
