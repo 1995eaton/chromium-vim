@@ -34,6 +34,7 @@ var defaultSettings = {
   searchaliases: {},
   hud: true,
   regexp: true,
+  scalehints: false,
   linkanimations: false,
   ignorecase: true,
   numerichints: false,

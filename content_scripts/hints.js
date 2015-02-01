@@ -543,6 +543,9 @@ Hints.create = function(type, multi) {
     Hints.linkElementBase = document.createElement('div');
     Hints.linkElementBase.cVim = true;
     Hints.linkElementBase.className = 'cVim-link-hint';
+    if (settings.scalehints) {
+      Hints.linkElementBase.className += ' cVim-hint-scale';
+    }
     links = self.getLinks();
     if (type && type.indexOf('multi') !== -1) {
       self.multi = true;
@@ -608,5 +611,12 @@ Hints.create = function(type, multi) {
 
     main.appendChild(frag);
     main.style.opacity = '1';
+    if (settings.scalehints) {
+      setTimeout(function() {
+        self.linkArr.forEach(function(hint) {
+          hint[0].style.transform = 'scale(1) translate3d(0, 0, 0)';
+        });
+      });
+    }
   }, 0);
 };
