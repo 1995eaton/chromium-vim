@@ -149,7 +149,9 @@ var Listeners = {
           break;
         case 'closeTab':
           chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
-            chrome.tabs.remove(tab[0].id);
+            chrome.tabs.remove(tab[0].id, function() {
+              return chrome.runtime.lastError;
+            });
           });
           break;
         case 'reloadTab':

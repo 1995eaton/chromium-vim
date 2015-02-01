@@ -777,6 +777,8 @@ Actions = (function() {
       url = Settings.defaultnewtabpage ?
         'chrome://newtab' : '../pages/blank.html';
     }
+    if (!sender.tab)
+      return;
     _[action]();
   };
 

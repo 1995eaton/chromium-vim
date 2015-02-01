@@ -88,6 +88,8 @@ Popup.toggleBlacklisted = function() {
 
 chrome.runtime.onMessage.addListener(function(request, sender, callback) {
   if (Popup.hasOwnProperty(request.action)) {
+    if (!sender.tab)
+      return;
     Popup[request.action]({
       callback: function(response) {
         callback(response);
