@@ -211,7 +211,7 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
       if (!settings) {
         RUNTIME('getSettings');
       }
-      Command.init(request.state);
+      Command.init(!Command.loaded);
       break;
     case 'getBlacklistStatus':
       callback(Command.blacklisted);

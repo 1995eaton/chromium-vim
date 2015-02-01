@@ -1011,6 +1011,7 @@ Command.init = function(enabled) {
   Mappings.defaults = Object.clone(Mappings.defaultsClone);
   Mappings.parseCustom(settings.MAPPINGS);
   if (enabled) {
+    RUNTIME('setIconEnabled');
     this.loaded = true;
     this.updateSettings(settings);
     for (key in settings.sites) {
@@ -1022,7 +1023,9 @@ Command.init = function(enabled) {
     if (settings.autohidecursor) {
       waitForLoad(Cursor.init, Cursor);
     }
+    addListeners();
   } else {
+    RUNTIME('setIconDisabled');
     this.loaded = false;
     if (this.css && this.css.parentNode) {
       this.css.parentNode.removeChild(this.css);
@@ -1058,24 +1061,14 @@ Command.configureSettings = function(_settings) {
       }
     }
   };
-  var loadMain = function() {
-    Command.loaded = true;
-    PORT('setIconEnabled');
-    Command.init(true);
-  };
   Search.settings = Object.keys(settings).filter(function(e) {
     return typeof settings[e] === 'boolean';
   });
   removeListeners();
   settings.searchlimit = +settings.searchlimit;
   if (!checkBlacklist()) {
-    RUNTIME('getActiveState', null, function(response) {
-      if (response) {
-        addListeners();
-        loadMain();
-      } else {
-        Command.init(false);
-      }
+    RUNTIME('getActiveState', null, function(isActive) {
+      Command.init(isActive);
     });
   } else {
     this.init(false);

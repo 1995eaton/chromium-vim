@@ -43,7 +43,7 @@ Popup.toggleEnabled = function(obj) {
   var request = obj.request;
   if (request && request.singleTab) {
     this.getActiveTab(function(tab) {
-      chrome.tabs.sendMessage(tab.id, {action: 'toggleEnabled', state: !request.blacklisted});
+      chrome.tabs.sendMessage(tab.id, {action: 'toggleEnabled'});
     });
     if (request.blacklisted) {
       return this.setIconDisabled({});
@@ -54,7 +54,7 @@ Popup.toggleEnabled = function(obj) {
     this.active = !this.active;
     if (!request || (request && !request.blacklisted)) {
       tabs.map(function(tab) { return tab.id; }).forEach(function(id) {
-        chrome.tabs.sendMessage(id, {action: 'toggleEnabled', state: this.active});
+        chrome.tabs.sendMessage(id, {action: 'toggleEnabled'});
         if (this.active) {
           chrome.browserAction.setIcon({path: 'icons/38.png', tabId: id});
         } else {

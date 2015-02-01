@@ -121,6 +121,14 @@ var Listeners = {
         case 'togglecVim':
           Popup.toggleEnabled({});
           break;
+        case 'toggleBlacklisted':
+          Popup.toggleBlacklisted();
+          Popup.toggleEnabled({
+            request: {
+              singleTab: true
+            }
+          });
+          break;
         case 'nextTab':
         case 'previousTab':
           chrome.tabs.query({active: true, currentWindow: true}, function(e) {

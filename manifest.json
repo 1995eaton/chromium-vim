@@ -19,6 +19,9 @@
       "togglecVim": {
          "description": "Toggle the enabled state of cVim"
       },
+      "toggleBlacklisted": {
+        "description": "Toggle the blacklist for the domain in the current tab"
+      },
       "nextCompletionResult": {
         "description": "Let Chrome use <C-n> for cncpcompletion setting (see Help file)"
       },

@@ -264,7 +264,6 @@ site '*://*/*.js' {
 | `a`                       | alias to ":tabnew google "                                            | :tabnew google                  |
 | `.`                       | repeat the last command                                               | repeatCommand                   |
 | `:`                       | open command bar                                                      | openCommandBar                  |
-| unmapped                  | toggle the blacklist on the current domain                            | toggleBlacklisted               |
 | `/`                       | open search bar                                                       | openSearchBar                   |
 | `?`                       | open search bar (reverse search)                                      | openSearchBarReverse            |
 | `I`                       | search through browser history                                        | :history                        |
