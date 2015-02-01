@@ -611,12 +611,5 @@ Hints.create = function(type, multi) {
 
     main.appendChild(frag);
     main.style.opacity = '1';
-    if (settings.scalehints) {
-      setTimeout(function() {
-        self.linkArr.forEach(function(hint) {
-          hint[0].style.transform = 'scale(1) translate3d(0, 0, 0)';
-        });
-      });
-    }
   }, 0);
 };
