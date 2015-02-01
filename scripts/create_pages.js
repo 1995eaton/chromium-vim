@@ -18,6 +18,7 @@ marked.setOptions({
 
 var scripts = [
   'utils',
+  'dom',
   'messenger',
   'hints',
   'bookmarks',
