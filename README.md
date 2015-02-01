@@ -253,7 +253,7 @@ site '*://*/*.js' {
 | `mf`                      | open multiple links                                                   | createMultiHint                 |
 | `mr`                      | reverse image search multiple links                                   | multiReverseImage               |
 | `my`                      | yank multiple links (open the list of links with P)                   | multiYankUrl                    |
-| `gy`                      | copy url from link to clipboard                                       | yankUrl                         |
+| `gy`                      | copy URL from link to clipboard                                       | yankUrl                         |
 | `gr`                      | reverse image search (google images)                                  | reverseImage                    |
 | `;`                       | change the link hint focus                                            |                                 |
 | **QuickMarks**            |                                                                       |                                 |
@@ -283,7 +283,8 @@ site '*://*/*.js' {
 | `z0`                      | zoom page to original size                                            | zoomOrig                        |
 | `z<Enter>`                | toggle image zoom (same as clicking the image on image-only pages)    | toggleImageZoom                 |
 | `gd`                      | alias to :chrome://downloads&lt;CR&gt;                                | :chrome://downloads&lt;CR&gt;   |
-| `yy`                      | copy the url of the current page to the clipboard                     | yankDocumentUrl                 |
+| `yy`                      | copy the URL of the current page to the clipboard                     | yankDocumentUrl                 |
+| `ya`                      | copy the URLs in the current window                                   | yankWindowUrls                  |
 | `b`                       | search through bookmarks                                              | :bookmarks                      |
 | `p`                       | open the clipboard selection                                          | openPaste                       |
 | `P`                       | open the clipboard selection in a new tab                             | openPasteTab                    |
@@ -362,12 +363,12 @@ site '*://*/*.js' {
 | ------------------------------------------- | -------------------------------------------------------------------------------------- |
 | :tabnew (autocomplete)                      | open a new tab with the typed/completed search                                         |
 | :new (autocomplete)                         | open a new window with the typed/completed search                                      |
-| :open (autocomplete)                        | open the typed/completed url/google search                                             |
+| :open (autocomplete)                        | open the typed/completed URL/google search                                             |
 | :history (autocomplete)                     | search through browser history                                                         |
 | :bookmarks (autocomplete)                   | search through bookmarks                                                               |
 | :bookmarks /&lt;folder&gt; (autocomplete)   | browse bookmarks by folder/open all bookmarks from folder                              |
 | :set (autocomplete)                         | temporarily change a cVim setting                                                      |
-| :chrome:// (autocomplete)                   | open a chrome:// url                                                                   |
+| :chrome:// (autocomplete)                   | open a chrome:// URL                                                                   |
 | :tabhistory (autocomplete)                  | browse the different history states of the current tab                                 |
 | :quit                                       | close the current tab                                                                  |
 | :qall                                       | close the current window                                                               |

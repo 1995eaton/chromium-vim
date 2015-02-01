@@ -8,7 +8,6 @@ var Clipboard = {
     }
     RUNTIME('copy', {text: this.store});
   },
-
   paste: function(tabbed) {
     RUNTIME(tabbed ? 'openPasteTab' : 'openPaste');
   }

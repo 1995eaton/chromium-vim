@@ -751,6 +751,15 @@ Actions = (function() {
     });
   };
 
+  _.yankWindowUrls = function() {
+    chrome.tabs.query({ currentWindow: true }, function(tabs) {
+      Clipboard.copy(tabs.map(function(tab) {
+        return tab.url;
+      }).join('\n'));
+      callback(tabs.length);
+    });
+  };
+
   return function(_request, _sender, _callback) {
     var action = _request.action;
     if (!_[action]) {

@@ -16,13 +16,12 @@ Clipboard.copy = function(text) {
   document.body.removeChild(t);
 };
 
-Clipboard.paste = function(text) {
+Clipboard.paste = function() {
   var t = this.createTextArea();
   document.body.appendChild(t);
   t.focus();
   document.execCommand('Paste');
-  text = t.value;
+  var text = t.value;
   document.body.removeChild(t);
   return text;
 };
-
