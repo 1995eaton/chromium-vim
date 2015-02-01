@@ -625,16 +625,18 @@ Mappings.actions = {
 })();
 
 Mappings.insertDefaults = [
-  ['<C-y>', 'deleteWord' ],
-  ['<C-p>', 'deleteForwardWord' ],
-  ['<C-i>', 'beginningOfLine' ],
-  ['<C-e>', 'endOfLine' ],
-  ['<C-u>', 'deleteToBeginning' ],
-  ['<C-o>', 'deleteToEnd' ],
-  ['<C-f>', 'forwardChar' ],
-  ['<C-b>', 'backwardChar' ],
-  ['<C-l>', 'forwardWord' ],
-  ['<C-h>', 'backwardWord' ],
+  ['<C-y>', 'deleteWord'],
+  ['<C-p>', 'deleteForwardWord'],
+  ['<C-i>', 'beginningOfLine'],
+  ['<C-e>', 'endOfLine'],
+  ['<C-u>', 'deleteToBeginning'],
+  ['<C-o>', 'deleteToEnd'],
+  ['<C-f>', 'forwardChar'],
+  ['<C-b>', 'backwardChar'],
+  ['<C-j>', 'forwardLine'],
+  ['<C-k>', 'backwardLine'],
+  ['<C-l>', 'forwardWord'],
+  ['<C-h>', 'backwardWord'],
 ];
 
 Mappings.insertFunctions = (function() {
@@ -685,19 +687,19 @@ Mappings.insertFunctions = (function() {
       modify('right', 'word');
     },
     deleteToBeginning: function() {
-      modify('extend', 'left', 'documentboundary');
+      modify('extend', 'left', 'lineboundary');
       deleteSelection();
     },
     deleteToEnd: function() {
-      modify('extend', 'right', 'documentboundary');
+      modify('extend', 'right', 'lineboundary');
       deleteSelection();
       modify('move', 'right', 'documentboundary');
     },
     beginningOfLine: function() {
-      modify('left', 'documentboundary');
+      modify('left', 'lineboundary');
     },
     endOfLine: function() {
-      modify('right', 'documentboundary');
+      modify('right', 'lineboundary');
     },
     deleteWord: function() {
       modify('extend', 'left', 'word');
