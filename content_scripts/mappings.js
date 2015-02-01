@@ -204,7 +204,8 @@ Mappings.actions = {
   },
   goToRootUrl: function() {
     RUNTIME('openLink', {
-      url: location.protocol + '//' + location.hostname,
+      url: location.protocol + '//' + location.hostname +
+           (location.port ? ':' + location.port : ''),
       tab: { pinned: null }
     });
   },
@@ -214,7 +215,8 @@ Mappings.actions = {
       .slice(0, -repeats).join('/');
     if (path !== location.pathname) {
       RUNTIME('openLink', {
-        url: location.protocol + '//' + location.hostname + path,
+        url: location.protocol + '//' + location.hostname +
+             (location.port ? ':' + location.port : '') + path,
         tab: { pinned: null }
       });
     }
