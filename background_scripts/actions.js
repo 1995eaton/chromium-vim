@@ -645,8 +645,7 @@ Actions = (function() {
       path: 'icons/38.png',
       tabId: sender.tab.id
     }, function() {
-      if (chrome.runtime.lastError)
-        return false;
+      return chrome.runtime.lastError;
     });
   };
 

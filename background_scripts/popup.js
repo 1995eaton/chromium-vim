@@ -22,16 +22,31 @@ Popup.getActiveTab = function(callback) {
 
 Popup.setIconDisabled = function() {
   this.getActiveTab(function(tab) {
-    chrome.browserAction.setIcon({path: 'icons/disabled.png', tabId: tab.id});
+    chrome.browserAction.setIcon({
+      path: 'icons/disabled.png',
+      tabId: tab.id
+    }, function() {
+      return chrome.runtime.lastError;
+    });
   });
 };
 
 Popup.setIconEnabled = function(obj) {
   if (obj.sender) {
-    return chrome.browserAction.setIcon({path: 'icons/38.png', tabId: obj.sender.tab.id});
+    return chrome.browserAction.setIcon({
+      path: 'icons/38.png',
+      tabId: obj.sender.tab.id
+    }, function() {
+      return chrome.runtime.lastError;
+    });
   }
   this.getActiveTab(function(tab) {
-    chrome.browserAction.setIcon({path: 'icons/38.png', tabId: tab.id});
+    chrome.browserAction.setIcon({
+      path: 'icons/38.png',
+      tabId: tab.id
+    }, function() {
+      return chrome.runtime.lastError;
+    });
   });
 };
 
