@@ -9,6 +9,7 @@
     "48":  "icons/48.png",
     "16":  "icons/16.png"
   },
+  "content_security_policy": "script-src 'unsafe-eval'; object-src 'self';",
    "commands": {
       "nextTab": {
          "description": "Go to the next tab"

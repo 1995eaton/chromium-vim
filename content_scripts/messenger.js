@@ -10,6 +10,12 @@ var port = chrome.extension.connect({name: 'main'});
   };
   RUNTIME = $(chrome.runtime.sendMessage.bind(chrome.runtime));
   PORT = $(port.postMessage.bind(port));
+  ECHO = function(action, args, callback) {
+    args.action = 'echoRequest';
+    args.call = action;
+    port.postMessage(args, typeof calback === 'function' ?
+        callback : void 0);
+  };
 })();
 
 port.onMessage.addListener(function(response) {
@@ -290,6 +296,18 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
       } else {
         Find.clear();
         HUD.hide();
+      }
+      break;
+    case 'echoRequest':
+      if (!window.isCommandFrame && document.hasFocus()) {
+        switch (request.call) {
+        case 'callMapFunction':
+          Mappings.actions[request.name](1);
+          break;
+        case 'eval':
+          eval(request.code);
+          break;
+        }
       }
       break;
   }

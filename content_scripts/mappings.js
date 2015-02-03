@@ -790,7 +790,13 @@ Mappings.parseLine = function(line) {
           if (map[0] === ':') {
             Command.execute(map.slice(1).replace(/<CR>/i, ''), 1);
           } else if (Mappings.actions[map]) {
-            Mappings.actions[map](1);
+            ECHO('callMapFunction', {
+              name: map
+            });
+          } else if (settings.FUNCTIONS[map]) {
+            ECHO('eval', {
+              code: settings.FUNCTIONS[map]
+            });
           }
         });
         break;

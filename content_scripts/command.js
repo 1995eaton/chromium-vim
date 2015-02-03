@@ -217,14 +217,16 @@ Command.descriptions = [
   ['history',      'Search through your browser history'],
   ['bookmarks',    'Search through your bookmarks'],
   ['file',         'Browse local directories'],
-  ['set',          'Configure Settings'],
+  ['set',          'Configure boolean settings'],
+  ['call',         'Call a cVim command'],
+  ['let',          'Configure non-boolean settings'],
   ['tabhistory',   'Open a tab from its history states'],
   ['execute',      'Execute a sequence of keys'],
   ['session',      'Open a saved session in a new window'],
   ['restore',      'Open a recently closed tab'],
   ['mksession',    'Create a saved session of current tabs'],
   ['delsession',   'Delete sessions'],
-  // ['map',          'Map a command'],
+  ['map',          'Map a command'],
   ['unmap',        'Unmap a command'],
   ['tabattach',    'Move current tab to another window'],
   ['tabdetach',    'Move current tab to a new window'],
@@ -418,6 +420,8 @@ Command.callCompletionFunction = (function() {
         self.updateCompletions();
       });
       return true;
+    case 'let': // TODO
+      return true;
     case 'history':
       if (search.trim() === '') {
         self.hideData();
@@ -465,6 +469,7 @@ Command.complete = function(value) {
 
 Command.execute = function(value, repeats) {
 
+  commandMode = false;
   value = this.expandCompletion(value);
   value = value.replace(/@@[a-zA-Z_$][a-zA-Z0-9_$]*/g, function(e) {
     return settings.hasOwnProperty(e) ? settings[e] : e;
@@ -764,10 +769,12 @@ Command.execute = function(value, repeats) {
     return;
   }
 
-  // if (/^((i?(re)?map)|i?unmap(All)?)+/.test(value)) {
-  //   Mappings.parseLine(value);
-  //   return;
-  // }
+  if (/^((i?(re)?map)|i?unmap(All)?)+/.test(value)) {
+    settings.MAPPINGS += '\n' + value;
+    Mappings.parseLine(value);
+    PORT('syncSettings', { settings: settings });
+    return;
+  }
 
   if (/^set +/.test(value) && value !== 'set') {
     value = value.replace(/^set +/, '').split(/[ =]+/);
@@ -799,6 +806,23 @@ Command.execute = function(value, repeats) {
       }
       RUNTIME('syncSettings', {settings: settings});
     }
+    return;
+  }
+
+  if (/^let +/.test(value) && value !== 'let') {
+    try {
+      var added = RCParser.parse(value);
+      delete added.MAPPINGS;
+      Object.merge(settings, added);
+      PORT('syncSettings', { settings: settings });
+    } catch (e) {
+      Command.hide();
+    }
+    return;
+  }
+
+  if (/^call +/.test(value)) {
+    Mappings.parseLine(value);
     return;
   }
 
@@ -864,9 +888,9 @@ Command.show = function(search, value, complete) {
 };
 
 Command.hide = function(callback) {
+  commandMode = false;
   this.historyMode = false;
   this.active = false;
-  commandMode = false;
   Search.index = null;
   this.history.index = {};
   this.typed = '';

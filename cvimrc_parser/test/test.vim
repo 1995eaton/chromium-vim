@@ -49,3 +49,7 @@ site '*://*/*' {
 }
 
 let blacklists = ["http://localhost/*","http://lo-th.github.io/*"]
+
+f -> {{
+this.a = 3;
+}}

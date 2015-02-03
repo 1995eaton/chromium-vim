@@ -767,6 +767,10 @@ Actions = (function() {
     chrome.tabs.sendMessage(sender.tab.id, request);
   };
 
+  _.echoRequest = function() {
+    chrome.tabs.sendMessage(sender.tab.id, request);
+  };
+
   return function(_request, _sender, _callback) {
     var action = _request.action;
     if (!_[action]) {

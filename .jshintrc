@@ -9,8 +9,9 @@
     "eqnull": true,
     "immed": true,
     "latedef": "nofunc",
+    "evil": true,
     "newcap": false,
-    /* "quotmark": "single", */
+    "quotmark": "single",
     "noarg": true,
     "multistr": true,
     "undef": false,

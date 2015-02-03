@@ -132,8 +132,22 @@ CallStatement
     return { MAPPINGS: 'call ' + a.join('') };
   }
 
+JavaScriptBlockChar
+ = (!'}}' .) { return text(); }
+
+JavaScriptBlock
+  = a:Identifier SEP? '->' SEP? '{{' EOL* b:JavaScriptBlockChar* '}}' {
+    var result = {
+      FUNCTIONS: {
+      }
+    };
+    result.FUNCTIONS[a] = b.join('');
+    return result;
+  }
+
 StatementValue
   = LetStatement
+  / JavaScriptBlock
   / SetStatement
   / SiteStatement
   / ('unmapAll' / 'iunmapAll') {

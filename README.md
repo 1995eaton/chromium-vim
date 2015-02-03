@@ -146,6 +146,12 @@ let @@top_day = 'top?sort=top&t=day'
 " TA binding opens 'http://www.reddit.com/r/programming/top?sort=top&t=all' in a new tab
 map TA :to @@reddit_prog/@@top_all<CR>
 map TD :to @@reddit_prog/@@top_day<CR>
+
+" Code blocks (see below for more info)
+JavaScriptHello -> {{
+  console.log('Hello world!');
+}}
+map <C-h> :call JavaScriptHello<CR>
 ```
 
 ###Blacklists
@@ -219,6 +225,38 @@ site '*://*/*.js' {
 :bookmarks&* my_bookmark.com " inactive,pinned,new tab
 :bookmarks! my_bookmark.com  " new tab
 :bookmarks my_bookmark.com   " same tab
+```
+
+###Code blocks
+ * Code blocks allow you to interact with cVim's content scripts via the cVimrc.
+ * Since code blocks use `eval(...)`, you should only use them if you know what you're doing.
+
+```JavaScript
+" To be used by the code block
+set hintset_a
+
+" Create a code block named switchHintCharacters
+switchHintCharacters -> {{
+  // We are now in JavaScript mode
+
+  // Settings are contained in an object named settings
+  settings.hintset_a = !settings.hintset_a;
+  if (settings.hintset_a) {
+    settings.hintcharacters = 'abc'; // equivalent to "let hintcharacters = 'abc'"
+  } else {
+    settings.hintcharacters = 'xyz';
+  }
+
+  // Propagate the current settings to all tabs for the
+  // rest of the session
+  PORT('syncSettings', { settings: settings });
+
+  // Display cVim's status bar for 2 seconds.
+  Status.setMessage('Hint Set: ' + (true ? 'a' : 'b'), 2);
+}}
+
+" Run the JavaScript block
+map <Tab> :call switchHintCharacters<CR>
 ```
 
 

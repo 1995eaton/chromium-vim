@@ -320,6 +320,17 @@ Object.extend = function() {
   return _ret;
 };
 
+Object.merge = function(a, b) {
+  Object.keys(b).forEach(function(key) {
+    if (typeof b[key] === 'object' && !Array.isArray(b[key]) &&
+        typeof a[key] === 'object' && !Array.isArray(a[key])) {
+      Object.merge(a[key], b[key]);
+    } else {
+      a[key] = b[key];
+    }
+  });
+};
+
 var Trie = (function() {
   var _ = function(parent) {
     this.data = {};
