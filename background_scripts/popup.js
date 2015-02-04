@@ -3,6 +3,8 @@ var Popup = {
 };
 
 Popup.getBlacklisted = function(callback) {
+  if (typeof callback === 'object')
+    callback = callback.callback;
   var blacklists = Settings.blacklists.compress();
   this.getActiveTab(function(tab) {
     var url = tab.url;
@@ -100,6 +102,22 @@ Popup.toggleBlacklisted = function() {
     Options.updateBlacklistsMappings();
   });
 };
+
+chrome.runtime.onConnect.addListener(function(port) {
+  if (port.name === 'popup') {
+    port.onMessage.addListener(function(request) {
+      if (Popup.hasOwnProperty(request.action)) {
+        Popup[request.action]({
+          callback: function(response) {
+            port.postMessage(response);
+          },
+          request: request,
+          sender: request.sender
+        });
+      }
+    });
+  }
+});
 
 chrome.runtime.onMessage.addListener(function(request, sender, callback) {
   if (Popup.hasOwnProperty(request.action)) {

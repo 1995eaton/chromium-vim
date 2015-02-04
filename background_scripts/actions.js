@@ -788,7 +788,7 @@ Actions = (function() {
       url = Settings.defaultnewtabpage ?
         'chrome://newtab' : '../pages/blank.html';
     }
-    if (!sender.tab)
+    if (!sender.tab && action !== 'openLinkTab')
       return;
     _[action]();
   };

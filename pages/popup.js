@@ -4,7 +4,7 @@ var pause = document.getElementById('pause'),
     isEnabled = true,
     isBlacklisted = false;
 
-var port = chrome.extension.connect({name: 'main'});
+var port = chrome.extension.connect({name: 'popup'});
 port.onMessage.addListener(function(data) {
   if (data === true) {
     blacklist.textContent = 'Enable cVim on this domain';
@@ -37,7 +37,7 @@ pause.addEventListener('click', function() {
   } else {
     pause.textContent = 'Enable cVim';
   }
-  chrome.runtime.sendMessage({action: 'toggleEnabled', blacklisted: isBlacklisted});
+  port.postMessage({action: 'toggleEnabled', blacklisted: isBlacklisted});
 }, false);
 
 blacklist.addEventListener('click', function() {
@@ -47,9 +47,9 @@ blacklist.addEventListener('click', function() {
   } else {
     blacklist.textContent = 'Disable cVim on this domain';
   }
-  chrome.runtime.sendMessage({action: 'toggleBlacklisted'});
+  port.postMessage({action: 'toggleBlacklisted'});
   if (isEnabled) {
-    chrome.runtime.sendMessage({
+    port.postMessage({
       action: 'toggleEnabled',
       singleTab: true,
       blacklisted: isBlacklisted
