@@ -315,8 +315,6 @@ Hints.handleHintFeedback = function() {
 Hints.handleHint = function(key) {
   key = key.replace('<Space>', ' ');
   switch (key) {
-  case ';':
-    return this.changeFocus();
   case '/':
     return document.getElementById('cVim-link-container').style.opacity = '0';
   case '<Tab>':
