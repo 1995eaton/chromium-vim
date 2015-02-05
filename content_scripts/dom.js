@@ -31,5 +31,22 @@ window.DOM = {
         return false;
     }
     return true;
+  },
+  preventAutoFocus: function() {
+    var manualClick = false,
+        wasBlurred = false;
+    document.addEventListener('mousedown', function() {
+      manualClick = true;
+    }, true);
+    window.addEventListener('blur', function() {
+      wasBlurred = true;
+    });
+    document.addEventListener('focusin', function(event) {
+      if (event.target && /input|textarea/.test(event.target.localName)) {
+        if (!manualClick && !KeyHandler.hasPressedKey && !wasBlurred)
+          event.target.blur();
+        wasBlurred = manualClick = false;
+      }
+    }, true);
   }
 };

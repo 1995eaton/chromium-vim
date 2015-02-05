@@ -263,6 +263,9 @@ var KeyHandler = {
 
     // noautofocus workaround for stopimmediatepropagation
     KeyHandler.hasPressedKey = true;
+    setTimeout(function() {
+      KeyHandler.hasPressedKey = false;
+    }, 5);
 
     if (Hints.active) {
       event.stopImmediatePropagation();
@@ -474,6 +477,7 @@ var KeyHandler = {
     }
   },
   up: function(event) {
+    KeyHandler.hasPressedKey = false;
     if (Command.commandBarFocused() ||
         (!insertMode && Mappings.queue.length && Mappings.validMatch)) {
       event.stopImmediatePropagation();
