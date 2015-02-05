@@ -401,6 +401,23 @@ Command.callCompletionFunction = (function() {
       return true;
     case 'tabattach':
       RUNTIME('getWindows');
+      PORTCALLBACK('getWindows', {}, function(wins) {
+        if (Command.active === true) {
+          Command.completions = {
+            windows: Object.keys(wins).map(function(e, i) {
+              var tlen = wins[e].length.toString();
+              return [
+                (i + 1).toString() + ' (' + tlen +
+                 (tlen === '1' ? ' Tab)' : ' Tabs)'),
+                wins[e].join(', '),
+                e
+              ];
+            })
+          };
+          Command.completions.windows.unshift(['0 (New window)', '']);
+          Command.updateCompletions();
+        }
+      });
       self.completions = {};
       return true;
     case 'buffer':
@@ -753,7 +770,9 @@ Command.execute = function(value, repeats) {
     if (!~sessions.indexOf(value)) {
       sessions.push(value);
     }
-    RUNTIME('createSession', {name: value});
+    PORTCALLBACK('createSession', { name: value }, function(response) {
+      sessions = response;
+    });
     return;
   }
 

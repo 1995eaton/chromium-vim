@@ -132,7 +132,9 @@ Marks = (function() {
       if (settings.homedirectory) {
         search = search.replace('~', settings.homedirectory);
       }
-      RUNTIME('getFilePath', {path: search});
+      PORTCALLBACK('getFilePath', { path: search }, function(data) {
+        Marks.filePath(data);
+      });
     } else {
       lastFileSearch = search;
       _.filePath();

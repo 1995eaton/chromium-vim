@@ -2,7 +2,7 @@ var Quickmarks = {};
 
 Actions = (function() {
 
-  var request, sender, callback, url, lastCommand = null;
+  var request, sender, callback, url, port, lastCommand = null;
 
   var _ = {};
 
@@ -160,7 +160,7 @@ Actions = (function() {
             _ret[tabs[i].windowId].push(tabs[i].title);
           }
         }
-        chrome.tabs.sendMessage(sender.tab.id, {action: 'getWindows', windows: _ret});
+        PORTCALLBACK(port, request.id, _ret);
       });
     });
   };
@@ -271,7 +271,10 @@ Actions = (function() {
       History.append(request.value, request.type);
       chrome.tabs.query({}, function(tabs) {
         tabs.forEach(function(tab) {
-          chrome.tabs.sendMessage(tab.id, {action: 'commandHistory', history: History.commandHistory});
+          chrome.tabs.sendMessage(tab.id, {
+            action: 'commandHistory',
+            history: History.commandHistory
+          });
         });
       });
     }
@@ -361,13 +364,10 @@ Actions = (function() {
         }
       });
       chrome.storage.local.set({sessions: sessions});
-      chrome.tabs.sendMessage(sender.tab.id, {
-        action: 'sessions',
-        sessions: Object.keys(sessions).map(function(e) {
-          return [e, Object.keys(sessions[e]).length.toString() +
+      PORTCALLBACK(port, request.id, Object.keys(sessions).map(function(e) {
+        return [e, Object.keys(sessions[e]).length.toString() +
           ' tab' + (Object.keys(sessions[e]).length === 1 ? '' : 's')];
-        })
-      });
+      }));
     });
   };
 
@@ -571,7 +571,7 @@ Actions = (function() {
       var context = canvas.getContext('2d');
       context.drawImage(this, 0, 0);
       var data = canvas.toDataURL('image/png');
-      chrome.tabs.sendMessage(sender.tab.id, {action: 'base64Image', data: data});
+      PORTCALLBACK(port, request.id, data);
     };
     img.src = request.url;
   };
@@ -651,7 +651,7 @@ Actions = (function() {
 
   _.getFilePath = function() {
     Files.getPath(request.path, function(data) {
-      chrome.tabs.sendMessage(sender.tab.id, {action: 'getFilePath', data: data});
+      PORTCALLBACK(port, request.id, data);
     });
   };
 
@@ -771,7 +771,8 @@ Actions = (function() {
     chrome.tabs.sendMessage(sender.tab.id, request);
   };
 
-  return function(_request, _sender, _callback) {
+  return function(_request, _sender, _callback, _port) {
+    port = _port;
     var action = _request.action;
     if (!_[action]) {
       return;

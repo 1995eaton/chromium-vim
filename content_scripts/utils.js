@@ -38,7 +38,14 @@ var googleReverseImage = function(url, source) {
     }
   } else {
     if (url.indexOf('file://') === 0 || url.indexOf('chrome') === 0) {
-      RUNTIME('urlToBase64', {url: url});
+      PORTCALLBACK('urlToBase64', { url: url }, function(data) {
+        RUNTIME('openLinkTab', {
+          active: false,
+          url: 'data:text/html;charset=utf-8;base64,' +
+            window.btoa(reverseImagePost(data, null)),
+          noconvert: true
+        });
+      });
       return;
     }
     return 'https://www.google.com/searchbyimage?image_url=' + url;
@@ -453,6 +460,19 @@ var getLinkableElements = (function() {
           return hasAttributes(node, 'jsaction', 'onclick');
       }
     });
+  };
+})();
+
+var uuid4 = (function() {
+  var reserved = ['8', '9', 'a', 'b'];
+  return function() {
+    return [].map.call('xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx', function(e) {
+      switch (e) {
+      case 'x': return (~~(Math.random() * 16)).toString(16);
+      case 'y': return reserved[~~(Math.random() * 4)];
+      default: return e;
+      }
+    }).join('');
   };
 })();
 

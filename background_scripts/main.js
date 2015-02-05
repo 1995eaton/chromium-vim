@@ -5,6 +5,13 @@ var sessions = {},
     activePorts = [],
     LastUsedTabs = [];
 
+PORTCALLBACK = function(port, id) {
+  port.postMessage({
+    id: id,
+    arguments: [].slice.call(arguments, 2)
+  });
+};
+
 var httpRequest = function(request) {
   return new Promise(function(acc, rej) {
     var xhr = new XMLHttpRequest();
@@ -100,7 +107,7 @@ var Listeners = {
       port.postMessage({type: 'hello'});
       activePorts.push(port);
       port.onMessage.addListener(function(request) {
-        Actions(request, port.sender, port.postMessage.bind(port));
+        Actions(request, port.sender, port.postMessage.bind(port), port);
       });
       port.onDisconnect.addListener(function() {
         for (var i = 0; i < activePorts.length; i++) {

@@ -16,6 +16,30 @@ var port = chrome.extension.connect({name: 'main'});
     port.postMessage(args, typeof calback === 'function' ?
         callback : void 0);
   };
+  // Workaround for regular callbacks from inside asynchronous
+  // functions in the background script
+  PORTCALLBACK = (function() {
+    var registeredCallbacks = [];
+    port.onMessage.addListener(function(response) {
+      for (var i = 0; i < registeredCallbacks.length; i++) {
+        if (registeredCallbacks[i].id === response.id) {
+          var FN = registeredCallbacks[i].FN;
+          registeredCallbacks.splice(i, 1);
+          FN.apply(null, response.arguments);
+        }
+      }
+    });
+    return function(action, args, callback) {
+      (args = args || {}).action = action;
+      var info = {
+        FN: callback,
+        id: uuid4()
+      };
+      registeredCallbacks.push(info);
+      args.id = info.id;
+      port.postMessage(args);
+    };
+  })();
 })();
 
 port.onMessage.addListener(function(response) {
@@ -145,18 +169,6 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
     case 'hideHud':
       HUD.hide(true);
       break;
-    case 'getWindows':
-      if (Command.active === true) {
-        Command.completions = {
-          windows: Object.keys(request.windows).map(function(e, i) {
-            var tlen = request.windows[e].length.toString();
-            return [(i+1).toString() + ' (' + tlen + (tlen === '1' ? ' Tab)' : ' Tabs)'),  request.windows[e].join(', '), e];
-          })
-        };
-        Command.completions.windows.unshift(['0 (New window)', '']);
-        Command.updateCompletions();
-      }
-      break;
     case 'commandHistory':
       for (var key in request.history) {
         Command.history[key] = request.history[key];
@@ -180,21 +192,10 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
     case 'updateMarks':
       Marks.parseQuickMarks(request.marks);
       break;
-    case 'base64Image':
-      RUNTIME('openLinkTab', {
-        active: false,
-        url: 'data:text/html;charset=utf-8;base64,' +
-          window.btoa(reverseImagePost(request.data, null)),
-        noconvert: true
-      });
-      break;
     case 'focusFrame':
       if (request.id === Frames.id) {
         Frames.focus();
       }
-      break;
-    case 'sessions':
-      sessions = request.sessions;
       break;
     case 'nextCompletionResult':
       if (settings.cncpcompletion && Command.commandBarFocused() && Command.type === 'action') {
@@ -211,9 +212,6 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
         if (Command.commandBarFocused())
           Command.complete(Command.input.value);
       }
-      break;
-    case 'getFilePath':
-      Marks.filePath(request.data);
       break;
     case 'toggleEnabled':
       addListeners();
