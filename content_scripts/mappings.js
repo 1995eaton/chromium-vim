@@ -916,6 +916,25 @@ Mappings.clearQueue = function() {
   this.validMatch = false;
 };
 
+Mappings.shouldPrevent = function(key) {
+  if (key === '<Esc>' || key === '<C-[>' || Hints.active) {
+    return true;
+  }
+  if (/^[0-9]$/.test(key) &&
+      !(currentTrieNode.at(key) && this.repeats === '') &&
+      !(key === '0' && this.repeats === '')) {
+    return true;
+  }
+  if (!currentTrieNode.data.hasOwnProperty(key)) {
+    if (currentTrieNode.data['*']) {
+      return true;
+    }
+  } else {
+    return true;
+  }
+  return false;
+};
+
 Mappings.convertToAction = function(key) {
 
   if (key === '<Esc>' || key === '<C-[>') {

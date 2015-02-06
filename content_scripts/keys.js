@@ -145,9 +145,12 @@ var KeyListener = (function() {
       var keyString = KeyEvents.keyhandle(event, 'keydown');
 
       // Alt key hint focus toggle
-      if (Hints.active && event.which === 18) {
-        Hints.changeFocus();
-        return;
+      if (Hints.active) {
+        event.preventDefault();
+        if (event.which === 18) {
+          Hints.changeFocus();
+          return;
+        }
       }
       if (Hints.shouldShowLinkInfo &&
           typeof Hints.acceptLink === 'function' &&
@@ -159,6 +162,13 @@ var KeyListener = (function() {
       // Modifier keys C-A-S-M
       if (~[16, 17, 18, 91, 123].indexOf(event.which))
         return true;
+
+      // preventDefault before it becomes too late (keys like <Down> and <F1>)
+      if (document.activeElement.localName !== 'input' &&
+          document.activeElement.localName !== 'textarea' &&
+          Mappings.shouldPrevent(KeyEvents.keyhandle(event, 'keydown'))) {
+        event.preventDefault();
+      }
 
       // Don't let the keypress listener attempt to parse the key event
       // if it contains a modifier (or key that should be parsed by the
@@ -438,8 +448,10 @@ var KeyHandler = {
       default:
         if (key === '<BS>' && Command.lastInputValue.length === 0 &&
             Command.input.value.length === 0) {
-          Command.hide();
           event.preventDefault();
+          setTimeout(function() {
+            Command.hide();
+          }, 10);
           break;
         }
         setTimeout(function() {
