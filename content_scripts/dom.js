@@ -31,5 +31,17 @@ window.DOM = {
         return false;
     }
     return true;
+  },
+  isTextElement: function(element) {
+    if (element.localName === 'input' || element.localName === 'textarea') {
+      return true;
+    }
+    while (element) {
+      if (element.isContentEditable) {
+        return true;
+      }
+      element = element.parentElement;
+    }
+    return false;
   }
 };

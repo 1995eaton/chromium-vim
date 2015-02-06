@@ -164,9 +164,7 @@ var KeyListener = (function() {
         return true;
 
       // preventDefault before it becomes too late (keys like <Down> and <F1>)
-      if (document.activeElement.localName !== 'input' &&
-          document.activeElement.localName !== 'textarea' &&
-          document.activeElement.contentEditable !== 'true' &&
+      if (!DOM.isTextElement(document.activeElement) &&
           Mappings.shouldPrevent(KeyEvents.keyhandle(event, 'keydown'))) {
         event.preventDefault();
       }
