@@ -16,7 +16,8 @@ Hints.matchPatterns = function(pattern) {
   if (typeof pattern === 'string')
     pattern = new RegExp('^' + pattern + '$', 'i');
   var link = findFirstOf(getLinkableElements(), function(e) {
-    return pattern.test(e.textContent) || pattern.test(e.getAttribute('value'));
+    return e.textContent.trim() &&
+      (pattern.test(e.textContent) || pattern.test(e.getAttribute('value')));
   });
   if (link)
     link.click();
