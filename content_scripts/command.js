@@ -979,6 +979,25 @@ Command.onDOMLoad = function() {
     this.data.style[(!this.onBottom) ? 'bottom' : 'top'] = '';
     this.data.style[(this.onBottom) ? 'bottom' : 'top'] = '20px';
   }
+  if (!settings.autofocus) {
+    var manualFocus = false;
+    var initialFocus = window.setInterval(function() {
+      if (document.activeElement) {
+        if (/input|textarea/i.test(document.activeElement.localName) &&
+            !manualFocus &&
+            !Command.commandBarFocused()) {
+          document.activeElement.blur();
+        }
+      }
+      if (manualFocus || KeyHandler.hasPressedKey) {
+        window.clearInterval(initialFocus);
+      }
+    }, 5);
+    var initialMouseDown = window.addEventListener('mousedown', function() {
+      manualFocus = true;
+      window.removeEventListener('mousedown', initialMouseDown, true);
+    }, true);
+  }
   this.setup();
   this.domElementsLoaded = true;
   this.callOnCvimLoad();
@@ -1115,16 +1134,5 @@ if (window.self === window.top) {
     Command.frame.src = chrome.runtime.getURL('cmdline_frame.html');
     Command.frame.id = 'cVim-command-frame';
     document.lastElementChild.appendChild(Command.frame);
-  });
-}
-
-// Load autofocus value as soon as it's ready
-if (!window.isCommandFrame) {
-  chrome.storage.local.get('settings', function(settings) {
-    if (settings.settings && !settings.settings.autofocus) {
-      document.addEventListener('DOMContentLoaded', function() {
-        DOM.preventAutoFocus();
-      });
-    }
   });
 }
