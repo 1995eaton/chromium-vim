@@ -33,6 +33,9 @@ window.DOM = {
     return true;
   },
   isTextElement: function(element) {
+    if (!element) {
+      return false;
+    }
     if (element.localName === 'input' || element.localName === 'textarea') {
       return true;
     }
