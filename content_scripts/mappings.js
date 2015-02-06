@@ -8,8 +8,7 @@ var Mappings = {
   lastCommand: {
     fn: '',
     queue: '',
-    repeats: 1,
-    args: []
+    repeats: 1
   }
 };
 
@@ -596,9 +595,7 @@ Mappings.actions = {
   },
   repeatCommand: function(repeats) {
     if (this.hasOwnProperty(Mappings.lastCommand.fn)) {
-      this[Mappings.lastCommand.fn].apply(this,
-          (Mappings.lastCommand.args || [])
-          .concat(Mappings.lastCommand.repeats * repeats));
+      this[Mappings.lastCommand.fn].call(this, Mappings.lastCommand.repeats * repeats);
     }
   },
   createBookmark: function() {
@@ -911,13 +908,7 @@ Mappings.handleEscapeKey = function() {
   }
 };
 
-Mappings.nonRepeatableCommands = [
-  'scrollDown',
-  'scrollUp',
-  'scrollLeft',
-  'scrollRight',
-  'reloadTab'
-];
+Mappings.nonRepeatableCommands = [];
 
 Mappings.clearQueue = function() {
   currentTrieNode = mappingTrie;
@@ -975,13 +966,6 @@ Mappings.convertToAction = function(key) {
     }
     if (mapVal.charAt(0) === ':') {
       this.actions.shortCuts(mapVal, +this.repeats || 1);
-      this.lastCommand.queue = this.queue;
-      this.lastCommand.repeats = +this.repeats || 1;
-      this.lastCommand.fn = 'shortCuts';
-      this.lastCommand.args = [mapVal];
-      RUNTIME('updateLastCommand', {
-        data: JSON.stringify(this.lastCommand)
-      });
     } else {
       if (mapVal !== 'repeatCommand') {
         if (this.nonRepeatableCommands.indexOf(mapVal) === -1) {
