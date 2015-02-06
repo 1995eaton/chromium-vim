@@ -1,5 +1,8 @@
 window.DOM = {
   isSubmittable: function(element) {
+    if (!element) {
+      return false;
+    }
     if (element.localName !== 'input')
       return false;
     if (element.hasAttribute('submit'))
@@ -11,6 +14,9 @@ window.DOM = {
     return false;
   },
   isEditable: function(element) {
+    if (!element) {
+      return false;
+    }
     if (element.localName === 'textarea' ||
         element.hasAttribute('contenteditable'))
       return true;
