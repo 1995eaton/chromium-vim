@@ -1,5 +1,9 @@
 #cVim Changelog
 
+## 1.2.68
+ * Bug fixes from iframe addition in 1.2.68
+ * Added code block feature
+
 ## 1.2.67
  * Moved command bar to separate frame (issue [#85](https://github.com/1995eaton/chromium-vim/issues/85)).
  * Several security patches
