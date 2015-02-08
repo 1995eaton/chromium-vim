@@ -378,6 +378,12 @@ JavaScriptHello -&gt; {{
   console.log(&#39;Hello world!&#39;);
 }}
 map &lt;C-h&gt; :call JavaScriptHello&lt;CR&gt;
+
+&quot; Script hints
+echo(link) -&gt; {{
+  alert(link.href);
+}}
+map &lt;C-f&gt; createScriptHint(echo)
 </code></pre>
 <h3 id="blacklists">Blacklists</h3>
 <ul>
@@ -628,6 +634,11 @@ map &lt;Tab&gt; :call switchHintCharacters&lt;CR&gt;
 <td>unmapped</td>
 <td style="text-align:left">edit text with external editor</td>
 <td style="text-align:left">createEditHint</td>
+</tr>
+<tr>
+<td>unmapped</td>
+<td style="text-align:left">call a code block with the link as the first argument</td>
+<td style="text-align:left">createScriptHint(<code>&lt;FUNCTION_NAME&gt;</code>)</td>
 </tr>
 <tr>
 <td><code>mr</code></td>

@@ -414,6 +414,12 @@ Mappings.actions = {
   createEditHint: function() { Hints.create('edit'); },
   createHoverHint: function() { Hints.create('hover'); },
   createUnhoverHint: function() { Hints.create('unhover'); },
+  createScriptHint: function(repeats, scriptName) {
+    Hints.scriptFunction = scriptName;
+    if (settings.FUNCTIONS.hasOwnProperty(scriptName)) {
+      Hints.create('script');
+    }
+  },
   yankUrl: function() { Hints.create('yank'); },
   multiYankUrl: function() { Hints.create('multiyank'); },
   fullImageHint: function() { Hints.create('fullimage'); },
@@ -595,7 +601,10 @@ Mappings.actions = {
   },
   repeatCommand: function(repeats) {
     if (this.hasOwnProperty(Mappings.lastCommand.fn)) {
-      this[Mappings.lastCommand.fn].call(this, Mappings.lastCommand.repeats * repeats);
+      this[Mappings.lastCommand.fn]
+        .call(this,
+              Mappings.lastCommand.repeats * repeats,
+              Mappings.lastCommand.params);
     }
   },
   createBookmark: function() {
@@ -792,7 +801,7 @@ Mappings.parseLine = function(line) {
             });
           } else if (settings.FUNCTIONS[map]) {
             ECHO('eval', {
-              code: settings.FUNCTIONS[map]
+              code: settings.FUNCTIONS[map] + '()'
             });
           }
         });
@@ -966,7 +975,13 @@ Mappings.convertToAction = function(key) {
     this.validMatch = true;
   }
 
-  var mapVal = currentTrieNode.value;
+  var mapVal = currentTrieNode.value || '';
+  var actionParams; (function() {
+    mapVal = mapVal.replace(/\([^)]+\)/, function(e) {
+      actionParams = e.slice(1, -1);
+      return '';
+    });
+  })();
 
   if (mapVal) {
     for (var mapLinks = [mapVal];
@@ -991,8 +1006,9 @@ Mappings.convertToAction = function(key) {
           this.lastCommand.queue = this.queue;
           this.lastCommand.repeats = +this.repeats || 1;
           this.lastCommand.fn = mapVal;
+          this.lastCommand.params = actionParams;
         }
-        this.actions[mapVal](+this.repeats || 1);
+        this.actions[mapVal](+this.repeats || 1, actionParams);
         RUNTIME('updateLastCommand', {
           data: JSON.stringify(this.lastCommand)
         });

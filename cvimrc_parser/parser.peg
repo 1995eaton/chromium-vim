@@ -135,13 +135,23 @@ CallStatement
 JavaScriptBlockChar
  = (!'}}' .) { return text(); }
 
+Parameters
+  = a:Identifier SEP? ',' SEP? b:Parameters {
+    return [a].concat(b);
+  }
+  / a:Identifier { return [a]; }
+
+ParameterList
+  = '(' SEP? a:Parameters? SEP? ')' { return a || []; }
+
 JavaScriptBlock
-  = a:Identifier SEP? '->' SEP? '{{' EOL* b:JavaScriptBlockChar* '}}' {
+  = a:Identifier SEP? b:ParameterList? SEP? '->' SEP? '{{' EOL* c:JavaScriptBlockChar* '}}' {
     var result = {
       FUNCTIONS: {
       }
     };
-    result.FUNCTIONS[a] = b.join('');
+    result.FUNCTIONS[a] = '(function(' + (b || []).join(',') + ')' +
+                          '{' + c.join('') + '})';
     return result;
   }
 

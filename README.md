@@ -152,6 +152,12 @@ JavaScriptHello -> {{
   console.log('Hello world!');
 }}
 map <C-h> :call JavaScriptHello<CR>
+
+" Script hints
+echo(link) -> {{
+  alert(link.href);
+}}
+map <C-f> createScriptHint(echo)
 ```
 
 ###Blacklists
@@ -291,6 +297,7 @@ map <Tab> :call switchHintCharacters<CR>
 | `Q`                       | trigger a unhover event (mouseout + mouseleave)                       | createUnhoverHint               |
 | `mf`                      | open multiple links                                                   | createMultiHint                 |
 | unmapped                  | edit text with external editor                                        | createEditHint                  |
+| unmapped                  | call a code block with the link as the first argument                 | createScriptHint(`<FUNCTION_NAME>`) |
 | `mr`                      | reverse image search multiple links                                   | multiReverseImage               |
 | `my`                      | yank multiple links (open the list of links with P)                   | multiYankUrl                    |
 | `gy`                      | copy URL from link to clipboard                                       | yankUrl                         |
