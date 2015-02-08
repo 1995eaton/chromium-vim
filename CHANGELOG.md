@@ -1,5 +1,10 @@
 #cVim Changelog
 
+## 1.2.70
+ * Fix a cncpcompletion bug
+ * Added the `createScriptHint` command
+ * Multiple bugfixes
+
 ## 1.2.69
  * Fix a bug with text areas ([#231](https://github.com/1995eaton/chromium-vim/issues/231))
 
