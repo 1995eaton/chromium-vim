@@ -977,10 +977,12 @@ Mappings.convertToAction = function(key) {
 
   var mapVal = currentTrieNode.value || '';
   var actionParams; (function() {
-    mapVal = mapVal.replace(/\([^)]+\)/, function(e) {
-      actionParams = e.slice(1, -1);
-      return '';
-    });
+    if (mapVal.charAt(0) !== ':') {
+      mapVal = mapVal.replace(/\([^)]+\)/, function(e) {
+        actionParams = e.slice(1, -1);
+        return '';
+      });
+    }
   })();
 
   if (mapVal) {

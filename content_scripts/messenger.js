@@ -198,11 +198,13 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
       }
       break;
     case 'nextCompletionResult':
-      if (settings.cncpcompletion && Command.commandBarFocused() && Command.type === 'action') {
-        Search.nextResult();
-        break;
-      }
-      if (window.self === window.top) {
+      if (window.isCommandFrame) {
+        if (settings.cncpcompletion &&
+            Command.commandBarFocused() &&
+            Command.type === 'action') {
+          Search.nextResult();
+          break;
+        }
         callback(true);
       }
       break;
