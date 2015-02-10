@@ -165,9 +165,13 @@ var KeyListener = (function() {
 
       // preventDefault before it becomes too late (keys like <Down> and <F1>)
       if (!insertMode && !commandMode &&
-          !DOM.isTextElement(document.activeElement) &&
-          Mappings.shouldPrevent(KeyEvents.keyhandle(event, 'keydown'))) {
-        event.preventDefault();
+          !DOM.isTextElement(document.activeElement)) {
+        var guess = KeyEvents.keyhandle(event, 'keydown');
+        if (guess.length > 1 &&
+            Mappings.shouldPrevent(KeyEvents.keyhandle(event, 'keydown'))) {
+          // only stop guesses that can't be understood by keypress events
+          event.preventDefault();
+        }
       }
 
       // Don't let the keypress listener attempt to parse the key event
