@@ -1,5 +1,8 @@
 #cVim Changelog
 
+## 1.2.71
+ * Fix incompatibilities with some non-American keyboard layouts
+
 ## 1.2.70
  * Fix a cncpcompletion bug
  * Added the `createScriptHint` command
