@@ -163,6 +163,11 @@ var KeyListener = (function() {
       if (~[16, 17, 18, 91, 123].indexOf(event.which))
         return true;
 
+      if (Mappings.keyPassesLeft) {
+        Mappings.keyPassesLeft--;
+        return true;
+      }
+
       // preventDefault before it becomes too late (keys like <Down> and <F1>)
       if (!insertMode && !commandMode &&
           !DOM.isTextElement(document.activeElement)) {

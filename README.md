@@ -315,6 +315,7 @@ map <Tab> :call switchHintCharacters<CR>
 | `?`                       | open search bar (reverse search)                                      | openSearchBarReverse            |
 | `I`                       | search through browser history                                        | :history                        |
 | `<N>g%`                   | scroll &lt;N&gt; percent down the page                                | percentScroll                   |
+| `<N>`unmapped             | pass `<N>` keys through to the current page                           | passKeys                        |
 | `zr`                      | restart Google Chrome                                                 | :chrome://restart&lt;CR&gt;     |
 | `i`                       | enter insert mode (escape to exit)                                    | insertMode                      |
 | `r`                       | reload the current tab                                                | reloadTab                       |

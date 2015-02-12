@@ -613,7 +613,8 @@ Mappings.actions = {
       title: document.title
     });
   },
-  quitChrome: function() { PORT('quitChrome'); }
+  quitChrome: function() { PORT('quitChrome'); },
+  passKeys: function(repeats) { Mappings.keyPassesLeft = repeats; }
 
 };
 
