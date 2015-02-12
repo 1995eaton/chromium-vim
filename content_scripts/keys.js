@@ -131,7 +131,9 @@ var KeyListener = (function() {
     keyup: function(event) {
       window.scrollKeyUp = true;
       if (Hints.active && event.which === 191) {
-        document.getElementById('cVim-link-container').style.opacity = '1';
+        setTimeout(function() {
+          document.getElementById('cVim-link-container').style.opacity = '1';
+        }, 0);
       }
       if (Object.compare(event, KeyEvents.lastHandledEvent,
             ['which', 'ctrlKey', 'shiftKey', 'metaKey', 'altKey'])) {
