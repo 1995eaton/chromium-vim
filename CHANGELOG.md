@@ -1,5 +1,9 @@
 #cVim Changelog
 
+## 1.2.72
+ * Fix an issue with command bar z-index on YouTube: [#237](https://github.com/1995eaton/chromium-vim/issues/237)
+ * Fix an issue with tab completion with the `:buffer` command: [#238](https://github.com/1995eaton/chromium-vim/issues/238)
+
 ## 1.2.71
  * Fix incompatibilities with some non-American keyboard layouts
 
