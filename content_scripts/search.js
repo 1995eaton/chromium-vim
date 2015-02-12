@@ -120,7 +120,7 @@ Search.nextResult = function(reverse) {
       }
       break;
     case 'buffers':
-      Command.input.value = Command.input.value.match(/^\S+/)[0] + ' ' + Command.completionResults[this.index][1][0];
+      Command.input.value = Command.input.value.match(/^\S+/)[0] + ' ' + Command.completionResults[this.index][1].replace(/:.*/, '');
       break;
     case 'complete':
       if (Command.completionResults[this.index][1] !== void 0) {
