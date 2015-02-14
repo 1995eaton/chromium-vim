@@ -82,9 +82,19 @@ StringLiteral
   = '"' a:DoubleStringCharacter* '"' { return a.join(''); }
   / '\'' a:SingleStringCharacter* '\'' { return a.join(''); }
 
+FloatingPointLiteral
+  = IntegerLiteral '.' ('0'* IntegerLiteral / '0'+)? {
+    return parseFloat(text());
+  }
+  / '.' ('0'* IntegerLiteral / '0'+) { return parseFloat(text()); }
+
 IntegerLiteral
   = '0' { return 0; }
   / [1-9][0-9]* { return parseInt(text(), 10); }
+
+NumberLiteral
+  = FloatingPointLiteral
+  / IntegerLiteral
 
 ArrayList
   = SEP? a:Expression SEP? ',' b:ArrayList SEP? { return [a].concat(b); }
@@ -96,7 +106,7 @@ ArrayLiteral
 
 Expression
   = StringLiteral
-  / IntegerLiteral
+  / NumberLiteral
   / ArrayLiteral
 
 LetStatement
