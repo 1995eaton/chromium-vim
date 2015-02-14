@@ -680,6 +680,16 @@ Mappings.insertFunctions = (function() {
     forwardChar: modify.bind(null, 'right', 'character'),
     backwardChar: modify.bind(null, 'left', 'character'),
     backwardWord: function() {
+      if (element.value !== void 0) {
+        var start = element.selectionStart;
+        var end = element.value.slice(0, start)
+          .match(/([^a-zA-Z_0-9])\1*$|[^a-zA-Z_0-9][a-zA-Z_0-9\s]*$/);
+        end = start - (end ?
+            (end[0].length - !/^[^a-zA-Z_0-9]+$/.test(end[0])) || 1 : start);
+        element.selectionStart = end;
+        element.selectionEnd = end;
+        return;
+      }
       modify('left', 'word');
     },
     forwardWord: function() {
