@@ -104,7 +104,9 @@ let searchalias g = "google" " Create a shortcut for search engines.
 " Open all of these in a tab with `gnb` or open one of these with <N>goa where <N>
 let qmark a = ["http://www.reddit.com", "http://www.google.com", "http://twitter.com"]
 
-let blacklists = ["https://mail.google.com/*", "*://mail.google.com/*"]
+let blacklists = ["https://mail.google.com/*", "*://mail.google.com/*", "@https://mail.google.com/mail/*"]
+" blacklists prefixed by '@' act as a whitelist
+
 let mapleader = ","
 
 " Mappings

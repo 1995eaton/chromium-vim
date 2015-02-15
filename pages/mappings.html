@@ -330,7 +330,9 @@ let searchalias g = &quot;google&quot; &quot; Create a shortcut for search engin
 &quot; Open all of these in a tab with `gnb` or open one of these with &lt;N&gt;goa where &lt;N&gt;
 let qmark a = [&quot;http://www.reddit.com&quot;, &quot;http://www.google.com&quot;, &quot;http://twitter.com&quot;]
 
-let blacklists = [&quot;https://mail.google.com/*&quot;, &quot;*://mail.google.com/*&quot;]
+let blacklists = [&quot;https://mail.google.com/*&quot;, &quot;*://mail.google.com/*&quot;, &quot;@https://mail.google.com/mail/*&quot;]
+&quot; blacklists prefixed by &#39;@&#39; act as a whitelist
+
 let mapleader = &quot;,&quot;
 
 &quot; Mappings

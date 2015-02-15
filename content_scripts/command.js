@@ -1104,15 +1104,22 @@ Command.configureSettings = function(_settings) {
     var blacklists = settings.blacklists,
         blacklist;
     Command.blacklisted = false;
+    var isBlacklisted = false;
     for (var i = 0, l = blacklists.length; i < l; i++) {
       blacklist = blacklists[i].trimAround().split(/\s+/g);
       if (!blacklist.length) {
         continue;
       }
-      if (matchLocation(document.URL, blacklist[0])) {
-        return true;
+      if (blacklist[0].charAt(0) === '@') {
+        if (matchLocation(document.URL, blacklist[0].slice(1))) {
+          isBlacklisted = false;
+          break;
+        }
+      } else if (matchLocation(document.URL, blacklist[0])) {
+        isBlacklisted = true;
       }
     }
+    return isBlacklisted;
   };
   Search.settings = Object.keys(settings).filter(function(e) {
     return typeof settings[e] === 'boolean';
