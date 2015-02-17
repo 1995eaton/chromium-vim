@@ -67,7 +67,7 @@ var getVisibleBoundingRect = function(node) {
   if (boundingRect === void 0) {
     return false;
   }
-  if (boundingRect.top > window.innerHeight || boundingRect.left > window.innerWidth) {
+  if (boundingRect.top > innerHeight || boundingRect.left > innerWidth) {
     return false;
   }
   if (boundingRect.width <= 1 || boundingRect.height <= 1) {
@@ -87,8 +87,13 @@ var getVisibleBoundingRect = function(node) {
   if (boundingRect.top + boundingRect.height < 10 || boundingRect.left + boundingRect.width < -10) {
     return false;
   }
-  var computedStyle = getComputedStyle(node);
-  if (computedStyle.opacity === '0' || computedStyle.visibility !== 'visible' || computedStyle.display === 'none' || node.hasAttribute('disabled')) {
+  var computedStyle = getComputedStyle(node, null);
+  if (computedStyle.opacity === '0' ||
+      computedStyle.visibility !== 'visible' ||
+      computedStyle.display === 'none' ||
+      node.hasAttribute('disabled') ||
+      parseInt(computedStyle.width, '10') === 0 ||
+      parseInt(computedStyle.height, '10') === 0) {
     return false;
   }
   return boundingRect;

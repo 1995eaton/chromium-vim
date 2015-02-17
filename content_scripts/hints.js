@@ -163,12 +163,16 @@ Hints.dispatchAction = function(link, shift) {
         break;
       }
       if (link.getAttribute('target') !== '_top' &&
-          (/tabbed/.test(this.type) || this.type === 'multi')) {
+          (/tabbed/.test(this.type) || this.type === 'multi') &&
+          link.href) {
         RUNTIME('openLinkTab', {
           active: this.type === 'tabbedActive',
           url: link.href, noconvert: true
         });
       } else {
+        if (link.hasAttribute('tabindex'))
+          link.focus();
+        link.hover();
         link[link.hasAttribute('href') ? 'click' : 'simulateClick']();
       }
       break;
@@ -337,7 +341,8 @@ Hints.handleHint = function(key) {
   }
 };
 
-Hints.evaluateLink = function(link, linkIndex) {
+Hints.evaluateLink = function(link) {
+  this.linkIndex += 1;
   var isAreaNode = false,
       imgParent, linkElement, linkStyle, mapCoordinates;
   if (link.localName === 'area' && link.parentNode && link.parentNode.localName === 'map') {
@@ -355,7 +360,7 @@ Hints.evaluateLink = function(link, linkIndex) {
   }
   linkElement = this.linkElementBase.cloneNode(false);
   linkStyle = linkElement.style;
-  linkStyle.zIndex = linkIndex;
+  linkStyle.zIndex = this.linkIndex;
   if (isAreaNode) {
     mapCoordinates = link.getAttribute('coords').split(',');
     if (mapCoordinates.length < 2) {
@@ -398,17 +403,42 @@ Hints.evaluateLink = function(link, linkIndex) {
   }
 };
 
-Hints.siteFilters = {
-  'reddit.com': function(node) {
-    if (node.localName === 'a' && !node.hasAttribute('href')) {
-      return false;
-    }
-    if (node.hasAttribute('onclick') && node.getAttribute('onclick').indexOf('click_thing') === 0) {
-      return false;
-    }
-    return true;
-  }
+function HintFilter(selectors, searches) {
+  this.selectors = selectors;
+  this.searches = searches || [];
+}
+HintFilter.prototype.matches = function(node) {
+  return this.selectors.some(function(selector) {
+    return DOM.nodeSelectorMatch(node, selector);
+  });
 };
+
+Hints.siteFilters = (function() {
+  var filters = {
+    '*://*.reddit.com/*': [[
+      'a:not([href])',
+      '*[onclick^=click_thing]'
+    ], [
+      '.grippy'
+    ]],
+    '*://*.google.*/*': [[
+      'li[class$="_dropdownitem"]',
+      'div[class$="_dropdown"]',
+      'div[aria-label="Apps"]',
+      '.hdtbna.notl',
+      '.irc_rit',
+      'div[id=hdtbMenus]',
+      'div[aria-label="Account Information"]'
+    ]],
+    '*://github.com/*': [[
+      '.select-menu-modal-holder.js-menu-content'
+    ]]
+  };
+  Object.keys(filters).forEach(function(key) {
+    filters[key] = new HintFilter(filters[key][0], filters[key][1]);
+  });
+  return filters;
+})();
 
 Hints.acceptHint = function(node) {
 
@@ -460,18 +490,22 @@ Hints.acceptHint = function(node) {
 };
 
 Hints.getLinks = function() {
-  var nodes = traverseDOM(document.body, this.acceptHint);
-  var applicableFiltersLength,
-      applicableFilters = [];
-  for (var key in this.siteFilters) {
-    if (window.location.origin.indexOf(key) !== -1) {
-      applicableFilters.push(this.siteFilters[key]);
-    }
-  }
-  applicableFiltersLength = applicableFilters.length;
-  nodes.forEach(function(node, i) {
-    if (applicableFilters.every(function(filter) { return filter(node); }))
-      Hints.evaluateLink(node, i);
+  var applicableFilters = Object.keys(this.siteFilters).filter(function(key) {
+    return matchLocation(document.URL, key);
+  }).map(function(key) { return this.siteFilters[key]; }.bind(this));
+  traverseDOM(document.body, this.acceptHint).forEach(function(node) {
+    if (applicableFilters.every(function(filter) {
+      return !filter.matches(node);
+    })) Hints.evaluateLink(node);
+  });
+  applicableFilters.forEach(function(filter) {
+    filter.searches.forEach(function(search) {
+      var nodes = document.querySelectorAll(search);
+      if (nodes.length) {
+        for (var i = 0; i < nodes.length; i++)
+          Hints.evaluateLink(nodes[i]);
+      }
+    });
   });
 };
 
@@ -535,6 +569,7 @@ Hints.create = function(type, multi) {
       return false;
     }
     var links, main, frag, i, l;
+    self.linkIndex = 0;
     self.type = type;
     self.hideHints(true, multi);
     if (document.body && document.body.style) {
