@@ -428,7 +428,8 @@ Hints.siteFilters = (function() {
       '.hdtbna.notl',
       '.irc_rit',
       'div[id=hdtbMenus]',
-      'div[aria-label="Account Information"]'
+      'div[aria-label="Account Information"]',
+      'img[jsaction^="load:"]'
     ]],
     '*://github.com/*': [[
       '.select-menu-modal-holder.js-menu-content'

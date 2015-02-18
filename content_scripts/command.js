@@ -120,9 +120,10 @@ Command.history = {
 Command.completions = {};
 
 Command.completionStyles = {
-  topsites:  [ 'Top Site', 'darkcyan' ],
-  history:   [ 'History',      'cyan' ],
-  bookmarks: [ 'Bookmark',  '#6d85fd' ]
+  engines:   ['Se',  '#87ff87'],
+  topsites:  ['Ts',  '#00afaf'],
+  history:   ['Hi',  '#87afff'],
+  bookmarks: ['Bk',  '#af5fff']
 };
 
 Command.completionOrder = {
@@ -166,8 +167,11 @@ Command.updateCompletions = function(useStyles) {
         this.completionStyles.hasOwnProperty(this.completionResults[i][0])) {
       var styles = this.completionStyles[this.completionResults[i][0]];
       identifier = document.createElement('span');
-      identifier.style.color = styles[1];
-      identifier.textContent = styles[0] + ': ';
+      identifier.style.backgroundColor = styles[1];
+      identifier.style.position = 'absolute';
+      identifier.style.height = '100%';
+      identifier.style.width = '2px';
+      identifier.style.left = '0';
     }
     if (this.completionResults[i].length >= 3) {
       var left = document.createElement('span');
@@ -177,6 +181,7 @@ Command.updateCompletions = function(useStyles) {
       right.className = 'cVim-right';
       right.textContent = decodeHTMLEntities(this.completionResults[i][2]);
       if (identifier) {
+        left.style.paddingLeft = '4px';
         left.insertBefore(identifier, left.firstChild);
       }
       item.appendChild(left);

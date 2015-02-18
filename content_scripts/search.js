@@ -14,7 +14,7 @@ Search.settingsMatch = function(string, callback) {
 };
 
 Search.nextResult = function(reverse) {
-  var i, l;
+  var i;
   if (!Command.dataElements.length) {
     if (Command.input.value.length) {
       return false;
@@ -57,16 +57,15 @@ Search.nextResult = function(reverse) {
     }
   }
 
-  Command.dataElements[this.index].style.backgroundColor = '#fefefe';
+  Command.dataElements[this.index].style.backgroundColor = '#f1f1f1';
   Command.dataElements[this.index].style.color = '#1b1d1e';
   spanElements = Command.dataElements[this.index].getElementsByTagName('span');
-  l = spanElements.length;
   if (spanElements[0].childNodes.length === 2) {
     this.lastStyle = spanElements[0].firstElementChild.style.color;
   } else {
     delete this.lastStyle;
   }
-  for (i = 0; i < l; ++i) {
+  for (i = 0; i < spanElements.length; ++i) {
     spanElements[i].style.color = '#1b1d1e';
   }
   switch (Command.completionResults[this.index][0]) {

@@ -13,22 +13,24 @@
 }
 
 .cVim-link-hint {
-  border-radius: 2px;
-  color: #ddd;
+  color: #302505 !important;
+  background-color: #ffd76e !important;
+  border-radius: 2px !important;
   padding: 2px !important;
-  font-size: 11pt !important;
-  font-weight: bold !important;
+  font-size: 8pt !important;
+  font-weight: 500 !important;
+  text-transform: uppercase !important;
+  border: 1px solid #ad810c;
   display: inline-block !important;
-  border: 1px solid #ccc;
   vertical-align: middle !important;
   text-align: center !important;
   box-shadow: 2px 2px 1px rgba(0,0,0,0.25) !important;
   position: absolute !important;
-  background: linear-gradient(to bottom, #636363 0%,#3f3f3f 39%,#3f3f3f 39%,#000000 100%);
 }
 
 .cVim-link-hint_match {
-  color: #888;
+  color: #777;
+  text-transform: uppercase !important;
 }
 
 #cVim-command-bar {
@@ -72,7 +74,7 @@
   z-index: 2147483647 !important;
   left: 0;
   box-shadow: 0 3px 3px rgba(0,0,0,0.4);
-  background-color: rgba(44, 44, 44, 1);
+  background-color: #1c1c1c;
 }
 
 .cVim-completion-item, .cVim-completion-item .cVim-full, .cVim-completion-item .cVim-left, .cVim-completion-item .cVim-right {
@@ -86,12 +88,12 @@
 }
 
 .cVim-completion-item:nth-child(even) {
-  background-color: #282828;
+  background-color: #1f1f1f;
 }
 
 .cVim-completion-item {
   width: 100%; left: 0;
-  color: #fff;
+  color: #bcbcbc;
 }
 
 .cVim-completion-item .cVim-left {
