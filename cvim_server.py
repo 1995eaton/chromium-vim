@@ -11,6 +11,7 @@ can be changed via the "vimcommand" cVimrc option
 
 import os
 import sys
+import shlex
 from json import loads
 import subprocess
 from tempfile import mkstemp
@@ -27,7 +28,7 @@ def edit_file(command, content):
     fd, fn = mkstemp(suffix='.txt', prefix='cvim-', text=True)
     os.write(fd, content.encode('utf8'))
     os.close(fd)
-    subprocess.Popen(command.split() + [fn]).wait()
+    subprocess.Popen(shlex.split(command) + [fn]).wait()
     text = None
     with open(fn, 'r') as f:
         text = f.read()
