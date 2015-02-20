@@ -878,7 +878,6 @@ Mappings.executeSequence = function(c, r) {
 };
 
 Mappings.handleEscapeKey = function() {
-
   this.queue = '';
   this.repeats = '';
   currentTrieNode = mappingTrie;
@@ -926,6 +925,9 @@ Mappings.handleEscapeKey = function() {
     HUD.hide();
     return;
   }
+
+  // default Chrome behavior (#248)
+  window.stop();
 };
 
 Mappings.nonRepeatableCommands = [];
