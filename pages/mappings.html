@@ -376,10 +376,12 @@ map TA :to @@reddit_prog/@@top_all&lt;CR&gt;
 map TD :to @@reddit_prog/@@top_day&lt;CR&gt;
 
 &quot; Code blocks (see below for more info)
-JavaScriptHello -&gt; {{
-  console.log(&#39;Hello world!&#39;);
+getIP() -&gt; {{
+httpRequest({url: &#39;http://api.ipify.org/?format=json&#39;, json: true},
+            function(res) { Status.setMessage(&#39;IP: &#39; + res.ip); });
 }}
-map &lt;C-h&gt; :call JavaScriptHello&lt;CR&gt;
+&quot; Displays your public IP address in the status bar
+map ci :call getIP&lt;CR&gt;
 
 &quot; Script hints
 echo(link) -&gt; {{

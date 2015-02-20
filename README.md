@@ -150,10 +150,12 @@ map TA :to @@reddit_prog/@@top_all<CR>
 map TD :to @@reddit_prog/@@top_day<CR>
 
 " Code blocks (see below for more info)
-JavaScriptHello -> {{
-  console.log('Hello world!');
+getIP() -> {{
+httpRequest({url: 'http://api.ipify.org/?format=json', json: true},
+            function(res) { Status.setMessage('IP: ' + res.ip); });
 }}
-map <C-h> :call JavaScriptHello<CR>
+" Displays your public IP address in the status bar
+map ci :call getIP<CR>
 
 " Script hints
 echo(link) -> {{
