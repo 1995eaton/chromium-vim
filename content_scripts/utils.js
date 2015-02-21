@@ -290,7 +290,7 @@ var decodeHTMLEntities = function(string) {
   return el.textContent;
 };
 
-var searchArray = function(array, search, limit, useRegex, fn, ignoreIndex) {
+var basicSearchArray = function(array, search, limit, useRegex, fn, ignoreIndex) {
   if (search === '') {
     return array.slice(0, limit || settings.searchlimit);
   }
@@ -320,6 +320,31 @@ var searchArray = function(array, search, limit, useRegex, fn, ignoreIndex) {
     }
   }
   return matches[0].concat(matches[1]).slice(0, limit);
+};
+
+var fuzzySearchArray = function(array, search, limit, useRegex, fn, ignoreIndex) {
+    var matches = {
+        0: [],
+        1: [],
+        2: []
+    };
+
+    matches[0] = basicSearchArray(array, search, limit, true, fn, ignoreIndex);
+
+    var slashed = search.replace(/\//g, '.*/.*');
+    matches[1] = basicSearchArray(array, slashed, limit, true, fn, ignoreIndex);
+
+    var whiteSpaced = search.replace(/ /g, '.*');
+    matches[2] = basicSearchArray(array, whiteSpaced, limit, true, fn, ignoreIndex);
+
+    return matches[0].concat(matches[1]).concat(matches[2]).slice(0, limit);
+};
+
+var searchArray = function(array, search, limit, useRegex, fn, ignoreIndex) {
+    if (typeof Settings !== 'undefined' && Settings.fuzzy) {
+        return fuzzySearchArray(array, search, limit, useRegex, fn, ignoreIndex);
+    }
+    return basicSearchArray(array, search.split(' ')[0], limit, useRegex, fn, ignoreIndex);
 };
 
 Object.extend = function() {
