@@ -16,13 +16,9 @@ from json import loads
 import subprocess
 from tempfile import mkstemp
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from uuid import uuid4
 
 PORT = 8001
 
-uid = str(uuid4())
-with open(sys.path[0] + '/.cvim_server.token', 'w') as output:
-  output.write(uid)
 
 def edit_file(command, content):
     fd, fn = mkstemp(suffix='.txt', prefix='cvim-', text=True)
@@ -40,16 +36,15 @@ class CvimServer(BaseHTTPRequestHandler):
     def do_POST(self):
         length = int(self.headers['Content-Length'])
         content = loads(self.rfile.read(length).decode('utf8'))
-        if content['token'] == uid:
-          edit = edit_file(content['command'], content['data'])
-          self.send_response(200)
-          self.send_header('Content-Type', 'text/plain')
-          self.end_headers()
-          self.wfile.write(edit.encode('utf8'))
+        edit = edit_file(content['command'], content['data'])
+        self.send_response(200)
+        self.send_header('Content-Type', 'text/plain')
+        self.end_headers()
+        self.wfile.write(edit.encode('utf8'))
 
 
 def init_server(server_class=HTTPServer, handler_class=BaseHTTPRequestHandler):
-    server_address = ('', PORT)
+    server_address = ('127.0.0.1', PORT)
     httpd = server_class(server_address, CvimServer)
     httpd.serve_forever()
 
