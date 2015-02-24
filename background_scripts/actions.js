@@ -251,19 +251,19 @@ Actions = (function() {
   };
 
   _.nextTab = function() {
-    getTab(sender, false, request.repeats, false, false);
+    getTab(sender.tab, false, request.repeats, false, false);
   };
 
   _.previousTab = function() {
-    getTab(sender, true, request.repeats, false, false);
+    getTab(sender.tab, true, request.repeats, false, false);
   };
 
   _.firstTab = function() {
-    getTab(sender, false, false, true, false);
+    getTab(sender.tab, false, false, true, false);
   };
 
   _.lastTab = function() {
-    getTab(sender, false, false, false, true);
+    getTab(sender.tab, false, false, false, true);
   };
 
   _.appendHistory = function() {

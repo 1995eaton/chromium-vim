@@ -34,14 +34,14 @@ chrome.storage.local.get('sessions', function(e) {
   }
 });
 
-function getTab(sender, reverse, count, first, last) {
-  chrome.tabs.query({windowId: sender.tab.windowId}, function(tabs) {
+function getTab(tab, reverse, count, first, last) {
+  chrome.tabs.query({windowId: tab.windowId}, function(tabs) {
     if (first) {
       return chrome.tabs.update(tabs[0].id, {active: true});
     } else if (last) {
       return chrome.tabs.update(tabs[tabs.length - 1].id, {active: true});
     } else {
-      return chrome.tabs.update(tabs[((((reverse ? -count : count) + sender.tab.index) % tabs.length) + tabs.length) % tabs.length].id, {active: true});
+      return chrome.tabs.update(tabs[((((reverse ? -count : count) + tab.index) % tabs.length) + tabs.length) % tabs.length].id, {active: true});
     }
   });
 }
@@ -139,7 +139,7 @@ var Listeners = {
         case 'nextTab':
         case 'previousTab':
           chrome.tabs.query({active: true, currentWindow: true}, function(e) {
-            return getTab({tab: e[0]}, false, (command === 'nextTab' ? 1 : -1), false, false);
+            return getTab(e[0], false, (command === 'nextTab' ? 1 : -1), false, false);
           });
           break;
         case 'nextCompletionResult':
