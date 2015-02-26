@@ -129,3 +129,11 @@
   box-sizing: border-box;
   border: 3px solid yellow;
 }
+
+.cVim-find-mark {
+  font-style: inherit !important;
+  font-weight: inherit !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+  word-wrap: inherit !important;
+}

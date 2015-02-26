@@ -117,6 +117,7 @@ Find.highlight = function(params) {
       nodes = [];
 
   markBase.style.backgroundColor = settings.highlight;
+  markBase.className = 'cVim-find-mark';
 
   if (params.saveSearch)
     this.lastSearch = params.search;
