@@ -433,7 +433,10 @@ Hints.siteFilters = (function() {
     ]],
     '*://github.com/*': [[
       '.select-menu-modal-holder.js-menu-content'
-    ]]
+    ]],
+    '*://twitter.com/*': [[], [
+      '.new-tweets-bar.js-new-tweets-bar'
+    ]],
   };
   Object.keys(filters).forEach(function(key) {
     filters[key] = new HintFilter(filters[key][0], filters[key][1]);
