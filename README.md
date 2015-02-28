@@ -336,6 +336,7 @@ map <Tab> :call switchHintCharacters<CR>
 | `gd`                      | alias to :chrome://downloads&lt;CR&gt;                                | :chrome://downloads&lt;CR&gt;   |
 | `yy`                      | copy the URL of the current page to the clipboard                     | yankDocumentUrl                 |
 | `ya`                      | copy the URLs in the current window                                   | yankWindowUrls                  |
+| `yh`                      | copy the currently matched text from find mode (if any)               | yankHighlight                   |
 | `b`                       | search through bookmarks                                              | :bookmarks                      |
 | `p`                       | open the clipboard selection                                          | openPaste                       |
 | `P`                       | open the clipboard selection in a new tab                             | openPasteTab                    |

@@ -106,6 +106,7 @@ Mappings.defaults = [
   ['my',        'multiYankUrl'],
   ['yy',        'yankDocumentUrl'],
   ['ya',        'yankWindowUrls'],
+  ['yh',        'yankHighlight'],
   ['p',         'openPaste'],
   ['v',         'toggleVisualMode'],
   ['V',         'toggleVisualLineMode'],
@@ -429,6 +430,12 @@ Mappings.actions = {
   },
   yankWindowUrls: function() {
     PORT('yankWindowUrls');
+  },
+  yankHighlight: function() {
+    var match = Find.matches[Find.index];
+    if (match) {
+      Clipboard.copy(match.textContent);
+    }
   },
   openPaste: function() {
     Clipboard.paste(false);
