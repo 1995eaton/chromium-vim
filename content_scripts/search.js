@@ -6,11 +6,19 @@ Search.topSites = [];
 Search.chromeUrls = ['accessibility', 'appcache-internals', 'apps', 'blob-internals', 'bookmarks', 'cache', 'chrome', 'chrome-urls', 'components', 'crashes', 'credits', 'devices', 'dns', 'downloads', 'extensions', 'flags', 'flash', 'gcm-internals', 'gpu', 'help', 'histograms', 'history', 'indexeddb-internals', 'inspect', 'invalidations', 'ipc', 'linux-proxy-config', 'media-internals', 'memory', 'memory-internals', 'nacl', 'net-internals', 'newtab', 'omnibox', 'plugins', 'policy', 'predictors', 'print', 'profiler', 'quota-internals', 'sandbox', 'serviceworker-internals', 'settings', 'signin-internals', 'stats', 'sync-internals', 'system', 'terms', 'tracing', 'translate-internals', 'user-actions', 'version', 'view-http-cache', 'webrtc-internals', 'webrtc-logs', 'crash', 'kill', 'hang', 'shorthang', 'gpuclean', 'gpucrash', 'gpuhang', 'ppapiflashcrash', 'ppapiflashhang', 'quit', 'restart'];
 
 Search.chromeMatch = function(string, callback) {
-  callback(searchArray(this.chromeUrls, string, settings.searchlimit, false));
+  callback(searchArray({
+    array: this.chromeUrls,
+    search: string,
+    limit: settings.searchlimit
+  }));
 };
 
 Search.settingsMatch = function(string, callback) {
-  callback(searchArray(this.settings, string.replace(/^no/, ''), settings.searchlimit, false));
+  callback(searchArray({
+    array: this.settings,
+    search: string.replace(/^no/, ''),
+    limit: settings.searchlimit
+  }));
 };
 
 Search.nextResult = function(reverse) {

@@ -102,10 +102,12 @@ port.onMessage.addListener(function(response) {
             if (!val.trim() ||
                 Number.isNaN(val) ||
                 !response.buffers[+val - 1])
-              return searchArray(response.buffers, val, settings.searchlimit,
-                  true, function(item) {
-                    return item.join(' ');
-                  });
+              return searchArray({
+                array: response.buffers,
+                search: val,
+                limit: settings.searchlimit,
+                fn: function(item) { return item.join(' '); }
+              });
             return [ response.buffers[+val - 1] ] || [];
           })()
         };

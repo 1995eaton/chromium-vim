@@ -342,8 +342,11 @@ Command.callCompletionFunction = (function() {
   var tabHistoryCompletion = function(value) {
     RUNTIME('getHistoryStates', null, function(response) {
       self.completions = {
-        tabhistory: searchArray(response.links, value.replace(/\S+\s+/, ''),
-                                settings.searchlimit, true)
+        tabhistory: searchArray({
+          array: response.links,
+          search: value.replace(/\S+\s+/, ''),
+          limit: settings.searchlimit
+        })
       };
       self.updateCompletions();
     });

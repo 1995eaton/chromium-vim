@@ -65,9 +65,14 @@ var History = {
     if (History.shouldRefresh) {
       History.refreshStore();
     }
-    callback(searchArray(this.historyStore, search, limit, true, function(item) {
-      return item.title + item.url;
-    }, true));
+    callback(searchArray({
+      array: this.historyStore,
+      search: search,
+      limit: limit,
+      fn: function(item) {
+        return item.title + ' ' + item.url;
+      }
+    }), true);
   }
 
 };

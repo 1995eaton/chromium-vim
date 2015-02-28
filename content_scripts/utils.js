@@ -290,36 +290,37 @@ var decodeHTMLEntities = function(string) {
   return el.textContent;
 };
 
-var searchArray = function(array, search, limit, useRegex, fn, ignoreIndex) {
-  if (search === '') {
-    return array.slice(0, limit || settings.searchlimit);
-  }
-  if (useRegex) {
-    try {
-      search = new RegExp(search, 'i');
-    } catch (e) {
-      useRegex = false;
+/**
+ * Searches an array using fuzzy search or regex search.
+ *
+ * @param opt options for searching the array
+ * @param opt.array   the array to search
+ * @param opt.search  the search string to use
+ * @param opt.limit   max search results to return
+ * @param opt.fn      the function to use to convert the items in {@code opt.array}
+ *                    to their string representations when searching
+ *                    (assumes they are already strings if falsey value)
+ *
+ * @return the matching items in the given array
+ */
+var searchArray = function(opt) {
+  var split = /[\/?:.\-\s]+/;
+  var search = opt.search.toLowerCase().split(split).compress();
+  var fn = opt.fn || function(item) { return item; };
+  var matches = [];
+  eachUntil(opt.array, function(item) {
+    var text = fn(item).split(split);
+    if (search.every(function(searchTerm) {
+      return text.some(function(textTerm) {
+        return textTerm.toLowerCase().indexOf(searchTerm) === 0;
+      });
+    })) {
+      matches.push(item);
+      return matches.length === opt.limit;
     }
-  }
-  var matches = {
-    0: [],
-    1: []
-  };
-  var exactMatchCount = 0;
-  fn = fn || function(item) { return item; };
-  for (var i = 0; i < array.length; i++) {
-    var matchIndex = fn(array[i])[useRegex ? 'search' : 'indexOf'](search);
-    if (!ignoreIndex && matchIndex === 0) {
-      matches[0].push(array[i]);
-      exactMatchCount++;
-      if (exactMatchCount === limit) {
-        break;
-      }
-    } else if (matchIndex !== -1) {
-      matches[1].push(array[i]);
-    }
-  }
-  return matches[0].concat(matches[1]).slice(0, limit);
+    return false;
+  });
+  return matches;
 };
 
 Object.extend = function() {
@@ -486,4 +487,12 @@ var findFirstOf = function(array, callback) {
     if (callback(array[i], i, array))
       return array[i];
   }
+};
+
+var eachUntil = function(array, callback) {
+    for (var i = 0; i < array.length; i++) {
+        if (callback(array[i], i, array)) {
+            break;
+        }
+    }
 };

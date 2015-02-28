@@ -119,8 +119,11 @@ Marks = (function() {
       callback(bookmarks.slice(0, settings.searchlimit + 1));
       return;
     }
-    callback(searchArray(bookmarks, string, limit, true, function(item) {
-      return item.join(' ');
+    callback(searchArray({
+      array: bookmarks,
+      search: string,
+      limit: limit,
+      fn: function(item) { return item.join(' '); }
     }));
   };
 
