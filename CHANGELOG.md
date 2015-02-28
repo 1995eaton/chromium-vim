@@ -1,5 +1,10 @@
 #cVim Changelog
 
+## 1.2.73
+ * Link hint / command bar redesign (may need to reset CSS for this to take effect)
+ * Improved autocompletion matching
+ * Several bugfixes
+
 ## 1.2.72
  * Fix an issue with command bar z-index on YouTube: [#237](https://github.com/1995eaton/chromium-vim/issues/237)
  * Fix an issue with tab completion with the `:buffer` command: [#238](https://github.com/1995eaton/chromium-vim/issues/238)
