@@ -312,5 +312,15 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
         }
       }
       break;
+    case 'displayTabIndices':
+      Command.onSettingsLoad(function() {
+        if (settings.showtabindices) {
+          Session.ignoreTitleUpdate = true;
+          document.title = document.title.replace(
+              new RegExp('^(' + Session.tabIndex + ' )?'), request.index + ' ');
+        }
+        Session.tabIndex = request.index;
+      });
+      break;
   }
 });

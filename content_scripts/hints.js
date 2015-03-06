@@ -427,6 +427,7 @@ Hints.siteFilters = (function() {
       'div[aria-label="Apps"]',
       '.hdtbna.notl',
       '.irc_rit',
+      'a[href^="imgres"]',
       'div[id=hdtbMenus]',
       'div[aria-label="Account Information"]',
       'img[jsaction^="load:"]'
@@ -437,6 +438,10 @@ Hints.siteFilters = (function() {
     '*://twitter.com/*': [[], [
       '.new-tweets-bar.js-new-tweets-bar'
     ]],
+    '*://imgur.com/*': [[], [
+      '.thumb-title',
+      '.carousel-button'
+    ]]
   };
   Object.keys(filters).forEach(function(key) {
     filters[key] = new HintFilter(filters[key][0], filters[key][1]);

@@ -50,6 +50,7 @@ var defaultSettings = {
   smoothscroll: true,
   autoupdategist: false,
   nativelinkorder: false,
+  showtabindices: false,
   scrollduration: 500,
   zoomfactor: 0.10,
   locale: '',

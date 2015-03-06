@@ -26,6 +26,17 @@ var httpRequest = function(request) {
   });
 };
 
+function updateTabIndices() {
+  chrome.tabs.query({currentWindow: true}, function(tabs) {
+    tabs.forEach(function(tab) {
+      chrome.tabs.sendMessage(tab.id, {
+        action: 'displayTabIndices',
+        index: tab.index + 1
+      });
+    });
+  });
+}
+
 chrome.storage.local.get('sessions', function(e) {
   if (e.sessions === void 0) {
     chrome.storage.local.set({ sessions: {} });
@@ -50,6 +61,9 @@ var Listeners = {
 
   tabs: {
     onUpdated: function(id, changeInfo) {
+      if (changeInfo.status === 'complete') {
+        updateTabIndices();
+      }
       if (changeInfo.hasOwnProperty('url')) {
         History.shouldRefresh = true;
         if (TabHistory.hasOwnProperty(id)) {
@@ -83,6 +97,7 @@ var Listeners = {
       }
     },
     onRemoved: function(id, removeInfo) {
+      updateTabIndices();
       if (ActiveTabs[removeInfo.windowId] !== void 0) {
         ActiveTabs[removeInfo.windowId] = ActiveTabs[removeInfo.windowId].filter(function(e) {
           return e !== id;
@@ -92,7 +107,9 @@ var Listeners = {
         delete TabHistory[id];
       }
       delete Frames[id];
-    }
+    },
+    onCreated: updateTabIndices,
+    onMoved: updateTabIndices,
   },
 
   windows: {

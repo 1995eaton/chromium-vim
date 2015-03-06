@@ -65,5 +65,18 @@ window.DOM = {
     var fragment = document.createDocumentFragment();
     fragment.appendChild(node.cloneNode(false));
     return !!fragment.querySelector(selector);
+  },
+  onTitleChange: function(callback) {
+    waitForLoad(function() {
+      var title = (document.getElementsByTagName('title') || [])[0];
+      if (!title) {
+        return;
+      }
+      new MutationObserver(function() {
+        callback(title.textContent);
+      }).observe(title, {
+        childList: true
+      });
+    });
   }
 };

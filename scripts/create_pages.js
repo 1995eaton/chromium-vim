@@ -17,6 +17,7 @@ marked.setOptions({
 });
 
 var scripts = [
+  'session',
   'utils',
   'dom',
   'messenger',

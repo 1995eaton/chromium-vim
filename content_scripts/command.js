@@ -1105,8 +1105,37 @@ Command.init = function(enabled) {
   }
 };
 
+Command.onSettingsLoad = (function() {
+  var funcList = [];
+  var loaded = false;
+  return function(callback) {
+    if (typeof callback === 'function') {
+      if (!loaded) {
+        funcList.push(callback);
+      } else {
+        callback();
+      }
+    } else {
+      funcList.forEach(function(func) {
+        func();
+      });
+      funcList.length = 0;
+      loaded = true;
+    }
+  };
+})();
+
 Command.configureSettings = function(_settings) {
   settings = _settings;
+  this.onSettingsLoad();
+  DOM.onTitleChange(function(text) {
+    if (!Session.ignoreTitleUpdate) {
+      if (text.indexOf(Session.tabIndex + ' ') !== 0) {
+        document.title = Session.tabIndex + ' ' + document.title;
+      }
+    }
+    Session.ignoreTitleUpdate = false;
+  });
   this.initialLoadStarted = true;
   var checkBlacklist = function() {
     var blacklists = settings.blacklists,
