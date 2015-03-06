@@ -603,7 +603,11 @@ Actions = (function() {
       callback({
         type: 'buffers',
         buffers: tabs.map(function(e, i) {
-          return [(i + 1) + ': ' + e.title, e.url, e.id];
+          var title = e.title;
+          if (Settings.showtabindices) {
+            title = title.replace(new RegExp('^' + (e.index + 1) + ' '), '');
+          }
+          return [(i + 1) + ': ' + title, e.url, e.id];
         })
       });
     });
