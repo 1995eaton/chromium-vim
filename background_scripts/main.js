@@ -61,9 +61,7 @@ var Listeners = {
 
   tabs: {
     onUpdated: function(id, changeInfo) {
-      if (changeInfo.status === 'complete') {
-        updateTabIndices();
-      }
+      updateTabIndices();
       if (changeInfo.hasOwnProperty('url')) {
         History.shouldRefresh = true;
         if (TabHistory.hasOwnProperty(id)) {

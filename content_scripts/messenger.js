@@ -317,7 +317,8 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
         if (settings.showtabindices) {
           Session.ignoreTitleUpdate = true;
           document.title = document.title.replace(
-              new RegExp('^(' + Session.tabIndex + ' )?'), request.index + ' ');
+              new RegExp('^(' + Session.tabIndex + ' )?'),
+              (request.index ? request.index + ' ' : ''));
         }
         Session.tabIndex = request.index;
       });
