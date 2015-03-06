@@ -3,5 +3,7 @@
  */
 window.Session = {
   // Accessed for use in indexing document.title
-  ignoreTitleUpdate: false, tabIndex: null
+  ignoreTitleUpdate: false, tabIndex: null,
+
+  isRootFrame: self === top
 };

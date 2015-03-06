@@ -313,15 +313,27 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
       }
       break;
     case 'displayTabIndices':
-      Command.onSettingsLoad(function() {
-        if (settings.showtabindices) {
-          Session.ignoreTitleUpdate = true;
-          document.title = document.title.replace(
-              new RegExp('^(' + Session.tabIndex + ' )?'),
-              (request.index ? request.index + ' ' : ''));
-        }
-        Session.tabIndex = request.index;
-      });
+      if (Session.isRootFrame) {
+        Command.onSettingsLoad(function() {
+          if (settings.showtabindices) {
+            Session.ignoreTitleUpdate = true;
+            if (document.title === '' + request.index) {
+              if (location.hostname + location.pathname ===
+                  'www.google.com/_/chrome/newtab') {
+                document.title = Session.tabIndex + ' New Tab';
+              } else {
+                document.title = Session.tabIndex + ' ' +
+                                 location.href.replace(/.*\//, '');
+              }
+            } else {
+              document.title = document.title.replace(
+                  new RegExp('^(' + Session.tabIndex + ' )?'),
+                  (request.index ? request.index + ' ' : ''));
+            }
+          }
+          Session.tabIndex = request.index;
+        });
+      }
       break;
   }
 });
