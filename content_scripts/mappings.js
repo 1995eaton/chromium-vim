@@ -432,6 +432,11 @@ Mappings.actions = {
     PORT('yankWindowUrls');
   },
   yankHighlight: function() {
+    var selection = document.getSelection();
+    if (selection.type === 'Range' && selection.toString() !== '') {
+      Clipboard.copy(selection.toString());
+      return;
+    }
     var match = Find.matches[Find.index];
     if (match) {
       Clipboard.copy(match.textContent);
