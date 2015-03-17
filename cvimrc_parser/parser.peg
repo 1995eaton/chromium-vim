@@ -113,7 +113,7 @@ LetStatement
   = LET SEP a:Identifier SEP? '=' SEP? b:Expression {
     var r = {}; r[a] = b; return r;
   }
-  / LET SEP a:Identifier SEP b:Identifier SEP? '=' SEP? c:Expression {
+  / LET SEP a:Identifier SEP b:(Identifier / NumberLiteral) SEP? '=' SEP? c:Expression {
     a = objectPlural(a);
     var r = {}; r[a] = {}; r[a][b] = c; return r;
   }

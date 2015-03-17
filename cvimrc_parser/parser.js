@@ -1651,6 +1651,9 @@ RCParser = (function() {
               s4 = peg$parseSEP();
               if (s4 !== peg$FAILED) {
                 s5 = peg$parseIdentifier();
+                if (s5 === peg$FAILED) {
+                  s5 = peg$parseNumberLiteral();
+                }
                 if (s5 !== peg$FAILED) {
                   s6 = peg$parseSEP();
                   if (s6 === peg$FAILED) {
