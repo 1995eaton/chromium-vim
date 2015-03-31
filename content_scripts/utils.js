@@ -88,8 +88,7 @@ var getVisibleBoundingRect = function(node) {
     return false;
   }
   var computedStyle = getComputedStyle(node, null);
-  if (computedStyle.opacity === '0' ||
-      computedStyle.visibility !== 'visible' ||
+  if (computedStyle.visibility !== 'visible' ||
       computedStyle.display === 'none' ||
       node.hasAttribute('disabled') ||
       parseInt(computedStyle.width, '10') === 0 ||
