@@ -195,6 +195,7 @@ Actions = (function() {
           if (tabs.length > 1) {
             chrome.windows.create({
               tabId: sender.tab.id,
+              incognito: sender.tab.incognito,
               focused: true
             }, repin);
           }
