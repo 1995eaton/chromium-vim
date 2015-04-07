@@ -291,15 +291,16 @@ Actions = (function() {
   };
 
   _.goToTab = function() {
+    var id = request.id, index = request.index;
     chrome.tabs.query({currentWindow: true}, function(tabs) {
-      if (request.id) {
-        return chrome.tabs.get(request.id, function(tabInfo) {
+      if (id) {
+        return chrome.tabs.get(id, function(tabInfo) {
           chrome.windows.update(tabInfo.windowId, {focused: true}, function() {
-            chrome.tabs.update(request.id, {active: true, highlighted: true});
+            chrome.tabs.update(id, {active: true, highlighted: true});
           });
         });
-      } else if (request.index !== void 0) {
-        chrome.tabs.update((request.index < tabs.length ? tabs[request.index].id :
+      } else if (index !== void 0) {
+        chrome.tabs.update((index < tabs.length ? tabs[index].id :
             tabs.slice(-1)[0].id), {active: true});
       }
     });
