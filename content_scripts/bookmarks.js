@@ -20,8 +20,7 @@ Marks = (function() {
           continue;
         }
         Command.completions.files.push([files[i][0], files[i][1]]);
-        c++;
-        if (c > settings.searchlimit) {
+        if (++c > settings.searchlimit) {
           break;
         }
       }
