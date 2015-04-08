@@ -502,11 +502,26 @@ Hints.getLinks = function() {
   var applicableFilters = Object.keys(this.siteFilters).filter(function(key) {
     return matchLocation(document.URL, key);
   }).map(function(key) { return this.siteFilters[key]; }.bind(this));
-  traverseDOM(document.body, this.acceptHint).forEach(function(node) {
-    if (applicableFilters.every(function(filter) {
-      return !filter.matches(node);
-    })) Hints.evaluateLink(node);
-  });
+
+  if (settings.sortlinkhints) {
+    traverseDOM(document.body, this.acceptHint).map(function(node) {
+      var rect = node.getBoundingClientRect();
+      return [node, Math.sqrt(rect.top * rect.top + rect.left * rect.left)];
+    }).sort(function(a, b) {
+      return a[1] - b[1];
+    }).forEach(function(node) {
+      if (applicableFilters.every(function(filter) {
+        return !filter.matches(node[0]);
+      })) Hints.evaluateLink(node[0]);
+    });
+  } else {
+    traverseDOM(document.body, this.acceptHint).forEach(function(node) {
+      if (applicableFilters.every(function(filter) {
+        return !filter.matches(node);
+      })) Hints.evaluateLink(node);
+    });
+  }
+
   applicableFilters.forEach(function(filter) {
     filter.searches.forEach(function(search) {
       var nodes = document.querySelectorAll(search);

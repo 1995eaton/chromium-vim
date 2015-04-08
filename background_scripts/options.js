@@ -36,6 +36,7 @@ var defaultSettings = {
   regexp: true,
   scalehints: false,
   linkanimations: false,
+  sortlinkhints: false,
   ignorecase: true,
   numerichints: false,
   cncpcompletion: false,
