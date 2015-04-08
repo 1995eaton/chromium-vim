@@ -1,5 +1,9 @@
 #cVim Changelog
 
+## 1.2.74
+ * Bug fixes
+ * Added `sortlinkhints` setting
+
 ## 1.2.73
  * Link hint / command bar redesign (may need to reset CSS for this to take effect)
  * Improved autocompletion matching
