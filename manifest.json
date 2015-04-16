@@ -92,7 +92,6 @@
         "content_scripts/session.js",
         "content_scripts/utils.js",
         "content_scripts/dom.js",
-        "content_scripts/messenger.js",
         "content_scripts/hints.js",
         "content_scripts/bookmarks.js",
         "content_scripts/keys.js",
@@ -107,7 +106,8 @@
         "content_scripts/command.js",
         "content_scripts/scroll.js",
         "content_scripts/search.js",
-        "content_scripts/frames.js"
+        "content_scripts/frames.js",
+        "content_scripts/messenger.js"
       ],
       "css": ["content_scripts/main.css"],
       "run_at": "document_start",

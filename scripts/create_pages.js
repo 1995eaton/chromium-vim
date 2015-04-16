@@ -20,7 +20,6 @@ var scripts = [
   'session',
   'utils',
   'dom',
-  'messenger',
   'hints',
   'bookmarks',
   'keys',
@@ -36,6 +35,7 @@ var scripts = [
   'scroll',
   'search',
   'frames',
+  'messenger',
 ];
 
 var makeHTML = function(data) {
