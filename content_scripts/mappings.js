@@ -99,7 +99,7 @@ Mappings.defaults = [
   ['zt',        'centerMatchT'],
   ['zb',        'centerMatchB'],
   ['zz',        'centerMatchH'],
-  ['gs',        ':viewsource&<CR>'],
+  ['gs',        ':viewsource!<CR>'],
   ['gU',        'goToRootUrl'],
   ['gu',        'goUpUrl'],
   ['gy',        'yankUrl'],
@@ -291,7 +291,7 @@ Mappings.actions = {
     if (/\.[a-z]+\s+\(\d+×\d+\)/i.test(document.title)) {
       var images = document.getElementsByTagName('img');
       if (images.length) {
-        images[0].simulateClick();
+        DOM.mouseEvent('click', images[0]);
       }
     }
   },
@@ -535,7 +535,7 @@ Mappings.actions = {
       querySelectorAll('input,textarea,*[contenteditable]');
     for (var i = 0, l = allInput.length; i < l; i++) {
       if (DOM.isEditable(allInput[i]) &&
-          allInput[i].isVisible() &&
+          DOM.isVisible(allInput[i]) &&
           allInput[i].id !== 'cVim-command-bar-input') {
         this.inputElements.push(allInput[i]);
       }
@@ -926,7 +926,7 @@ Mappings.handleEscapeKey = function() {
   }
 
   if (Hints.lastHover) {
-    Hints.lastHover.unhover();
+    DOM.mouseEvent('unhover', Hints.lastHover);
     Hints.lastHover = null;
     return;
   }

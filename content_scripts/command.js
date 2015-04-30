@@ -575,10 +575,7 @@ Command.execute = function(value, repeats) {
       RUNTIME('cancelAllWebRequests');
       return;
     case 'viewsource':
-      RUNTIME('openLink', {
-        tab: tab,
-        url: 'view-source:' + document.URL, noconvert: true
-      });
+      PORT('viewSource', {tab: tab});
       return;
     case 'pintab':
       RUNTIME('pinTab', {pinned: true});

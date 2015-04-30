@@ -349,7 +349,7 @@ map <Tab> :call switchHintCharacters<CR>
 | `gQ`                      | stop all tabs from loading                                            | cancelAllWebRequests            |
 | `gu`                      | go up one path in the URL                                             | goUpUrl                         |
 | `gU`                      | go to to the base URL                                                 | goToRootUrl                     |
-| `gs`                      | go to the view-source:// page for the current Url                     | goToSource                      |
+| `gs`                      | go to the view-source:// page for the current Url                     | :viewsource!                    |
 | `<C-b>`                   | create or toggle a bookmark for the current URL                       | createBookmark                  |
 | unmapped                  | close all browser windows                                             | quitChrome                      |
 | `g-`                      | decrement the first number in the URL path (e.g `www.example.com/5` => `www.example.com/4`) | decrementURLPath |

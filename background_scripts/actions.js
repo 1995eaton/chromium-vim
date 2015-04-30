@@ -19,6 +19,11 @@ Actions = (function() {
     });
   };
 
+  _.viewSource = function() {
+    url = 'view-source:' + sender.tab.url;
+    _.openLink();
+  };
+
   _.openLink = function() {
     if (request.tab.tabbed) {
       for (var i = 0; i < request.repeats; ++i) {

@@ -57,7 +57,7 @@ Find.search = function(reverse, repeats, ignoreFocus) {
     this.index = (this.index + (reverse ? -1 : 1) * repeats)
       .mod(this.matches.length);
   }
-  if (!this.matches[this.index].isVisible()) {
+  if (!DOM.isVisible(this.matches[this.index])) {
     this.matches.splice(this.index, 1);
     this.tries++;
     if (this.tries > this.matches.length) {
@@ -157,7 +157,7 @@ Find.highlight = function(params) {
       case 'mark':
         return NodeFilter.FILTER_REJECT;
       }
-      return isVisible(node.parentNode) ?
+      return DOM.isVisible(node.parentNode) ?
         NodeFilter.FILTER_ACCEPT :
         NodeFilter.FILTER_REJECT;
     }}, false);

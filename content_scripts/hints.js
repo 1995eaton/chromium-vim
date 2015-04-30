@@ -114,13 +114,13 @@ Hints.dispatchAction = function(link, shift) {
       break;
     case 'hover':
       if (Hints.lastHover) {
-        Hints.lastHover.unhover();
+        DOM.mouseEvent('unhover', Hints.lastHover);
         if (Hints.lastHover === link) {
           Hints.lastHover = null;
           break;
         }
       }
-      link.hover();
+      DOM.mouseEvent('hover', link);
       Hints.lastHover = link;
       break;
     case 'edit':
@@ -131,7 +131,7 @@ Hints.dispatchAction = function(link, shift) {
       });
       break;
     case 'unhover':
-      link.unhover();
+      DOM.mouseEvent('unhover', link);
       break;
     case 'window':
       RUNTIME('openLinkWindow', {
@@ -159,7 +159,7 @@ Hints.dispatchAction = function(link, shift) {
           node === 'select' ||
           /^(checkbox|menu)$/.test(link.getAttribute('role')))
       {
-        window.setTimeout(function() { link.simulateClick(); }, 0);
+        window.setTimeout(function() { DOM.mouseEvent('click', link); }, 0);
         break;
       }
       if (link.getAttribute('target') !== '_top' &&
@@ -172,8 +172,12 @@ Hints.dispatchAction = function(link, shift) {
       } else {
         if (link.hasAttribute('tabindex'))
           link.focus();
-        link.hover();
-        link[link.hasAttribute('href') ? 'click' : 'simulateClick']();
+        DOM.mouseEvent('hover', link);
+        if (link.hasAttribute('href')) {
+          link.click();
+        } else {
+          DOM.mouseEvent('click', link);
+        }
       }
       break;
   }
@@ -350,12 +354,12 @@ Hints.evaluateLink = function(link) {
     if (!imgParent) {
       return;
     }
-    linkLocation = getVisibleBoundingRect(imgParent);
+    linkLocation = DOM.getVisibleBoundingRect(imgParent);
     isAreaNode = true;
   } else {
-    linkLocation = getVisibleBoundingRect(link);
+    linkLocation = DOM.getVisibleBoundingRect(link);
   }
-  if (!linkLocation) {
+  if (linkLocation === null) {
     return;
   }
   linkElement = this.linkElementBase.cloneNode(false);
