@@ -1,5 +1,8 @@
 #cVim Changelog
 
+## 1.2.75
+ * Fixed issue where cVim sometimes stops responding after opening the command bar
+
 ## 1.2.74
  * Bug fixes
  * Added `sortlinkhints` setting
