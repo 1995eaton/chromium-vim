@@ -933,7 +933,9 @@ Command.hide = function(callback) {
     callback();
   }
   if (window.isCommandFrame) {
-    PORT('hideCommandFrame');
+    setTimeout(function() {
+      PORT('hideCommandFrame');
+    }, 50);
     return;
   }
 };
