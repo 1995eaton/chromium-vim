@@ -981,6 +981,19 @@ Command.callOnCvimLoad = (function() {
 })();
 
 Command.onDOMLoad = function() {
+  if (window.self === window.top) {
+    Command.frame = document.createElement('iframe');
+    Command.frame.src = chrome.runtime.getURL('cmdline_frame.html');
+    Command.frame.id = 'cVim-command-frame';
+    document.lastElementChild.appendChild(Command.frame);
+  } else {
+    this.onDOMLoadAll();
+    if (window.isCommandFrame)
+      PORT("commandFrameLoaded");
+  }
+}
+
+Command.onDOMLoadAll = function() {
   this.insertCSS();
   this.onBottom = settings.barposition === 'bottom';
   if (this.data !== void 0) {
@@ -1171,12 +1184,3 @@ Command.configureSettings = function(_settings) {
     this.init(false);
   }
 };
-
-if (window.self === window.top) {
-  Command.callOnCvimLoad(function() {
-    Command.frame = document.createElement('iframe');
-    Command.frame.src = chrome.runtime.getURL('cmdline_frame.html');
-    Command.frame.id = 'cVim-command-frame';
-    document.lastElementChild.appendChild(Command.frame);
-  });
-}
