@@ -19,6 +19,10 @@ Actions = (function() {
     });
   };
 
+  _.getRootUrl = function() {
+    callback(sender.tab.url);
+  };
+
   _.viewSource = function() {
     url = 'view-source:' + sender.tab.url;
     _.openLink();

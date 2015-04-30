@@ -3,6 +3,10 @@ var port = chrome.extension.connect({name: 'main'});
 (function() {
   var $ = function(FN) {
     return function(action, args, callback) {
+      if (typeof args === 'function') {
+        callback = args;
+        args = {};
+      }
       (args = args || {}).action = action;
       FN(args, typeof callback === 'function' ?
           callback : void 0);

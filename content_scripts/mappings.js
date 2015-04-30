@@ -105,6 +105,7 @@ Mappings.defaults = [
   ['gy',        'yankUrl'],
   ['my',        'multiYankUrl'],
   ['yy',        'yankDocumentUrl'],
+  ['yY',        'yankFrameUrl'],
   ['ya',        'yankWindowUrls'],
   ['yh',        'yankHighlight'],
   ['p',         'openPaste'],
@@ -425,6 +426,12 @@ Mappings.actions = {
   multiYankUrl: function() { Hints.create('multiyank'); },
   fullImageHint: function() { Hints.create('fullimage'); },
   yankDocumentUrl: function() {
+    RUNTIME('getRootUrl', function(url) {
+      Clipboard.copy(url);
+      Status.setMessage(url, 2);
+    });
+  },
+  yankFrameUrl: function() {
     Clipboard.copy(document.URL);
     Status.setMessage(document.URL, 2);
   },
