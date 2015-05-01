@@ -1,5 +1,8 @@
 #cVim Changelog
 
+## 1.2.76
+ * Fixed issue with buffer switching. Partially breaks fix from last version
+
 ## 1.2.75
  * Fixed issue where cVim sometimes stops responding after opening the command bar
 
