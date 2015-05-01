@@ -933,9 +933,9 @@ Command.hide = function(callback) {
     callback();
   }
   if (window.isCommandFrame) {
-    setTimeout(function() {
+    // setTimeout(function() {
       PORT('hideCommandFrame');
-    }, 50);
+    // }, 50);
     return;
   }
 };
@@ -988,9 +988,9 @@ Command.onDOMLoad = function() {
   } else {
     this.onDOMLoadAll();
     if (window.isCommandFrame)
-      PORT("commandFrameLoaded");
+      PORT('commandFrameLoaded');
   }
-}
+};
 
 Command.onDOMLoadAll = function() {
   this.insertCSS();
