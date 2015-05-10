@@ -1045,8 +1045,8 @@ Command.updateSettings = function(config) {
     });
   }
   this.customCommands = config.COMMANDS || {};
-  Object.keys(config.COMMANDS).forEach(function(name) {
-    this.descriptions.push([name, ':' + config.COMMANDS[name]]);
+  Object.keys(this.customCommands).forEach(function(name) {
+    this.descriptions.push([name, ':' + this.customCommands[name]]);
   }.bind(this));
   if (config.searchengines && config.searchengines.constructor === Object) {
     for (key in config.searchengines) {
