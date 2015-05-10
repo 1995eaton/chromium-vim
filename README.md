@@ -425,6 +425,7 @@ map <Tab> :call switchHintCharacters<CR>
 | :set (autocomplete)                         | temporarily change a cVim setting                                                      |
 | :chrome:// (autocomplete)                   | open a chrome:// URL                                                                   |
 | :tabhistory (autocomplete)                  | browse the different history states of the current tab                                 |
+| :command `<NAME>` `<ACTION>`                | aliases :`<NAME>` to :`<ACTION>`                                                       |
 | :quit                                       | close the current tab                                                                  |
 | :qall                                       | close the current window                                                               |
 | :restore (autocomplete)                     | restore a previously closed tab (newer versions of Chrome only)                        |

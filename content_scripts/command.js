@@ -1,8 +1,48 @@
 var Command = {};
 var settings, sessions;
 
+Command.descriptions = [
+  ['open',         'Open a link in the current tab'],
+  ['tabnew',       'Open a link in a new tab'],
+  ['tabnext',      'Switch to the next open tab'],
+  ['tabprevious',  'Switch to the previous open tab'],
+  ['new',          'Open a link in a new window'],
+  ['buffer',       'Select from a list of current tabs'],
+  ['history',      'Search through your browser history'],
+  ['bookmarks',    'Search through your bookmarks'],
+  ['file',         'Browse local directories'],
+  ['set',          'Configure boolean settings'],
+  ['call',         'Call a cVim command'],
+  ['let',          'Configure non-boolean settings'],
+  ['tabhistory',   'Open a tab from its history states'],
+  ['execute',      'Execute a sequence of keys'],
+  ['session',      'Open a saved session in a new window'],
+  ['restore',      'Open a recently closed tab'],
+  ['mksession',    'Create a saved session of current tabs'],
+  ['delsession',   'Delete sessions'],
+  ['map',          'Map a command'],
+  ['unmap',        'Unmap a command'],
+  ['tabattach',    'Move current tab to another window'],
+  ['tabdetach',    'Move current tab to a new window'],
+  ['chrome',       'Opens Chrome urls'],
+  ['duplicate',    'Clone the current tab'],
+  ['settings',     'Open the options page for this extension'],
+  ['help',         'Shows the help page'],
+  ['changelog',    'Shows the changelog page'],
+  ['quit',         'Close the current tab'],
+  ['qall',         'Close the current window'],
+  ['stop',         'Stop the current page from loading'],
+  ['stopall',      'Stop all pages in Chrome from loading'],
+  ['undo',         'Reopen the last closed tab'],
+  ['togglepin',    'Toggle the tab\'s pinned state'],
+  ['nohlsearch',   'Clears the search highlight'],
+  ['viewsource',   'View the source for the current document'],
+  ['script',       'Run JavaScript on the current page']
+];
+
 Command.dataElements = [];
 Command.matches = [];
+Command.customCommands = {};
 Command.lastInputValue = '';
 
 Command.setupFrameElements = function() {
@@ -211,45 +251,6 @@ Command.hideData = function() {
     Search.index = null;
   }
 };
-
-Command.descriptions = [
-  ['open',         'Open a link in the current tab'],
-  ['tabnew',       'Open a link in a new tab'],
-  ['tabnext',      'Switch to the next open tab'],
-  ['tabprevious',  'Switch to the previous open tab'],
-  ['new',          'Open a link in a new window'],
-  ['buffer',       'Select from a list of current tabs'],
-  ['history',      'Search through your browser history'],
-  ['bookmarks',    'Search through your bookmarks'],
-  ['file',         'Browse local directories'],
-  ['set',          'Configure boolean settings'],
-  ['call',         'Call a cVim command'],
-  ['let',          'Configure non-boolean settings'],
-  ['tabhistory',   'Open a tab from its history states'],
-  ['execute',      'Execute a sequence of keys'],
-  ['session',      'Open a saved session in a new window'],
-  ['restore',      'Open a recently closed tab'],
-  ['mksession',    'Create a saved session of current tabs'],
-  ['delsession',   'Delete sessions'],
-  ['map',          'Map a command'],
-  ['unmap',        'Unmap a command'],
-  ['tabattach',    'Move current tab to another window'],
-  ['tabdetach',    'Move current tab to a new window'],
-  ['chrome',       'Opens Chrome urls'],
-  ['duplicate',    'Clone the current tab'],
-  ['settings',     'Open the options page for this extension'],
-  ['help',         'Shows the help page'],
-  ['changelog',    'Shows the changelog page'],
-  ['quit',         'Close the current tab'],
-  ['qall',         'Close the current window'],
-  ['stop',         'Stop the current page from loading'],
-  ['stopall',      'Stop all pages in Chrome from loading'],
-  ['undo',         'Reopen the last closed tab'],
-  ['togglepin',    'Toggle the tab\'s pinned state'],
-  ['nohlsearch',   'Clears the search highlight'],
-  ['viewsource',   'View the source for the current document'],
-  ['script',       'Run JavaScript on the current page']
-];
 
 Command.deleteCompletions = function(completions) {
   completions = completions.split(',');
@@ -494,6 +495,13 @@ Command.complete = function(value) {
 
 Command.execute = function(value, repeats) {
 
+  if (value.indexOf('@%') !== -1) {
+    RUNTIME('getRootUrl', function(url) {
+      Command.execute(value.split('@%').join(url), repeats);
+    });
+    return;
+  }
+
   commandMode = false;
   value = this.expandCompletion(value);
   value = value.replace(/@@[a-zA-Z_$][a-zA-Z0-9_$]*/g, function(e) {
@@ -536,6 +544,11 @@ Command.execute = function(value, repeats) {
     value = value.replace(/[=?]+$/, '');
 
   this.history.index = {};
+
+  if (this.customCommands.hasOwnProperty(value)) {
+    this.execute(this.customCommands[value], 1);
+    return;
+  }
 
   switch (value) {
     case 'nohlsearch':
@@ -1031,6 +1044,10 @@ Command.updateSettings = function(config) {
       return ~config.completionengines.indexOf(e);
     });
   }
+  this.customCommands = config.COMMANDS || {};
+  Object.keys(config.COMMANDS).forEach(function(name) {
+    this.descriptions.push([name, ':' + config.COMMANDS[name]]);
+  }.bind(this));
   if (config.searchengines && config.searchengines.constructor === Object) {
     for (key in config.searchengines) {
       if (!~Complete.engines.indexOf(key) &&

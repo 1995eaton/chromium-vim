@@ -575,13 +575,18 @@ Mappings.actions = {
   },
   shortCuts: function(command, repeats) {
     commandMode = true;
+    if (command.indexOf('@%') !== -1) {
+      RUNTIME('getRootUrl', function(url) {
+        this.shortCuts(command.split('@%').join(url), repeats);
+      }.bind(this));
+      return;
+    }
     return window.setTimeout(function() {
       var shouldComplete = !/<cr>(\s+)?$/i.test(command);
       command = command
         .replace(/^:/, '')
         .replace(/<cr>(\s+)?$/i, '')
-        .replace(/<space>/ig, ' ')
-        .replace(/@%/g, document.URL);
+        .replace(/<space>/ig, ' ');
       if (!shouldComplete) {
         Command.execute(command, repeats);
         return;

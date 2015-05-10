@@ -53,3 +53,5 @@ let blacklists = ["http://localhost/*","http://lo-th.github.io/*"]
 f(x) -> {{
   console.log(x);
 }}
+
+command refresh open @%
