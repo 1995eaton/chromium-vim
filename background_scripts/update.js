@@ -17,9 +17,13 @@ chrome.runtime.onInstalled.addListener(function(details) {
     });
   } else if (details.reason === 'update') {
     if (previousVersion !== currentVersion) {
-      chrome.tabs.create({
-        url: chrome.runtime.getURL('pages/changelog.html'),
-        active: true
+      Options.refreshSettings(function() {
+        if (Settings.changelog) {
+          chrome.tabs.create({
+            url: chrome.runtime.getURL('pages/changelog.html'),
+            active: true
+          });
+        }
       });
     }
   }

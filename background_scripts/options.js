@@ -52,6 +52,7 @@ var defaultSettings = {
   autoupdategist: false,
   nativelinkorder: false,
   showtabindices: false,
+  changelog: true,
   scrollduration: 500,
   zoomfactor: 0.10,
   locale: '',
