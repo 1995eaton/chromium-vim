@@ -10,17 +10,52 @@ Hints.tryGooglePattern = function(forward) {
   return !!target;
 };
 
+Hints.matchPatternFilters = {
+  '*://*.ebay.com/*': {
+    'next': 'td a.next',
+    'prev': 'td a.prev'
+  },
+  '*://mail.google.com/*': {
+    'next': 'div[role="button"][data-tooltip="Older"]:not([aria-disabled="true"])',
+    'prev': 'div[role="button"][data-tooltip="Newer"]:not([aria-disabled="true"])'
+  },
+  '*://*.reddit.com/*': {
+    'next': 'a[rel$="next"]',
+    'prev': 'a[rel$="prev"]'
+  }
+};
+
 Hints.matchPatterns = function(pattern) {
-  if (this.tryGooglePattern(pattern === settings.nextmatchpattern))
-    return;
-  if (typeof pattern === 'string')
-    pattern = new RegExp('^' + pattern + '$', 'i');
-  var link = findFirstOf(getLinkableElements(), function(e) {
-    return e.textContent.trim() &&
-      (pattern.test(e.textContent) || pattern.test(e.getAttribute('value')));
-  });
-  if (link)
-    link.click();
+  var applicableFilters = Object.keys(this.matchPatternFilters)
+    .filter(function(key) {
+      return matchLocation(document.URL, key);
+    }).map(function(key) {
+      return this.matchPatternFilters[key][
+        pattern === settings.nextmatchpattern ? 'next' : 'prev'];
+    }.bind(this)).compress();
+  var link = null;
+  for (var i = 0; i < applicableFilters.length; i++) {
+    link = findFirstOf(document.querySelectorAll(applicableFilters[i]),
+        function(e) {
+          return DOM.isVisible(e);
+        });
+    if (link !== null)
+      break;
+  }
+  if (link === null) {
+    if (this.tryGooglePattern(pattern === settings.nextmatchpattern))
+      return;
+    if (typeof pattern === 'string')
+      pattern = new RegExp('^' + pattern + '$', 'i');
+    link = findFirstOf(getLinkableElements(), function(e) {
+      return e.textContent.trim() &&
+        (pattern.test(e.textContent) || pattern.test(e.getAttribute('value')));
+    });
+  }
+  if (link) {
+    DOM.mouseEvent('hover', link);
+    DOM.mouseEvent('click', link);
+  }
 };
 
 Hints.hideHints = function(reset, multi, useKeyDelay) {

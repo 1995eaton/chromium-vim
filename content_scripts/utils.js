@@ -406,6 +406,7 @@ var findFirstOf = function(array, callback) {
     if (callback(array[i], i, array))
       return array[i];
   }
+  return null;
 };
 
 var eachUntil = function(array, callback) {
