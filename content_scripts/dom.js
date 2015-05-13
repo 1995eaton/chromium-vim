@@ -127,8 +127,8 @@ window.DOM = {
     if (computedStyle.visibility !== 'visible' ||
         computedStyle.display === 'none' ||
         node.hasAttribute('disabled') ||
-        parseInt(computedStyle.width, '10') === 0 ||
-        parseInt(computedStyle.height, '10') === 0) {
+        parseInt(computedStyle.width, 10) === 0 ||
+        parseInt(computedStyle.height, 10) === 0) {
       return null;
     }
     return boundingRect;
