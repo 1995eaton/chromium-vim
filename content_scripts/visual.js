@@ -6,7 +6,7 @@ var Visual = {
 };
 
 Visual.getTextNodes = function(callback) {
-  var walker = document.createTreeWalker(document.body, 4, null, false);
+  var walker = document.createTreeWalker(document.body, 4, null);
   var node;
   this.textNodes = [];
   while (node = walker.nextNode()) {
