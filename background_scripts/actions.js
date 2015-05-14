@@ -438,7 +438,7 @@ Actions = (function() {
 
   _.openLast = function() {
     var stepBackFN = Sessions.nativeSessions ?
-      Sessions.nativeStepBack.bind(Sessions) :
+      chrome.sessions.restore.bind(chrome.sessions) :
       Sessions.stepBack.bind(Sessions, sender);
     for (var i = 0; i < request.repeats; i++) {
       stepBackFN();

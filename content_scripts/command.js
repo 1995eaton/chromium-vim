@@ -706,8 +706,11 @@ Command.execute = function(value, repeats) {
   }
 
   if (/^restore\s+/.test(value)) {
+    var sessionId = value.replace(/^\S+\s+/, '');
+    if (Number.isNaN(+sessionId) && this.completionResults.length)
+      sessionId = this.completionResults[0][3];
     RUNTIME('restoreChromeSession', {
-      sessionId: value.replace(/\S+\s+/, '').trimAround()
+      sessionId: sessionId.trimAround()
     });
   }
 

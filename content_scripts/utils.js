@@ -1,9 +1,5 @@
 LOG = console.log.bind(console);
 
-var cVimError = function(message) {
-  console.error(message);
-};
-
 var definePrototype = function(obj, name, fn) {
   Object.defineProperty(obj.prototype, name, {
     enumerable: false,
@@ -209,6 +205,14 @@ var decodeHTMLEntities = function(string) {
   return el.textContent;
 };
 
+var eachUntil = function(array, callback) {
+  for (var i = 0; i < array.length; i++) {
+    if (callback(array[i], i, array)) {
+      break;
+    }
+  }
+};
+
 /**
  * Searches an array using fuzzy search or regex search.
  *
@@ -407,12 +411,4 @@ var findFirstOf = function(array, callback) {
       return array[i];
   }
   return null;
-};
-
-var eachUntil = function(array, callback) {
-    for (var i = 0; i < array.length; i++) {
-        if (callback(array[i], i, array)) {
-            break;
-        }
-    }
 };
