@@ -12,29 +12,29 @@ PORTCALLBACK = function(port, id) {
   });
 };
 
-var httpRequest = function(request) {
+window.httpRequest = function(request) {
   return new Promise(function(acc, rej) {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', request.url);
-    xhr.addEventListener('load', function() {
+    xhr.onload = function() {
       acc(request.json ? JSON.parse(xhr.responseText) : xhr.responseText);
-    });
-    xhr.addEventListener('error', function() {
-      rej(Error('cVim Error: Unable to resolve ' + request.url));
-    });
+    };
+    xhr.onerror = rej.bind(null, xhr);
     xhr.send();
   });
 };
 
 function updateTabIndices() {
-  chrome.tabs.query({currentWindow: true}, function(tabs) {
-    tabs.forEach(function(tab) {
-      chrome.tabs.sendMessage(tab.id, {
-        action: 'displayTabIndices',
-        index: tab.index + 1
+  if (Settings.showtabindices) {
+    chrome.tabs.query({currentWindow: true}, function(tabs) {
+      tabs.forEach(function(tab) {
+        chrome.tabs.sendMessage(tab.id, {
+          action: 'displayTabIndices',
+          index: tab.index + 1
+        });
       });
     });
-  });
+  }
 }
 
 chrome.storage.local.get('sessions', function(e) {

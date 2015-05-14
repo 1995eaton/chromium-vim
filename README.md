@@ -61,6 +61,8 @@ These extensions do a wonderful job of adding Vim-like keybindings to Google Chr
 | nativelinkorder                     | boolean                            | Open new tabs like Chrome does rather than next to the currently opened tab               | false                                                                       |
 | showtabindices                      | boolean                            | Display the tab index in the tab's title                                                  | false                                                                       |
 | sortlinkhints                       | boolean                            | Sort link hint lettering by the link's distance from the top-left corner of the page      | false                                                                       |
+| localconfig                         | boolean                            | Read the cVimrc config from `configpath` (when this is set, you connot save from cVim's options page | false                                                            |
+| configpath                          | string                             | Read the cVimrc from this local file when configpath is set                               | ""                                                                          |
 | changelog                           | boolean                            | Auto open the changelog when cVim is updated                                              | true                                                                        |
 | completionengines                   | array of strings                   | use only the specified search engines                                                     | []                                                                          |
 | blacklists                          | array of strings                   | disable cVim on the sites matching one of the patterns                                    | []                                                                          |
@@ -165,6 +167,12 @@ echo(link) -> {{
   alert(link.href);
 }}
 map <C-f> createScriptHint(echo)
+
+let configpath = '/path/to/your/.cvimrc'
+set localconfig " Update settings via a local file (and the `:source` command) rather
+                " than the default options page in chrome
+" As long as localconfig is set in the .cvimrc file. cVim will continue to read
+" settings from there
 ```
 
 ###Blacklists
@@ -432,7 +440,8 @@ map <Tab> :call switchHintCharacters<CR>
 | :restore (autocomplete)                     | restore a previously closed tab (newer versions of Chrome only)                        |
 | :tabattach (autocomplete)                   | move the current tab to another open window                                            |
 | :tabdetach                                  | move the current tab to a new window                                                   |
-| :file (autocomplete) [expirimental]         | open a local file                                                                      |
+| :file (autocomplete)                        | open a local file                                                                      |
+| :source (autocomplete)                      | load a cVimrc file into memory (this will overwrite the settings in the options page if the `localconfig` setting had been set previously |
 | :duplicate                                  | duplicate the current tab                                                              |
 | :settings                                   | open the settings page                                                                 |
 | :nohlsearch                                 | clear the highlighted text from the last search                                        |

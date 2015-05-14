@@ -414,9 +414,9 @@ var findFirstOf = function(array, callback) {
 };
 
 window.parseConfig = (function() {
-  var formatConfig = function(config) {
+  var formatConfig = function(configText, config) {
     var result = {
-      MAPPINGS: []
+      MAPPINGS: [],
     };
     for (var key in config) {
       if (key === 'MAPPINGS') {
@@ -428,13 +428,14 @@ window.parseConfig = (function() {
       }
     }
     result.MAPPINGS = result.MAPPINGS.join('\n');
+    result.RC = configText;
     return result;
   };
   return function(value) {
     try {
       return {
         error: null,
-        value: formatConfig(RCParser.parse(value))
+        value: formatConfig(value, RCParser.parse(value))
       };
     } catch (e) {
       return {

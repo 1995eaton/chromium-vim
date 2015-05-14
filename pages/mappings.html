@@ -229,6 +229,18 @@ the command <code>&#39;set&#39; + no&lt;SETTING_NAME&gt;</code> (for example, <c
 <td style="text-align:right">false</td>
 </tr>
 <tr>
+<td>localconfig</td>
+<td>boolean</td>
+<td>Read the cVimrc config from <code>configpath</code> (when this is set, you connot save from cVim&#39;s options page</td>
+<td style="text-align:right">false</td>
+</tr>
+<tr>
+<td>configpath</td>
+<td>string</td>
+<td>Read the cVimrc from this local file when configpath is set</td>
+<td style="text-align:right">&quot;&quot;</td>
+</tr>
+<tr>
 <td>changelog</td>
 <td>boolean</td>
 <td>Auto open the changelog when cVim is updated</td>
@@ -407,6 +419,12 @@ echo(link) -&gt; {{
   alert(link.href);
 }}
 map &lt;C-f&gt; createScriptHint(echo)
+
+let configpath = &#39;/path/to/your/.cvimrc&#39;
+set localconfig &quot; Update settings via a local file (and the `:source` command) rather
+                &quot; than the default options page in chrome
+&quot; As long as localconfig is set in the .cvimrc file. cVim will continue to read
+&quot; settings from there
 </code></pre>
 <h3 id="blacklists">Blacklists</h3>
 <ul>
@@ -1270,8 +1288,12 @@ map &lt;Tab&gt; :call switchHintCharacters&lt;CR&gt;
 <td>move the current tab to a new window</td>
 </tr>
 <tr>
-<td>:file (autocomplete) [expirimental]</td>
+<td>:file (autocomplete)</td>
 <td>open a local file</td>
+</tr>
+<tr>
+<td>:source (autocomplete)</td>
+<td>load a cVimrc file into memory (this will overwrite the settings in the options page if the <code>localconfig</code> setting had been set previously</td>
 </tr>
 <tr>
 <td>:duplicate</td>

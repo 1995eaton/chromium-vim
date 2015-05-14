@@ -777,6 +777,55 @@ Actions = (function() {
     chrome.tabs.sendMessage(sender.tab.id, request);
   };
 
+  _.loadLocalConfig = function() {
+    var _port = port, id = request.id;
+    var path = request.path || 'file://' + Settings.configpath
+      .split('~').join(Settings.homedirectory || '~');
+    httpRequest({ url: path }).then(function(data) {
+      var added = window.parseConfig(data);
+      if (added.error) {
+        console.error('parse error on line %d of cVimrc: %s',
+            added.error.lineno, added.error.message);
+        PORTCALLBACK(_port, id, {
+          code: -2,
+          error: added.error,
+          config: Settings
+        });
+        return;
+      }
+      added = added.value;
+      added.localconfig = added.localconfig || false;
+      var oldSettings = Object.clone(Settings);
+      var settings = Object.clone(defaultSettings);
+      added.localconfig = oldSettings.localconfig;
+      Object.merge(settings, added);
+      if (oldSettings.localconfig) {
+        Options.saveSettings({
+          settings: Object.clone(settings),
+          sendSettings: false
+        });
+        Object.merge(Settings, oldSettings);
+        Object.merge(Settings, added);
+        Options.sendSettings();
+      } else {
+        Object.merge(Settings, added);
+        Settings.RC = oldSettings.RC;
+        Options.sendSettings();
+      }
+      PORTCALLBACK(_port, id, {
+        code: 0,
+        error: null,
+        config: Settings
+      });
+    }, function(xhr) { if (xhr);
+      PORTCALLBACK(_port, id, {
+        code: -1,
+        error: null,
+        config: Settings
+      });
+    });
+  };
+
   return function(_request, _sender, _callback, _port) {
     port = _port;
     var action = _request.action;

@@ -9,7 +9,7 @@ var Files = {
     if (path = path.replace(/[^\/]*$/, '')) {
       httpRequest({url: 'file://' + path}).then(function(data) {
         callback(Files.parseHTML(data));
-      });
+      }, function(xhr) { if (xhr); });
     }
   }
 };

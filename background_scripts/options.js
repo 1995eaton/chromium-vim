@@ -53,8 +53,10 @@ var defaultSettings = {
   nativelinkorder: false,
   showtabindices: false,
   changelog: true,
+  localconfig: false,
   scrollduration: 500,
   zoomfactor: 0.10,
+  configpath: '',
   locale: '',
   mapleader: '\\',
   timeoutlen: 1000,
@@ -134,6 +136,14 @@ Options.setDefaults = function() {
 
 Options.getDefaults = function(request, sender, callback) {
   callback(defaultSettings);
+};
+
+// retrieve default and current settings
+Options.getAllSettings = function(request, sender, callback) {
+  callback({
+    defaults: defaultSettings,
+    current: Settings
+  });
 };
 
 Options.updateBlacklistsMappings = function() {

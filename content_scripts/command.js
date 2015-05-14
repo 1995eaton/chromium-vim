@@ -11,6 +11,7 @@ Command.descriptions = [
   ['history',      'Search through your browser history'],
   ['bookmarks',    'Search through your bookmarks'],
   ['file',         'Browse local directories'],
+  ['source',       'Load a config from a local file'],
   ['set',          'Configure boolean settings'],
   ['call',         'Call a cVim command'],
   ['let',          'Configure non-boolean settings'],
@@ -459,6 +460,9 @@ Command.callCompletionFunction = (function() {
     case 'file':
       Marks.parseFileCommand(search);
       return true;
+    case 'source':
+      Marks.parseFileCommand(search);
+      return true;
     case 'bookmarks':
       self.completions = {};
       if (search[0] === '/') {
@@ -690,6 +694,25 @@ Command.execute = function(value, repeats) {
       url: 'file://' + value.replace(/\S+ +/, '')
         .replace(/^~/, settings.homedirectory),
       noconvert: true
+    });
+    return;
+  }
+
+  if (/^source/.test(value)) {
+    var path = value.replace(/\S+ */, '');
+    if (!path.length) {
+      path = null;
+    } else {
+      path = 'file://' + path;
+      path = path.split('~').join(settings.homedirectory || '~');
+    }
+    PORTCALLBACK('loadLocalConfig', { path: path }, function(res) {
+      if (res.code === -1) {
+        // TODO: Fix Status (status bar cannot be displayed after the command
+        //       bar iframe exits
+        Status.setMessage('config file could not be opened', 1, 'error');
+        console.error('cvim error: "%s" could not be opened for parsing', path);
+      }
     });
     return;
   }
