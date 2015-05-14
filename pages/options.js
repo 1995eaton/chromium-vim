@@ -97,7 +97,6 @@ Settings.init = function() {
   }, function(e) {
     Settings.settings = e;
     Settings.defaults = Object.clone(e);
-    Settings.parseLines(Settings.rcEl.value);
   });
 
   this.editModeEl.addEventListener('change', this.editMode.bind(this), false);
