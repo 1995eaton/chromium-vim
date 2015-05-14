@@ -191,4 +191,5 @@ Statement
   = __ a:StatementValue Comment? WhiteSpace* (EOF / EOL __) { return a; }
 
 Scope
-  = a:Statement* { return parseScope(a); }
+  = (WhiteSpace / EOL)* EOF { return parseScope([]); }
+  / a:Statement* { return parseScope(a); }

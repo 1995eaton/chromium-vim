@@ -170,7 +170,8 @@ RCParser = (function() {
         peg$c106 = function() {
             return {MAPPINGS: text() };
           },
-        peg$c107 = function(a) { return parseScope(a); },
+        peg$c107 = function() { return parseScope([]); },
+        peg$c108 = function(a) { return parseScope(a); },
 
         peg$currPos          = 0,
         peg$reportedPos      = 0,
@@ -2541,16 +2542,45 @@ RCParser = (function() {
 
       s0 = peg$currPos;
       s1 = [];
-      s2 = peg$parseStatement();
+      s2 = peg$parseWhiteSpace();
+      if (s2 === peg$FAILED) {
+        s2 = peg$parseEOL();
+      }
       while (s2 !== peg$FAILED) {
         s1.push(s2);
-        s2 = peg$parseStatement();
+        s2 = peg$parseWhiteSpace();
+        if (s2 === peg$FAILED) {
+          s2 = peg$parseEOL();
+        }
       }
       if (s1 !== peg$FAILED) {
-        peg$reportedPos = s0;
-        s1 = peg$c107(s1);
+        s2 = peg$parseEOF();
+        if (s2 !== peg$FAILED) {
+          peg$reportedPos = s0;
+          s1 = peg$c107();
+          s0 = s1;
+        } else {
+          peg$currPos = s0;
+          s0 = peg$c2;
+        }
+      } else {
+        peg$currPos = s0;
+        s0 = peg$c2;
       }
-      s0 = s1;
+      if (s0 === peg$FAILED) {
+        s0 = peg$currPos;
+        s1 = [];
+        s2 = peg$parseStatement();
+        while (s2 !== peg$FAILED) {
+          s1.push(s2);
+          s2 = peg$parseStatement();
+        }
+        if (s1 !== peg$FAILED) {
+          peg$reportedPos = s0;
+          s1 = peg$c108(s1);
+        }
+        s0 = s1;
+      }
 
       return s0;
     }
