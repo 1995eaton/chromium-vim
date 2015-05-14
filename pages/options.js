@@ -1,18 +1,5 @@
 var Settings = {};
 
-Settings.checkConfig = function(config) {
-  for (var key in config) {
-    if (key === 'MAPPINGS') {
-      Settings.settings.MAPPINGS = Settings.settings.MAPPINGS || '';
-      Settings.settings.MAPPINGS += '\n' + config[key];
-    } else if (config[key].constructor === Object) {
-      Settings.settings[key] = Object.extend(Settings.settings[key], config[key]);
-    } else {
-      Settings.settings[key] = config[key];
-    }
-  }
-};
-
 Settings.loadrc = function(config) {
   this.rcEl.value = config.RC;
   this.rcEl.style.height = this.rcEl.scrollHeight + 'px';
@@ -30,24 +17,25 @@ Settings.resetSettings = function() {
   this.settings = Object.clone(this.defaults);
 };
 
-Settings.parseLines = function(value) {
-  try {
-      this.checkConfig(RCParser.parse(value));
-  } catch (e) {
-    console.error('Line ' + e.line + ': ' + e.message);
-    Status.setMessage('Error in cVimrc (line ' + e.line + ')', 2, 'error');
-  }
-};
-
 Settings.saveSettings = function() {
   this.settings = Object.clone(this.defaults);
-  this.parseLines(Settings.rcEl.value);
+  var res = window.parseConfig(Settings.rcEl.value);
+  if (res.error !== null) {
+    console.error('Line ' + res.error.lineno + ': ' + res.error.message);
+    Status.setMessage('Error in cVimrc (line ' + res.error.lineno + ')', 2, 'error');
+  } else {
+    Object.merge(this.settings, res.value);
+  }
   this.settings.COMMANDBARCSS = this.cssEl.getValue();
   this.settings.GISTURL = this.gistUrl.value;
   this.settings.RC = this.rcEl.value;
   this.settings.mapleader = this.settings.mapleader.replace(/ /g, '<Space>');
   this.saveButton.value = 'Saved';
-  chrome.runtime.sendMessage({action: 'saveSettings', settings: Settings.settings, sendSettings: true});
+  chrome.runtime.sendMessage({
+    action: 'saveSettings',
+    settings: this.settings,
+    sendSettings: true
+  });
   setTimeout(function() {
     this.saveButton.value = 'Save';
   }.bind(this), 3000);
@@ -104,7 +92,13 @@ Settings.init = function() {
 
   this.rcEl.addEventListener('input', autoSize);
 
-  chrome.runtime.sendMessage({action: 'getDefaults'});
+  chrome.runtime.sendMessage({
+    action: 'getDefaults'
+  }, function(e) {
+    Settings.settings = e;
+    Settings.defaults = Object.clone(e);
+    Settings.parseLines(Settings.rcEl.value);
+  });
 
   this.editModeEl.addEventListener('change', this.editMode.bind(this), false);
   this.saveButton.addEventListener('click', this.saveSettings.bind(this), false);

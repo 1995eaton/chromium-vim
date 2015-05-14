@@ -132,11 +132,8 @@ Options.setDefaults = function() {
   this.saveSettings(Settings);
 };
 
-Options.getDefaults = function(request, sender) {
-  chrome.tabs.sendMessage(sender.tab.id, {
-    action: 'sendDefaultSettings',
-    settings: defaultSettings
-  });
+Options.getDefaults = function(request, sender, callback) {
+  callback(defaultSettings);
 };
 
 Options.updateBlacklistsMappings = function() {
@@ -201,8 +198,8 @@ chrome.storage[storageMethod].get('settings', function(data) {
   }
 }.bind(Options));
 
-chrome.runtime.onMessage.addListener(function(request, sender) {
+chrome.runtime.onMessage.addListener(function(request, sender, callback) {
   if (Options.hasOwnProperty(request.action)) {
-    Options[request.action](request, sender);
+    Options[request.action](request, sender, callback);
   }
 });

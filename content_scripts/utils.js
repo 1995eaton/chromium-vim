@@ -412,3 +412,38 @@ var findFirstOf = function(array, callback) {
   }
   return null;
 };
+
+window.parseConfig = (function() {
+  var formatConfig = function(config) {
+    var result = {
+      MAPPINGS: []
+    };
+    for (var key in config) {
+      if (key === 'MAPPINGS') {
+        result.MAPPINGS.push(config[key]);
+      } else if (config[key].constructor === Object) {
+        result[key] = Object.extend(result[key], config[key]);
+      } else {
+        result[key] = config[key];
+      }
+    }
+    result.MAPPINGS = result.MAPPINGS.join('\n');
+    return result;
+  };
+  return function(value) {
+    try {
+      return {
+        error: null,
+        value: formatConfig(RCParser.parse(value))
+      };
+    } catch (e) {
+      return {
+        error: {
+          lineno: e.line,
+          message: e.message
+        },
+        value: null
+      };
+    }
+  };
+})();
