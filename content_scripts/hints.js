@@ -447,9 +447,7 @@ function HintFilter(selectors, searches) {
   this.searches = searches || [];
 }
 HintFilter.prototype.matches = function(node) {
-  return this.selectors.some(function(selector) {
-    return DOM.nodeSelectorMatch(node, selector);
-  });
+  return this.selectors.some(node.matches.bind(node));
 };
 
 Hints.siteFilters = (function() {

@@ -57,20 +57,6 @@ window.DOM = {
     return false;
   },
 
-  nodeSelectorMatch: function(node, selector) {
-    if (selector.indexOf('[') === -1 && selector.indexOf(' ') === -1) {
-      switch (selector.charAt(0)) {
-      case '.':
-        return node.className === selector.slice(1).split('.').join(' ');
-      case '#':
-        return node.id === selector.slice(1);
-      }
-    }
-    var fragment = document.createDocumentFragment();
-    fragment.appendChild(node.cloneNode(false));
-    return !!fragment.querySelector(selector);
-  },
-
   onTitleChange: function(callback) {
     waitForLoad(function() {
       var title = (document.getElementsByTagName('title') || [])[0];
