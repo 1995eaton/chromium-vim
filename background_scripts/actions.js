@@ -154,6 +154,7 @@ Actions = (function() {
   _.getWindows = function() {
     var _ret = {};
     chrome.windows.getAll(function(info) {
+      var _callback = callback;
       info = info.filter(function(e) {
         return e.type === 'normal' && e.id !== sender.tab.windowId;
       }).map(function(e) {
@@ -169,9 +170,10 @@ Actions = (function() {
             _ret[tabs[i].windowId].push(tabs[i].title);
           }
         }
-        PORTCALLBACK(port, request.id, _ret);
+        _callback(_ret);
       });
     });
+    return true;
   };
 
   _.moveTab = function() {
@@ -365,6 +367,7 @@ Actions = (function() {
   };
 
   _.createSession = function() {
+    var _callback = callback;
     sessions[request.name] = {};
     chrome.tabs.query({
       currentWindow: true
@@ -375,11 +378,12 @@ Actions = (function() {
         }
       });
       chrome.storage.local.set({sessions: sessions});
-      PORTCALLBACK(port, request.id, Object.keys(sessions).map(function(e) {
+      _callback(Object.keys(sessions).map(function(e) {
         return [e, Object.keys(sessions[e]).length.toString() +
           ' tab' + (Object.keys(sessions[e]).length === 1 ? '' : 's')];
       }));
     });
+    return true;
   };
 
   _.openBookmarkFolder = function() {
@@ -574,6 +578,7 @@ Actions = (function() {
   };
 
   _.urlToBase64 = function() {
+    var _callback = callback;
     var img = new Image();
     img.onload = function() {
       var canvas = document.createElement('canvas');
@@ -582,9 +587,10 @@ Actions = (function() {
       var context = canvas.getContext('2d');
       context.drawImage(this, 0, 0);
       var data = canvas.toDataURL('image/png');
-      PORTCALLBACK(port, request.id, data);
+      _callback(data);
     };
     img.src = request.url;
+    return true;
   };
 
   _.getBookmarks = function() {
@@ -665,9 +671,11 @@ Actions = (function() {
   };
 
   _.getFilePath = function() {
+    var _callback = callback;
     Files.getPath(request.path, function(data) {
-      PORTCALLBACK(port, request.id, data);
+      _callback(data);
     });
+    return true;
   };
 
   _.getBlacklisted = function() {
@@ -778,7 +786,7 @@ Actions = (function() {
   };
 
   _.loadLocalConfig = function() {
-    var _port = port, id = request.id;
+    var _callback = callback;
     var path = request.path || 'file://' + Settings.configpath
       .split('~').join(Settings.homedirectory || '~');
     httpRequest({ url: path }).then(function(data) {
@@ -786,7 +794,7 @@ Actions = (function() {
       if (added.error) {
         console.error('parse error on line %d of cVimrc: %s',
             added.error.lineno, added.error.message);
-        PORTCALLBACK(_port, id, {
+        _callback({
           code: -2,
           error: added.error,
           config: Settings
@@ -812,18 +820,19 @@ Actions = (function() {
         Settings.RC = oldSettings.RC;
         Options.sendSettings();
       }
-      PORTCALLBACK(_port, id, {
+      _callback({
         code: 0,
         error: null,
         config: Settings
       });
     }, function(xhr) { if (xhr);
-      PORTCALLBACK(_port, id, {
+      _callback({
         code: -1,
         error: null,
         config: Settings
       });
     });
+    return true;
   };
 
   return function(_request, _sender, _callback, _port) {
@@ -846,7 +855,7 @@ Actions = (function() {
     }
     if (!sender.tab && action !== 'openLinkTab')
       return;
-    _[action]();
+    return _[action]();
   };
 
 })();

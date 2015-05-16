@@ -34,7 +34,7 @@ var googleReverseImage = function(url, source) {
     }
   } else {
     if (url.indexOf('file://') === 0 || url.indexOf('chrome') === 0) {
-      PORTCALLBACK('urlToBase64', { url: url }, function(data) {
+      RUNTIME('urlToBase64', { url: url }, function(data) {
         RUNTIME('openLinkTab', {
           active: false,
           url: 'data:text/html;charset=utf-8;base64,' +

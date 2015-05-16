@@ -410,8 +410,7 @@ Command.callCompletionFunction = (function() {
       tabHistoryCompletion(value);
       return true;
     case 'tabattach':
-      RUNTIME('getWindows');
-      PORTCALLBACK('getWindows', {}, function(wins) {
+      RUNTIME('getWindows', function(wins) {
         if (Command.active === true) {
           Command.completions = {
             windows: Object.keys(wins).map(function(e, i) {
@@ -706,7 +705,7 @@ Command.execute = function(value, repeats) {
       path = 'file://' + path;
       path = path.split('~').join(settings.homedirectory || '~');
     }
-    PORTCALLBACK('loadLocalConfig', { path: path }, function(res) {
+    RUNTIME('loadLocalConfig', { path: path }, function(res) {
       if (res.code === -1) {
         // TODO: Fix Status (status bar cannot be displayed after the command
         //       bar iframe exits
@@ -814,7 +813,7 @@ Command.execute = function(value, repeats) {
     if (!~sessions.indexOf(value)) {
       sessions.push(value);
     }
-    PORTCALLBACK('createSession', { name: value }, function(response) {
+    RUNTIME('createSession', { name: value }, function(response) {
       sessions = response;
     });
     return;

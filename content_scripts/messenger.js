@@ -20,30 +20,6 @@ var port = chrome.extension.connect({name: 'main'});
     port.postMessage(args, typeof calback === 'function' ?
         callback : void 0);
   };
-  // Workaround for regular callbacks from inside asynchronous
-  // functions in the background script
-  PORTCALLBACK = (function() {
-    var registeredCallbacks = [];
-    port.onMessage.addListener(function(response) {
-      for (var i = 0; i < registeredCallbacks.length; i++) {
-        if (registeredCallbacks[i].id === response.id) {
-          var FN = registeredCallbacks[i].FN;
-          registeredCallbacks.splice(i, 1);
-          FN.apply(null, response.arguments);
-        }
-      }
-    });
-    return function(action, args, callback) {
-      (args = args || {}).action = action;
-      var info = {
-        FN: callback,
-        id: uuid4()
-      };
-      registeredCallbacks.push(info);
-      args.id = info.id;
-      port.postMessage(args);
-    };
-  })();
 })();
 
 port.onMessage.addListener(function(response) {

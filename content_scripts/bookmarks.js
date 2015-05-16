@@ -134,7 +134,7 @@ Marks = (function() {
       if (settings.homedirectory) {
         search = search.replace('~', settings.homedirectory);
       }
-      PORTCALLBACK('getFilePath', { path: search }, function(data) {
+      RUNTIME('getFilePath', { path: search }, function(data) {
         Marks.filePath(data);
       });
     } else {
