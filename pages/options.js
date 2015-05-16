@@ -136,7 +136,7 @@ port.onMessage.addListener(function(response) {
             response.settings.configpath) {
           var path = 'file://' + response.settings.configpath
               .split('~').join(response.settings.homedirectory || '~');
-          PORTCALLBACK('loadLocalConfig', { path: path }, function(e) {
+          RUNTIME('loadLocalConfig', { path: path }, function(e) {
             Settings.loadrc(e.config);
             switch (e.code) {
             case -1:
