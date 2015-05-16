@@ -392,19 +392,6 @@ var getLinkableElements = (function() {
   };
 })();
 
-var uuid4 = (function() {
-  var reserved = ['8', '9', 'a', 'b'];
-  return function() {
-    return [].map.call('xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx', function(e) {
-      switch (e) {
-      case 'x': return (~~(Math.random() * 16)).toString(16);
-      case 'y': return reserved[~~(Math.random() * 4)];
-      default: return e;
-      }
-    }).join('');
-  };
-})();
-
 var findFirstOf = function(array, callback) {
   for (var i = 0; i < array.length; i++) {
     if (callback(array[i], i, array))
