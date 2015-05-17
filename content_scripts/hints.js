@@ -609,7 +609,7 @@ Hints.genHints = function(M) {
 
   var b = Math.ceil(Math.log(M) / Math.log(settings.hintcharacters.length));
   var cutoff = Math.pow(settings.hintcharacters.length, b) - M;
-  var cutoffR = ~~(cutoff / settings.hintcharacters.length);
+  var cutoffR = ~~(cutoff / (settings.hintcharacters.length - 1));
 
   for (var i = 0; i < cutoffR; i++) {
     genCodeWord(i, b - 1);

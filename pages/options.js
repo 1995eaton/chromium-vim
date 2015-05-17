@@ -140,7 +140,7 @@ port.onMessage.addListener(function(response) {
             Settings.loadrc(e.config);
             switch (e.code) {
             case -1:
-              alert('error loading configpath: "%s"', path);
+              alert('error loading configpath: "' + path + '"');
               break;
             case -2:
               console.error('Line %d: %s', e.error.lineno, e.error.message);
