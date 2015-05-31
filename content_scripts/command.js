@@ -1018,13 +1018,13 @@ Command.callOnCvimLoad = (function() {
 })();
 
 Command.onDOMLoad = function() {
+  this.onDOMLoadAll();
   if (window.self === window.top) {
     Command.frame = document.createElement('iframe');
     Command.frame.src = chrome.runtime.getURL('cmdline_frame.html');
     Command.frame.id = 'cVim-command-frame';
     document.lastElementChild.appendChild(Command.frame);
   } else {
-    this.onDOMLoadAll();
     if (window.isCommandFrame)
       PORT('commandFrameLoaded');
   }
