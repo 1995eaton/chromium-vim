@@ -705,13 +705,14 @@ Mappings.insertFunctions = (function() {
     backwardChar: modify.bind(null, 'left', 'character'),
     backwardWord: function() {
       if (element.value !== void 0) {
-        var start = element.selectionStart;
-        var end = element.value.slice(0, start)
-          .match(/([^a-zA-Z_0-9])\1*$|[^a-zA-Z_0-9][a-zA-Z_0-9\s]*$/);
-        end = start - (end ?
-            (end[0].length - !/^[^a-zA-Z_0-9]+$/.test(end[0])) || 1 : start);
-        element.selectionStart = end;
-        element.selectionEnd = end;
+        var text = element.value.split('').reverse().join('');
+        var len = text.length;
+        var start = len - element.selectionStart;
+        var end = text.slice(start)
+          .match(/[\s\n]*[a-zA-Z_0-9]+|(\n|[^a-zA-Z_0-9])+/);
+        end = start + (end ? end[0].length : 0);
+        element.selectionStart = len - end;
+        element.selectionEnd = len - end;
         return;
       }
       modify('left', 'word');
@@ -720,7 +721,7 @@ Mappings.insertFunctions = (function() {
       if (element.value !== void 0) {
         var start = element.selectionStart;
         var end = element.value.slice(start)
-          .match(/[a-zA-Z_0-9]+[\s\n]*|(\n|[^a-zA-Z_0-9])\1*/);
+          .match(/[a-zA-Z_0-9]+[\s\n]*|(\n|[^a-zA-Z_0-9])+/);
         end = start + (end ? end[0].length : 0);
         element.selectionStart = end;
         element.selectionEnd = end;
