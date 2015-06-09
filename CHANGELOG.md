@@ -1,5 +1,9 @@
 #cVim Changelog
 
+## 1.2.77
+ * Bug fixes
+ * Add support for local ".cvimrc" files
+
 ## 1.2.76
  * Fixed issue with buffer switching. Partially breaks fix from last version
 
