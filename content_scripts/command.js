@@ -1181,6 +1181,19 @@ Command.onSettingsLoad = (function() {
   };
 })();
 
+Command.destroy = function() {
+  var removeElements = function() {
+    for (var i = 0; i < arguments.length; i++) {
+      var elem = arguments[i];
+      if (!elem) continue;
+      if (typeof elem.remove === 'function')
+        elem.remove();
+    }
+  };
+  removeElements(this.input, this.modeIdentifier, this.data, this.bar,
+                 this.statusBar, this.frame, this.css);
+};
+
 Command.configureSettings = function(_settings) {
   settings = _settings;
   this.onSettingsLoad();
