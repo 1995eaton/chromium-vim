@@ -18,7 +18,11 @@ var Complete = {};
 
 })();
 
-Complete.engines = ['google', 'wikipedia', 'youtube', 'imdb', 'amazon', 'google-maps', 'wolframalpha', 'google-image', 'ebay', 'webster', 'wictionary', 'urbandictionary', 'duckduckgo', 'answers', 'google-trends', 'google-finance', 'yahoo', 'bing'];
+Complete.engines = ['google', 'wikipedia', 'youtube', 'imdb', 'amazon',
+                    'google-maps', 'wolframalpha', 'google-image', 'ebay',
+                    'webster', 'wictionary', 'urbandictionary', 'duckduckgo',
+                    'answers', 'google-trends', 'google-finance', 'yahoo',
+                    'bing', 'themoviedb'];
 
 Complete.aliases = {
   g: 'google'
@@ -50,7 +54,8 @@ Complete.requestUrls = {
   'google-finance': 'https://www.google.com/finance?q=',
   webster:          'http://www.merriam-webster.com/dictionary/',
   youtube:          'https://www.youtube.com/results?search_query=',
-  wictionary:       'http://en.wiktionary.org/wiki/'
+  wictionary:       'http://en.wiktionary.org/wiki/',
+  themoviedb:       'https://www.themoviedb.org/search?query='
 };
 
 Complete.baseUrls = {
@@ -71,7 +76,8 @@ Complete.baseUrls = {
   'google-finance': 'https://www.google.com/finance',
   webster:          'http://www.merriam-webster.com',
   youtube:          'https://www.youtube.com',
-  wictionary:       'https://en.wiktionary.org/wiki/Wiktionary:Main_Page'
+  wictionary:       'https://en.wiktionary.org/wiki/Wiktionary:Main_Page',
+  themoviedb:       'https://www.themoviedb.org'
 };
 
 Complete.parseQuery = {
@@ -113,7 +119,8 @@ Complete.apis = {
   webster:          'http://www.merriam-webster.com/autocomplete?query=%s',
   youtube:          'https://clients1.google.com/complete/search?client=youtube&hl=en&gl=us&gs_rn=23&gs_ri=youtube&ds=yt&cp=2&gs_id=d&q=%s',
   wictionary:       'http://en.wiktionary.org/w/api.php?action=opensearch&limit=15&format=json&search=%s',
-  duckduckgo:       'https://duckduckgo.com/ac/?q=%s'
+  duckduckgo:       'https://duckduckgo.com/ac/?q=%s',
+  themoviedb:       'https://www.themoviedb.org/search/remote/multi?query=%s&language=en'
 };
 
 Complete.locales = {
@@ -411,6 +418,31 @@ Complete.imdb = function(query, callback) {
         return [e.l + ' - ' + e.q + ', ' + e.s + ' (' + e.y + ')', _url];
       }
       return [e.l + ' - ' + e.s, _url];
+    }));
+  });
+};
+
+Complete.themoviedb = function(query, callback) {
+  httpRequest({
+    url: this.apis.themoviedb.embedString(encodeURIComponent(query)),
+    json: true,
+  }, function(response) {
+    callback(response.map(function(e) {
+      var prettyType = (function() {
+        switch (e.media_type) {
+        case 'tv': return 'TV Series';
+        case 'movie': return 'Movie';
+        default: return e.media_type;
+        }
+      })();
+      var title = e.name + ' - ' + prettyType;
+      if (e.media_type === 'movie' || e.media_type === 'tv') {
+        var year, date = e.first_air_date || e.release_date;
+        if (typeof date === 'string' && (year = date.replace(/-.*/, '')))
+          title += ' (' + year + ')';
+      }
+      return [title, Complete.baseUrls.themoviedb +
+                     '/' + e.media_type + '/' + e.id];
     }));
   });
 };

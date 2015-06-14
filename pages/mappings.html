@@ -250,7 +250,7 @@ the command <code>&#39;set&#39; + no&lt;SETTING_NAME&gt;</code> (for example, <c
 <td>completionengines</td>
 <td>array of strings</td>
 <td>use only the specified search engines</td>
-<td style="text-align:right">[]</td>
+<td style="text-align:right">[&quot;google&quot;, &quot;duckduckgo&quot;, &quot;wikipedia&quot;, &quot;amazon&quot;]</td>
 </tr>
 <tr>
 <td>blacklists</td>
@@ -531,6 +531,19 @@ switchHintCharacters -&gt; {{
 &quot; Run the JavaScript block
 map &lt;Tab&gt; :call switchHintCharacters&lt;CR&gt;
 </code></pre>
+<h3 id="completion-engines">Completion Engines</h3>
+<ul>
+<li>These are a list of completion engines that can be used in the command bar. They can be set
+by assigning their names to an array with the <code>completionengines</code> variable.<ul>
+<li>google, wikipedia, youtube, imdb, amazon, google-maps, wolframalpha, google-image, ebay,
+webster, wictionary, urbandictionary, duckduckgo, answers, google-trends, google-finance,
+yahoo, bing, themoviedb</li>
+</ul>
+</li>
+<li>Example usage:<pre><code class="lang-vim">let completionengines = [&#39;google&#39;, &#39;google-image&#39;, &#39;youtube&#39;] &quot; Show only these engines in the command bar
+</code></pre>
+</li>
+</ul>
 <h1 id="keybindings">Keybindings</h1>
 <table>
 <thead>
