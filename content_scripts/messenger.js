@@ -1,19 +1,29 @@
 var port = chrome.extension.connect({name: 'main'});
+port.onDisconnect.addListener(function() {
+  chrome.runtime.sendMessage = function() {};
+  chrome.runtime.connect = function() {};
+  Command.hide();
+  removeListeners();
+  Visual.exit();
+  Find.clear();
+  Command.destroy();
+  window.focus();
+});
 
 (function() {
-  var $ = function(FN) {
+  var $ = function(FN, caller) {
     return function(action, args, callback) {
       if (typeof args === 'function') {
         callback = args;
         args = {};
       }
       (args = args || {}).action = action;
-      FN(args, typeof callback === 'function' ?
+      FN.call(caller, args, typeof callback === 'function' ?
           callback : void 0);
     };
   };
-  RUNTIME = $(chrome.runtime.sendMessage.bind(chrome.runtime));
-  PORT = $(port.postMessage.bind(port));
+  RUNTIME = $(chrome.runtime.sendMessage, chrome.runtime);
+  PORT = $(port.postMessage, port);
   ECHO = function(action, args, callback) {
     args.action = 'echoRequest';
     args.call = action;
@@ -193,7 +203,7 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
     case 'deleteBackWord':
       if (!insertMode && DOM.isEditable(document.activeElement)) {
         Mappings.insertFunctions.deleteWord();
-        if (Command.commandBarFocused())
+        if (Command.commandBarFocused() && Command.type === 'action')
           Command.complete(Command.input.value);
       }
       break;

@@ -18,7 +18,6 @@ var Complete = {};
 
 })();
 
-
 Complete.defaultEngine = "google";
 Complete.aliases = {
   g: 'google'
@@ -745,3 +744,39 @@ var doxygenEngine = function(name, base, offsetCharCodes) {
 doxygenEngine("juce", "http://www.juce.com/api", false).registerEngine();
 doxygenEngine("kicad-scripting", "http://ci.kicad-pcb.org/job/kicad-doxygen/ws/build/pcbnew/doxygen-python/html", true).registerEngine();
 doxygenEngine("gimp-dox", "http://fossies.org/dox/gimp-2.8.14", true).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: "themoviedb"},
+  baseUrl: {value: function() {
+    return "http://www.themoviedb.org";
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/search?query="
+  }},
+  search: {value: function(query, callback) {
+    var api = this.baseUrl() + "/search/remote/multi?query=%s&language=en";
+    var me = this;
+    httpRequest({
+      url: api.embedString(encodeURIComponent(query)),
+      json: true,
+    }, function(response) {
+      callback(response.map(function(e) {
+        var prettyType = (function() {
+          switch (e.media_type) {
+          case 'tv': return 'TV Series';
+          case 'movie': return 'Movie';
+          default: return e.media_type;
+          }
+        })();
+        var title = e.name + ' - ' + prettyType;
+        if (e.media_type === 'movie' || e.media_type === 'tv') {
+          var year, date = e.first_air_date || e.release_date;
+          if (typeof date === 'string' && (year = date.replace(/-.*/, '')))
+            title += ' (' + year + ')';
+        }
+        return [title, me.baseUrl() +
+                       '/' + e.media_type + '/' + e.id];
+      }));
+    });
+  }}
+}).registerEngine();

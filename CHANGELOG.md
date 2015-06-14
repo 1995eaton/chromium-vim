@@ -1,5 +1,15 @@
 #cVim Changelog
 
+## 1.2.78
+ * Default completion engines are now only `["google", "duckduckgo", "wikipedia", "amazon"]`.
+   The other engines still exist, but you'll need to enable them with the `completionengines` option.
+   * See [mappings.html#completion-engines](./mappings.html#completion-engines) for more info.
+ * Added "themoviedb" to completion engines
+
+## 1.2.77
+ * Bug fixes
+ * Add support for local ".cvimrc" files
+
 ## 1.2.76
  * Fixed issue with buffer switching. Partially breaks fix from last version
 

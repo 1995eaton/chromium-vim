@@ -26,5 +26,24 @@ chrome.runtime.onInstalled.addListener(function(details) {
         }
       });
     }
+    var manifest = chrome.runtime.getManifest();
+    var contentScripts = manifest.content_scripts[0];
+    var checkError = function() { if (chrome.runtime.lastError) return false; };
+    return chrome.tabs.query({status: 'complete'}, function(tabs) {
+      tabs.forEach(function(tab) {
+        contentScripts.js.forEach(function(file) {
+          chrome.tabs.executeScript(tab.id, {
+            file: file,
+            allFrames: contentScripts.all_fames
+          }, checkError);
+        });
+        contentScripts.css.forEach(function(file) {
+          chrome.tabs.insertCSS(tab.id, {
+            file: file,
+            allFrames: contentScripts.all_fames
+          }, checkError);
+        });
+      });
+    });
   }
 });

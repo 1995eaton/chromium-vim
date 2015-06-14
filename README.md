@@ -64,7 +64,7 @@ These extensions do a wonderful job of adding Vim-like keybindings to Google Chr
 | localconfig                         | boolean                            | Read the cVimrc config from `configpath` (when this is set, you connot save from cVim's options page | false                                                            |
 | configpath                          | string                             | Read the cVimrc from this local file when configpath is set                               | ""                                                                          |
 | changelog                           | boolean                            | Auto open the changelog when cVim is updated                                              | true                                                                        |
-| completionengines                   | array of strings                   | use only the specified search engines                                                     | []                                                                          |
+| completionengines                   | array of strings                   | use only the specified search engines                                                     | ["google", "duckduckgo", "wikipedia", "amazon"]                             |
 | blacklists                          | array of strings                   | disable cVim on the sites matching one of the patterns                                    | []                                                                          |
 | mapleader                           | string                             | The default `<Leader>` key                                                                | \                                                                           |
 | highlight                           | string                             | the highlight color in find mode                                                          | "#ffff00"                                                                   |
@@ -279,6 +279,17 @@ switchHintCharacters -> {{
 " Run the JavaScript block
 map <Tab> :call switchHintCharacters<CR>
 ```
+
+###Completion Engines
+  * These are a list of completion engines that can be used in the command bar. They can be set
+    by assigning their names to an array with the `completionengines` variable.
+    * google, wikipedia, youtube, imdb, amazon, google-maps, wolframalpha, google-image, ebay,
+      webster, wictionary, urbandictionary, duckduckgo, answers, google-trends, google-finance,
+      yahoo, bing, themoviedb
+  * Example usage:
+    ```vim
+let completionengines = ['google', 'google-image', 'youtube'] " Show only these engines in the command bar
+    ```
 
 
 #Keybindings
