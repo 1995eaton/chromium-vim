@@ -1,5 +1,26 @@
 var Quickmarks = {};
 
+/* First open the new tab page, then redirect to the requested URL. This has
+ * the advantage of loading cVim *before* the requested URL is loaded. */
+function openTab(params) {
+  chrome.tabs.create({
+    url: Settings.defaultnewtabpage ?
+  'chrome://newtab' : '../pages/blank.html',
+    active: params.active,
+    pinned: params.pinned,
+    index: params.index
+  }, function(tab) {
+    chrome.tabs.onUpdated.addListener(function upd(tabId, info) {
+      if (tabId === tab.id && info.status == "complete") {
+        chrome.tabs.onUpdated.removeListener(upd);
+        chrome.tabs.update(tabId, {
+          url: params.url
+        });
+      }
+    });
+  });
+}
+
 Actions = (function() {
 
   var request, sender, callback, url, port, lastCommand = null;
@@ -39,7 +60,7 @@ Actions = (function() {
       }
     } else if (request.tab.tabbed) {
       for (i = 0; i < request.repeats; ++i) {
-        chrome.tabs.create({
+        openTab({
           url: url,
           active: request.tab.active,
           pinned: request.tab.pinned,
@@ -58,7 +79,7 @@ Actions = (function() {
     if (!sender.tab) {
       chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
         for (var i = 0; i < request.repeats; ++i) {
-          chrome.tabs.create({
+          openTab({
             url: url,
             active: request.active,
             pinned: request.pinned,
@@ -68,7 +89,7 @@ Actions = (function() {
       });
     } else {
       for (var i = 0; i < request.repeats; ++i) {
-        chrome.tabs.create({
+        openTab({
           url: url,
           active: request.active,
           pinned: request.pinned,
