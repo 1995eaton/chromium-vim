@@ -692,3 +692,56 @@ Object.create(Complete.Engine, {
     });
   }}
 }).registerEngine();
+
+var doxygenEngine = function(name, base, offsetCharCodes) {
+  return Object.create(Complete.Engine, {
+    name: {value: name},
+    baseUrl: {value: function() {
+      return base + "/index.html";
+    }},
+    requestUrl: {value: function() {
+      return base + "/search";
+    }},
+    _getSearchUrl: {value: function(q, ext) {
+      var charCode = q.toLowerCase().charCodeAt(0);
+      if (offsetCharCodes)
+        charCode = charCode - 96;
+      return this.requestUrl() + "/all_" + charCode.toString(16) + "." + ext + "?" + q;
+    }},
+    embedQueryForRequest: {value: function(q) {
+        return this._getSearchUrl(q, "html");
+    }},
+    search: {value: function(query, callback) {
+      httpRequest({
+        url: this._getSearchUrl(query, "js"),
+        json: false
+      }, function(response) {
+        var d = response.split("\n");
+        d = d.slice(1).join("")
+        d = d.replace(/'/g, '"').replace(/;/g, "");
+
+        j = JSON.parse(d);
+
+        res = [];
+
+        for (var i = 0; i < j.length && res.length < 20; i++) {
+          var title = j[i][1][0];
+
+          if (title.toLowerCase().indexOf(query.toLowerCase()) === -1)
+            continue;
+
+          for (var sub = 1; sub < j[i][1].length; sub++) {
+            var subitem = j[i][1][sub];
+            res.push([title + " - " + subitem[2], subitem[0].replace("..", base)]);
+          }
+        }
+
+        callback(res);
+      });
+    }}
+  });
+};
+
+doxygenEngine("juce", "http://www.juce.com/api", false).registerEngine();
+doxygenEngine("kicad-scripting", "http://ci.kicad-pcb.org/job/kicad-doxygen/ws/build/pcbnew/doxygen-python/html", true).registerEngine();
+doxygenEngine("gimp-dox", "http://fossies.org/dox/gimp-2.8.14", true).registerEngine();
