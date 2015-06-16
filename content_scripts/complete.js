@@ -196,13 +196,25 @@ Object.create(Complete.Engine, {
   }},
 
   search: {value: function(query, callback) {
-    var api = "https://octopart.com/suggest?q=";
+    var api = "https://octopart.com/api/v3/suggest?q=";
     httpRequest({
       url: this._queryEmbedders.encodeuri(api, query),
-      json: false
-    },
-    this._callbacks.newlinesplit(callback)
-    );
+      json: true
+    }, function(response) {
+      callback(response.results.map(function(d) {
+        if (d.type === "query") {
+          return d.text;
+        } else {
+          var data = {
+            'category': ['category_uids', d.uid],
+            'brand': ['brand.name', encodeURIComponent(d.text)],
+          }[d.type];
+          var url = "https://octopart.com/search?filter%5Bfields%5D%5B"
+            + data[0] + "%5D%5B%5D=" + data[1] + "&start=0";
+          return [d.text, url];
+        }
+      }));
+    });
   }},
 }).registerEngine();
 
