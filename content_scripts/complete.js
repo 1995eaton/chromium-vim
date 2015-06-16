@@ -345,7 +345,6 @@ var wikiEngine = function(wiki, hasLangDomains) {
     name: {value: wiki.split(".")[0]},
     baseUrl: {value: function() {
       var dom = (hasLangDomains ? (localeLangCode(Complete.newLocale) + ".") : "");
-      console.log(dom);
       return "http://" + dom + wiki;
     }},
     requestUrl: {value: function() {
@@ -629,6 +628,44 @@ Object.create(Complete.Engine, {
         }
         return [e.l + ' - ' + e.s, _url];
       }));
+    });
+  }}
+}).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: "farnell"},
+  baseUrl: {value: function() {
+    return "http://" + this._localeDomain() + ".farnell.com";
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/Search?st="
+  }},
+  search: {value: function(query, callback) {
+    if (query.length <= 2)
+      return;
+
+    var api = this.baseUrl() + "/webapp/wcs/stores/servlet/AjaxSearchLookAhead?searchTerm=";
+    httpRequest({
+      url: api + query,
+      json: false
+    }, function(response) {
+
+      var parser = new DOMParser();
+      var doc = parser.parseFromString("<html>" + response + "</html>", "text/html");
+
+      var lists = doc.evaluate("//ul", doc, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+      var res = [];
+      ul = lists.iterateNext()
+      while(ul)
+      {
+        var title = ul.previousElementSibling.firstElementChild.textContent;
+        var li = ul.children;
+        for (var i=0; i < li.length; i++) {
+          res.push([title + " - " + li[i].textContent, li[i].firstElementChild.href]);
+        }
+        ul = lists.iterateNext();
+      }
+      callback(res);
     });
   }}
 }).registerEngine();
