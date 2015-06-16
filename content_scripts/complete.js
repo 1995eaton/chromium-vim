@@ -669,3 +669,26 @@ Object.create(Complete.Engine, {
     });
   }}
 }).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: "mouser"},
+  baseUrl: {value: function() {
+    return "http://" + this._localeDomain() + ".mouser.com";
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/Search/Refine.aspx?Keyword="
+  }},
+  search: {value: function(query, callback) {
+    var api = this.baseUrl() + "/ajax/autosuggestion.ashx?q=";
+    var uidUrl = this.baseUrl() + "/Search/Refine.aspx?N=";
+    httpRequest({
+      url: api + query,
+      json: true
+    }, function(response) {
+      callback(response.map(function(e) {
+        var p = e.value.split("##");
+        return [p[0].trim(), uidUrl + p[1]];
+      }));
+    });
+  }}
+}).registerEngine();
