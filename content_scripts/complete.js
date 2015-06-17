@@ -82,6 +82,16 @@ var localeTld = {
   aus: 'com.au',
 };
 
+var localeLangCode = function(l) {
+  var map = {
+    uk: 'en',
+    jp: 'jp',
+    aus: 'en',
+  };
+
+  return map[l] || 'en';
+}
+
 
 Complete.setLocale = function(locale) {
   this.newLocale = locale;
@@ -215,17 +225,18 @@ Object.create(Complete.Engine, {
 
 Object.create(Complete.Engine, {
   name: {value: "wikipedia"},
+
   baseUrl: {value: function() {
-    return "https://en.wikipedia.org";
+    return "https://" + localeLangCode(Complete.newLocale) + ".wikipedia.org";
   }},
   requestUrl: {value: function() {
-    return "https://en.wikipedia.org/wiki/";
+    return "https://" + localeLangCode(Complete.newLocale) + ".wikipedia.org/wiki/";
   }},
   embedQueryForRequest: {value: function(q) {
       return this._embedOrAppend(this.requestUrl(), q.replace(' ', '_'));
   }},
   search: {value: function(query, callback) {
-    var api = "https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=";
+    var api = "https://" + localeLangCode(Complete.newLocale) + ".wikipedia.org/w/api.php?action=opensearch&format=json&search=";
     httpRequest({
       url: this._embedOrAppend(api, query),
       json: true
