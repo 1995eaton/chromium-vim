@@ -76,20 +76,29 @@ Complete.addBasicEngine = function(key, requestUrl) {
   }).registerEngine();
 }
 
-var localeTld = {
-  uk: 'co.uk',
-  jp: 'co.jp',
-  aus: 'com.au',
+var localeDomain = function(l) {
+  return {
+    uk: "uk",
+    jp: "jp",
+    aus: "au",
+  }[l];
+}
+
+var localeTld = function(l) {
+  var d = localeDomain(l);
+  return {
+    uk: 'co.' + d,
+    jp: 'co.' + d,
+    aus: 'com.' + d,
+  }[l] || "com";
 };
 
 var localeLangCode = function(l) {
-  var map = {
+  return {
     uk: 'en',
     jp: 'jp',
     aus: 'en',
-  };
-
-  return map[l] || 'en';
+  }[l] || 'en';
 }
 
 
@@ -159,7 +168,10 @@ Complete.Engine = {
   },
 
   _localeTld: function(url) {
-    return url.replace(/\.com/, '.' + localeTld[Complete.newLocale]);
+    return url.replace(/\.com/, '.' + localeTld(Complete.newLocale));
+  },
+  _localeDomain: function() {
+    return localeDomain(Complete.newLocale);
   },
 
   registerEngine: function() {
@@ -224,7 +236,7 @@ Object.create(Complete.Engine, {
 }).registerEngine();
 
 Object.create(Complete.Engine, {
-  name: {value: 'maps'},
+  name: {value: 'google-maps'},
 
   baseUrl: {value: function() {
     return Complete.Engine._localeTld("https://www.google.com/maps");
@@ -252,8 +264,72 @@ Object.create(Complete.Engine, {
 }).registerEngine();
 
 Object.create(Complete.Engine, {
-  name: {value: "wikipedia"},
+  name: {value: 'google-image'},
+  baseUrl: {value: function() {
+    return this._localeTld("https://www.google.com") + "/imghp";
+  }},
+  requestUrl: {value: function() {
+    return this._localeTld("https://www.google.com") + "/search?tbm=isch&q=";
+  }},
+  search: {value: function(query, callback) {
+    var api = this._localeTld("https://www.google.com") + "/complete/search?client=img&hl=en&gs_rn=43&gs_ri=img&ds=i&cp=1&gs_id=8&q=";
+    httpRequest({
+      url: api + query,
+      json: false
+    }, function(response) {
+      callback(JSON.parse(response.replace(/^[^\(]+\(|\)$/g, ''))[1].map(function(e) {
+        return e[0].replace(/<[^>]+>/g, '');
+      }));
+    });
+  }},
+}).registerEngine();
 
+Object.create(Complete.Engine, {
+  name: {value: 'google-trends'},
+  baseUrl: {value: function() {
+    return this._localeTld("https://www.google.com") + "/trends";
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/explore#q=";
+  }},
+  search: {value: function(query, callback) {
+    var api = this.baseUrl() + "/entitiesQuery?tn=10&q="
+    var me = this;
+    httpRequest({
+      url: api + encodeURIComponent(query),
+      json: true
+    }, function(response) {
+      callback(response.entityList.map(function(e) {
+        return [e.title + ' - ' + e.type, me.requestUrl() + encodeURIComponent(e.mid)];
+      }));
+    });
+  }},
+}).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: 'google-finance'},
+  baseUrl: {value: function() {
+    return this._localeTld("https://www.google.com") + "/finance";
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "?q=";
+  }},
+  search: {value: function(query, callback) {
+    var api = this.baseUrl() + "/match?matchtype=matchall&q="
+    var me = this;
+    httpRequest({
+      url: api + encodeURIComponent(query),
+      json: true
+    }, function(response) {
+      callback(response.matches.map(function(e) {
+        return [e.t + ' - ' + e.n + ' - ' + e.e, me.requestUrl() + e.e + ':' + e.t];
+      }));
+    });
+  }},
+}).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: "wikipedia"},
   baseUrl: {value: function() {
     return "https://" + localeLangCode(Complete.newLocale) + ".wikipedia.org";
   }},
@@ -273,6 +349,264 @@ Object.create(Complete.Engine, {
     });
   }},
 }).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: "amazon"},
+  baseUrl: {value: function() {
+    return "https://" + this._localeTld("amazon.com");
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/s/?field-keywords="
+  }},
+  search: {value: function(query, callback) {
+    var mkt = {
+      uk : 3
+    }[Complete.newLocale] || 1;
+
+    var api = "https://completion." + this._localeTld("amazon.com") + "/search/complete?method=completion&search-alias=aps&client=amazon-search-ui&mkt=" + mkt + "&q="
+    httpRequest({
+      url: api + encodeURIComponent(query),
+      json: true
+    }, function(response) {
+      callback(response[1]);
+    });
+  }},
+}).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: "yahoo"},
+  baseUrl: {value: function() {
+    return "https://" + this._localeDomain() + ".search.yahoo.com";
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/search?p="
+  }},
+  search: {value: function(query, callback) {
+    var api = this.baseUrl() + "/sugg/gossip/gossip-" + this._localeDomain()
+      + "-ura/?output=sd1&appid=search.yahoo.com&nresults=20&command=";
+    httpRequest({
+      url: api + encodeURIComponent(query),
+      json: true
+    }, function(response) {
+      var _ret = [];
+      for (var key in response.r) {
+        if (response.r[key].hasOwnProperty('k')) {
+          _ret.push(response.r[key].k);
+        }
+      }
+      callback(_ret);
+    });
+  }},
+}).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: "answers"},
+  baseUrl: {value: function() {
+    return "https://answers.yahoo.com";
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/search/search_result?p="
+  }},
+  search: {value: function(query, callback) {
+    var api = "https://search.yahoo.com/sugg/ss/gossip-" +  "us" //this._localeDomain()
+      + "_ss-vertical_ss/?output=sd1&pubid=1307&appid=yanswer&command=%s&nresults=20";
+    httpRequest({
+      url: api.embedString(encodeURIComponent(query)),
+      json: true
+    }, function(response) {
+      callback(response.r.map(function(e) {
+       return [e.k, 'https://answers.yahoo.com/question/index?qid=' + e.d.replace(/^\{qid:|,.*/g, '')];
+      }));
+    });
+  }}
+}).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: "bing"},
+  baseUrl: {value: function() {
+    return "https://" + this._localeTld("www.bing.com");
+  }},
+  requestUrl: {value: function() {
+    return "https://www.bing.com/search?q=%s&cc=" + this._localeDomain();
+  }},
+  search: {value: function(query, callback) {
+    var api = "https://www.bing.com/osjson.aspx?query=%s&cc=" + this._localeDomain();
+    httpRequest({
+      url: api.embedString(query),
+      json: true
+    }, function(response) {
+      callback(response[1].map(function(e) {
+        return e;
+      }));
+    });
+  }}
+}).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: "ebay"},
+  baseUrl: {value: function() {
+    return "https://" + this._localeTld("ebay.com");
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/sch/i.html?_nkw="
+  }},
+  search: {value: function(query, callback) {
+    var sid = {
+      uk: 3,
+      fr: 71,
+    }[Complete.newLocale] || 0;
+    var api = "http://autosug.ebaystatic.com/autosug?kwd=%s&sId=" + sid;
+    httpRequest({
+      url: api.embedString(encodeURIComponent(query)),
+      json: false
+    }, function(response) {
+      var _ret = JSON.parse(response.replace(/^[^\(]+\(|\)$/g, ''));
+      if (!_ret.res) {
+        return false;
+      }
+      callback(_ret.res.sug.map(function(e) {
+        return e;
+      }));
+    });
+  }}
+}).registerEngine();
+
+
+Object.create(Complete.Engine, {
+  name: {value: "youtube"},
+  baseUrl: {value: function() {
+    return "https://youtube.com";
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/results?search_query="
+  }},
+  search: {value: function(query, callback) {
+    var api = "https://clients1.google.com/complete/search?client=youtube&hl=en&gl=us&gs_rn=23&gs_ri=youtube&ds=yt&cp=2&gs_id=d&q=%s";
+    httpRequest({
+      url: api.embedString(query),
+      json: false
+    }, function(response) {
+      var _ret = JSON.parse(response.replace(/^[^\(]+\(|\)$/g, ''));
+      callback(_ret[1].map(function(e) {
+        return e[0];
+      }));
+    });
+  }}
+}).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: "wolframalpha"},
+  baseUrl: {value: function() {
+    return "https://www.wolframalpha.com";
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/input/?i="
+  }},
+  search: {value: function(query, callback) {
+    var api = this.baseUrl() + "/input/autocomplete.jsp?qr=0&i="
+    httpRequest({
+      url: api + encodeURIComponent(query),
+      json: true
+    }, function(response) {
+      callback(response.results.map(function(e) {
+        return e.input;
+      }));
+    });
+  }}
+}).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: "webster"},
+  baseUrl: {value: function() {
+    return "http://www.merriam-webster.com";
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/dictionary/"
+  }},
+  search: {value: function(query, callback) {
+    var api = this.baseUrl() + "/autocomplete?query="
+    httpRequest({
+      url: api + encodeURIComponent(query),
+      json: true
+    }, function(response) {
+      callback(response.suggestions.map(function(e) {
+        return e;
+      }));
+    });
+  }}
+}).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: "duckduckgo"},
+  baseUrl: {value: function() {
+    return "https://duckduckgo.com";
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/?q="
+  }},
+  search: {value: function(query, callback) {
+    httpRequest({
+      url: this.baseUrl() + "/ac/?q=" + encodeURIComponent(query),
+      json: true
+    }, function(response) {
+      callback(response.map(function(e) {
+        return e.phrase;
+      }).compress());
+    });
+  }}
+}).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: "urbandictionary"},
+  baseUrl: {value: function() {
+    return "http://www.urbandictionary.com";
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/define.php?term="
+  }},
+  search: {value: function(query, callback) {
+    var api = "http://api.urbandictionary.com/v0/autocomplete?term=";
+    httpRequest({
+      url: api + encodeURIComponent(query),
+      json: true
+    }, function(response) {
+      callback(response.slice(1).map(function(e) {
+        return e;
+      }));
+    });
+  }}
+}).registerEngine();
+
+
+Object.create(Complete.Engine, {
+  name: {value: "imdb"},
+  baseUrl: {value: function() {
+    return "http://www.imdb.com";
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/find?s=all&q="
+  }},
+  search: {value: function(query, callback) {
+    var api = "http://sg.media-imdb.com/suggests/";
+    httpRequest({
+      url: api + query[0] + '/' + query.replace(/ /g, '_') + '.json',
+      json: false
+    }, function(response) {
+      var _ret = JSON.parse(response.replace(/^[^\(]+\(|\)$/g, ''));
+      callback(_ret.d.map(function(e) {
+        if (/:\/\//.test(e.id)) {
+          return [e.l, e.id];
+        }
+        var _url = 'http://www.imdb.com/' + (e.id.indexOf('nm') === 0 ? 'name' : 'title') + '/' + e.id;
+        if (e.q) {
+          return [e.l + ' - ' + e.q + ', ' + e.s + ' (' + e.y + ')', _url];
+        }
+        return [e.l + ' - ' + e.s, _url];
+      }));
+    });
+  }}
+}).registerEngine();
+
 
 // old structures
 
@@ -607,9 +941,3 @@ Complete.imdb = function(query, callback) {
     }));
   });
 };
-
-
-
-
-
-
