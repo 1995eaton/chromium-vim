@@ -328,27 +328,41 @@ Object.create(Complete.Engine, {
   }},
 }).registerEngine();
 
-Object.create(Complete.Engine, {
-  name: {value: "wikipedia"},
-  baseUrl: {value: function() {
-    return "https://" + localeLangCode(Complete.newLocale) + ".wikipedia.org";
-  }},
-  requestUrl: {value: function() {
-    return "https://" + localeLangCode(Complete.newLocale) + ".wikipedia.org/wiki/";
-  }},
-  embedQueryForRequest: {value: function(q) {
-      return this._embedOrAppend(this.requestUrl(), q.replace(' ', '_'));
-  }},
-  search: {value: function(query, callback) {
-    var api = "https://" + localeLangCode(Complete.newLocale) + ".wikipedia.org/w/api.php?action=opensearch&format=json&search=";
-    httpRequest({
-      url: this._embedOrAppend(api, query),
-      json: true
-    }, function(response) {
-      callback(response[1]);
-    });
-  }},
-}).registerEngine();
+var wikiEngine = function(wiki, hasLangDomains) {
+  return Object.create(Complete.Engine, {
+    name: {value: wiki.split(".")[0]},
+    baseUrl: {value: function() {
+      var dom = (hasLangDomains ? (localeLangCode(Complete.newLocale) + ".") : "");
+      console.log(dom);
+      return "http://" + dom + wiki;
+    }},
+    requestUrl: {value: function() {
+      return this.baseUrl() + "/wiki/";
+    }},
+    embedQueryForRequest: {value: function(q) {
+        return this._embedOrAppend(this.requestUrl(), q.replace(' ', '_'));
+    }},
+    search: {value: function(query, callback) {
+      var api = this.baseUrl() + "/w/api.php?action=opensearch&format=json&search=";
+      httpRequest({
+        url: this._embedOrAppend(api, query),
+        json: true
+      }, function(response) {
+        callback(response[1]);
+      });
+    }},
+})};
+
+wikiEngine("wikipedia.org", true).registerEngine();
+wikiEngine("wiktionary.org", true).registerEngine();
+wikiEngine("wikispecies.org", false).registerEngine();
+wikiEngine("wikisource.org", true).registerEngine();
+wikiEngine("wikiquote.org", false).registerEngine();
+wikiEngine("wikibooks.org", true).registerEngine();
+wikiEngine("commons.wikimedia.org", false).registerEngine();
+wikiEngine("wikinews.org", true).registerEngine();
+wikiEngine("wikiversity.org", true).registerEngine();
+wikiEngine("wikivoyage.org", true).registerEngine();
 
 Object.create(Complete.Engine, {
   name: {value: "amazon"},
