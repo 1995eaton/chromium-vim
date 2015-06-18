@@ -333,7 +333,8 @@ Command.callCompletionFunction = (function() {
       }
     }
     if (~Complete.newEngines.indexOf(search[0]) &&
-        Complete.newEnginesMap.hasOwnProperty(search[0])) {
+        Complete.newEnginesMap.hasOwnProperty(search[0]) &&
+        Complete.newEnginesMap[search[0]].hasOwnProperty("search")) {
       Complete.newEnginesMap[search[0]].search(search.slice(1).join(' '), function(response) {
         self.completions = { search: response };
         self.updateCompletions();
@@ -1077,8 +1078,7 @@ Command.updateSettings = function(config) {
     for (key in config.searchengines) {
       if (!~Complete.engines.indexOf(key) &&
           typeof config.searchengines[key] === 'string') {
-        Complete.newEngines.push(key);
-        Complete.requestUrls[key] = config.searchengines[key];
+        Complete.addBasicEngine(key, config.searchengines[key]);
       }
     }
   }

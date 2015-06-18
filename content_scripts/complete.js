@@ -36,6 +36,15 @@ Complete.setDefaultEngine = function(newDefault) {
   this.defaultEngine = newDefault;
 }
 
+Complete.addBasicEngine = function(key, requestUrl) {
+  Object.create(Complete.Engine, {
+    name: {value: key},
+    requestUrl: {value: function() {
+      return requestUrl;
+    }},
+  }).registerEngine();
+}
+
 var localeTld = {
   uk: 'co.uk',
   jp: 'co.jp',
