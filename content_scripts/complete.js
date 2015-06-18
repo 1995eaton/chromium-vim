@@ -79,7 +79,7 @@ Complete.convertToLink = function(input, isURL, isLink) {
     return suffix.convertLink();
   }
 
-  return e.embedQueryForRequest()(suffix);
+  return e.embedQueryForRequest.call(e, suffix);
 };
 
 Complete.newEngines = [];
@@ -95,9 +95,9 @@ Complete.Engine = {
   },
 
   _queryEmbedders: {
-    'encodeuri': function(urlFn) { return function(q) {
-      return Complete.Engine._embedOrAppend(urlFn(), encodeURIComponent(q));
-    }},
+    'encodeuri': function(url, q) {
+      return Complete.Engine._embedOrAppend(url, encodeURIComponent(q));
+    },
   },
 
   _callbacks: {
@@ -118,7 +118,9 @@ Complete.Engine = {
   },
 
   // normally these are just URI encoded, even if the API is not
-  embedQueryForRequest: function() {return this._queryEmbedders.encodeuri(this.requestUrl)},
+  embedQueryForRequest: function(q) {
+    return this._queryEmbedders.encodeuri(this.requestUrl(), q);
+  },
 
 };
 
@@ -132,9 +134,9 @@ Object.create(Complete.Engine, {
   }},
 
   search: {value: function(query, callback) {
-    var api = function () { return "https://octopart.com/suggest?q="; };
+    var api = "https://octopart.com/suggest?q=";
     httpRequest({
-      url: this._queryEmbedders.encodeuri(api)(query),
+      url: this._queryEmbedders.encodeuri(api, query),
       json: false
     },
     this._callbacks.newlinesplit(callback)
@@ -179,11 +181,9 @@ Object.create(Complete.Engine, {
   requestUrl: {value: function() {
     return "https://en.wikipedia.org/wiki/";
   }},
-  embedQueryForRequest: {value: function() {
-    var me = this;
-    return function(q) {
-      return me._embedOrAppend(me.requestUrl(), q.replace(' ', '_'));
-  }}},
+  embedQueryForRequest: {value: function(q) {
+      return this._embedOrAppend(this.requestUrl(), q.replace(' ', '_'));
+  }},
   search: {value: function(query, callback) {
     var api = "https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=";
     httpRequest({
