@@ -118,9 +118,7 @@ Complete.Engine = {
   },
 
   // normally these are just URI encoded, even if the API is not
-  embedQueryForRequest: function() {
-    return this._queryEmbedders.encodeuri(this.requestUrl)
-  },
+  embedQueryForRequest: function() {return this._queryEmbedders.encodeuri(this.requestUrl)},
 
 };
 
@@ -169,6 +167,30 @@ Object.create(Complete.Engine, {
       callback(data.sort(function(a) {
         return a.type !== 'NAVIGATION';
       }).map(function(e) { return e.text; }));
+    });
+  }},
+}).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: "wikipedia"},
+  baseUrl: {value: function() {
+    return "https://en.wikipedia.org";
+  }},
+  requestUrl: {value: function() {
+    return "https://en.wikipedia.org/wiki/";
+  }},
+  embedQueryForRequest: {value: function() {
+    var me = this;
+    return function(q) {
+      return me._embedOrAppend(me.requestUrl(), q.replace(' ', '_'));
+  }}},
+  search: {value: function(query, callback) {
+    var api = "https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=";
+    httpRequest({
+      url: this._embedOrAppend(api, query),
+      json: true
+    }, function(response) {
+      callback(response[1]);
     });
   }},
 }).registerEngine();
