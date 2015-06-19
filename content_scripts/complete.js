@@ -37,28 +37,28 @@ Complete.setDefaultEngine = function(newDefault) {
 }
 
 Complete.usingEngine = function(key) {
-  return ~this.newEngines.indexOf(key);
+  return ~this.engines.indexOf(key);
 }
 
 Complete.setUsedEngines = function (keysToUse) {
-  this.newEngines = this.newEngines.filter(function(e) {
+  this.engines = this.engines.filter(function(e) {
     return ~keysToUse.indexOf(e);
   });
 }
 
 Complete.matchingEngines = function(partialKey, cb) {
   var engines = [];
-  for (var i = 0; i < this.newEngines.length; i++) {
-    if (!partialKey || !this.newEngines[i].indexOf(partialKey)) {
-      cb(Complete.newEngines[i],
-        Complete.newEnginesMap[Complete.newEngines[i]].requestUrl());
+  for (var i = 0; i < this.engines.length; i++) {
+    if (!partialKey || !this.engines[i].indexOf(partialKey)) {
+      cb(Complete.engines[i],
+        Complete.engineMap[Complete.engines[i]].requestUrl());
     }
   }
 }
 
 Complete.completeWithEngine = function(key, query, cb)
 {
-  var e = this.newEnginesMap[key];
+  var e = this.engineMap[key];
 
   if (this.usingEngine(key) &&
       e !== undefined &&
@@ -97,7 +97,7 @@ Complete.convertToLink = function(input, isURL, isLink) {
     return '';
   input[0] = this.getAlias(input[0]) || input[0];
 
-  var e = Complete.newEnginesMap[input[0]];
+  var e = Complete.engineMap[input[0]];
 
   if (e !== undefined) {
     if (input.length > 1) {
@@ -112,7 +112,7 @@ Complete.convertToLink = function(input, isURL, isLink) {
       return (!/^[a-zA-Z\-]+:/.test(suffix) ? 'http://' : '') +
         suffix;
     }
-    e = Complete.newEnginesMap[Complete.defaultEngine];
+    e = Complete.engineMap[Complete.defaultEngine];
   }
 
   if (suffix.validURL()) {
@@ -122,8 +122,8 @@ Complete.convertToLink = function(input, isURL, isLink) {
   return e.embedQueryForRequest.call(e, suffix);
 };
 
-Complete.newEngines = [];
-Complete.newEnginesMap = {};
+Complete.engines = [];
+Complete.engineMap = {};
 
 Complete.Engine = {
 
@@ -153,8 +153,8 @@ Complete.Engine = {
   },
 
   registerEngine: function() {
-    Complete.newEngines.push(this.name);
-    Complete.newEnginesMap[this.name] = this;
+    Complete.engines.push(this.name);
+    Complete.engineMap[this.name] = this;
   },
 
   // normally these are just URI encoded, even if the API is not
