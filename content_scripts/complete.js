@@ -119,11 +119,11 @@ Object.create(Complete.Engine, {
     return "https://octopart.com";
   }},
   requestUrl: {value: function() {
-    return "https://octopart.com/search?q=%s";
+    return "https://octopart.com/search?q=";
   }},
 
   search: {value: function(query, callback) {
-    var api = "https://octopart.com/suggest?q=";
+    var api = function () { return "https://octopart.com/suggest?q="; };
     httpRequest({
       url: this._queryEmbedders.encodeuri(api)(query),
       json: false
@@ -133,6 +133,34 @@ Object.create(Complete.Engine, {
   }},
 }).registerEngine();
 
+Object.create(Complete.Engine, {
+  name: {value: "google"},
+  baseUrl: {value: function() {
+    return "https://www.google.com";
+  }},
+  requestUrl: {value: function() {
+    return "https://www.google.com/search?q=";
+  }},
+
+  search: {value: function(query, callback) {
+    var api = "https://www.google.com/complete/search?client=chrome-omni&gs_ri=chrome-ext&oit=1&cp=1&pgcl=7&q=";
+    httpRequest({
+      url: this._embedOrAppend(api, query),
+      json: true
+    },
+    function(response) {
+      var data = response[1].map(function(e, i) {
+        return {
+          type: response[4]['google:suggesttype'][i],
+          text: e
+        };
+      });
+      callback(data.sort(function(a) {
+        return a.type !== 'NAVIGATION';
+      }).map(function(e) { return e.text; }));
+    });
+  }},
+}).registerEngine();
 
 // old structures
 
