@@ -36,6 +36,13 @@ Complete.setDefaultEngine = function(newDefault) {
   this.defaultEngine = newDefault;
 }
 
+var localeTld = {
+  uk: 'co.uk',
+  jp: 'co.jp',
+  aus: 'com.au',
+};
+
+
 Complete.setLocale = function(locale) {
   this.newLocale = locale;
 };
@@ -101,6 +108,10 @@ Complete.Engine = {
     }},
   },
 
+  _localeTld: function(url) {
+    return url.replace(/\.com/, '.' + localeTld[Complete.newLocale]);
+  },
+
   registerEngine: function() {
     Complete.newEngines.push(this.name);
     Complete.newEnginesMap[this.name] = this;
@@ -136,14 +147,14 @@ Object.create(Complete.Engine, {
 Object.create(Complete.Engine, {
   name: {value: "google"},
   baseUrl: {value: function() {
-    return "https://www.google.com";
+    return Complete.Engine._localeTld("https://www.google.com");
   }},
   requestUrl: {value: function() {
-    return "https://www.google.com/search?q=";
+    return Complete.Engine._localeTld("https://www.google.com/search?q=");
   }},
 
   search: {value: function(query, callback) {
-    var api = "https://www.google.com/complete/search?client=chrome-omni&gs_ri=chrome-ext&oit=1&cp=1&pgcl=7&q=";
+    var api = this._localeTld("https://www.google.com/complete/search?client=chrome-omni&gs_ri=chrome-ext&oit=1&cp=1&pgcl=7&q=");
     httpRequest({
       url: this._embedOrAppend(api, query),
       json: true
