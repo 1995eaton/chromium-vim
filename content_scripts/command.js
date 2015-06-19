@@ -286,21 +286,21 @@ Command.callCompletionFunction = (function() {
   var searchCompletion = function(value) {
     self.deleteCompletions('engines,bookmarks,complete,chrome,search');
     search = search.split(/ +/).compress();
-    if ((search.length < 2 || !~Complete.engines.indexOf(search[0])) &&
+    if ((search.length < 2 || !~Complete.newEngines.indexOf(search[0])) &&
         !Complete.hasAlias(search[0]) ||
         (Complete.hasAlias(search[0]) && value.slice(-1) !== ' ' &&
          search.length < 2))
     {
-      if (~Complete.engines.indexOf(search[0])) {
+      if (~Complete.newEngines.indexOf(search[0])) {
         self.hideData();
         return;
       }
       self.completions.engines = [];
-      for (var i = 0; i < Complete.engines.length; i++) {
-        if (!search[0] || !Complete.engines[i].indexOf(search.join(' '))) {
+      for (var i = 0; i < Complete.newEngines.length; i++) {
+        if (!search[0] || !Complete.newEngines[i].indexOf(search.join(' '))) {
           self.completions.engines.push([
-            Complete.engines[i],
-            Complete.requestUrls[Complete.engines[i]]
+            Complete.newEngines[i],
+            Complete.newEnginesMap[Complete.newEngines[i]].requestUrl()
           ]);
         }
       }
@@ -332,9 +332,9 @@ Command.callCompletionFunction = (function() {
         return;
       }
     }
-    if (~Complete.engines.indexOf(search[0]) &&
-        Complete.hasOwnProperty(search[0])) {
-      Complete[search[0]](search.slice(1).join(' '), function(response) {
+    if (~Complete.newEngines.indexOf(search[0]) &&
+        Complete.newEnginesMap.hasOwnProperty(search[0])) {
+      Complete.newEnginesMap[search[0]].search(search.slice(1).join(' '), function(response) {
         self.completions = { search: response };
         self.updateCompletions();
       });
@@ -543,7 +543,7 @@ Command.execute = function(value, repeats) {
   value = value.replace(/^([^\s&*!=?]*)[&*!=?]*\s/, '$1 ');
   value = value.replace(/[&*!=?]+$/, function(e) {
     return e.replace(/[^=?]/g, ''); });
-  if ( !~Complete.engines.indexOf(value.split(/\s+/g).compress()[1]) )
+  if ( !~Complete.newEngines.indexOf(value.split(/\s+/g).compress()[1]) )
     value = value.replace(/[=?]+$/, '');
 
   this.history.index = {};
@@ -1065,7 +1065,7 @@ Command.updateSettings = function(config) {
   var key;
   if (Array.isArray(config.completionengines) &&
       config.completionengines.length) {
-    Complete.engines = Complete.engines.filter(function(e) {
+    Complete.newEngines = Complete.newEngines.filter(function(e) {
       return ~config.completionengines.indexOf(e);
     });
   }
@@ -1077,14 +1077,14 @@ Command.updateSettings = function(config) {
     for (key in config.searchengines) {
       if (!~Complete.engines.indexOf(key) &&
           typeof config.searchengines[key] === 'string') {
-        Complete.engines.push(key);
+        Complete.newEngines.push(key);
         Complete.requestUrls[key] = config.searchengines[key];
       }
     }
   }
   if (config.searchaliases && config.searchaliases.constructor === Object) {
     for (key in config.searchaliases) {
-      if (Complete.engines.indexOf(key)) {
+      if (Complete.newEngines.indexOf(key)) {
         Complete.aliases[key] = config.searchaliases[key];
       }
     }
@@ -1092,6 +1092,10 @@ Command.updateSettings = function(config) {
   if (config.locale) {
     Complete.setLocale(config.locale);
   }
+  if (config.defaultengine) {
+    Complete.setDefaultEngine(config.defaultengine);
+  }
+
   if (config.hintcharacters &&
       config.hintcharacters.split('').unique().length > 1) {
     settings.hintcharacters = config.hintcharacters

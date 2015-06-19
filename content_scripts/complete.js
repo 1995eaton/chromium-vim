@@ -18,8 +18,8 @@ var Complete = {};
 
 })();
 
-Complete.engines = ['google', 'wikipedia', 'youtube', 'imdb', 'amazon', 'google-maps', 'wolframalpha', 'google-image', 'ebay', 'webster', 'wictionary', 'urbandictionary', 'duckduckgo', 'answers', 'google-trends', 'google-finance', 'yahoo', 'bing'];
 
+Complete.defaultEngine = "google";
 Complete.aliases = {
   g: 'google'
 };
@@ -31,6 +31,112 @@ Complete.hasAlias = function(alias) {
 Complete.getAlias = function(alias) {
   return this.aliases[alias] || '';
 };
+
+Complete.setDefaultEngine = function(newDefault) {
+  this.defaultEngine = newDefault;
+}
+
+Complete.setLocale = function(locale) {
+  this.newLocale = locale;
+};
+
+Complete.convertToLink = function(input, isURL, isLink) {
+  var prefix, suffix;
+  input = input.replace(/@%/g, document.URL)
+               .split(/\s+/)
+               .compress()
+               .slice(1);
+  if (input.length === 0)
+    return '';
+  input[0] = this.getAlias(input[0]) || input[0];
+
+  var e = Complete.newEnginesMap[input[0]];
+
+  if (e !== undefined) {
+    if (input.length > 1) {
+      prefix = e.requestUrl();
+    } else {
+      return e.baseUrl();
+    }
+    suffix = input.slice(1).join(' ');
+  } else {
+    suffix = input.join(' ');
+    if (!isLink && (isURL || suffix.validURL())) {
+      return (!/^[a-zA-Z\-]+:/.test(suffix) ? 'http://' : '') +
+        suffix;
+    }
+    e = Complete.newEnginesMap[Complete.defaultEngine];
+  }
+
+  if (suffix.validURL()) {
+    return suffix.convertLink();
+  }
+
+  return e.embedQueryForRequest()(suffix);
+};
+
+Complete.newEngines = [];
+Complete.newEnginesMap = {};
+
+Complete.Engine = {
+
+  //handy internal function
+  _embedOrAppend: function(template, q) {
+    return ~template.indexOf('%s') ?
+      template.embedString(q) :
+      template + q;
+  },
+
+  _queryEmbedders: {
+    'encodeuri': function(urlFn) { return function(q) {
+      return Complete.Engine._embedOrAppend(urlFn(), encodeURIComponent(q));
+    }},
+  },
+
+  _callbacks: {
+    'newlinesplit': function(cb) { return function(response) {
+      cb(response.split('\n').map(function(e) {
+        return e;
+      }));
+    }},
+  },
+
+  registerEngine: function() {
+    Complete.newEngines.push(this.name);
+    Complete.newEnginesMap[this.name] = this;
+  },
+
+  // normally these are just URI encoded, even if the API is not
+  embedQueryForRequest: function() {
+    return this._queryEmbedders.encodeuri(this.requestUrl)
+  },
+
+};
+
+Object.create(Complete.Engine, {
+  name: {value: "octopart"},
+  baseUrl: {value: function() {
+    return "https://octopart.com";
+  }},
+  requestUrl: {value: function() {
+    return "https://octopart.com/search?q=%s";
+  }},
+
+  search: {value: function(query, callback) {
+    var api = "https://octopart.com/suggest?q=";
+    httpRequest({
+      url: this._queryEmbedders.encodeuri(api)(query),
+      json: false
+    },
+    this._callbacks.newlinesplit(callback)
+    );
+  }},
+}).registerEngine();
+
+
+// old structures
+
+Complete.engines = ['google', 'wikipedia', 'youtube', 'imdb', 'amazon', 'google-maps', 'wolframalpha', 'google-image', 'ebay', 'webster', 'wictionary', 'urbandictionary', 'duckduckgo', 'answers', 'google-trends', 'google-finance', 'yahoo', 'bing'];
 
 Complete.requestUrls = {
   wikipedia:      'https://en.wikipedia.org/wiki/',
@@ -135,59 +241,6 @@ Complete.locales = {
     baseUrls: ['google'],
     apis: ['google']
   }
-};
-
-Complete.setLocale = function(locale) {
-  if (this.locales.hasOwnProperty(locale)) {
-    locale = this.locales[locale];
-  } else {
-    return;
-  }
-  for (var key in locale) {
-    if (key !== 'tld') {
-      for (var i = 0; i < locale[key].length; i++) {
-        this[key][locale[key][i]] = this[key][locale[key][i]].replace(/\.com/, '.' + locale.tld);
-      }
-    }
-  }
-};
-
-Complete.convertToLink = function(input, isURL, isLink) {
-  var prefix, suffix;
-  input = input.replace(/@%/g, document.URL)
-               .split(/\s+/)
-               .compress()
-               .slice(1);
-  if (input.length === 0)
-    return '';
-  input[0] = this.getAlias(input[0]) || input[0];
-  if (Complete.engines.indexOf(input[0]) !== -1) {
-    if (input.length > 1) {
-      prefix = Complete.requestUrls[input[0]];
-    } else {
-      return Complete.baseUrls[input[0]];
-    }
-  } else {
-    if (!isLink && (isURL || input.join(' ').validURL())) {
-      input = input.join(' ');
-      return (!/^[a-zA-Z\-]+:/.test(input) ? 'http://' : '') +
-        input;
-    }
-    return (Complete.requestUrls[settings.defaultengine] ||
-      Complete.requestUrls.google) + encodeURIComponent(input.join(' '));
-  }
-  if (Complete.parseQuery.hasOwnProperty(input[0])) {
-    suffix = Complete.parseQuery[input[0]](input.slice(1).join(' '));
-  } else {
-    suffix = input.slice(1).join(' ');
-  }
-  if (suffix.validURL()) {
-    return suffix.convertLink();
-  }
-  suffix = encodeURIComponent(suffix);
-  return ~prefix.indexOf('%s') ?
-    prefix.embedString(suffix) :
-    prefix + suffix;
 };
 
 Complete.wikipedia = function(query, callback) {
@@ -298,7 +351,7 @@ Complete.answers = function(query, callback) {
     json: true
   }, function(response) {
     callback(response.r.map(function(e) {
-      return [e.k, 'https://answers.yahoo.com/question/index?qid=' + e.d.replace(/^\{qid:|,.*/g, '')];
+     return [e.k, 'https://answers.yahoo.com/question/index?qid=' + e.d.replace(/^\{qid:|,.*/g, '')];
     }));
   });
 };
@@ -414,3 +467,9 @@ Complete.imdb = function(query, callback) {
     }));
   });
 };
+
+
+
+
+
+
