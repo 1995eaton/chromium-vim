@@ -296,14 +296,11 @@ Command.callCompletionFunction = (function() {
         return;
       }
       self.completions.engines = [];
-      for (var i = 0; i < Complete.newEngines.length; i++) {
-        if (!search[0] || !Complete.newEngines[i].indexOf(search.join(' '))) {
-          self.completions.engines.push([
-            Complete.newEngines[i],
-            Complete.newEnginesMap[Complete.newEngines[i]].requestUrl()
-          ]);
-        }
-      }
+
+      Complete.matchingEngines(search.join(' '), function(key, requestUrl) {
+          self.completions.engines.push([key, requestUrl]);
+      });
+
       self.updateCompletions(true);
       self.completions.topsites = Search.topSites.filter(function(e) {
         return ~(e[0] + ' ' + e[1]).toLowerCase()
@@ -332,14 +329,13 @@ Command.callCompletionFunction = (function() {
         return;
       }
     }
-    if (Complete.usingEngine(search[0]) &&
-        Complete.newEnginesMap.hasOwnProperty(search[0]) &&
-        Complete.newEnginesMap[search[0]].hasOwnProperty("search")) {
-      Complete.newEnginesMap[search[0]].search(search.slice(1).join(' '), function(response) {
+
+    Complete.completeWithEngine(search[0], search.slice(1).join(' '),
+      function(response) {
         self.completions = { search: response };
         self.updateCompletions();
-      });
-    }
+      }
+    );
   };
 
   var tabHistoryCompletion = function(value) {
@@ -1066,10 +1062,9 @@ Command.updateSettings = function(config) {
   var key;
   if (Array.isArray(config.completionengines) &&
       config.completionengines.length) {
-    Complete.newEngines = Complete.newEngines.filter(function(e) {
-      return ~config.completionengines.indexOf(e);
-    });
+    Complete.setUsedEngines(config.completionengines);
   }
+
   this.customCommands = config.COMMANDS || {};
   Object.keys(this.customCommands).forEach(function(name) {
     this.descriptions.push([name, ':' + this.customCommands[name]]);

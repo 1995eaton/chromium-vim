@@ -40,6 +40,33 @@ Complete.usingEngine = function(key) {
   return ~this.newEngines.indexOf(key);
 }
 
+Complete.setUsedEngines = function (keysToUse) {
+  this.newEngines = this.newEngines.filter(function(e) {
+    return ~keysToUse.indexOf(e);
+  });
+}
+
+Complete.matchingEngines = function(partialKey, cb) {
+  var engines = [];
+  for (var i = 0; i < this.newEngines.length; i++) {
+    if (!partialKey || !this.newEngines[i].indexOf(partialKey)) {
+      cb(Complete.newEngines[i],
+        Complete.newEnginesMap[Complete.newEngines[i]].requestUrl());
+    }
+  }
+}
+
+Complete.completeWithEngine = function(key, query, cb)
+{
+  var e = this.newEnginesMap[key];
+
+  if (this.usingEngine(key) &&
+      e !== undefined &&
+      e.hasOwnProperty("search")) {
+    return e.search(query, cb);
+  }
+}
+
 Complete.addBasicEngine = function(key, requestUrl) {
   Object.create(Complete.Engine, {
     name: {value: key},
