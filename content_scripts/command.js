@@ -286,12 +286,12 @@ Command.callCompletionFunction = (function() {
   var searchCompletion = function(value) {
     self.deleteCompletions('engines,bookmarks,complete,chrome,search');
     search = search.split(/ +/).compress();
-    if ((search.length < 2 || !~Complete.newEngines.indexOf(search[0])) &&
+    if ((search.length < 2 || !Complete.usingEngine(search[0])) &&
         !Complete.hasAlias(search[0]) ||
         (Complete.hasAlias(search[0]) && value.slice(-1) !== ' ' &&
          search.length < 2))
     {
-      if (~Complete.newEngines.indexOf(search[0])) {
+      if (Complete.usingEngine(search[0])) {
         self.hideData();
         return;
       }
@@ -332,7 +332,7 @@ Command.callCompletionFunction = (function() {
         return;
       }
     }
-    if (~Complete.newEngines.indexOf(search[0]) &&
+    if (Complete.usingEngine(search[0]) &&
         Complete.newEnginesMap.hasOwnProperty(search[0]) &&
         Complete.newEnginesMap[search[0]].hasOwnProperty("search")) {
       Complete.newEnginesMap[search[0]].search(search.slice(1).join(' '), function(response) {
@@ -544,7 +544,7 @@ Command.execute = function(value, repeats) {
   value = value.replace(/^([^\s&*!=?]*)[&*!=?]*\s/, '$1 ');
   value = value.replace(/[&*!=?]+$/, function(e) {
     return e.replace(/[^=?]/g, ''); });
-  if ( !~Complete.newEngines.indexOf(value.split(/\s+/g).compress()[1]) )
+  if ( !Complete.usingEngine(value.split(/\s+/g).compress()[1]) )
     value = value.replace(/[=?]+$/, '');
 
   this.history.index = {};
@@ -1076,7 +1076,7 @@ Command.updateSettings = function(config) {
   }.bind(this));
   if (config.searchengines && config.searchengines.constructor === Object) {
     for (key in config.searchengines) {
-      if (!~Complete.engines.indexOf(key) &&
+      if (!Complete.usingEngine(key) &&
           typeof config.searchengines[key] === 'string') {
         Complete.addBasicEngine(key, config.searchengines[key]);
       }
@@ -1084,7 +1084,7 @@ Command.updateSettings = function(config) {
   }
   if (config.searchaliases && config.searchaliases.constructor === Object) {
     for (key in config.searchaliases) {
-      if (Complete.newEngines.indexOf(key)) {
+      if (Complete.usingEngine(key)) {
         Complete.aliases[key] = config.searchaliases[key];
       }
     }

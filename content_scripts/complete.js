@@ -36,6 +36,10 @@ Complete.setDefaultEngine = function(newDefault) {
   this.defaultEngine = newDefault;
 }
 
+Complete.usingEngine = function(key) {
+  return ~this.newEngines.indexOf(key);
+}
+
 Complete.addBasicEngine = function(key, requestUrl) {
   Object.create(Complete.Engine, {
     name: {value: key},
