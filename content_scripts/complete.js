@@ -224,6 +224,34 @@ Object.create(Complete.Engine, {
 }).registerEngine();
 
 Object.create(Complete.Engine, {
+  name: {value: 'maps'},
+
+  baseUrl: {value: function() {
+    return Complete.Engine._localeTld("https://www.google.com/maps");
+  }},
+  requestUrl: {value: function() {
+    return Complete.Engine._localeTld("https://www.google.com/maps/search/");
+  }},
+
+  search: {value: function(query, callback) {
+    var api = this._localeTld("http://www.google.com") + "/s?tbm=map&fp=1&gs_ri=maps&source=hp&suggest=p&authuser=0&hl=en&pf=p&tch=1&ech=2&q=";
+    httpRequest({
+      url: api + query,
+      json: false
+    }, function(response) {
+      var data = JSON.parse(response.replace(/\/\*[^\*]+\*\//g, '')).d;
+      data = data.substring(data.indexOf("["));
+      data = JSON.parse(data)[0][1];
+
+      data = data.map(function(e) {
+        return e[e.length-1][0][0];
+      });
+      callback(data);
+    });
+  }},
+}).registerEngine();
+
+Object.create(Complete.Engine, {
   name: {value: "wikipedia"},
 
   baseUrl: {value: function() {
