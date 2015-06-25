@@ -147,6 +147,12 @@ port.onMessage.addListener(function(response) {
         Mappings.parseCustom(response.settings.MAPPINGS);
         settings = response.settings;
       }
+      settings.functions = {};
+      var functionNames = Object.keys(settings.FUNCTIONS);
+      for(var i=0; i<functionNames.length; i++) {
+        var fn = functionNames[i];
+        settings.functions[fn] = eval(settings.FUNCTIONS[fn]);
+      }
       break;
     case 'updateLastCommand':
       if (request.data) {
@@ -301,7 +307,7 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
           Mappings.actions[request.name](1);
           break;
         case 'eval':
-          eval(request.code);
+          eval("settings.functions."+request.code);
           break;
         }
       }

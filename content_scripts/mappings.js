@@ -835,9 +835,9 @@ Mappings.parseLine = function(line) {
             ECHO('callMapFunction', {
               name: map
             });
-          } else if (settings.FUNCTIONS[map]) {
+          } else {
             ECHO('eval', {
-              code: settings.FUNCTIONS[map] + '()'
+              code: map,
             });
           }
         });
