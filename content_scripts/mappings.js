@@ -828,7 +828,7 @@ Mappings.parseLine = function(line) {
         return mappingTrie.remove(map[1]);
       case 'call':
         waitForLoad(function() {
-          map = map.slice(1).join(' ');
+          map = map.slice(1).join(' ').trimAround();
           if (map[0] === ':') {
             Command.execute(map.slice(1).replace(/<CR>/i, ''), 1);
           } else if (Mappings.actions[map]) {
@@ -837,7 +837,8 @@ Mappings.parseLine = function(line) {
             });
           } else {
             ECHO('eval', {
-              code: map,
+              name: map.replace(/\(.*/, ''),
+              args: map.replace(/[^(]+/, '') || '()'
             });
           }
         });
