@@ -828,16 +828,17 @@ Mappings.parseLine = function(line) {
         return mappingTrie.remove(map[1]);
       case 'call':
         waitForLoad(function() {
-          map = map.slice(1).join(' ');
+          map = map.slice(1).join(' ').trimAround();
           if (map[0] === ':') {
             Command.execute(map.slice(1).replace(/<CR>/i, ''), 1);
           } else if (Mappings.actions[map]) {
             ECHO('callMapFunction', {
               name: map
             });
-          } else if (settings.FUNCTIONS[map]) {
+          } else {
             ECHO('eval', {
-              code: settings.FUNCTIONS[map] + '()'
+              name: map.replace(/\(.*/, ''),
+              args: map.replace(/[^(]+/, '') || '()'
             });
           }
         });
