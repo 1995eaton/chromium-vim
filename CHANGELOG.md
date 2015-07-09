@@ -1,5 +1,9 @@
 #cVim Changelog
 
+## 1.2.79
+ * Content scripts will now be reloaded if they lose connection to the
+   background scripts (e.g. restarting the extension)
+
 ## 1.2.78
  * Default completion engines are now only `["google", "duckduckgo", "wikipedia", "amazon"]`.
    The other engines still exist, but you'll need to enable them with the `completionengines` option.
