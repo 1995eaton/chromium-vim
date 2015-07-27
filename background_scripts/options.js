@@ -66,6 +66,7 @@ var defaultSettings = {
   activehighlight: '#ff9632',
   highlight: '#ffff00',
   completionengines: ['google', 'duckduckgo', 'wikipedia', 'amazon'],
+  useallcompletionengines: false,
   nextmatchpattern: '((?!first)(next|older|more|>|›|»|forward| )+)',
   previousmatchpattern: '((?!last)(prev(ious)?|newer|back|«|less|<|‹| )+)',
   barposition: 'top',
