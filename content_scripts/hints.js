@@ -170,7 +170,7 @@ Hints.dispatchAction = function(link, shift) {
       break;
     case 'window':
       RUNTIME('openLinkWindow', {
-        focused: false,
+        focused: true,
         url: link.href,
         noconvert: true
       });

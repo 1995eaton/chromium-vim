@@ -115,7 +115,7 @@ Actions = (function() {
     for (var i = 0; i < request.repeats; ++i) {
       chrome.windows.create({
         url: url,
-        focused: request.tab.active
+        focused: request.focused
       });
     }
   };
