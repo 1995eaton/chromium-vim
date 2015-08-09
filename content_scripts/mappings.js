@@ -621,12 +621,12 @@ Mappings.actions = {
   openLinkSearchBar: function() {
     Command.hide();
     Find.lastIndex = Find.index;
-    commandMode = true;
     if (document && document.body) {
       Command.lastScrollTop = document.body.scrollTop;
     }
+    commandMode = true;
     Find.previousMatches = Find.matches.length > 0;
-    Find.swap = true;
+    Find.swap = false;
     return Command.show('/', '?');
   },
   openCommandBar: function() {
