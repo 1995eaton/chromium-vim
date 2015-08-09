@@ -618,6 +618,17 @@ Mappings.actions = {
     Find.swap = true;
     return Command.show('?');
   },
+  openLinkSearchBar: function() {
+    Command.hide();
+    Find.lastIndex = Find.index;
+    commandMode = true;
+    if (document && document.body) {
+      Command.lastScrollTop = document.body.scrollTop;
+    }
+    Find.previousMatches = Find.matches.length > 0;
+    Find.swap = true;
+    return Command.show('/', '?');
+  },
   openCommandBar: function() {
     Command.hide();
     commandMode = true;

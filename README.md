@@ -339,6 +339,7 @@ let completionengines = ['google', 'google-image', 'youtube'] " Show only these 
 | `:`                       | open command bar                                                      | openCommandBar                  |
 | `/`                       | open search bar                                                       | openSearchBar                   |
 | `?`                       | open search bar (reverse search)                                      | openSearchBarReverse            |
+| unmapped                  | open link search bar (same as pressing `/?`)                          | openLinkSearchBar               |
 | `I`                       | search through browser history                                        | :history                        |
 | `<N>g%`                   | scroll &lt;N&gt; percent down the page                                | percentScroll                   |
 | `<N>`unmapped             | pass `<N>` keys through to the current page                           | passKeys                        |
