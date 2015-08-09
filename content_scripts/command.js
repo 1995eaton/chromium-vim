@@ -939,11 +939,12 @@ Command.show = function(search, value, complete) {
       this.complete(value);
     }
 
+    // UPDATE: seems to work without patch now (Chromium 44.0.2403.130)
     // Temp fix for Chromium issue in #97
-    if (this.commandBarFocused()) {
-      document.activeElement.select();
-      document.getSelection().collapseToEnd();
-    }
+    // if (this.commandBarFocused()) {
+    //   document.activeElement.select();
+    //   document.getSelection().collapseToEnd();
+    // }
     // End temp fix
 
   }.bind(this), 0);
@@ -960,24 +961,16 @@ Command.hide = function(callback) {
   this.typed = '';
   this.dataElements = [];
   this.hideData();
-  if (this.bar) {
+  if (this.bar)
     this.bar.style.display = 'none';
-  }
-  if (this.input) {
+  if (this.input)
     this.input.value = '';
-  }
-  if (this.data) {
+  if (this.data)
     this.data.style.display = 'none';
-  }
-  if (callback) {
+  if (callback)
     callback();
-  }
-  if (window.isCommandFrame) {
-    // setTimeout(function() {
-      PORT('hideCommandFrame');
-    // }, 50);
-    return;
-  }
+  if (window.isCommandFrame)
+    PORT('hideCommandFrame');
 };
 
 Command.insertCSS = function() {
