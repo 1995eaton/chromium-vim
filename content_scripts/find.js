@@ -114,7 +114,8 @@ Find.highlight = function(params) {
       containsCap = params.search.search(/[A-Z]/) !== -1,
       useRegex = settings.regexp,
       markBase = document.createElement('mark'),
-      nodes = [];
+      nodes = [],
+      linksOnly = false;
 
   markBase.style.backgroundColor = settings.highlight;
   markBase.className = 'cVim-find-mark';
@@ -131,6 +132,10 @@ Find.highlight = function(params) {
   }
 
   if (useRegex) {
+    if (search.charAt(0) === '?') {
+      search = search.slice(1);
+      linksOnly = true;
+    }
     try {
       var rxp = new RegExp(search, 'g' + regexMode);
       var mts = rxp.exec('.');
@@ -144,23 +149,40 @@ Find.highlight = function(params) {
     }
   }
 
+  var acceptNode = function(node) {
+    if (!node.data.trim())
+      return NodeFilter.FILTER_REJECT;
+    switch (node.parentNode.localName.toLowerCase()) {
+    case 'script':
+    case 'style':
+    case 'noscript':
+    case 'mark':
+      return NodeFilter.FILTER_REJECT;
+    }
+    return DOM.isVisible(node.parentNode) ?
+      NodeFilter.FILTER_ACCEPT :
+      NodeFilter.FILTER_REJECT;
+  };
+
+  var acceptLinkNode = function(node) {
+    if (!node.data.trim())
+      return NodeFilter.FILTER_REJECT;
+    Hints.type = '';
+    if (!Hints.acceptHint(node.parentNode)) {
+      return NodeFilter.FILTER_REJECT;
+    }
+    return DOM.isVisible(node.parentNode) ?
+      NodeFilter.FILTER_ACCEPT :
+      NodeFilter.FILTER_REJECT;
+  };
+
   var nodeIterator = document.createNodeIterator(
     params.base,
     NodeFilter.SHOW_TEXT, {
-    acceptNode: function(node) { // Make sure HTML element isn't a script/style
-      if (!node.data.trim())
-        return NodeFilter.FILTER_REJECT;
-      switch (node.parentNode.localName.toLowerCase()) {
-      case 'script':
-      case 'style':
-      case 'noscript':
-      case 'mark':
-        return NodeFilter.FILTER_REJECT;
-      }
-      return DOM.isVisible(node.parentNode) ?
-        NodeFilter.FILTER_ACCEPT :
-        NodeFilter.FILTER_REJECT;
-    }}, false);
+      acceptNode: linksOnly ? acceptLinkNode : acceptNode
+    },
+    false
+  );
 
   for (var node; node = nodeIterator.nextNode(); nodes.push(node));
 
