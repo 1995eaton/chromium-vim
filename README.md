@@ -357,6 +357,7 @@ let completionengines = ['google', 'google-image', 'youtube'] " Show only these 
 | `z0`                      | zoom page to original size                                            | zoomOrig                        |
 | `z<Enter>`                | toggle image zoom (same as clicking the image on image-only pages)    | toggleImageZoom                 |
 | `gd`                      | alias to :chrome://downloads&lt;CR&gt;                                | :chrome://downloads&lt;CR&gt;   |
+| `ge`                      | alias to :chrome://extensions&lt;CR&gt;                               | :chrome://extensions&lt;CR&gt;  |
 | `yy`                      | copy the URL of the current page to the clipboard                     | yankDocumentUrl                 |
 | `yY`                      | copy the URL of the current frame to the clipboard                    | yankRootUrl                     |
 | `ya`                      | copy the URLs in the current window                                   | yankWindowUrls                  |
