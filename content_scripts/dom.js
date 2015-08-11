@@ -124,6 +124,8 @@ window.DOM = {
    * Checks if an element is visible (not necessarily on-screen)
    */
   isVisible: function(element) {
+    if (!(element instanceof Element))
+      return false;
     return element.offsetParent &&
       !element.disabled &&
       element.getAttribute('type') !== 'hidden' &&

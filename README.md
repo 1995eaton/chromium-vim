@@ -304,10 +304,11 @@ let completionengines = ['google', 'google-image', 'youtube'] " Show only these 
 | unmapped                  | scroll full-page down                                                 | scrollFullPageDown              |
 | `u`, `e`                  | scroll half-page up                                                   | scrollPageUp                    |
 | unmapped                  | scroll full-page up                                                   | scrollFullPageUp                |
-| `gg`                      | scroll to the top of the page                                        | scrollToTop                     |
+| `gg`                      | scroll to the top of the page                                         | scrollToTop                     |
 | `G`                       | scroll to the bottom of the page                                      | scrollToBottom                  |
 | `0`                       | scroll to the left of the page                                        | scrollToLeft                    |
 | `$`                       | scroll to the right of the page                                       | scrollToRight                   |
+| `#`                       | reset the scroll focus to the main page                               | resetScrollFocus                |
 | `gi`                      | go to first input box                                                 | goToInput                       |
 | `gI`                      | go to the last focused input box by `gi`                              | goToLastInput                   |
 | `zz`                      | center page to current search match (middle)                          | centerMatchH                    |

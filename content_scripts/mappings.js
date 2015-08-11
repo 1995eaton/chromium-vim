@@ -124,7 +124,8 @@ Mappings.defaults = [
   ['.',         'repeatCommand'],
   ['<C-b>',     'createBookmark'],
   ['g+',        'incrementURLPath'],
-  ['g-',        'decrementURLPath']
+  ['g-',        'decrementURLPath'],
+  ['#',         'resetScrollFocus'],
 ];
 
 Mappings.defaultsClone = Object.clone(Mappings.defaults);
@@ -649,7 +650,8 @@ Mappings.actions = {
     });
   },
   quitChrome: function() { PORT('quitChrome'); },
-  passKeys: function(repeats) { Mappings.keyPassesLeft = repeats; }
+  passKeys: function(repeats) { Mappings.keyPassesLeft = repeats; },
+  resetScrollFocus: function() { window.resetScrollFocus(); }
 
 };
 
