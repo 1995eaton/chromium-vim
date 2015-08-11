@@ -241,6 +241,7 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
     case 'hideCommandFrame':
       if (window.wasFocused) {
         window.wasFocused = false;
+        window.focus();
         document.activeElement.focus();
         Mappings.handleEscapeKey();
         Mappings.clearQueue();
