@@ -286,24 +286,21 @@ Command.callCompletionFunction = (function() {
   var searchCompletion = function(value) {
     self.deleteCompletions('engines,bookmarks,complete,chrome,search');
     search = search.split(/ +/).compress();
-    if ((search.length < 2 || !~Complete.engines.indexOf(search[0])) &&
+    if ((search.length < 2 || !Complete.usingEngine(search[0])) &&
         !Complete.hasAlias(search[0]) ||
         (Complete.hasAlias(search[0]) && value.slice(-1) !== ' ' &&
          search.length < 2))
     {
-      if (~Complete.engines.indexOf(search[0])) {
+      if (Complete.usingEngine(search[0])) {
         self.hideData();
         return;
       }
       self.completions.engines = [];
-      for (var i = 0; i < Complete.engines.length; i++) {
-        if (!search[0] || !Complete.engines[i].indexOf(search.join(' '))) {
-          self.completions.engines.push([
-            Complete.engines[i],
-            Complete.requestUrls[Complete.engines[i]]
-          ]);
-        }
-      }
+
+      Complete.matchingEngines(search.join(' '), function(key, requestUrl) {
+          self.completions.engines.push([key, requestUrl]);
+      });
+
       self.updateCompletions(true);
       self.completions.topsites = Search.topSites.filter(function(e) {
         return ~(e[0] + ' ' + e[1]).toLowerCase()
@@ -332,13 +329,13 @@ Command.callCompletionFunction = (function() {
         return;
       }
     }
-    if (~Complete.engines.indexOf(search[0]) &&
-        Complete.hasOwnProperty(search[0])) {
-      Complete[search[0]](search.slice(1).join(' '), function(response) {
+
+    Complete.completeWithEngine(search[0], search.slice(1).join(' '),
+      function(response) {
         self.completions = { search: response };
         self.updateCompletions();
-      });
-    }
+      }
+    );
   };
 
   var tabHistoryCompletion = function(value) {
@@ -543,7 +540,7 @@ Command.execute = function(value, repeats) {
   value = value.replace(/^([^\s&*!=?]*)[&*!=?]*\s/, '$1 ');
   value = value.replace(/[&*!=?]+$/, function(e) {
     return e.replace(/[^=?]/g, ''); });
-  if ( !~Complete.engines.indexOf(value.split(/\s+/g).compress()[1]) )
+  if ( !Complete.usingEngine(value.split(/\s+/g).compress()[1]) )
     value = value.replace(/[=?]+$/, '');
 
   this.history.index = {};
@@ -1060,26 +1057,24 @@ Command.updateSettings = function(config) {
   var key;
   if (Array.isArray(config.completionengines) &&
       config.completionengines.length) {
-    Complete.engines = Complete.engines.filter(function(e) {
-      return ~config.completionengines.indexOf(e);
-    });
+    Complete.setUsedEngines(config.completionengines);
   }
+
   this.customCommands = config.COMMANDS || {};
   Object.keys(this.customCommands).forEach(function(name) {
     this.descriptions.push([name, ':' + this.customCommands[name]]);
   }.bind(this));
   if (config.searchengines && config.searchengines.constructor === Object) {
     for (key in config.searchengines) {
-      if (!~Complete.engines.indexOf(key) &&
+      if (!Complete.usingEngine(key) &&
           typeof config.searchengines[key] === 'string') {
-        Complete.engines.push(key);
-        Complete.requestUrls[key] = config.searchengines[key];
+        Complete.addBasicEngine(key, config.searchengines[key]);
       }
     }
   }
   if (config.searchaliases && config.searchaliases.constructor === Object) {
     for (key in config.searchaliases) {
-      if (Complete.engines.indexOf(key)) {
+      if (Complete.usingEngine(key)) {
         Complete.aliases[key] = config.searchaliases[key];
       }
     }
@@ -1087,6 +1082,10 @@ Command.updateSettings = function(config) {
   if (config.locale) {
     Complete.setLocale(config.locale);
   }
+  if (config.defaultengine) {
+    Complete.setDefaultEngine(config.defaultengine);
+  }
+
   if (config.hintcharacters &&
       config.hintcharacters.split('').unique().length > 1) {
     settings.hintcharacters = config.hintcharacters

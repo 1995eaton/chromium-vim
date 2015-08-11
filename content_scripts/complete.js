@@ -18,12 +18,7 @@ var Complete = {};
 
 })();
 
-Complete.engines = ['google', 'wikipedia', 'youtube', 'imdb', 'amazon',
-                    'google-maps', 'wolframalpha', 'google-image', 'ebay',
-                    'webster', 'wictionary', 'urbandictionary', 'duckduckgo',
-                    'answers', 'google-trends', 'google-finance', 'yahoo',
-                    'bing', 'themoviedb'];
-
+Complete.defaultEngine = "google";
 Complete.aliases = {
   g: 'google'
 };
@@ -36,127 +31,78 @@ Complete.getAlias = function(alias) {
   return this.aliases[alias] || '';
 };
 
-Complete.requestUrls = {
-  wikipedia:      'https://en.wikipedia.org/wiki/',
-  google:         'https://www.google.com/search?q=',
-  'google-image': 'https://www.google.com/search?site=imghp&tbm=isch&source=hp&q=',
-  'google-maps':  'https://www.google.com/maps/search/',
-  duckduckgo:     'https://duckduckgo.com/?q=',
-  yahoo:          'https://search.yahoo.com/search?p=',
-  answers:        'https://answers.yahoo.com/search/search_result?p=',
-  bing:           'https://www.bing.com/search?q=',
-  imdb:           'http://www.imdb.com/find?s=all&q=',
-  amazon:         'http://www.amazon.com/s/?field-keywords=',
-  wolframalpha:   'https://www.wolframalpha.com/input/?i=',
-  ebay:           'https://www.ebay.com/sch/i.html?_sacat=0&_from=R40&_nkw=',
-  urbandictionary: 'http://www.urbandictionary.com/define.php?term=',
-  'google-trends': 'http://www.google.com/trends/explore#q=',
-  'google-finance': 'https://www.google.com/finance?q=',
-  webster:          'http://www.merriam-webster.com/dictionary/',
-  youtube:          'https://www.youtube.com/results?search_query=',
-  wictionary:       'http://en.wiktionary.org/wiki/',
-  themoviedb:       'https://www.themoviedb.org/search?query='
-};
+Complete.setDefaultEngine = function(newDefault) {
+  this.defaultEngine = newDefault;
+}
 
-Complete.baseUrls = {
-  wikipedia:      'https://en.wikipedia.org/wiki/Main_Page',
-  google:         'https://www.google.com',
-  'google-image': 'http://www.google.com/imghp',
-  'google-maps':  'https://www.google.com/maps/preview',
-  duckduckgo:     'https://duckduckgo.com',
-  yahoo:          'https://search.yahoo.com',
-  answers:        'https://answers.yahoo.com',
-  bing:           'https://www.bing.com',
-  imdb:           'http://www.imdb.com',
-  amazon:         'http://www.amazon.com',
-  wolframalpha:   'https://www.wolframalpha.com',
-  ebay:           'http://www.ebay.com',
-  urbandictionary: 'http://www.urbandictionary.com',
-  'google-trends': 'http://www.google.com/trends/',
-  'google-finance': 'https://www.google.com/finance',
-  webster:          'http://www.merriam-webster.com',
-  youtube:          'https://www.youtube.com',
-  wictionary:       'https://en.wiktionary.org/wiki/Wiktionary:Main_Page',
-  themoviedb:       'https://www.themoviedb.org'
-};
+Complete.usingEngine = function(key) {
+  return ~this.engines.indexOf(key);
+}
 
-Complete.parseQuery = {
-  wikipedia: function(query) {
-    return query.replace(' ', '_');
-  },
-  bing: function(query) {
-    return query + '&FORM=SEEMOR';
-  },
-  wolframalpha: function(query) {
-    return encodeURIComponent(query);
-  },
-  imdb: function(query) {
-    return encodeURIComponent(query);
-  },
-  'google-finance': function(query) {
-    return encodeURIComponent(query);
-  },
-  wictionary: function(query) {
-    return query.replace(' ', '_');
-  }
-};
+Complete.setUsedEngines = function (keysToUse) {
+  this.engines = this.engines.filter(function(e) {
+    return ~keysToUse.indexOf(e);
+  });
+}
 
-Complete.apis = {
-  wikipedia:      'https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=%s',
-  google:         'https://www.google.com/complete/search?client=chrome-omni&gs_ri=chrome-ext&oit=1&cp=1&pgcl=7&q=%s',
-  'google-image': 'http://www.google.com/complete/search?client=img&hl=en&gs_rn=43&gs_ri=img&ds=i&cp=1&gs_id=8&q=%s',
-  yahoo:          'https://search.yahoo.com/sugg/gossip/gossip-us-ura/?output=sd1&appid=search.yahoo.com&nresults=20&command=%s',
-  answers:        'https://search.yahoo.com/sugg/ss/gossip-us_ss-vertical_ss/?output=sd1&pubid=1307&appid=yanswer&command=%s&nresults=20',
-  bing:           'http://api.bing.com/osjson.aspx?query=%s',
-  imdb:           'http://sg.media-imdb.com/suggests/',
-  amazon:         'https://completion.amazon.com/search/complete?method=completion&search-alias=aps&client=amazon-search-ui&mkt=1&q=%s',
-  wolframalpha:   'https://www.wolframalpha.com/input/autocomplete.jsp?qr=0&i=%s',
-  ebay:           'https://autosug.ebay.com/autosug?kwd=%s',
-  urbandictionary: 'http://api.urbandictionary.com/v0/autocomplete?term=%s',
-  'google-maps':   'https://www.google.com/s?tbm=map&fp=1&gs_ri=maps&source=hp&suggest=p&authuser=0&hl=en&pf=p&tch=1&ech=2&q=%s',
-  'google-trends': 'http://www.google.com/trends/entitiesQuery?tn=10&q=%s',
-  'google-finance': 'https://www.google.com/finance/match?matchtype=matchall&q=%s',
-  webster:          'http://www.merriam-webster.com/autocomplete?query=%s',
-  youtube:          'https://clients1.google.com/complete/search?client=youtube&hl=en&gl=us&gs_rn=23&gs_ri=youtube&ds=yt&cp=2&gs_id=d&q=%s',
-  wictionary:       'http://en.wiktionary.org/w/api.php?action=opensearch&limit=15&format=json&search=%s',
-  duckduckgo:       'https://duckduckgo.com/ac/?q=%s',
-  themoviedb:       'https://www.themoviedb.org/search/remote/multi?query=%s&language=en'
-};
-
-Complete.locales = {
-  uk: {
-    tld: 'co.uk',
-    requestUrls: ['google'],
-    baseUrls: ['google'],
-    apis: ['google']
-  },
-  jp: {
-    tld: 'co.jp',
-    requestUrls: ['google'],
-    baseUrls: ['google'],
-    apis: ['google']
-  },
-  aus: {
-    tld: 'com.au',
-    requestUrls: ['google'],
-    baseUrls: ['google'],
-    apis: ['google']
-  }
-};
-
-Complete.setLocale = function(locale) {
-  if (this.locales.hasOwnProperty(locale)) {
-    locale = this.locales[locale];
-  } else {
-    return;
-  }
-  for (var key in locale) {
-    if (key !== 'tld') {
-      for (var i = 0; i < locale[key].length; i++) {
-        this[key][locale[key][i]] = this[key][locale[key][i]].replace(/\.com/, '.' + locale.tld);
-      }
+Complete.matchingEngines = function(partialKey, cb) {
+  var engines = [];
+  for (var i = 0; i < this.engines.length; i++) {
+    if (!partialKey || !this.engines[i].indexOf(partialKey)) {
+      cb(Complete.engines[i],
+        Complete.engineMap[Complete.engines[i]].requestUrl());
     }
   }
+}
+
+Complete.completeWithEngine = function(key, query, cb)
+{
+  var e = this.engineMap[key];
+
+  if (this.usingEngine(key) &&
+      e !== undefined &&
+      e.hasOwnProperty("search")) {
+    return e.search(query, cb);
+  }
+}
+
+Complete.addBasicEngine = function(key, requestUrl) {
+  Object.create(Complete.Engine, {
+    name: {value: key},
+    requestUrl: {value: function() {
+      return requestUrl;
+    }},
+  }).registerEngine();
+}
+
+var localeDomain = function(l) {
+  return {
+    uk: "uk",
+    jp: "jp",
+    aus: "au",
+  }[l];
+}
+
+var localeTld = function(l) {
+  var d = localeDomain(l);
+  return {
+    uk: 'co.' + d,
+    jp: 'co.' + d,
+    aus: 'com.' + d,
+  }[l] || "com";
+};
+
+var localeLangCode = function(l) {
+  return {
+    uk: 'en',
+    jp: 'jp',
+    aus: 'en',
+  }[l] || 'en';
+}
+
+
+Complete.setLocale = function(locale) {
+  this.newLocale = locale;
 };
 
 Complete.convertToLink = function(input, isURL, isLink) {
@@ -168,281 +114,669 @@ Complete.convertToLink = function(input, isURL, isLink) {
   if (input.length === 0)
     return '';
   input[0] = this.getAlias(input[0]) || input[0];
-  if (Complete.engines.indexOf(input[0]) !== -1) {
+
+  var e = Complete.engineMap[input[0]];
+
+  if (e !== undefined) {
     if (input.length > 1) {
-      prefix = Complete.requestUrls[input[0]];
+      prefix = e.requestUrl();
     } else {
-      return Complete.baseUrls[input[0]];
+      return e.baseUrl();
     }
-  } else {
-    if (!isLink && (isURL || input.join(' ').validURL())) {
-      input = input.join(' ');
-      return (!/^[a-zA-Z\-]+:/.test(input) ? 'http://' : '') +
-        input;
-    }
-    return (Complete.requestUrls[settings.defaultengine] ||
-      Complete.requestUrls.google) + encodeURIComponent(input.join(' '));
-  }
-  if (Complete.parseQuery.hasOwnProperty(input[0])) {
-    suffix = Complete.parseQuery[input[0]](input.slice(1).join(' '));
-  } else {
     suffix = input.slice(1).join(' ');
+  } else {
+    suffix = input.join(' ');
+    if (!isLink && (isURL || suffix.validURL())) {
+      return (!/^[a-zA-Z\-]+:/.test(suffix) ? 'http://' : '') +
+        suffix;
+    }
+    e = Complete.engineMap[Complete.defaultEngine];
   }
+
   if (suffix.validURL()) {
     return suffix.convertLink();
   }
-  suffix = encodeURIComponent(suffix);
-  return ~prefix.indexOf('%s') ?
-    prefix.embedString(suffix) :
-    prefix + suffix;
+
+  return e.embedQueryForRequest.call(e, suffix);
 };
 
-Complete.wikipedia = function(query, callback) {
-  httpRequest({
-    url: this.apis.wikipedia.embedString(query),
-    json: true
-  }, function(response) {
-    callback(response[1]);
-  });
+Complete.engines = [];
+Complete.engineMap = {};
+
+Complete.Engine = {
+
+  //handy internal function
+  _embedOrAppend: function(template, q) {
+    return ~template.indexOf('%s') ?
+      template.embedString(q) :
+      template + q;
+  },
+
+  _queryEmbedders: {
+    'encodeuri': function(url, q) {
+      return Complete.Engine._embedOrAppend(url, encodeURIComponent(q));
+    },
+  },
+
+  _callbacks: {
+    'newlinesplit': function(cb) { return function(response) {
+      cb(response.split('\n').map(function(e) {
+        return e;
+      }));
+    }},
+  },
+
+  _localeTld: function(url) {
+    return url.replace(/\.com/, '.' + localeTld(Complete.newLocale));
+  },
+  _localeDomain: function() {
+    return localeDomain(Complete.newLocale);
+  },
+
+  registerEngine: function() {
+    Complete.engines.push(this.name);
+    Complete.engineMap[this.name] = this;
+  },
+
+  // normally these are just URI encoded, even if the API is not
+  embedQueryForRequest: function(q) {
+    return this._queryEmbedders.encodeuri(this.requestUrl(), q);
+  },
+
 };
 
-Complete.google = function(query, callback) {
-  httpRequest({
-    url: this.apis.google.embedString(query),
-    json: true
-  }, function(response) {
-    var data = response[1].map(function(e, i) {
-      return {
-        type: response[4]['google:suggesttype'][i],
-        text: e
-      };
-    });
-    callback(data.sort(function(a) {
-      return a.type !== 'NAVIGATION';
-    }).map(function(e) { return e.text; }));
-  });
-};
+Object.create(Complete.Engine, {
+  name: {value: "octopart"},
+  baseUrl: {value: function() {
+    return "https://octopart.com";
+  }},
+  requestUrl: {value: function() {
+    return "https://octopart.com/search?q=";
+  }},
 
-Complete['google-maps'] = function(query, callback) {
-  httpRequest({
-    url: this.apis['google-maps'].embedString(query),
-    json: false
-  }, function(response) {
-    var data = JSON.parse(JSON.parse(JSON.stringify(response.replace(/\/\*[^\*]+\*\//g, '')))).d;
-    data = data.replace(/^[^,]+,/, '')
-               .replace(/\n\][^\]]+\][^\]]+$/, '')
-               .replace(/,+/g, ',')
-               .replace(/\n/g, '')
-               .replace(/\[,/g, '[');
-    data = JSON.parse(data);
-    data = data.map(function(e) {
-      return e[0][0][0];
-    });
-    callback(data);
-  });
-};
-
-Complete['google-image'] = function(query, callback) {
-  httpRequest({
-    url: this.apis['google-image'].embedString(query),
-    json: false
-  }, function(response) {
-    callback(JSON.parse(response.replace(/^[^\(]+\(|\)$/g, ''))[1].map(function(e) {
-      return e[0].replace(/<[^>]+>/g, '');
-    }));
-  });
-};
-
-Complete['google-trends'] = function(query, callback) {
-  httpRequest({
-    url: this.apis['google-trends'].embedString(encodeURIComponent(query)),
-    json: true
-  }, function(response) {
-    callback(response.entityList.map(function(e) {
-      return [e.title + ' - ' + e.type, Complete.requestUrls['google-trends'] + encodeURIComponent(e.mid)];
-    }));
-  });
-};
-
-Complete['google-finance'] = function(query, callback) {
-  httpRequest({
-    url: this.apis['google-finance'].embedString(encodeURIComponent(query)),
-    json: true
-  }, function(response) {
-    callback(response.matches.map(function(e) {
-      return [e.t + ' - ' + e.n + ' - ' + e.e, Complete.requestUrls['google-finance'] + e.e + ':' + e.t];
-    }));
-  });
-};
-
-Complete.amazon = function(query, callback) {
-  httpRequest({
-    url: this.apis.amazon.embedString(encodeURIComponent(query)),
-    json: true
-  }, function(response) {
-    callback(response[1]);
-  });
-};
-
-Complete.yahoo = function(query, callback) {
-  httpRequest({
-    url: this.apis.yahoo.embedString(encodeURIComponent(query)),
-    json: true
-  }, function(response) {
-    var _ret = [];
-    for (var key in response.r) {
-      if (response.r[key].hasOwnProperty('k')) {
-        _ret.push(response.r[key].k);
-      }
-    }
-    callback(_ret);
-  });
-};
-
-Complete.answers = function(query, callback) {
-  httpRequest({
-    url: this.apis.answers.embedString(encodeURIComponent(query)),
-    json: true
-  }, function(response) {
-    callback(response.r.map(function(e) {
-      return [e.k, 'https://answers.yahoo.com/question/index?qid=' + e.d.replace(/^\{qid:|,.*/g, '')];
-    }));
-  });
-};
-
-Complete.bing = function(query, callback) {
-  httpRequest({
-    url: this.apis.bing.embedString(query),
-    json: true
-  }, function(response) {
-    callback(response[1].map(function(e) {
-      return e;
-    }));
-  });
-};
-
-Complete.ebay = function(query, callback) {
-  httpRequest({
-    url: this.apis.ebay.embedString(encodeURIComponent(query)),
-    json: false
-  }, function(response) {
-    var _ret = JSON.parse(response.replace(/^[^\(]+\(|\)$/g, ''));
-    if (!_ret.res) {
-      return false;
-    }
-    callback(_ret.res.sug.map(function(e) {
-      return e;
-    }));
-  });
-};
-
-Complete.youtube = function(query, callback) {
-  httpRequest({
-    url: this.apis.youtube.embedString(query),
-    json: false
-  }, function(response) {
-    var _ret = JSON.parse(response.replace(/^[^\(]+\(|\)$/g, ''));
-    callback(_ret[1].map(function(e) {
-      return e[0];
-    }));
-  });
-};
-
-Complete.wolframalpha = function(query, callback) {
-  httpRequest({
-    url: this.apis.wolframalpha.embedString(encodeURIComponent(query)),
-    json: true
-  }, function(response) {
-    callback(response.results.map(function(e) {
-      return e.input;
-    }));
-  });
-};
-
-Complete.webster = function(query, callback) {
-  httpRequest({
-    url: this.apis.webster.embedString(encodeURIComponent(query)),
-    json: true
-  }, function(response) {
-    callback(response.suggestions.map(function(e) {
-      return e;
-    }));
-  });
-};
-
-Complete.wictionary = function(query, callback) {
-  httpRequest({
-    url: this.apis.wictionary.embedString(encodeURIComponent(query)),
-    json: true
-  }, function(response) {
-    callback(response[1].map(function(e) {
-      return e;
-    }));
-  });
-};
-
-Complete.duckduckgo = function(query, callback) {
-  httpRequest({
-    url: this.apis.duckduckgo.embedString(encodeURIComponent(query)),
-    json: true
-  }, function(response) {
-    callback(response.map(function(e) {
-      return e.phrase;
-    }).compress());
-  });
-};
-
-Complete.urbandictionary = function(query, callback) {
-  httpRequest({
-    url: this.apis.urbandictionary.embedString(encodeURIComponent(query)),
-    json: true
-  }, function(response) {
-    callback(response.slice(1).map(function(e) {
-      return e;
-    }));
-  });
-};
-
-Complete.imdb = function(query, callback) {
-  httpRequest({
-    url: this.apis.imdb + query[0] + '/' + query.replace(/ /g, '_') + '.json',
-    json: false
-  }, function(response) {
-    var _ret = JSON.parse(response.replace(/^[^\(]+\(|\)$/g, ''));
-    callback(_ret.d.map(function(e) {
-      if (/:\/\//.test(e.id)) {
-        return [e.l, e.id];
-      }
-      var _url = 'http://www.imdb.com/' + (e.id.indexOf('nm') === 0 ? 'name' : 'title') + '/' + e.id;
-      if (e.q) {
-        return [e.l + ' - ' + e.q + ', ' + e.s + ' (' + e.y + ')', _url];
-      }
-      return [e.l + ' - ' + e.s, _url];
-    }));
-  });
-};
-
-Complete.themoviedb = function(query, callback) {
-  httpRequest({
-    url: this.apis.themoviedb.embedString(encodeURIComponent(query)),
-    json: true,
-  }, function(response) {
-    callback(response.map(function(e) {
-      var prettyType = (function() {
-        switch (e.media_type) {
-        case 'tv': return 'TV Series';
-        case 'movie': return 'Movie';
-        default: return e.media_type;
+  search: {value: function(query, callback) {
+    var api = "https://octopart.com/api/v3/suggest?q=";
+    httpRequest({
+      url: this._queryEmbedders.encodeuri(api, query),
+      json: true
+    }, function(response) {
+      callback(response.results.map(function(d) {
+        if (d.type === "query") {
+          return d.text;
+        } else {
+          var data = {
+            'category': ['category_uids', d.uid],
+            'brand': ['brand.name', encodeURIComponent(d.text)],
+          }[d.type];
+          var url = "https://octopart.com/search?filter%5Bfields%5D%5B"
+            + data[0] + "%5D%5B%5D=" + data[1] + "&start=0";
+          return [d.text, url];
         }
-      })();
-      var title = e.name + ' - ' + prettyType;
-      if (e.media_type === 'movie' || e.media_type === 'tv') {
-        var year, date = e.first_air_date || e.release_date;
-        if (typeof date === 'string' && (year = date.replace(/-.*/, '')))
-          title += ' (' + year + ')';
+      }));
+    });
+  }},
+}).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: "google"},
+  baseUrl: {value: function() {
+    return Complete.Engine._localeTld("https://www.google.com");
+  }},
+  requestUrl: {value: function() {
+    return Complete.Engine._localeTld("https://www.google.com/search?q=");
+  }},
+
+  search: {value: function(query, callback) {
+    var api = this._localeTld("https://www.google.com/complete/search?client=chrome-omni&gs_ri=chrome-ext&oit=1&cp=1&pgcl=7&q=");
+    httpRequest({
+      url: this._embedOrAppend(api, query),
+      json: true
+    },
+    function(response) {
+      var data = response[1].map(function(e, i) {
+        return {
+          type: response[4]['google:suggesttype'][i],
+          text: e
+        };
+      });
+      callback(data.sort(function(a) {
+        return a.type !== 'NAVIGATION';
+      }).map(function(e) { return e.text; }));
+    });
+  }},
+}).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: 'google-maps'},
+
+  baseUrl: {value: function() {
+    return Complete.Engine._localeTld("https://www.google.com/maps");
+  }},
+  requestUrl: {value: function() {
+    return Complete.Engine._localeTld("https://www.google.com/maps/search/");
+  }},
+
+  search: {value: function(query, callback) {
+    var api = this._localeTld("http://www.google.com") + "/s?tbm=map&fp=1&gs_ri=maps&source=hp&suggest=p&authuser=0&hl=en&pf=p&tch=1&ech=2&q=";
+    httpRequest({
+      url: api + query,
+      json: false
+    }, function(response) {
+      var data = JSON.parse(response.replace(/\/\*[^\*]+\*\//g, '')).d;
+      data = data.substring(data.indexOf("["));
+      data = JSON.parse(data)[0][1];
+
+      data = data.map(function(e) {
+        return e[e.length-1][0][0];
+      });
+      callback(data);
+    });
+  }},
+}).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: 'google-image'},
+  baseUrl: {value: function() {
+    return this._localeTld("https://www.google.com") + "/imghp";
+  }},
+  requestUrl: {value: function() {
+    return this._localeTld("https://www.google.com") + "/search?tbm=isch&q=";
+  }},
+  search: {value: function(query, callback) {
+    var api = this._localeTld("https://www.google.com") + "/complete/search?client=img&hl=en&gs_rn=43&gs_ri=img&ds=i&cp=1&gs_id=8&q=";
+    httpRequest({
+      url: api + query,
+      json: false
+    }, function(response) {
+      callback(JSON.parse(response.replace(/^[^\(]+\(|\)$/g, ''))[1].map(function(e) {
+        return e[0].replace(/<[^>]+>/g, '');
+      }));
+    });
+  }},
+}).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: 'google-trends'},
+  baseUrl: {value: function() {
+    return this._localeTld("https://www.google.com") + "/trends";
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/explore#q=";
+  }},
+  search: {value: function(query, callback) {
+    var api = this.baseUrl() + "/entitiesQuery?tn=10&q="
+    var me = this;
+    httpRequest({
+      url: api + encodeURIComponent(query),
+      json: true
+    }, function(response) {
+      callback(response.entityList.map(function(e) {
+        return [e.title + ' - ' + e.type, me.requestUrl() + encodeURIComponent(e.mid)];
+      }));
+    });
+  }},
+}).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: 'google-finance'},
+  baseUrl: {value: function() {
+    return this._localeTld("https://www.google.com") + "/finance";
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "?q=";
+  }},
+  search: {value: function(query, callback) {
+    var api = this.baseUrl() + "/match?matchtype=matchall&q="
+    var me = this;
+    httpRequest({
+      url: api + encodeURIComponent(query),
+      json: true
+    }, function(response) {
+      callback(response.matches.map(function(e) {
+        return [e.t + ' - ' + e.n + ' - ' + e.e, me.requestUrl() + e.e + ':' + e.t];
+      }));
+    });
+  }},
+}).registerEngine();
+
+var wikiEngine = function(wiki, hasLangDomains) {
+  return Object.create(Complete.Engine, {
+    name: {value: wiki.split(".")[0]},
+    baseUrl: {value: function() {
+      var dom = (hasLangDomains ? (localeLangCode(Complete.newLocale) + ".") : "");
+      return "http://" + dom + wiki;
+    }},
+    requestUrl: {value: function() {
+      return this.baseUrl() + "/wiki/";
+    }},
+    embedQueryForRequest: {value: function(q) {
+        return this._embedOrAppend(this.requestUrl(), q.replace(' ', '_'));
+    }},
+    search: {value: function(query, callback) {
+      var api = this.baseUrl() + "/w/api.php?action=opensearch&format=json&search=";
+      httpRequest({
+        url: this._embedOrAppend(api, query),
+        json: true
+      }, function(response) {
+        callback(response[1]);
+      });
+    }},
+})};
+
+wikiEngine("wikipedia.org", true).registerEngine();
+wikiEngine("wiktionary.org", true).registerEngine();
+wikiEngine("wikispecies.org", false).registerEngine();
+wikiEngine("wikisource.org", true).registerEngine();
+wikiEngine("wikiquote.org", false).registerEngine();
+wikiEngine("wikibooks.org", true).registerEngine();
+wikiEngine("commons.wikimedia.org", false).registerEngine();
+wikiEngine("wikinews.org", true).registerEngine();
+wikiEngine("wikiversity.org", true).registerEngine();
+wikiEngine("wikivoyage.org", true).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: "amazon"},
+  baseUrl: {value: function() {
+    return "https://" + this._localeTld("amazon.com");
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/s/?field-keywords="
+  }},
+  search: {value: function(query, callback) {
+    var mkt = {
+      uk : 3
+    }[Complete.newLocale] || 1;
+
+    var api = "https://completion." + this._localeTld("amazon.com") + "/search/complete?method=completion&search-alias=aps&client=amazon-search-ui&mkt=" + mkt + "&q="
+    httpRequest({
+      url: api + encodeURIComponent(query),
+      json: true
+    }, function(response) {
+      callback(response[1]);
+    });
+  }},
+}).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: "yahoo"},
+  baseUrl: {value: function() {
+    return "https://" + this._localeDomain() + ".search.yahoo.com";
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/search?p="
+  }},
+  search: {value: function(query, callback) {
+    var api = this.baseUrl() + "/sugg/gossip/gossip-" + this._localeDomain()
+      + "-ura/?output=sd1&appid=search.yahoo.com&nresults=20&command=";
+    httpRequest({
+      url: api + encodeURIComponent(query),
+      json: true
+    }, function(response) {
+      var _ret = [];
+      for (var key in response.r) {
+        if (response.r[key].hasOwnProperty('k')) {
+          _ret.push(response.r[key].k);
+        }
       }
-      return [title, Complete.baseUrls.themoviedb +
-                     '/' + e.media_type + '/' + e.id];
-    }));
+      callback(_ret);
+    });
+  }},
+}).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: "answers"},
+  baseUrl: {value: function() {
+    return "https://answers.yahoo.com";
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/search/search_result?p="
+  }},
+  search: {value: function(query, callback) {
+    var api = "https://search.yahoo.com/sugg/ss/gossip-" +  "us" //this._localeDomain()
+      + "_ss-vertical_ss/?output=sd1&pubid=1307&appid=yanswer&command=%s&nresults=20";
+    httpRequest({
+      url: api.embedString(encodeURIComponent(query)),
+      json: true
+    }, function(response) {
+      callback(response.r.map(function(e) {
+       return [e.k, 'https://answers.yahoo.com/question/index?qid=' + e.d.replace(/^\{qid:|,.*/g, '')];
+      }));
+    });
+  }}
+}).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: "bing"},
+  baseUrl: {value: function() {
+    return "https://" + this._localeTld("www.bing.com");
+  }},
+  requestUrl: {value: function() {
+    return "https://www.bing.com/search?q=%s&cc=" + this._localeDomain();
+  }},
+  search: {value: function(query, callback) {
+    var api = "https://www.bing.com/osjson.aspx?query=%s&cc=" + this._localeDomain();
+    httpRequest({
+      url: api.embedString(query),
+      json: true
+    }, function(response) {
+      callback(response[1].map(function(e) {
+        return e;
+      }));
+    });
+  }}
+}).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: "ebay"},
+  baseUrl: {value: function() {
+    return "https://" + this._localeTld("ebay.com");
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/sch/i.html?_nkw="
+  }},
+  search: {value: function(query, callback) {
+    var sid = {
+      uk: 3,
+      fr: 71,
+    }[Complete.newLocale] || 0;
+    var api = "http://autosug.ebaystatic.com/autosug?kwd=%s&sId=" + sid;
+    httpRequest({
+      url: api.embedString(encodeURIComponent(query)),
+      json: false
+    }, function(response) {
+      var _ret = JSON.parse(response.replace(/^[^\(]+\(|\)$/g, ''));
+      if (!_ret.res) {
+        return false;
+      }
+      callback(_ret.res.sug.map(function(e) {
+        return e;
+      }));
+    });
+  }}
+}).registerEngine();
+
+
+Object.create(Complete.Engine, {
+  name: {value: "youtube"},
+  baseUrl: {value: function() {
+    return "https://youtube.com";
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/results?search_query="
+  }},
+  search: {value: function(query, callback) {
+    var api = "https://clients1.google.com/complete/search?client=youtube&hl=en&gl=us&gs_rn=23&gs_ri=youtube&ds=yt&cp=2&gs_id=d&q=%s";
+    httpRequest({
+      url: api.embedString(query),
+      json: false
+    }, function(response) {
+      var _ret = JSON.parse(response.replace(/^[^\(]+\(|\)$/g, ''));
+      callback(_ret[1].map(function(e) {
+        return e[0];
+      }));
+    });
+  }}
+}).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: "wolframalpha"},
+  baseUrl: {value: function() {
+    return "https://www.wolframalpha.com";
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/input/?i="
+  }},
+  search: {value: function(query, callback) {
+    var api = this.baseUrl() + "/input/autocomplete.jsp?qr=0&i="
+    httpRequest({
+      url: api + encodeURIComponent(query),
+      json: true
+    }, function(response) {
+      callback(response.results.map(function(e) {
+        return e.input;
+      }));
+    });
+  }}
+}).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: "webster"},
+  baseUrl: {value: function() {
+    return "http://www.merriam-webster.com";
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/dictionary/"
+  }},
+  search: {value: function(query, callback) {
+    var api = this.baseUrl() + "/autocomplete?query="
+    httpRequest({
+      url: api + encodeURIComponent(query),
+      json: true
+    }, function(response) {
+      callback(response.suggestions.map(function(e) {
+        return e;
+      }));
+    });
+  }}
+}).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: "duckduckgo"},
+  baseUrl: {value: function() {
+    return "https://duckduckgo.com";
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/?q="
+  }},
+  search: {value: function(query, callback) {
+    httpRequest({
+      url: this.baseUrl() + "/ac/?q=" + encodeURIComponent(query),
+      json: true
+    }, function(response) {
+      callback(response.map(function(e) {
+        return e.phrase;
+      }).compress());
+    });
+  }}
+}).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: "urbandictionary"},
+  baseUrl: {value: function() {
+    return "http://www.urbandictionary.com";
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/define.php?term="
+  }},
+  search: {value: function(query, callback) {
+    var api = "http://api.urbandictionary.com/v0/autocomplete?term=";
+    httpRequest({
+      url: api + encodeURIComponent(query),
+      json: true
+    }, function(response) {
+      callback(response.slice(1).map(function(e) {
+        return e;
+      }));
+    });
+  }}
+}).registerEngine();
+
+
+Object.create(Complete.Engine, {
+  name: {value: "imdb"},
+  baseUrl: {value: function() {
+    return "http://www.imdb.com";
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/find?s=all&q="
+  }},
+  search: {value: function(query, callback) {
+    var api = "http://sg.media-imdb.com/suggests/";
+    httpRequest({
+      url: api + query[0] + '/' + query.replace(/ /g, '_') + '.json',
+      json: false
+    }, function(response) {
+      var _ret = JSON.parse(response.replace(/^[^\(]+\(|\)$/g, ''));
+      callback(_ret.d.map(function(e) {
+        if (/:\/\//.test(e.id)) {
+          return [e.l, e.id];
+        }
+        var _url = 'http://www.imdb.com/' + (e.id.indexOf('nm') === 0 ? 'name' : 'title') + '/' + e.id;
+        if (e.q) {
+          return [e.l + ' - ' + e.q + ', ' + e.s + ' (' + e.y + ')', _url];
+        }
+        return [e.l + ' - ' + e.s, _url];
+      }));
+    });
+  }}
+}).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: "farnell"},
+  baseUrl: {value: function() {
+    return "http://" + this._localeDomain() + ".farnell.com";
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/Search?st="
+  }},
+  search: {value: function(query, callback) {
+    if (query.length <= 2)
+      return;
+
+    var api = this.baseUrl() + "/webapp/wcs/stores/servlet/AjaxSearchLookAhead?searchTerm=";
+    httpRequest({
+      url: api + query,
+      json: false
+    }, function(response) {
+
+      var parser = new DOMParser();
+      var doc = parser.parseFromString("<html>" + response + "</html>", "text/html");
+
+      var lists = doc.evaluate("//ul", doc, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+      var res = [];
+      ul = lists.iterateNext()
+      while(ul)
+      {
+        var title = ul.previousElementSibling.firstElementChild.textContent;
+        var li = ul.children;
+        for (var i=0; i < li.length; i++) {
+          res.push([title + " - " + li[i].textContent, li[i].firstElementChild.href]);
+        }
+        ul = lists.iterateNext();
+      }
+      callback(res);
+    });
+  }}
+}).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: "mouser"},
+  baseUrl: {value: function() {
+    return "http://" + this._localeDomain() + ".mouser.com";
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/Search/Refine.aspx?Keyword="
+  }},
+  search: {value: function(query, callback) {
+    var api = this.baseUrl() + "/ajax/autosuggestion.ashx?q=";
+    var uidUrl = this.baseUrl() + "/Search/Refine.aspx?N=";
+    httpRequest({
+      url: api + query,
+      json: true
+    }, function(response) {
+      callback(response.map(function(e) {
+        var p = e.value.split("##");
+        return [p[0].trim(), uidUrl + p[1]];
+      }));
+    });
+  }}
+}).registerEngine();
+
+var doxygenEngine = function(name, base, offsetCharCodes) {
+  return Object.create(Complete.Engine, {
+    name: {value: name},
+    baseUrl: {value: function() {
+      return base + "/index.html";
+    }},
+    requestUrl: {value: function() {
+      return base + "/search";
+    }},
+    _getSearchUrl: {value: function(q, ext) {
+      var charCode = q.toLowerCase().charCodeAt(0);
+      if (offsetCharCodes)
+        charCode = charCode - 96;
+      return this.requestUrl() + "/all_" + charCode.toString(16) + "." + ext + "?" + q;
+    }},
+    embedQueryForRequest: {value: function(q) {
+        return this._getSearchUrl(q, "html");
+    }},
+    search: {value: function(query, callback) {
+      httpRequest({
+        url: this._getSearchUrl(query, "js"),
+        json: false
+      }, function(response) {
+        var d = response.split("\n");
+        d = d.slice(1).join("")
+        d = d.replace(/'/g, '"').replace(/;/g, "");
+
+        j = JSON.parse(d);
+
+        res = [];
+
+        for (var i = 0; i < j.length && res.length < 20; i++) {
+          var title = j[i][1][0];
+
+          if (title.toLowerCase().indexOf(query.toLowerCase()) === -1)
+            continue;
+
+          for (var sub = 1; sub < j[i][1].length; sub++) {
+            var subitem = j[i][1][sub];
+            res.push([title + " - " + subitem[2], subitem[0].replace("..", base)]);
+          }
+        }
+
+        callback(res);
+      });
+    }}
   });
 };
+
+doxygenEngine("juce", "http://www.juce.com/api", false).registerEngine();
+doxygenEngine("kicad-scripting", "http://ci.kicad-pcb.org/job/kicad-doxygen/ws/build/pcbnew/doxygen-python/html", true).registerEngine();
+doxygenEngine("gimp-dox", "http://fossies.org/dox/gimp-2.8.14", true).registerEngine();
+
+Object.create(Complete.Engine, {
+  name: {value: "themoviedb"},
+  baseUrl: {value: function() {
+    return "http://www.themoviedb.org";
+  }},
+  requestUrl: {value: function() {
+    return this.baseUrl() + "/search?query="
+  }},
+  search: {value: function(query, callback) {
+    var api = this.baseUrl() + "/search/remote/multi?query=%s&language=en";
+    var me = this;
+    httpRequest({
+      url: api.embedString(encodeURIComponent(query)),
+      json: true,
+    }, function(response) {
+      callback(response.map(function(e) {
+        var prettyType = (function() {
+          switch (e.media_type) {
+          case 'tv': return 'TV Series';
+          case 'movie': return 'Movie';
+          default: return e.media_type;
+          }
+        })();
+        var title = e.name + ' - ' + prettyType;
+        if (e.media_type === 'movie' || e.media_type === 'tv') {
+          var year, date = e.first_air_date || e.release_date;
+          if (typeof date === 'string' && (year = date.replace(/-.*/, '')))
+            title += ' (' + year + ')';
+        }
+        return [title, me.baseUrl() +
+                       '/' + e.media_type + '/' + e.id];
+      }));
+    });
+  }}
+}).registerEngine();
