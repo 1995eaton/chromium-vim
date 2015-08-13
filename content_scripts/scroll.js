@@ -245,56 +245,55 @@ Scroll.scroll = function(type, repeats) {
     }
   })();
 
-  var scrollElem = scrollingElement(direction);
-  var hy = scrollElem === document.body ? innerHeight : scrollElem.clientHeight,
-      hw = scrollElem === document.body ? innerWidth : scrollElem.clientWidth;
-
-  var x = scrollElem.scrollLeft,
-      y = scrollElem.scrollTop;
+  var scrollElem = scrollingElement(direction),
+      hy = scrollElem === document.body ? innerHeight : scrollElem.clientHeight,
+      hw = scrollElem === document.body ? innerWidth  : scrollElem.clientWidth,
+      x = 0,
+      y = 0;
 
   switch (type) {
   case 'down':
-    y += repeats * stepSize;
+    y = repeats * stepSize;
     break;
   case 'up':
     y -= repeats * stepSize;
     break;
   case 'pageDown':
-    y += repeats * hy >> 1;
+    y = repeats * hy >> 1;
     break;
   case 'fullPageDown':
-    y += repeats * hy * (settings.fullpagescrollpercent / 100 || 1);
+    y = repeats * hy * (settings.fullpagescrollpercent / 100 || 1);
     break;
   case 'pageUp':
     y -= repeats * hy >> 1;
     break;
   case 'fullPageUp':
-    y -= -repeats * hy * (settings.fullpagescrollpercent / 100 || 1);
+    y -= repeats * hy * (settings.fullpagescrollpercent / 100 || 1);
     break;
   case 'top':
-    y = 0;
+    y -= scrollElem.scrollTop;
     break;
   case 'bottom':
-    y = scrollElem.scrollHeight - hy + 20;
+    y = scrollElem.scrollHeight - scrollElem.scrollTop - hy + 20;
     break;
   case 'left':
     x -= repeats * stepSize >> 1;
     break;
   case 'right':
-    x += repeats * stepSize >> 1;
+    x = repeats * stepSize >> 1;
     break;
   case 'leftmost':
-    x = 0;
+    x -= scrollElem.scrollLeft;
     break;
   case 'rightmost':
-    x = scrollElem.scrollWidth - hw + 20;
+    x = scrollElem.scrollWidth - scrollElem.scrollLeft - hw + 20;
     break;
   }
 
   if (settings && settings.smoothscroll) {
-    window.smoothScrollTo(scrollElem, x, y, settings.scrollduration);
+    window.smoothScrollBy(scrollElem, x, y, settings.scrollduration);
   } else {
-    $scrollTo(scrollElem, x, y);
+    $scrollBy(scrollElem, x, y);
   }
 
 };
