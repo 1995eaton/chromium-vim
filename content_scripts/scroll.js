@@ -244,100 +244,57 @@ Scroll.scroll = function(type, repeats) {
       return SCROLLABLE_Y_DOWN;
     }
   })();
+
   var scrollElem = scrollingElement(direction);
-  var seHeight = scrollElem === document.body ?
-    document.documentElement.clientHeight :
-    scrollElem.clientHeight;
-  var seWidth = scrollElem === document.body ?
-    document.documentElement.clientWidth :
-    scrollElem.clientWidth;
+  var hy = scrollElem === document.body ? innerHeight : scrollElem.clientHeight,
+      hw = scrollElem === document.body ? innerWidth : scrollElem.clientWidth;
+
+  var x = scrollElem.scrollLeft,
+      y = scrollElem.scrollTop;
+
+  switch (type) {
+  case 'down':
+    y += repeats * stepSize;
+    break;
+  case 'up':
+    y -= repeats * stepSize;
+    break;
+  case 'pageDown':
+    y += repeats * hy >> 1;
+    break;
+  case 'fullPageDown':
+    y += repeats * hy * (settings.fullpagescrollpercent / 100 || 1);
+    break;
+  case 'pageUp':
+    y -= repeats * hy >> 1;
+    break;
+  case 'fullPageUp':
+    y -= -repeats * hy * (settings.fullpagescrollpercent / 100 || 1);
+    break;
+  case 'top':
+    y = 0;
+    break;
+  case 'bottom':
+    y = scrollElem.scrollHeight - hy + 20;
+    break;
+  case 'left':
+    x -= repeats * stepSize >> 1;
+    break;
+  case 'right':
+    x += repeats * stepSize >> 1;
+    break;
+  case 'leftmost':
+    x = 0;
+    break;
+  case 'rightmost':
+    x = scrollElem.scrollWidth - hw + 20;
+    break;
+  }
 
   if (settings && settings.smoothscroll) {
-
-    switch (type) {
-      case 'down':
-        window.smoothScrollBy(scrollElem, 0, repeats * stepSize, settings.scrollduration);
-        break;
-      case 'up':
-        window.smoothScrollBy(scrollElem, 0, -repeats * stepSize, settings.scrollduration);
-        break;
-      case 'pageDown':
-        window.smoothScrollBy(scrollElem, 0, repeats * seHeight / 2, settings.scrollduration);
-        break;
-      case 'fullPageDown':
-        window.smoothScrollBy(scrollElem, 0, repeats * seHeight * (settings.fullpagescrollpercent / 100 || 1), settings.scrollduration);
-        break;
-      case 'pageUp':
-        window.smoothScrollBy(scrollElem, 0, -repeats * seHeight / 2, settings.scrollduration);
-        break;
-      case 'fullPageUp':
-        window.smoothScrollBy(scrollElem, 0, -repeats * seHeight * (settings.fullpagescrollpercent / 100 || 1), settings.scrollduration);
-        break;
-      case 'top':
-        window.smoothScrollBy(scrollElem, 0, -scrollElem.scrollTop, settings.scrollduration);
-        break;
-      case 'bottom':
-        window.smoothScrollTo(scrollElem, scrollElem.scrollLeft, scrollElem.scrollHeight - seHeight, settings.scrollduration);
-        break;
-      case 'left':
-        window.smoothScrollBy(scrollElem, repeats * -stepSize / 2, 0, settings.scrollduration);
-        break;
-      case 'right':
-        window.smoothScrollBy(scrollElem, repeats * stepSize / 2, 0, settings.scrollduration);
-        break;
-      case 'leftmost':
-        window.smoothScrollBy(scrollElem, -scrollElem.scrollLeft - 10, 0, settings.scrollduration);
-        break;
-      case 'rightmost':
-        window.smoothScrollBy(scrollElem, scrollElem.scrollWidth - scrollElem.scrollLeft - seWidth + 20, 0, settings.scrollduration);
-        break;
-      default:
-        break;
-    }
-
+    window.smoothScrollTo(scrollElem, x, y, settings.scrollduration);
   } else {
-
-    switch (type) {
-      case 'down':
-        $scrollBy(scrollElem, 0, repeats * stepSize);
-        break;
-      case 'up':
-        $scrollBy(scrollElem, 0, -repeats * stepSize);
-        break;
-      case 'pageDown':
-        $scrollBy(scrollElem, 0, repeats * seHeight / 2);
-        break;
-      case 'fullPageDown':
-        $scrollBy(scrollElem, 0, repeats * seHeight * (settings.fullpagescrollpercent / 100 || 0.85));
-        break;
-      case 'pageUp':
-        $scrollBy(scrollElem, 0, -repeats * seHeight / 2);
-        break;
-      case 'fullPageUp':
-        $scrollBy(scrollElem, 0, -repeats * seHeight * (settings.fullpagescrollpercent / 100 || 0.85));
-        break;
-      case 'top':
-        $scrollTo(scrollElem, 0, 0);
-        break;
-      case 'bottom':
-        $scrollTo(scrollElem, 0, scrollElem.scrollHeight);
-        break;
-      case 'left':
-        $scrollBy(scrollElem, -repeats * stepSize, 0);
-        break;
-      case 'right':
-        $scrollBy(scrollElem, repeats * stepSize, 0);
-        break;
-      case 'leftmost':
-        $scrollTo(scrollElem, 0, scrollElem.scrollTop);
-        break;
-      case 'rightmost':
-        $scrollTo(scrollElem, scrollElem.scrollWidth - seWidth, scrollElem.scrollTop);
-        break;
-      default:
-        break;
-    }
-
+    $scrollTo(scrollElem, x, y);
   }
 
 };
