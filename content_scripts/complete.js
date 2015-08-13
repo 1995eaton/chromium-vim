@@ -82,22 +82,16 @@ Complete.baseUrls = {
 
 Complete.parseQuery = {
   wikipedia: function(query) {
-    return query.replace(' ', '_');
+    return encodeURIComponent(query).split('%20').join('_');
   },
   bing: function(query) {
-    return query + '&FORM=SEEMOR';
+    return encodeURIComponent(query) + '&FORM=SEEMOR';
   },
   wolframalpha: function(query) {
-    return encodeURIComponent(query);
-  },
-  imdb: function(query) {
-    return encodeURIComponent(query);
-  },
-  'google-finance': function(query) {
-    return encodeURIComponent(query);
+    return encodeURIComponent(query).split('%20').join('+');
   },
   wictionary: function(query) {
-    return query.replace(' ', '_');
+    return encodeURIComponent(query).split('%20').join('_');
   }
 };
 
@@ -183,15 +177,11 @@ Complete.convertToLink = function(input, isURL, isLink) {
     return (Complete.requestUrls[settings.defaultengine] ||
       Complete.requestUrls.google) + encodeURIComponent(input.join(' '));
   }
-  if (Complete.parseQuery.hasOwnProperty(input[0])) {
-    suffix = Complete.parseQuery[input[0]](input.slice(1).join(' '));
-  } else {
-    suffix = input.slice(1).join(' ');
-  }
-  if (suffix.validURL()) {
+  suffix = Complete.parseQuery.hasOwnProperty(input[0]) ?
+    Complete.parseQuery[input[0]](input.slice(1).join(' ')) :
+    encodeURIComponent(input.slice(1).join(' '));
+  if (suffix.validURL())
     return suffix.convertLink();
-  }
-  suffix = encodeURIComponent(suffix);
   return ~prefix.indexOf('%s') ?
     prefix.embedString(suffix) :
     prefix + suffix;
