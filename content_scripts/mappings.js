@@ -598,9 +598,8 @@ Mappings.actions = {
     }, 0);
   },
   openSearchBar: function() {
-    Command.hide();
     Find.lastIndex = Find.index;
-    if (document && document.body) {
+    if (document.readyState === 'interactive' || document.readyState === 'complete') {
       Command.lastScrollTop = document.body.scrollTop;
     }
     commandMode = true;
@@ -609,10 +608,9 @@ Mappings.actions = {
     return Command.show('/');
   },
   openSearchBarReverse: function() {
-    Command.hide();
     Find.lastIndex = Find.index;
     commandMode = true;
-    if (document && document.body) {
+    if (document.readyState === 'interactive' || document.readyState === 'complete') {
       Command.lastScrollTop = document.body.scrollTop;
     }
     Find.previousMatches = Find.matches.length > 0;
@@ -620,9 +618,8 @@ Mappings.actions = {
     return Command.show('?');
   },
   openLinkSearchBar: function() {
-    Command.hide();
     Find.lastIndex = Find.index;
-    if (document && document.body) {
+    if (document.readyState === 'interactive' || document.readyState === 'complete') {
       Command.lastScrollTop = document.body.scrollTop;
     }
     commandMode = true;
@@ -631,7 +628,6 @@ Mappings.actions = {
     return Command.show('/', '?');
   },
   openCommandBar: function() {
-    Command.hide();
     commandMode = true;
     return Command.show(false);
   },

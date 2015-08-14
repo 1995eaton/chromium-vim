@@ -901,7 +901,8 @@ Command.show = function(search, value, complete) {
     });
     return;
   }
-  if (!window.isCommandFrame && document.hasFocus()) {
+  if (!window.isCommandFrame && (document.hasFocus() ||
+        document.readyState !== 'complete')) {
     window.wasFocused = true;
   }
   if (window.isCommandFrame === void 0) {

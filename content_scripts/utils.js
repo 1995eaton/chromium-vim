@@ -191,9 +191,8 @@ var matchLocation = function(url, pattern) { // Uses @match syntax
 };
 
 var waitForLoad = function(callback, constructor) {
-  if ((document.readyState === 'interactive' || document.readyState === 'complete') && document.activeElement) {
+  if (document.body)
     return callback.call(constructor);
-  }
   window.setTimeout(function() {
     waitForLoad(callback, constructor);
   }, 5);
