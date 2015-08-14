@@ -52,10 +52,10 @@ port.onMessage.addListener(function(response) {
         rect: null
       };
       [].some.call(document.querySelectorAll('iframe'), function(e) {
-        if (e.src === response.url && DOM.getVisibleBoundingRect(e)) {
-          data.isVisible = true;
+        if (e.src === response.url) {
           data.rect = DOM.getVisibleBoundingRect(e);
-          return true;
+          data.isVisible = !!data.rect;
+          return data.isVisible;
         }
       });
       PORT('portCallback', data);
