@@ -34,6 +34,10 @@
   display: none;
 }
 
+.cVim-link-hint {
+  line-height: 1;
+}
+
 #cVim-command-bar {
 }
 
