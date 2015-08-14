@@ -71,35 +71,70 @@ Actions = (function() {
   };
 
   _.addFrame = function() {
-    var frame = Frames[sender.tab.id];
-    if (frame === void 0 || request.isRoot) {
-      Frames[sender.tab.id] = {
-        index: 0,
-        ids: [request.url]
-      };
-    } else {
-      frame.ids.push(request.url);
-    }
-    callback(request.url);
+    if (request.isRoot)
+      frameIndices[sender.tab.id] = -1;
   };
 
+  _.portCallback = (function() {
+    var callbacks = {
+    };
+    var retval = function() {
+      callbacks[request.id](Object.clone(request));
+      delete callbacks[request.id];
+    };
+    retval.addCallback = function(callback) {
+      var id = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
+      callbacks[id] = callback;
+      return id;
+    };
+    return retval;
+  })();
+
   _.focusFrame = function() {
-    var _request = Object.clone(request);
-    chrome.tabs.sendMessage(sender.tab.id, {
-      action: 'getSubFrames'
-    }, function(visibleFrames) {
-      var frame = Frames[sender.tab.id];
-      if (frame === void 0)
-        return;
-      var index = 0;
-      if (!_request.isRoot) {
-        index = (frame.index + _request.repeats)
-          .mod(visibleFrames.length);
-      }
-      frame.index = index;
-      chrome.tabs.sendMessage(sender.tab.id, {
-        action: 'focusFrame',
-        id: visibleFrames[index]
+    var tabId = sender.tab.id;
+    chrome.webNavigation.getAllFrames({
+      tabId: tabId
+    }, function(frames) {
+      var visibleFrames = [];
+      activePorts.some(e => {
+        if (e.sender.tab.id === tabId && e.sender.frameId === 0) {
+          visibleFrames.push(e);
+          return true;
+        }
+      });
+      frames = frames.map(child => {
+        for (var i = 0, p, r = {}; i < activePorts.length; i++) {
+          p = activePorts[i];
+          if (p.sender.tab.id === tabId && p.sender.frameId === child.frameId)
+            r.child = p;
+          if (p.sender.tab.id === tabId && p.sender.frameId === child.parentFrameId)
+            r.parent = p;
+        }
+        return r.parent && r.child ? r : null;
+      }).filter(e => e);
+      var recvCount = 0;
+      if (frames.length === 0)
+        visibleFrames[0].postMessage({
+          type: 'focusFrame'
+        });
+      frames.forEach(port => {
+        port.parent.postMessage({
+          type: 'checkFrameVisibility',
+          url: port.child.sender.url,
+          id: _.portCallback.addCallback(function(obj) {
+            recvCount += 1;
+            if (obj.isVisible) {
+              visibleFrames.push(port.child);
+            }
+            if (recvCount === frames.length) {
+              frameIndices[tabId] |= 0;
+              frameIndices[tabId] = (frameIndices[tabId] + 1) % visibleFrames.length;
+              visibleFrames[frameIndices[tabId]].postMessage({
+                type: 'focusFrame',
+              });
+            }
+          })
+        });
       });
     });
   };

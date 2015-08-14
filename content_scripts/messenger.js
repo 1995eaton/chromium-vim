@@ -45,6 +45,24 @@ port.onMessage.addListener(function(response) {
       PORT('getTopSites');
       PORT('getLastCommand');
       break;
+    case 'checkFrameVisibility':
+      var data = {
+        id: response.id,
+        isVisible: false,
+        rect: null
+      };
+      [].some.call(document.querySelectorAll('iframe'), function(e) {
+        if (e.src === response.url && DOM.getVisibleBoundingRect(e)) {
+          data.isVisible = true;
+          data.rect = DOM.getVisibleBoundingRect(e);
+          return true;
+        }
+      });
+      PORT('portCallback', data);
+      break;
+    case 'focusFrame':
+      Frames.focus();
+      break;
     case 'updateLastCommand':
       Mappings.lastCommand = JSON.parse(response.data);
       break;
@@ -183,11 +201,6 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
       break;
     case 'updateMarks':
       Marks.parseQuickMarks(request.marks);
-      break;
-    case 'focusFrame':
-      if (request.id === Frames.id) {
-        Frames.focus();
-      }
       break;
     case 'nextCompletionResult':
       if (window.isCommandFrame) {

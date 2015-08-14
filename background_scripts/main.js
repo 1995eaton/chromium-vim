@@ -1,5 +1,5 @@
 var sessions = {},
-    Frames = {},
+    frameIndices = {},
     ActiveTabs = {},
     TabHistory = {},
     activePorts = [],
@@ -97,7 +97,7 @@ var Listeners = {
       if (TabHistory[id] !== void 0) {
         delete TabHistory[id];
       }
-      delete Frames[id];
+      delete frameIndices[id];
     },
     onCreated: updateTabIndices,
     onMoved: updateTabIndices,
@@ -109,9 +109,8 @@ var Listeners = {
 
   extension: {
     onConnect: function(port) {
-      if (activePorts.indexOf(port) !== -1) {
+      if (activePorts.indexOf(port) !== -1)
         return;
-      }
       port.postMessage({type: 'hello'});
       activePorts.push(port);
       port.onMessage.addListener(function(request) {

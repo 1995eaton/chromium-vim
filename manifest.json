@@ -62,7 +62,8 @@
     "topSites",
     "downloads.shelf",
     "clipboardRead",
-    "clipboardWrite"
+    "clipboardWrite",
+    "webNavigation"
   ],
   "background": {
     "persistant": false,

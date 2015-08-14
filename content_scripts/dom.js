@@ -130,7 +130,9 @@ window.DOM = {
       !element.disabled &&
       element.getAttribute('type') !== 'hidden' &&
       getComputedStyle(element).visibility !== 'hidden' &&
-      element.getAttribute('display') !== 'none';
+      element.getAttribute('display') !== 'none' &&
+      element.offsetWidth && element.offsetHeight &&
+      element.clientWidth && element.clientHeight;
   },
 
   mouseEvent: function(type, element) {
