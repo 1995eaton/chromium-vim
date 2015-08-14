@@ -65,15 +65,14 @@ Hints.hideHints = function(reset, multi, useKeyDelay) {
   } else if (document.getElementById('cVim-link-container') !== null) {
     if (!multi)
       HUD.hide();
-    main = document.getElementById('cVim-link-container');
     if (settings.linkanimations) {
-      main.addEventListener('transitionend', function() {
+      Hints.shadowDOM.addEventListener('transitionend', function() {
         var m = document.getElementById('cVim-link-container');
         if (m !== null) {
           m.parentNode.removeChild(m);
         }
       });
-      main.style.opacity = '0';
+      Hints.shadowDOM.host.style.opacity = '0';
     } else {
       document.getElementById('cVim-link-container')
         .parentNode.removeChild(document.getElementById('cVim-link-container'));
@@ -664,6 +663,7 @@ Hints.create = function(type, multi) {
     main.id = 'cVim-link-container';
     main.top = document.body.scrollTop + 'px';
     main.left = document.body.scrollLeft + 'px';
+    Hints.shadowDOM = main.createShadowRoot();
 
     try {
       document.lastChild.appendChild(main);
@@ -708,7 +708,17 @@ Hints.create = function(type, multi) {
       }
     }
 
-    main.appendChild(frag);
+    [].forEach.call(document.querySelectorAll('style'), e => {
+      if (e.textContent.indexOf('cVim') !== -1) {
+        Hints.shadowDOM.appendChild(e.cloneNode(true));
+      }
+    });
+
+    Hints.shadowDOM.appendChild(frag);
+    var style = document.createElement('style');
+    style.textContent = Command.mainCSS;
+    Hints.shadowDOM.appendChild(style);
     main.style.opacity = '1';
+
   }, 0);
 };

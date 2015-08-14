@@ -18,7 +18,7 @@ Settings.resetSettings = function() {
     this.gistUrl.value = defaults.GISTURL;
     delete this.settings;
     this.settings = Object.clone(defaults);
-  });
+  }.bind(this));
 };
 
 Settings.saveSettings = function() {

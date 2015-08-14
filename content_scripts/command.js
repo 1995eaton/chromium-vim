@@ -1052,6 +1052,11 @@ Command.onDOMLoadAll = function() {
       window.removeEventListener('mousedown', initialMouseDown, true);
     }, true);
   }
+  httpRequest({
+    url: chrome.runtime.getURL('content_scripts/main.css')
+  }, function(data) {
+    this.mainCSS = data;
+  }.bind(this));
   this.setup();
   this.domElementsLoaded = true;
   this.callOnCvimLoad();
