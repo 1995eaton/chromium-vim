@@ -96,13 +96,13 @@ Actions = (function() {
       tabId: tabId
     }, function(frames) {
       var visibleFrames = [];
-      activePorts.some(e => {
+      activePorts.some(function(e) {
         if (e.sender.tab.id === tabId && e.sender.frameId === 0) {
           visibleFrames.push(e);
           return true;
         }
       });
-      frames = frames.map(child => {
+      frames = frames.map(function(child) {
         for (var i = 0, p, r = {}; i < activePorts.length; i++) {
           p = activePorts[i];
           if (p.sender.tab.id === tabId && p.sender.frameId === child.frameId)
@@ -111,13 +111,13 @@ Actions = (function() {
             r.parent = p;
         }
         return r.parent && r.child ? r : null;
-      }).filter(e => e);
+      }).filter(function(e) { return e; });
       var recvCount = 0;
       if (frames.length === 0)
         visibleFrames[0].postMessage({
           type: 'focusFrame'
         });
-      frames.forEach(port => {
+      frames.forEach(function(port) {
         port.parent.postMessage({
           type: 'checkFrameVisibility',
           url: port.child.sender.url,

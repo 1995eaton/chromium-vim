@@ -708,7 +708,7 @@ Hints.create = function(type, multi) {
       }
     }
 
-    [].forEach.call(document.querySelectorAll('style'), e => {
+    [].forEach.call(document.querySelectorAll('style'), function(e) {
       if (e.textContent.indexOf('cVim') !== -1) {
         Hints.shadowDOM.appendChild(e.cloneNode(true));
       }

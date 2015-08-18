@@ -7,7 +7,6 @@ port.onDisconnect.addListener(function() {
   Visual.exit();
   Find.clear();
   Command.destroy();
-  window.focus();
 });
 
 (function() {
