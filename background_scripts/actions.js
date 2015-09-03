@@ -328,7 +328,7 @@ Actions = (function() {
   };
 
   _.pinTab = function() {
-    chrome.tabs.update({
+    chrome.tabs.update(sender.tab.id, {
       pinned: request.pinned !== void 0 ? request.pinned : !sender.tab.pinned
     });
   };
