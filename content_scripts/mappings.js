@@ -629,7 +629,7 @@ Mappings.actions = {
   },
   openCommandBar: function() {
     commandMode = true;
-    return Command.show(false);
+    return Command.show(false, '', settings.completeonopen);
   },
   repeatCommand: function(repeats) {
     if (this.hasOwnProperty(Mappings.lastCommand.fn)) {

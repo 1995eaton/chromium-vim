@@ -897,7 +897,7 @@ Command.execute = function(value, repeats) {
 Command.show = function(search, value, complete) {
   if (!this.domElementsLoaded) {
     Command.callOnCvimLoad(function() {
-      Command.show(search, value);
+      Command.show(search, value, complete);
     });
     return;
   }
@@ -936,16 +936,16 @@ Command.show = function(search, value, complete) {
   this.bar.style.display = 'inline-block';
   setTimeout(function() {
     this.input.focus();
-    if (complete) {
+    if (complete !== null) {
       this.complete(value);
     }
 
     // UPDATE: seems to work without patch now (Chromium 44.0.2403.130)
     // Temp fix for Chromium issue in #97
-    // if (this.commandBarFocused()) {
-    //   document.activeElement.select();
-    //   document.getSelection().collapseToEnd();
-    // }
+    if (this.commandBarFocused()) {
+      document.activeElement.select();
+      document.getSelection().collapseToEnd();
+    }
     // End temp fix
 
   }.bind(this), 0);

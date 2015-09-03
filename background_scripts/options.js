@@ -54,6 +54,7 @@ var defaultSettings = {
   showtabindices: false,
   changelog: true,
   localconfig: false,
+  completeonopen: false,
   scrollduration: 500,
   zoomfactor: 0.10,
   configpath: '',
