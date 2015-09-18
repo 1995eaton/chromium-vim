@@ -1,8 +1,7 @@
 var Hints = {};
 
 Hints.tryGooglePattern = function(forward) {
-  if (new URL(document.URL).hostname.indexOf('www.google.') !== 0 ||
-      !document.querySelector('li.g div.rc'))
+  if (location.hostname.indexOf('www.google.'))
     return false;
   var target = document.getElementById(forward ? 'pnnext' : 'pnprev');
   if (target)
