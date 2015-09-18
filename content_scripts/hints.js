@@ -593,27 +593,27 @@ Hints.getLinks = function() {
 
 // Golomb
 Hints.genHints = function(M) {
-  if (M <= settings.hintcharacters.length) {
+  var base = settings.hintcharacters.length;
+  if (M <= base) {
     return settings.hintcharacters.slice(0, M).split('');
   }
   var codes = [];
-  var genCodeWord = function(N, length) {
-    for (var i = 0, word = ''; i < length; i++) {
-      word += settings.hintcharacters.charAt(N % settings.hintcharacters.length);
-      N = ~~(N / settings.hintcharacters.length);
+  var codeWord = function(n, b) {
+    for (var i = 0, word = []; i < b; i++) {
+      word.push(settings.hintcharacters.charAt(n % base));
+      n = ~~(n / base);
     }
-    codes.push(word.split('').reverse().join(''));
+    codes.push(word.reverse().join(''));
   };
 
-  var b = Math.ceil(Math.log(M) / Math.log(settings.hintcharacters.length));
-  var cutoff = Math.pow(settings.hintcharacters.length, b) - M;
-  var cutoffR = ~~(cutoff / (settings.hintcharacters.length - 1));
+  var b = Math.ceil(Math.log(M) / Math.log(base));
+  var cutoff = Math.pow(base, b) - M;
 
-  for (var i = 0; i < cutoffR; i++) {
-    genCodeWord(i, b - 1);
+  for (var i = 0, l = ~~(cutoff / (base - 1)); i < l; i++) {
+    codeWord(i, b - 1);
   }
-  for (i = cutoffR; i < M; i++) {
-    genCodeWord(i + cutoff, b);
+  for (; i < M; i++) {
+    codeWord(i + cutoff, b);
   }
   return codes;
 };
