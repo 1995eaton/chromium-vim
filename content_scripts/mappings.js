@@ -793,7 +793,7 @@ Mappings.insertFunctions = (function() {
 })();
 
 Mappings.insertCommand = function(modifier, callback) {
-  var value = insertMappings.at(modifier);
+  var value = insertMappings.findValue(this.splitMapping(modifier));
   if (value) {
     callback(true);
     if (this.insertFunctions[value]) {
@@ -805,15 +805,29 @@ Mappings.insertCommand = function(modifier, callback) {
   }
 };
 
+Mappings.splitMapping = function(string) {
+  var blocks = [].slice.call(string.match(/<[^>]+>/g) || []);
+  var split = [];
+  for (var i = 0; i < string.length; i++) {
+    if (string.slice(i).indexOf(blocks[0]) === 0) {
+      i += blocks[0].length - 1;
+      split.push(blocks.shift());
+    } else {
+      split.push(string.charAt(i));
+    }
+  }
+  return split;
+};
+
 Mappings.parseLine = function(line) {
   var map = line.split(/ +/).compress();
   if (map.length) {
     switch (map[0]) {
       case 'unmapAll':
-        mappingTrie.data = [];
+        mappingTrie.children = {};
         return;
       case 'iunmapAll':
-        insertMappings.data = [];
+        insertMappings.children = {};
         return;
       case 'map':
       case 'remap':
@@ -821,20 +835,22 @@ Mappings.parseLine = function(line) {
           return;
         }
         map[1] = map[1].replace(/<leader>/ig, settings.mapleader);
-        mappingTrie.remove(map[1]);
-        return mappingTrie.add(map[1], map.slice(2).join(' '));
+        mappingTrie.removeByKey(this.splitMapping(map[1]));
+        mappingTrie.insert(this.splitMapping(map[1]), map.slice(2).join(' '));
+        return;
       case 'imap':
       case 'iremap':
         if (map[1] === map[2]) {
           return;
         }
-        insertMappings.remove(map[1]);
-        return insertMappings.add(map[1], insertMappings.at(map[2]) ||
+        insertMappings.removeByKey(map[1]);
+        return insertMappings.insert(this.splitMapping(map[1]),
+            insertMappings.findValue(this.splitMapping(map[2])) ||
             map.slice(2).join(' ').replace(/\s+".*/, ''));
       case 'iunmap':
-        return insertMappings.remove(map[1]);
+        return insertMappings.removeByKey(this.splitMapping(map[1]));
       case 'unmap':
-        return mappingTrie.remove(map[1]);
+        return mappingTrie.removeByKey(this.splitMapping(map[1]));
       case 'call':
         waitForLoad(function() {
           map = map.slice(1).join(' ').trimAround();
@@ -858,10 +874,10 @@ Mappings.parseLine = function(line) {
 
 Mappings.parseCustom = function(config) {
   this.defaults.forEach(function(e) {
-    mappingTrie.add.apply(mappingTrie, e);
+    mappingTrie.insert(Mappings.splitMapping(e[0]), e[1]);
   });
   this.insertDefaults.forEach(function(e) {
-    insertMappings.add.apply(insertMappings, e);
+    insertMappings.insert(Mappings.splitMapping(e[0]), e[1]);
   });
   var ignore = false; // ignore 'site DOMAIN {...}' blocks
   config = config.split('\n').compress().forEach(function(e) {
@@ -978,12 +994,12 @@ Mappings.shouldPrevent = function(key) {
     return true;
   }
   if (/^[0-9]$/.test(key) &&
-      !(currentTrieNode.at(key) && this.repeats === '') &&
+      !(currentTrieNode.hasKey(key) && this.repeats === '') &&
       !(key === '0' && this.repeats === '')) {
     return true;
   }
-  if (!currentTrieNode.data.hasOwnProperty(key)) {
-    if (currentTrieNode.data['*']) {
+  if (!currentTrieNode.hasKey(key)) {
+    if (currentTrieNode.getKey('*')) {
       return true;
     }
   } else {
@@ -1004,22 +1020,23 @@ Mappings.convertToAction = function(key) {
   }
 
   if (/^[0-9]$/.test(key) &&
-      !(currentTrieNode.at(key) && this.repeats === '') &&
+      !(currentTrieNode.hasKey(key) &&
+        this.repeats === '') &&
       !(key === '0' && this.repeats === '')) {
     this.repeats += key;
     return;
   }
 
   this.queue += key;
-  if (!currentTrieNode.data.hasOwnProperty(key)) {
-    if (currentTrieNode.data['*']) {
-      currentTrieNode = currentTrieNode.data['*'];
+  if (!currentTrieNode.hasKey(key)) {
+    if (currentTrieNode.getKey('*')) {
+      currentTrieNode = currentTrieNode.getKey('*');
     } else {
       this.clearQueue();
       return false;
     }
   } else {
-    currentTrieNode = currentTrieNode.data[key];
+    currentTrieNode = currentTrieNode.getKey(key);
     this.validMatch = true;
   }
 
@@ -1037,7 +1054,7 @@ Mappings.convertToAction = function(key) {
     for (var mapLinks = [mapVal];
          !this.actions[mapVal] && mapVal.charAt(0) !== ':';
          mapLinks.push(mapVal)) {
-      mapVal = mappingTrie.at(mapVal);
+      mapVal = mappingTrie.findValue(this.splitMapping(mapVal));
       if (mapVal === null) {
         this.clearQueue();
         return false;

@@ -199,7 +199,8 @@ var KeyListener = (function() {
       // Otherwise, non-cVim keyboard listeners will not be stopped.
       // "preventDefault" on the other hand, can be.
       } else if (commandMode ||
-          (!insertMode && mappingTrie.at(Mappings.queue + keyString)) ||
+          (!insertMode && mappingTrie.find(
+             Mappings.splitMapping(Mappings.queue + keyString))) ||
           (keyString[0] >= '0' && keyString[0] <= '9'))
       {
         if (Command.commandBarFocused() &&

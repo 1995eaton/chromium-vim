@@ -266,84 +266,67 @@ Object.merge = function(a, b) {
   });
 };
 
-var Trie = (function() {
-  var _ = function(parent) {
-    this.data = {};
-    this.parent = parent || null;
-  };
-  function deleteKeyValue(node, value) {
-    for (var key in node) {
-      if (node[key] === value) {
-        delete node[key];
-      }
+
+function TrieNode(parent, value) {
+  this.parent = parent;
+  this.children = {};
+  this.value = value || null;
+}
+Object.setPrototypeOf(TrieNode.prototype, {
+  remove: function() {
+    this.value = null;
+    var parent = this.parent;
+    if (parent && Object.keys(this.children).length === 0) {
+      parent.removeChild(this);
+      if (parent.value === null)
+        parent.remove();
     }
-  }
-  _.prototype.contains = function(item) {
-    return this.data.hasOwnProperty(item);
-  };
-  _.prototype.splitString = function(string) {
-    var blocks =
-      [].slice.call(string.match(/<[^>]+>/g) || []);
-    var split = [];
-    for (var i = 0; i < string.length; i++) {
-      if (string.slice(i).indexOf(blocks[0]) === 0) {
-        i += blocks[0].length - 1;
-        split.push(blocks.shift());
-      } else {
-        split.push(string.charAt(i));
-      }
-    }
-    return split;
-  };
-  _.prototype.add = function(string, value) {
-    var split = this.splitString(string);
-    var node = this;
-    split.forEach(function(e) {
-      if (node.data.hasOwnProperty(e)) {
-        node = node.data[e];
-      } else {
-        node.data[e] = new _(node);
-        node = node.data[e];
-      }
-      delete node.value;
-    });
-    node.value = value;
-  };
-  _.prototype.remove = function(string) {
-    var split = this.splitString(string);
-    var node = this.data;
-    while (split.length) {
-      node = node[split.shift()];
-      if (!node) {
-        return null;
-      }
-      if (split.length) {
-        node = node.data;
-      }
-    }
-    deleteKeyValue(node.parent.data, node);
-    while (node = node.parent) {
-      if (!node.value && Object.keys(node.data).length === 1) {
-        deleteKeyValue(node.parent.data, node);
-      } else {
+  },
+  removeByKey: function(keys) {
+    var node = this.find(keys);
+    if (node !== null)
+      node.remove();
+    return node !== null;
+  },
+  removeChild: function(node) {
+    for (var key in this.children) {
+      if (this.children[key] === node) {
+        delete this.children[key];
         break;
       }
     }
-  };
-  _.prototype.at = function(string) {
-    var split = this.splitString(string);
+  },
+  insert: function(keys, value) {
     var node = this;
-    while (split.length) {
-      node = node.data['*'] || node.data[split[0]];
-      split.shift();
-      if (!node) {
+    keys.forEach(function(e) {
+      node.value = null;
+      node = node.children[e] || (node.children[e] = new TrieNode(node));
+    });
+    node.value = value;
+  },
+  find: function(keys) {
+    var node = this;
+    for (var i = 0; i < keys.length; i++) {
+      if (!node.hasKey(keys[i]))
         return null;
-      }
+      node = node.getKey(keys[i]);
     }
-    return split.length !== 0 ? true : (node.value || true);
-  };
-  return _;
-})();
+    return node;
+  },
+  hasKey: function(key) {
+    return this.children.hasOwnProperty(key);
+  },
+  getKey: function(key) {
+    return this.children[key] || null;
+  },
+  findValue: function(keys) {
+    return (this.find(keys) || {}).value || null;
+  },
+});
+function Trie() {
+  TrieNode.call(this, null);
+}
+Trie.prototype = Object.create(TrieNode.prototype);
 
 var traverseDOM = function(root, accept) {
   var nodes = [root];
