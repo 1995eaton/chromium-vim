@@ -265,12 +265,19 @@ Command.expandCompletion = function(value) {
   var exactMatch = this.descriptions.some(function(e) {
     return e[0] === firstWord;
   });
+  if (firstWord && this.customCommands.hasOwnProperty(firstWord[0])) {
+     return value.replace(firstWord[0], this.customCommands[firstWord[0]]);
+  }
   if (firstWord && !exactMatch) {
     firstWord = firstWord[0];
     var completedWord = (function() {
       for (var i = 0; i < this.descriptions.length; i++)
-        if (this.descriptions[i][0].indexOf(firstWord) === 0)
+        if (this.descriptions[i][0].indexOf(firstWord) === 0 &&
+            !this.customCommands.hasOwnProperty(this.descriptions[i][0]))
           return this.descriptions[i][0];
+      for (var key in this.customCommands)
+        if (key.indexOf(firstWord) === 0)
+          return this.customCommands[key];
     }.bind(this))();
     if (completedWord)
       return value.replace(firstWord, completedWord);
@@ -506,6 +513,13 @@ Command.execute = function(value, repeats) {
   }
 
   commandMode = false;
+
+  var split = value.split(/\s+/g).compress();
+  if (this.customCommands.hasOwnProperty(split[0])) {
+    this.execute(this.customCommands[split[0]] + ' ' + split.slice(1).join(' '), 1);
+    return;
+  }
+
   value = this.expandCompletion(value);
   value = value.replace(/@@[a-zA-Z_$][a-zA-Z0-9_$]*/g, function(e) {
     return settings.hasOwnProperty(e) ? settings[e] : e;
@@ -547,11 +561,6 @@ Command.execute = function(value, repeats) {
     value = value.replace(/[=?]+$/, '');
 
   this.history.index = {};
-
-  if (this.customCommands.hasOwnProperty(value)) {
-    this.execute(this.customCommands[value], 1);
-    return;
-  }
 
   switch (value) {
     case 'nohlsearch':

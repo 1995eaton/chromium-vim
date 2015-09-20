@@ -93,12 +93,23 @@ Search.nextResult = function(reverse) {
       Command.input.value = Command.input.value.match(/^\S+ /)[0] + Command.completionResults[this.index][1];
       break;
     case 'search':
-      var value = Command.input.value.split(/\s+/).filter(function(e) { return e; });
-      if (Command.completionResults[this.index].length === 3) {
-        Command.input.value = value[0] + ' ' + Command.completionResults[this.index][2];
-      } else {
-        Command.input.value = value.slice(0, 2).join(' ') + ' ' + Command.completionResults[this.index][1];
+      var value = Command.input.value.split(/\s+/).compress();
+      var repl = '';
+      if (Command.customCommands.hasOwnProperty(value[0])) {
+        value = [value[0]];
+        repl = Command.customCommands[value[0]].split(/\s+/).compress().slice(2).join(' ');
       }
+      var inputValue, searchValue;
+      if (Command.completionResults[this.index].length === 3) {
+        inputValue = value[0] + ' ';
+        searchValue = Command.completionResults[this.index][2];
+      } else {
+        inputValue = value.slice(0, 2).join(' ') + ' ';
+        searchValue = Command.completionResults[this.index][1];
+      }
+      if (searchValue.indexOf(repl) === 0)
+        searchValue = searchValue.replace(repl, '').trimAround();
+      Command.input.value = inputValue + searchValue;
       break;
     case 'windows':
       Command.input.value = Command.input.value.match(/^\S+/)[0] + ' ' + Command.completionResults[this.index][1].replace(/ .*/, '');

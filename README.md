@@ -101,6 +101,9 @@ let searchengine dogpile = "http://www.dogpile.com/search/web?q=%s" " If you lea
                                                                     " your query will be appended to the link.
                                                                     " Otherwise, your query will replace the '%s'.
 
+" alias ':g' to ':tabnew google'
+command g tabnew google
+
 let completionengines = ["google", "amazon", "imdb", "dogpile"]
 
 let searchalias g = "google" " Create a shortcut for search engines.
