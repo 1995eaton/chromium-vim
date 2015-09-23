@@ -45,7 +45,9 @@ function getTab(tab, reverse, count, first, last) {
     } else if (last) {
       return chrome.tabs.update(tabs[tabs.length - 1].id, {active: true});
     } else {
-      return chrome.tabs.update(tabs[((((reverse ? -count : count) + tab.index) % tabs.length) + tabs.length) % tabs.length].id, {active: true});
+      return chrome.tabs.update(tabs[mod(
+        (reverse ? -1 : 1) * count + tab.index, tabs.length
+      )].id, { active: true });
     }
   });
 }
@@ -59,7 +61,8 @@ var Listeners = {
         History.shouldRefresh = true;
         if (TabHistory.hasOwnProperty(id)) {
           if (TabHistory[id].links.indexOf(changeInfo.url) === -1) {
-            if (TabHistory.state !== void 0 && TabHistory[id].state + 1 !== TabHistory[id].length) {
+            if (TabHistory.state !== void 0 && TabHistory[id].state + 1 !==
+                TabHistory[id].length) {
               TabHistory[id].links.splice(TabHistory[id].state);
             }
             TabHistory[id].links.push(changeInfo.url);
@@ -90,9 +93,10 @@ var Listeners = {
     onRemoved: function(id, removeInfo) {
       updateTabIndices();
       if (ActiveTabs[removeInfo.windowId] !== void 0) {
-        ActiveTabs[removeInfo.windowId] = ActiveTabs[removeInfo.windowId].filter(function(e) {
-          return e !== id;
-        });
+        ActiveTabs[removeInfo.windowId] = ActiveTabs[removeInfo.windowId]
+          .filter(function(e) {
+            return e !== id;
+          });
       }
       if (TabHistory[id] !== void 0) {
         delete TabHistory[id];
@@ -146,12 +150,15 @@ var Listeners = {
         case 'nextTab':
         case 'previousTab':
           chrome.tabs.query({active: true, currentWindow: true}, function(e) {
-            return getTab(e[0], false, (command === 'nextTab' ? 1 : -1), false, false);
+            return getTab(e[0], false, (command === 'nextTab' ? 1 : -1),
+                          false, false);
           });
           break;
         case 'nextCompletionResult':
           chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
-            chrome.tabs.sendMessage(tab[0].id, {action: 'nextCompletionResult'}, function() {
+            chrome.tabs.sendMessage(tab[0].id, {
+              action: 'nextCompletionResult'
+            }, function() {
               chrome.windows.create({url: 'chrome://newtab'});
             });
           });

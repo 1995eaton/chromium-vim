@@ -417,3 +417,8 @@ window.parseConfig = (function() {
     }
   };
 })();
+
+// modulus supporting negative numbers
+window.mod = function(a, b) {
+  return (a % b + b) % b;
+};
