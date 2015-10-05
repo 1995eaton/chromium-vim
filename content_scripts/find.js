@@ -47,6 +47,7 @@ Find.search = function(reverse, repeats, ignoreFocus) {
   }
   if (this.index >= 0) {
     this.matches[this.index].style.backgroundColor = settings.highlight;
+    this.matches[this.index].className = 'cVim-find-mark';
   }
   if (reverse && repeats === 1 && this.index === 0) {
     this.index = this.matches.length - 1;
@@ -78,6 +79,7 @@ Find.search = function(reverse, repeats, ignoreFocus) {
   }
   var isLink = ignoreFocus ? false : this.focusParentLink(this.matches[this.index]);
   this.matches[this.index].style.backgroundColor = activeHighlight;
+  this.matches[this.index].className = 'cVim-find-mark active';
   HUD.display(this.index + 1 + ' / ' + this.matches.length);
   var paddingTop = 0,
       paddingBottom = 0;
