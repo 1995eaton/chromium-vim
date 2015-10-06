@@ -1,5 +1,9 @@
 #cVim Changelog
 
+## 1.2.80
+ * Scrolling improvements
+ * Bug fixes
+
 ## 1.2.79
  * Content scripts will now be reloaded if they lose connection to the
    background scripts (e.g. restarting the extension)
