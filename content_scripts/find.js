@@ -46,7 +46,7 @@ Find.search = function(reverse, repeats, ignoreFocus) {
     return HUD.display('No matches', 1);
   }
   if (this.index >= 0) {
-    this.matches[this.index].style.backgroundColor = '';
+    this.matches[this.index].style.backgroundColor = settings.highlight;
   }
   if (reverse && repeats === 1 && this.index === 0) {
     this.index = this.matches.length - 1;
