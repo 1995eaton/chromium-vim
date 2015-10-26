@@ -40,6 +40,7 @@ var scripts = [
 
 var makeHTML = function(data) {
   return '<!DOCTYPE html><html><head>' +
+         '<meta charset="utf-8">' + 
          '<link rel="stylesheet" href="./markdown.css">' +
          '<link rel="stylesheet" href="../content_scripts/main.css">' +
          scripts.map(function(e) { return '<script src="../content_scripts/' + e + '.js"></script>'; }).join('\n') +
