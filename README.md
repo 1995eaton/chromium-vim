@@ -411,6 +411,7 @@ let completionengines = ['google', 'google-image', 'youtube'] " Show only these 
 | `N`                       | previous search result                                                | previousSearchResult            |
 | `v`                       | enter visual/caret mode (highlight current search/selection)          | toggleVisualMode                |
 | `V`                       | enter visual line mode from caret mode/currently highlighted search   | toggleVisualLineMode            |
+| unmapped                  | clear search mode highlighting                                        | clearSearchHighlight            |
 | **Visual/Caret Mode**     |                                                                       |                                 |
 | `<Esc>`                   | exit visual mode to caret mode/exit caret mode to normal mode         |                                 |
 | `v`                       | toggle between visual/caret mode                                      |                                 |
