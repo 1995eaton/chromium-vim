@@ -893,7 +893,7 @@ Command.execute = function(value, repeats) {
   }
 
   if (/^call +/.test(value)) {
-    Mappings.parseLine(value);
+    Mappings.parseLine(value, repeats);
     return;
   }
 
