@@ -824,7 +824,7 @@ Mappings.splitMapping = function(string) {
   return split;
 };
 
-Mappings.parseLine = function(line) {
+Mappings.parseLine = function(line, repeats) {
   var map = line.split(/ +/).compress();
   if (map.length) {
     switch (map[0]) {
@@ -868,7 +868,7 @@ Mappings.parseLine = function(line) {
           } else {
             ECHO('eval', {
               name: map.replace(/\(.*/, ''),
-              args: map.replace(/[^(]+/, '') || '()'
+              args: (map.replace(/[^(]+/, '') || '()').replace(/[)]$/, ', ' + repeats.toString() + ')').replace(/^\(,/, '(')
             });
           }
         });
