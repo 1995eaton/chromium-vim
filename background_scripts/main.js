@@ -45,9 +45,12 @@ function getTab(tab, reverse, count, first, last) {
     } else if (last) {
       return chrome.tabs.update(tabs[tabs.length - 1].id, {active: true});
     } else {
-      return chrome.tabs.update(tabs[mod(
-        (reverse ? -1 : 1) * count + tab.index, tabs.length
-      )].id, { active: true });
+      var index = (reverse ? -1 : 1) * count + tab.index;
+      if (count !== -1 && count !== 1)
+        index = Math.min(Math.max(0, index), tabs.length - 1);
+      else
+        index = mod(index, tabs.length);
+      return chrome.tabs.update(tabs[index].id, {active: true});
     }
   });
 }
