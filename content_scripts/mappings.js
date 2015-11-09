@@ -8,6 +8,7 @@ var Mappings = {
   lastCommand: {
     fn: '',
     queue: '',
+    repeatStr: '',
     repeats: 1
   }
 };
@@ -1069,16 +1070,18 @@ Mappings.convertToAction = function(key) {
         return false;
       }
     }
+    if (mapVal !== 'repeatCommand' &&
+        this.nonRepeatableCommands.indexOf(mapVal) === -1) {
+      this.lastCommand.queue = this.queue;
+      this.lastCommand.repeats = +this.repeats || 1;
+      this.lastCommand.fn = mapVal;
+      this.lastCommand.params = actionParams;
+      this.lastCommand.repeatStr = this.repeats;
+    }
     if (mapVal.charAt(0) === ':') {
-      this.actions.shortCuts(mapVal, +this.repeats || 1);
+      this.actions.shortCuts(mapVal, this.lastCommand.repeats);
     } else {
       if (mapVal !== 'repeatCommand') {
-        if (this.nonRepeatableCommands.indexOf(mapVal) === -1) {
-          this.lastCommand.queue = this.queue;
-          this.lastCommand.repeats = +this.repeats || 1;
-          this.lastCommand.fn = mapVal;
-          this.lastCommand.params = actionParams;
-        }
         this.actions[mapVal](+this.repeats || 1, actionParams);
         RUNTIME('updateLastCommand', {
           data: JSON.stringify(this.lastCommand)
