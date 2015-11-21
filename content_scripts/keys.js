@@ -744,8 +744,12 @@ var KeyHandler = {
       case '<S-Tab>':
         if (Command.type === 'action') {
           event.preventDefault();
-          Mappings.actions[ (key === '<Tab>' ? 'next' : 'previous') +
-                            'CompletionResult' ]();
+          if (Command.completionsNeedUpdate) {
+            Command.executeCompletionUpdate(true);
+          } else {
+            Mappings.actions[ (key === '<Tab>' ? 'next' : 'previous') +
+                              'CompletionResult' ]();
+          }
         }
         break;
       case '<C-p>':
