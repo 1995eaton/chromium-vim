@@ -1073,8 +1073,7 @@ Command.onDOMLoadAll = function() {
 
 Command.updateSettings = function(config) {
   var key;
-  if (Array.isArray(config.completionengines) &&
-      config.completionengines.length) {
+  if (Array.isArray(config.completionengines)) {
     Complete.engines = Complete.engines.filter(function(e) {
       return ~config.completionengines.indexOf(e);
     });
