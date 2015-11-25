@@ -1,5 +1,5 @@
 var Keycode = {};
-Keycode.map = {
+Keycode.layoutMap = {
   'arabic': {
     1642: 37, // U+066A, %
     1563: 39, // U+061B, '
@@ -170,25 +170,59 @@ Keycode.map = {
   },
 };
 
+Keycode.upperMap = {
+  39: 34, // ', "
+  44: 60, // ,, <
+  45: 95, // -, _
+  46: 62, // ., >
+  47: 63, // /, ?
+  48: 41, // 0, )
+  49: 33, // 1, !
+  50: 64, // 2, @
+  51: 35, // 3, #
+  52: 36, // 4, $
+  53: 37, // 5, %
+  54: 94, // 6, ^
+  55: 38, // 7, &
+  56: 42, // 8, *
+  57: 40, // 9, (
+  59: 58, // ;, :
+  61: 43, // =, +
+  91: 123, // [, {
+  92: 124, // \, |
+  93: 125, // ], }
+  96: 126, // `, `~
+};
+
+
 // If the code can be converted, return the keyboard layout.
-// Otherwise, return undefined.
+// Otherwise, return null.
 Keycode.needConvert = function(code) {
-  for (var layout in Keycode.map) {
-    if (Keycode.map.hasOwnProperty(layout)) {
-      if (Keycode.map[layout].hasOwnProperty(code)) {
+  for (var layout in Keycode.layoutMap) {
+    if (Keycode.layoutMap.hasOwnProperty(layout)) {
+      if (Keycode.layoutMap[layout].hasOwnProperty(code)) {
         return layout;
       }
     }
   }
-  return undefined;
+  return null;
 };
+
+Keycode.upper = function(code) {
+  if (97 <= code && code <= 122) { // alphabet
+    return code - 32; // to upper case
+  } else if (Keycode.upperMap.hasOwnProperty(code)) {
+    return Keycode.upperMap[code];
+  }
+  return code;
+}
 
 Keycode.convert = function(event) {
   var layout = Keycode.needConvert(event.which);
-  if (layout !== undefined) {
-    var newKeycode = Keycode.map[layout][event.which];
+  if (layout !== null) {
+    var newKeycode = Keycode.layoutMap[layout][event.which];
     if (event.shiftKey) {
-      newKeycode -= 32; // to upper case
+      newKeycode = Keycode.upper(newKeycode);
     }
 
     var newEvent = document.createEvent('KeyboardEvent');
