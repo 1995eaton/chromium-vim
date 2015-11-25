@@ -218,6 +218,9 @@ Keycode.upper = function(code) {
 }
 
 Keycode.convert = function(event) {
+  if (event.which < 256) { // ignore ascii range
+    return event;
+  }
   var layout = Keycode.needConvert(event.which);
   if (layout !== null) {
     var newKeycode = Keycode.layoutMap[layout][event.which];
