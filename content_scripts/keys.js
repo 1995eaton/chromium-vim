@@ -112,6 +112,7 @@ var KeyListener = (function() {
   var KeyEvents = {
     lastHandledEvent: null,
     keypress: function(callback, event) {
+      event = Keycode.convert(event);
       if (typeof callback === 'function') {
         callback(event);
       }
