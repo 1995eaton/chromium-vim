@@ -150,7 +150,8 @@ Actions = (function() {
     for (var i = 0; i < request.repeats; ++i) {
       chrome.windows.create({
         url: url,
-        focused: request.focused
+        focused: request.focused,
+        incognito: request.incognito
       });
     }
   };
