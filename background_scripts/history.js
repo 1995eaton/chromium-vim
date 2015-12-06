@@ -12,6 +12,24 @@ var History = {
     }.bind(this));
   },
 
+  clear: function() {
+    this.commandHistory = {};
+    this.historyTypes.forEach(function(type) {
+      this.commandHistory[type] = [];
+    }.bind(this));
+  },
+
+  sendToTabs: function() {
+    chrome.tabs.query({}, function(tabs) {
+      tabs.forEach(function(tab) {
+        chrome.tabs.sendMessage(tab.id, {
+          action: 'commandHistory',
+          history: History.commandHistory
+        });
+      });
+    });
+  },
+
   append: function(value, type) {
     if (~this.historyTypes.indexOf(type)) {
       this.commandHistory[type].push('' + value);

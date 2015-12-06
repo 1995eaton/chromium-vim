@@ -313,17 +313,16 @@ Actions = (function() {
     getTab(sender.tab, false, false, false, true);
   };
 
+  _.clearHistory = function() {
+    History.clear();
+    History.saveCommandHistory();
+    History.sendToTabs();
+  };
+
   _.appendHistory = function() {
     if (sender.tab.incognito === false) {
       History.append(request.value, request.type);
-      chrome.tabs.query({}, function(tabs) {
-        tabs.forEach(function(tab) {
-          chrome.tabs.sendMessage(tab.id, {
-            action: 'commandHistory',
-            history: History.commandHistory
-          });
-        });
-      });
+      History.sendToTabs();
     }
   };
 

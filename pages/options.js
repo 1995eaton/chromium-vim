@@ -108,9 +108,7 @@ Settings.init = function() {
   this.saveButton.addEventListener('click', this.saveSettings.bind(this), false);
   document.getElementById('reset_button').addEventListener('click', this.resetSettings.bind(this), false);
   document.getElementById('clearHistory').addEventListener('click', function() {
-    localStorage.search = '';
-    localStorage.url    = '';
-    localStorage.action = '';
+    RUNTIME('clearHistory');
   });
   this.gistUrl = document.getElementById('gistUrl');
   document.getElementById('gistSync').addEventListener('click', this.syncGist.bind(this));
