@@ -79,6 +79,7 @@ These extensions do a wonderful job of adding Vim-like keybindings to Google Chr
 | hintcharacters                      | string (alphanumeric)              | set the default characters to be used in link hint mode                                   | "asdfgqwertzxcvb"                                                           |
 | barposition                         | string ["top", "bottom"]           | set the default position of the command bar                                               | "top"                                                                       |
 | vimcommand                          | string                             | set the command to be issued with the `editWithVim` command                               | "gvim -f"                                                                   |
+| langmap                             | string                             | set a list of characters to be remapped (see vims langmap)                                | ""                                                                          |
 
 ###Example configuration
 ```viml

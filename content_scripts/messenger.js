@@ -158,6 +158,7 @@ port.onMessage.addListener(function(response) {
       break;
     case 'sendSettings':
       Mappings.defaults = Object.clone(Mappings.defaultsClone);
+      KeyHandler.listener.setLangMap(response.settings.langmap || '');
       if (!Command.initialLoadStarted) {
         Command.configureSettings(response.settings);
       } else {

@@ -64,6 +64,8 @@ var KeyListener = (function() {
     222: ['\'', '"']
   };
 
+  var langMap = {};
+
   var parseKeyDown = function(event) {
     var key, map;
     var isFKey = false;
@@ -122,7 +124,10 @@ var KeyListener = (function() {
       }
       if (type === 'keypress') {
         // ascii representation of keycode
-        return String.fromCharCode(event.which);
+        var key = String.fromCharCode(event.which);
+        if (langMap.hasOwnProperty(key))
+          key = langMap[key];
+        return key;
       } else {
         // Vim-like representation
         return parseKeyDown(event);
@@ -275,6 +280,84 @@ var KeyListener = (function() {
     if (isActive) {
       isActive = false;
     }
+  };
+  var parseLangMap = (function() {
+    function tokenize(mapStr) {
+      var tokens = [];
+      for (var i = 0; i < mapStr.length; i++) {
+        var ch = mapStr.charAt(i);
+        if (ch === '\\' && i + 1 < mapStr.length) {
+          var peek = mapStr.charAt(i + 1);
+          if (peek === ',' || peek === ';') {
+            tokens.push(peek);
+            ++i;
+          } else {
+            tokens.push(ch);
+          }
+        } else if (ch === ',') {
+          tokens.push('PAIR_SEP');
+        } else if (ch === ';') {
+          tokens.push('SEMI_SEP');
+        } else {
+          tokens.push(ch);
+        }
+      }
+      return tokens;
+    }
+    function parseError(error) {
+      throw Error('cVim langmap error: ' + error);
+    }
+    function parseObj(tokens, pairs) {
+      var len = tokens.length;
+      var mid = len >> 1;
+      var i, j;
+      if (len % 2 === 0) {
+        for (i = 0; i < len - 1; i += 2) {
+          var a = tokens[i], b = tokens[i + 1];
+          if (a.length !== 1) parseError('unexpected token: ' + a);
+          if (b.length !== 1) parseError('unexpected token: ' + b);
+          pairs[a] = b;
+        }
+        return;
+      }
+      if (tokens[mid] !== 'SEMI_SEP')
+        parseError('mismatched characters');
+      for (i = 0, j = mid + 1; i < mid; i++, j++) {
+        if (tokens[i].length !== 1) parseError('unexpected token: ' + tokens[i]);
+        if (tokens[j].length !== 1) parseError('unexpected token: ' + tokens[j]);
+        pairs[tokens[i]] = tokens[j];
+      }
+      return;
+    }
+    function parse(tokens) {
+      var stream = [];
+      var pairs = {};
+      for (var i = 0; i < tokens.length; i++) {
+        if (tokens[i] === 'PAIR_SEP') {
+          parseObj(stream, pairs);
+          stream = [];
+        } else {
+          stream.push(tokens[i]);
+        }
+      }
+      if (stream.length)
+        parseObj(stream, pairs);
+      return pairs;
+    }
+    return function(mapStr) {
+      var tokens = tokenize(mapStr);
+      var parsed;
+      try {
+        parsed = parse(tokens);
+      } catch (error) {
+        console.error(error.message);
+        return {};
+      }
+      return parsed;
+    };
+  })();
+  listenerFn.prototype.setLangMap = function(mapStr) {
+    langMap = parseLangMap(mapStr);
   };
   return listenerFn;
 })();

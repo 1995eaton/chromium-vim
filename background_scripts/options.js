@@ -66,6 +66,7 @@ var defaultSettings = {
   homedirectory: '',
   activehighlight: '#ff9632',
   highlight: '#ffff00',
+  langmap: '',
   completionengines: ['google', 'duckduckgo', 'wikipedia', 'amazon'],
   nextmatchpattern: '((?!first)(next|older|more|>|›|»|forward| )+)',
   previousmatchpattern: '((?!last)(prev(ious)?|newer|back|«|less|<|‹| )+)',
