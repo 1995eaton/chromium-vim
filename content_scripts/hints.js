@@ -627,6 +627,10 @@ Hints.create = function(type, multi) {
       });
       return false;
     }
+    if (Command.css.parentNode === null) {
+      // Fix issue with Baidu search
+      document.head.appendChild(Command.css);
+    }
     var links, main, frag, i, l;
     self.linkIndex = 0;
     self.type = type;
@@ -713,11 +717,24 @@ Hints.create = function(type, multi) {
       }
     });
 
-    Hints.shadowDOM.appendChild(frag);
-    var style = document.createElement('style');
-    style.textContent = Command.mainCSS;
-    Hints.shadowDOM.appendChild(style);
-    main.style.opacity = '1';
+    var create = function() {
+      Hints.shadowDOM.appendChild(frag);
+      var style = document.createElement('style');
+      style.textContent = Command.mainCSS;
+      Hints.shadowDOM.appendChild(style);
+      main.style.opacity = '1';
+    };
+
+    if (Command.mainCSS === undefined) {
+      httpRequest({
+        url: chrome.runtime.getURL('content_scripts/main.css')
+      }, function(data) {
+        Command.mainCSS = data;
+        create();
+      });
+    } else {
+      create();
+    }
 
   }, 0);
 };
