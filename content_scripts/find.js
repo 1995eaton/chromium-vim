@@ -229,7 +229,7 @@ Find.clear = function() {
   var nodes = this.matches;
   for (var i = 0; i < nodes.length; i++)
     if (nodes[i] && nodes[i].parentNode)
-      nodes[i].parentNode.innerHTML = nodes[i].parentNode.innerHTML
-        .replace(/<mark[^>]*>([^<]+)<\/mark>/gi, '$1');
+      nodes[i].parentNode.replaceChild(nodes[i].firstChild, nodes[i]);
+  document.documentElement.normalize();
   this.matches = [];
 };
