@@ -1,5 +1,9 @@
 #cVim Changelog
 
+## 1.2.81
+ * Smooth scrolling is now disabled by default (add `set smoothscroll` to your settings to get it back)
+ * Bug fixes
+
 ## 1.2.80
  * Scrolling improvements
  * Bug fixes
