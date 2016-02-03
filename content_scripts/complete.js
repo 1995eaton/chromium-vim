@@ -53,15 +53,15 @@ var Complete = {
       return '';
 
     input[0] = this.getAlias(input[0]) || input[0];
-    if (!Complete.hasEngine(input[0])) {
+    if (!this.hasEngine(input[0])) {
       if (!isLink && (isURL || input.join(' ').validURL())) {
         input = input.join(' ');
         return (!/^[a-zA-Z\-]+:/.test(input) ? 'http://' : '') +
           input;
       }
-      var defaultEngine = Complete.getEngine(settings.defaultengine);
+      var defaultEngine = this.getEngine(settings.defaultengine);
       return (defaultEngine ? defaultEngine.requestUrl :
-                              Complete.getEngine('google').requestUrl) +
+                              this.getEngine('google').requestUrl) +
         encodeURIComponent(input.join(' '));
     }
 
