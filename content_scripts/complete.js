@@ -59,8 +59,10 @@ var Complete = {
         return (!/^[a-zA-Z\-]+:/.test(input) ? 'http://' : '') +
           input;
       }
-      return (Complete[settings.defaultengine].requestUrl ||
-        Complete.google.requestUrl) + encodeURIComponent(input.join(' '));
+      var defaultEngine = Complete.getEngine(settings.defaultengine);
+      return (defaultEngine ? defaultEngine.requestUrl :
+                              Complete.getEngine('google').requestUrl) +
+        encodeURIComponent(input.join(' '));
     }
 
     var engine = this.getEngine(input[0]);
