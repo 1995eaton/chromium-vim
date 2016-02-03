@@ -95,7 +95,13 @@ var Complete = {
   },
 
   addEngine: function(name, props) {
-    this.engines[name] = props;
+    if (typeof props === 'string') {
+      this.engines[name] = {
+        requestUrl: props
+      };
+    } else {
+      this.engines[name] = props;
+    }
     if (!this.engineEnabled(name))
       this.activeEngines.push(name);
   },
@@ -106,7 +112,8 @@ var Complete = {
     var engine = this.engines[name];
     if (!engine.hasOwnProperty('queryApi'))
       callback([]);
-    engine.queryApi(query, callback);
+    else
+      engine.queryApi(query, callback);
   },
   getMatchingEngines: function(prefix) {
     return this.activeEngines.filter(function(name) {
