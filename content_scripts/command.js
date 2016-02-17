@@ -712,8 +712,7 @@ Command.execute = function(value, repeats) {
     return;
   }
 
-  if (/^(new|winopen|wo)$/.test(value.replace(/ .*/, '')) &&
-      !/^\S+\s*$/.test(value)) {
+  if (/^(new|winopen|wo)$/.test(value.replace(/ .*/, ''))) {
     RUNTIME('openLinkWindow', {
       tab: tab,
       url: Complete.convertToLink(value, tab.isURL, tab.isLink),

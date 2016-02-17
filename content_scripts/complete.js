@@ -53,14 +53,16 @@ var Complete = {
       return '';
 
     input[0] = this.getAlias(input[0]) || input[0];
-    if (!Complete.hasEngine(input[0])) {
+    if (!this.hasEngine(input[0])) {
       if (!isLink && (isURL || input.join(' ').validURL())) {
         input = input.join(' ');
         return (!/^[a-zA-Z\-]+:/.test(input) ? 'http://' : '') +
           input;
       }
-      return (Complete[settings.defaultengine].requestUrl ||
-        Complete.google.requestUrl) + encodeURIComponent(input.join(' '));
+      var defaultEngine = this.getEngine(settings.defaultengine);
+      return (defaultEngine ? defaultEngine.requestUrl :
+                              this.getEngine('google').requestUrl) +
+        encodeURIComponent(input.join(' '));
     }
 
     var engine = this.getEngine(input[0]);
@@ -93,7 +95,13 @@ var Complete = {
   },
 
   addEngine: function(name, props) {
-    this.engines[name] = props;
+    if (typeof props === 'string') {
+      this.engines[name] = {
+        requestUrl: props
+      };
+    } else {
+      this.engines[name] = props;
+    }
     if (!this.engineEnabled(name))
       this.activeEngines.push(name);
   },
@@ -104,7 +112,8 @@ var Complete = {
     var engine = this.engines[name];
     if (!engine.hasOwnProperty('queryApi'))
       callback([]);
-    engine.queryApi(query, callback);
+    else
+      engine.queryApi(query, callback);
   },
   getMatchingEngines: function(prefix) {
     return this.activeEngines.filter(function(name) {
