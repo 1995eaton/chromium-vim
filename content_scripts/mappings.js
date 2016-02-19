@@ -700,7 +700,11 @@ Mappings.insertFunctions = (function() {
   }
 
   function deleteSelection() {
-    document.execCommand('delete', false, 0);
+    if (selection.type === 'Range' && selection.toString().length !== 0) {
+      document.execCommand('delete', false, 0);
+      return true;
+    }
+    return false;
   }
 
   return {
@@ -745,12 +749,15 @@ Mappings.insertFunctions = (function() {
     },
     deleteToBeginning: function() {
       modify('extend', 'left', 'lineboundary');
-      deleteSelection();
+      if (!deleteSelection()) {
+        modify('extend', 'left', 'character');
+        deleteSelection();
+      }
     },
     deleteToEnd: function() {
       modify('extend', 'right', 'lineboundary');
       deleteSelection();
-      modify('move', 'right', 'documentboundary');
+      modify('move', 'right', 'lineboundary');
     },
     beginningOfLine: function() {
       modify('left', 'lineboundary');
