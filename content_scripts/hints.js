@@ -407,7 +407,7 @@ Hints.evaluateLink = function(link) {
     linkStyle.left = linkLocation.left * this.documentZoom + document.body.scrollLeft + parseInt(mapCoordinates[0]) + 'px';
   } else {
     if (linkLocation.top < 0) {
-      linkStyle.top = document.body.scrollTop+ 'px';
+      linkStyle.top = document.body.scrollTop + 'px';
     } else {
       linkStyle.top = linkLocation.top * this.documentZoom + document.body.scrollTop + 'px';
     }
