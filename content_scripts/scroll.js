@@ -59,8 +59,8 @@ var scrollingElement = (function() {
       return null;
     return (function climb(elem) {
       if (elem === null)
-        return lastScrollElem || document.body;
-      if (elem === document.body)
+        return lastScrollElem || document.scrollingElement;
+      if (elem === document.scrollingElement)
         return elem;
       var st = getScrollType(elem);
       return st & dir ? elem : climb(elem.parentElement);
@@ -229,7 +229,7 @@ Scroll.scroll = function(type, repeats) {
   var stepSize = settings ? settings.scrollstep : 60;
 
   if (document.body) {
-    this.lastPosition = [document.body.scrollLeft, document.body.scrollTop];
+    this.lastPosition = [document.scrollingElement.scrollLeft, document.scrollingElement.scrollTop];
   }
 
   var direction = (function() {

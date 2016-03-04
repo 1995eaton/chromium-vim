@@ -4,12 +4,12 @@ var Cursor = { // Hide the mouse cursor on keydown (Linux)
   wiggleWindow: function() {
     document.body.style.minHeight = document.documentElement.clientHeight + 2 + 'px';
     var jiggleDirection =
-      +(document.body.scrollTop !== 0 &&
+      +(document.scrollingElement.scrollTop !== 0 &&
           document.body.scrollHeight -
-          document.body.scrollTop    -
+          document.scrollingElement.scrollTop    -
           document.documentElement.clientHeight === 0);
-    document.body.scrollTop -= jiggleDirection;
-    document.body.scrollTop += jiggleDirection;
+    document.scrollingElement.scrollTop -= jiggleDirection;
+    document.scrollingElement.scrollTop += jiggleDirection;
     document.body.style.minHeight = '';
   },
   init: function() {

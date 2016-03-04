@@ -197,7 +197,7 @@ Mappings.actions = {
   percentScroll: function(repeats) {
     repeats = (Mappings.repeats === '0' || Mappings.repeats === '')
               ? 0 : repeats;
-    document.body.scrollTop =
+    document.scrollingElement.scrollTop =
       (document.body.scrollHeight - window.innerHeight) * repeats / 100;
   },
   goToTab: function(repeats) {
@@ -392,7 +392,7 @@ Mappings.actions = {
     if (!Scroll.lastPosition) {
       return;
     }
-    var currentPosition = [document.body.scrollLeft, document.body.scrollTop];
+    var currentPosition = [document.scrollingElement.scrollLeft, document.scrollingElement.scrollTop];
     window.scrollTo.apply(null, Scroll.lastPosition);
     Scroll.lastPosition = currentPosition;
   },
@@ -400,7 +400,7 @@ Mappings.actions = {
     var key = Mappings.lastCommand.queue.slice(-1);
     if (Scroll.positions.hasOwnProperty(key)) {
       Scroll.lastPosition =
-        [document.body.scrollLeft, document.body.scrollTop];
+        [document.scrollingElement.scrollLeft, document.scrollingElement.scrollTop];
       window.scrollTo.apply(null, Scroll.positions[key]);
     } else {
       Status.setMessage('Mark not set', 1, 'error');
@@ -408,7 +408,7 @@ Mappings.actions = {
   },
   setMark: function() {
     Scroll.positions[Mappings.lastCommand.queue.slice(-1)] =
-      [document.body.scrollLeft, document.body.scrollTop];
+      [document.scrollingElement.scrollLeft, document.scrollingElement.scrollTop];
   },
   createHint: function() { Hints.create(); },
   createTabbedHint: function() { Hints.create('tabbed'); },
@@ -601,7 +601,7 @@ Mappings.actions = {
   openSearchBar: function() {
     Find.lastIndex = Find.index;
     if (document.readyState === 'interactive' || document.readyState === 'complete') {
-      Command.lastScrollTop = document.body.scrollTop;
+      Command.lastScrollTop = document.scrollingElement.scrollTop;
     }
     commandMode = true;
     Find.previousMatches = Find.matches.length > 0;
@@ -612,7 +612,7 @@ Mappings.actions = {
     Find.lastIndex = Find.index;
     commandMode = true;
     if (document.readyState === 'interactive' || document.readyState === 'complete') {
-      Command.lastScrollTop = document.body.scrollTop;
+      Command.lastScrollTop = document.scrollingElement.scrollTop;
     }
     Find.previousMatches = Find.matches.length > 0;
     Find.swap = true;
@@ -621,7 +621,7 @@ Mappings.actions = {
   openLinkSearchBar: function() {
     Find.lastIndex = Find.index;
     if (document.readyState === 'interactive' || document.readyState === 'complete') {
-      Command.lastScrollTop = document.body.scrollTop;
+      Command.lastScrollTop = document.scrollingElement.scrollTop;
     }
     commandMode = true;
     Find.previousMatches = Find.matches.length > 0;

@@ -71,7 +71,7 @@ Find.search = function(reverse, repeats, ignoreFocus) {
     this.tries = 0;
   }
   var br = this.matches[this.index].getBoundingClientRect();
-  var origTop = document.body.scrollTop;
+  var origTop = document.scrollingElement.scrollTop;
   if (!ignoreFocus) {
     document.activeElement.blur();
     document.body.focus();
