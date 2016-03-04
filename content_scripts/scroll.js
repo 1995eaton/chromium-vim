@@ -59,8 +59,8 @@ var scrollingElement = (function() {
       return null;
     return (function climb(elem) {
       if (elem === null)
-        return lastScrollElem || document.body;
-      if (elem === document.body)
+        return lastScrollElem || document.documentElement;
+      if (elem === document.documentElement)
         return elem;
       var st = getScrollType(elem);
       return st & dir ? elem : climb(elem.parentElement);
