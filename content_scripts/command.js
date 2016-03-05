@@ -477,7 +477,7 @@ Command.complete = function(value) {
   this.typed = this.input.value;
   var originalValue = value; // prevent expandCompletion from
                              // limiting command completions
-  value = this.expandCompletion(value).replace(/(^[^\s&!*?=]+)[&!*?=]*/, '$1');
+  value = this.expandCompletion(value).replace(/(^[^\s&$!*?=]+)[&$!*?=]*/, '$1');
   if (~value.indexOf(' ') && this.callCompletionFunction(value) === true) {
     return;
   }
@@ -522,27 +522,29 @@ Command.execute = function(value, repeats) {
   // ? == force cVim to tread text as a search
   var tab = {
     active: true,
+    newWindow: false,
     isURL: false,
     isLink: false,
     pinned: false,
     tabbed: false
   };
-  (value.match(/^[^\s&!*=?]*([&!*=?]+)/) || [])
-    .concat(value.match(/[&!*=?]*$/) || [])
+  (value.match(/^[^\s&$!*=?]*([&$!*=?]+)/) || [])
+    .concat(value.match(/[&$!*=?]*$/) || [])
     .join('').split('')
     .forEach(function(e) {
       switch (e) {
-        case '&': tab.active = false; break;
-        case '!': tab.tabbed = true;  break;
-        case '*': tab.pinned = true;  break;
-        case '?': tab.isLink = true;
-                  tab.isURL  = false; break;
-        case '=': tab.isLink = false;
-                  tab.isURL  = true;  break;
+        case '&': tab.active    = false; break;
+        case '$': tab.newWindow = true;  break;
+        case '!': tab.tabbed    = true;  break;
+        case '*': tab.pinned    = true;  break;
+        case '?': tab.isLink    = true;
+                  tab.isURL     = false; break;
+        case '=': tab.isLink    = false;
+                  tab.isURL     = true;  break;
       }
     });
-  value = value.replace(/^([^\s&*!=?]*)[&*!=?]*\s/, '$1 ');
-  value = value.replace(/[&*!=?]+$/, function(e) {
+  value = value.replace(/^([^\s&$*!=?]*)[&$*!=?]*\s/, '$1 ');
+  value = value.replace(/[&$*!=?]+$/, function(e) {
     return e.replace(/[^=?]/g, ''); });
   if (Complete.engineEnabled(value.split(/\s+/g).compress()[1]))
     value = value.replace(/[=?]+$/, '');

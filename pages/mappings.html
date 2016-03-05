@@ -484,6 +484,7 @@ site &#39;*://*/*.js&#39; {
 <ul>
 <li>Commands that open links (<code>:tabnew</code> and <code>:open</code>) have three different properties<ul>
 <li><code>!</code> =&gt; Open in a new tab</li>
+<li><code>$</code> =&gt; Open in a new window</li>
 <li><code>&amp;</code> =&gt; Open in a new tab (inactive/unfocused)</li>
 <li><code>*</code> =&gt; Pin the tab</li>
 <li><code>?</code> =&gt; Treat the query as a search</li>
@@ -500,6 +501,8 @@ site &#39;*://*/*.js&#39; {
 
 :open&amp; google&lt;CR&gt; &quot; This will open Google in a new inactive tab
 
+:open$ google&lt;CR&gt; &quot; This will open Google in a new window
+
 :open&amp;* google&lt;CR&gt; &quot; The will open Google in a new inactive, pinned tab
 
 :tabnew google&amp;*&lt;CR&gt; &quot; Once again, this will do the same thing as the above command
@@ -513,6 +516,7 @@ site &#39;*://*/*.js&#39; {
 :bookmarks my_bookmark.com&amp;  &quot; inactive,new tab
 :bookmarks&amp;* my_bookmark.com &quot; inactive,pinned,new tab
 :bookmarks! my_bookmark.com  &quot; new tab
+:bookmarks$ my_bookmark.com  &quot; new window
 :bookmarks my_bookmark.com   &quot; same tab
 </code></pre>
 <h3 id="code-blocks">Code blocks</h3>
