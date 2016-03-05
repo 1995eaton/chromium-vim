@@ -131,8 +131,11 @@ map j scrollUp
 " literal " " character, to enter buffer completion mode
 map gb :buffer<Space>
 
-" The unmaps the default 'k' mapping
+" This unmaps the default 'k' mapping
 unmap k
+
+" This unmaps the default 'h', 'j', 'k', and 'l' mappings
+unmap h j k l
 
 " This remaps the default 'f' mapping to the current 'F' mapping
 map f F

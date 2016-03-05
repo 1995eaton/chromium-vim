@@ -128,9 +128,13 @@ SiteStatement
     var r = {sites: {}}; r.sites[a] = b; return r;
   }
 
+UnmapIdentifierList
+  = SEP? a:MapIdentifier SEP b:UnmapIdentifierList SEP? { return [a].concat(b); }
+  / SEP? a:MapIdentifier SEP? { return [a]; }
+
 UnmapStatement
-  = a:(UNMAP / IUNMAP) SEP b:MapIdentifier {
-    return { MAPPINGS: a + ' ' + b };
+  = a:(UNMAP / IUNMAP) SEP b:UnmapIdentifierList {
+    return { MAPPINGS: a + ' ' + b.join(' ') };
   }
 
 MapStatement
