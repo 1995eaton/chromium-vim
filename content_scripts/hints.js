@@ -403,21 +403,21 @@ Hints.evaluateLink = function(link) {
     if (mapCoordinates.length < 2) {
       return;
     }
-    linkStyle.top = linkLocation.top * this.documentZoom + document.body.scrollTop + parseInt(mapCoordinates[1]) + 'px';
-    linkStyle.left = linkLocation.left * this.documentZoom + document.body.scrollLeft + parseInt(mapCoordinates[0]) + 'px';
+    linkStyle.top = linkLocation.top * this.documentZoom + document.scrollingElement.scrollTop + parseInt(mapCoordinates[1]) + 'px';
+    linkStyle.left = linkLocation.left * this.documentZoom + document.scrollingElement.scrollLeft + parseInt(mapCoordinates[0]) + 'px';
   } else {
     if (linkLocation.top < 0) {
-      linkStyle.top = document.body.scrollTop + 'px';
+      linkStyle.top = document.scrollingElement.scrollTop + 'px';
     } else {
-      linkStyle.top = linkLocation.top * this.documentZoom + document.body.scrollTop + 'px';
+      linkStyle.top = linkLocation.top * this.documentZoom + document.scrollingElement.scrollTop + 'px';
     }
     if (linkLocation.left < 0) {
-      linkStyle.left = document.body.scrollLeft + 'px';
+      linkStyle.left = document.scrollingElement.scrollLeft + 'px';
     } else {
       if (linkLocation.offsetLeft > linkLocation.left) {
         linkStyle.left = link.offsetLeft * this.documentZoom + 'px';
       } else {
-        linkStyle.left = linkLocation.left * this.documentZoom + document.body.scrollLeft + 'px';
+        linkStyle.left = linkLocation.left * this.documentZoom + document.scrollingElement.scrollLeft + 'px';
       }
     }
   }
@@ -664,8 +664,8 @@ Hints.create = function(type, multi) {
     frag = document.createDocumentFragment();
 
     main.id = 'cVim-link-container';
-    main.top = document.body.scrollTop + 'px';
-    main.left = document.body.scrollLeft + 'px';
+    main.top = document.scrollingElement.scrollTop + 'px';
+    main.left = document.scrollingElement.scrollLeft + 'px';
     Hints.shadowDOM = main.createShadowRoot();
 
     try {

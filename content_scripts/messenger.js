@@ -287,7 +287,7 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
       break;
     case 'cancelIncSearch':
       if (Command.lastScrollTop !== void 0)
-        document.body.scrollTop = Command.lastScrollTop;
+        document.scrollingElement.scrollTop = Command.lastScrollTop;
       if (Find.previousMatches &&
           request.search &&
           Find.lastSearch &&

@@ -96,10 +96,10 @@ Settings.init = function() {
   this.editModeEl = document.getElementById('edit_mode');
 
   function autoSize() {
-    var stop = document.body.scrollTop;
+    var stop = document.scrollingElement.scrollTop;
     this.style.height = '';
     this.style.height = this.scrollHeight + 'px';
-    document.body.scrollTop = stop;
+    document.scrollingElement.scrollTop = stop;
   }
 
   this.rcEl.addEventListener('input', autoSize);
