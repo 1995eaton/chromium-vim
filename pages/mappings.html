@@ -393,8 +393,11 @@ map j scrollUp
 &quot; literal &quot; &quot; character, to enter buffer completion mode
 map gb :buffer&lt;Space&gt;
 
-&quot; The unmaps the default &#39;k&#39; mapping
+&quot; This unmaps the default &#39;k&#39; mapping
 unmap k
+
+&quot; This unmaps the default &#39;h&#39;, &#39;j&#39;, &#39;k&#39;, and &#39;l&#39; mappings
+unmap h j k l
 
 &quot; This remaps the default &#39;f&#39; mapping to the current &#39;F&#39; mapping
 map f F
@@ -484,6 +487,7 @@ site &#39;*://*/*.js&#39; {
 <ul>
 <li>Commands that open links (<code>:tabnew</code> and <code>:open</code>) have three different properties<ul>
 <li><code>!</code> =&gt; Open in a new tab</li>
+<li><code>$</code> =&gt; Open in a new window</li>
 <li><code>&amp;</code> =&gt; Open in a new tab (inactive/unfocused)</li>
 <li><code>*</code> =&gt; Pin the tab</li>
 <li><code>?</code> =&gt; Treat the query as a search</li>
@@ -500,6 +504,8 @@ site &#39;*://*/*.js&#39; {
 
 :open&amp; google&lt;CR&gt; &quot; This will open Google in a new inactive tab
 
+:open$ google&lt;CR&gt; &quot; This will open Google in a new window
+
 :open&amp;* google&lt;CR&gt; &quot; The will open Google in a new inactive, pinned tab
 
 :tabnew google&amp;*&lt;CR&gt; &quot; Once again, this will do the same thing as the above command
@@ -513,6 +519,7 @@ site &#39;*://*/*.js&#39; {
 :bookmarks my_bookmark.com&amp;  &quot; inactive,new tab
 :bookmarks&amp;* my_bookmark.com &quot; inactive,pinned,new tab
 :bookmarks! my_bookmark.com  &quot; new tab
+:bookmarks$ my_bookmark.com  &quot; new window
 :bookmarks my_bookmark.com   &quot; same tab
 </code></pre>
 <h3 id="code-blocks">Code blocks</h3>

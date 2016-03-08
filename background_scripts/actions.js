@@ -29,8 +29,16 @@ Actions = (function() {
   };
 
   _.openLink = function() {
-    if (request.tab.tabbed) {
-      for (var i = 0; i < request.repeats; ++i) {
+    var i;
+    if (request.tab.newWindow) {
+      for (i = 0; i < request.repeats; ++i) {
+        chrome.windows.create({
+          url: url,
+          focused: request.tab.active,
+        });
+      }
+    } else if (request.tab.tabbed) {
+      for (i = 0; i < request.repeats; ++i) {
         chrome.tabs.create({
           url: url,
           active: request.tab.active,

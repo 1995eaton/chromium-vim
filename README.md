@@ -131,8 +131,11 @@ map j scrollUp
 " literal " " character, to enter buffer completion mode
 map gb :buffer<Space>
 
-" The unmaps the default 'k' mapping
+" This unmaps the default 'k' mapping
 unmap k
+
+" This unmaps the default 'h', 'j', 'k', and 'l' mappings
+unmap h j k l
 
 " This remaps the default 'f' mapping to the current 'F' mapping
 map f F
@@ -222,6 +225,7 @@ site '*://*/*.js' {
 ###Tabs
  * Commands that open links (`:tabnew` and `:open`) have three different properties
   * `!` => Open in a new tab
+  * `$` => Open in a new window
   * `&` => Open in a new tab (inactive/unfocused)
   * `*` => Pin the tab
   * `?` => Treat the query as a search
@@ -237,6 +241,8 @@ site '*://*/*.js' {
 
 :open& google<CR> " This will open Google in a new inactive tab
 
+:open$ google<CR> " This will open Google in a new window
+
 :open&* google<CR> " The will open Google in a new inactive, pinned tab
 
 :tabnew google&*<CR> " Once again, this will do the same thing as the above command
@@ -250,6 +256,7 @@ site '*://*/*.js' {
 :bookmarks my_bookmark.com&  " inactive,new tab
 :bookmarks&* my_bookmark.com " inactive,pinned,new tab
 :bookmarks! my_bookmark.com  " new tab
+:bookmarks$ my_bookmark.com  " new window
 :bookmarks my_bookmark.com   " same tab
 ```
 

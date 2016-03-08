@@ -125,7 +125,7 @@ RCParser = (function() {
             var r = {sites: {}}; r.sites[a] = b; return r;
           },
         peg$c79 = function(a, b) {
-            return { MAPPINGS: a + ' ' + b };
+            return { MAPPINGS: a + ' ' + b.join(' ') };
           },
         peg$c80 = function(a, b, c) {
             return { MAPPINGS: [a, b, c.join('')].join(' ') };
@@ -1933,6 +1933,83 @@ RCParser = (function() {
       return s0;
     }
 
+    function peg$parseUnmapIdentifierList() {
+      var s0, s1, s2, s3, s4, s5;
+
+      s0 = peg$currPos;
+      s1 = peg$parseSEP();
+      if (s1 === peg$FAILED) {
+        s1 = null;
+      }
+      if (s1 !== peg$FAILED) {
+        s2 = peg$parseMapIdentifier();
+        if (s2 !== peg$FAILED) {
+          s3 = peg$parseSEP();
+          if (s3 !== peg$FAILED) {
+            s4 = peg$parseUnmapIdentifierList();
+            if (s4 !== peg$FAILED) {
+              s5 = peg$parseSEP();
+              if (s5 === peg$FAILED) {
+                s5 = null;
+              }
+              if (s5 !== peg$FAILED) {
+                peg$savedPos = s0;
+                s1 = peg$c59(s2, s4);
+                s0 = s1;
+              } else {
+                peg$currPos = s0;
+                s0 = peg$FAILED;
+              }
+            } else {
+              peg$currPos = s0;
+              s0 = peg$FAILED;
+            }
+          } else {
+            peg$currPos = s0;
+            s0 = peg$FAILED;
+          }
+        } else {
+          peg$currPos = s0;
+          s0 = peg$FAILED;
+        }
+      } else {
+        peg$currPos = s0;
+        s0 = peg$FAILED;
+      }
+      if (s0 === peg$FAILED) {
+        s0 = peg$currPos;
+        s1 = peg$parseSEP();
+        if (s1 === peg$FAILED) {
+          s1 = null;
+        }
+        if (s1 !== peg$FAILED) {
+          s2 = peg$parseMapIdentifier();
+          if (s2 !== peg$FAILED) {
+            s3 = peg$parseSEP();
+            if (s3 === peg$FAILED) {
+              s3 = null;
+            }
+            if (s3 !== peg$FAILED) {
+              peg$savedPos = s0;
+              s1 = peg$c60(s2);
+              s0 = s1;
+            } else {
+              peg$currPos = s0;
+              s0 = peg$FAILED;
+            }
+          } else {
+            peg$currPos = s0;
+            s0 = peg$FAILED;
+          }
+        } else {
+          peg$currPos = s0;
+          s0 = peg$FAILED;
+        }
+      }
+
+      return s0;
+    }
+
     function peg$parseUnmapStatement() {
       var s0, s1, s2, s3;
 
@@ -1944,7 +2021,7 @@ RCParser = (function() {
       if (s1 !== peg$FAILED) {
         s2 = peg$parseSEP();
         if (s2 !== peg$FAILED) {
-          s3 = peg$parseMapIdentifier();
+          s3 = peg$parseUnmapIdentifierList();
           if (s3 !== peg$FAILED) {
             peg$savedPos = s0;
             s1 = peg$c79(s1, s3);

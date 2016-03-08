@@ -41,6 +41,7 @@ map aa :tabopen g<Space>
 map T :tabopen<CR>
 map , :set numerichints!<CR>
 map ga :settings<CR>
+unmap j k h l
 let @@a = 3
 
 site '*://*/*' {

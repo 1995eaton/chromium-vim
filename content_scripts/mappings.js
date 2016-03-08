@@ -860,9 +860,15 @@ Mappings.parseLine = function(line) {
             insertMappings.findValue(this.splitMapping(map[2])) ||
             map.slice(2).join(' ').replace(/\s+".*/, ''));
       case 'iunmap':
-        return insertMappings.removeByKey(this.splitMapping(map[1]));
+        map.slice(1).forEach(function(unmap) {
+          insertMappings.removeByKey(this.splitMapping(unmap));
+        }.bind(this));
+        return;
       case 'unmap':
-        return mappingTrie.removeByKey(this.splitMapping(map[1]));
+        map.slice(1).forEach(function(unmap) {
+          mappingTrie.removeByKey(this.splitMapping(unmap));
+        }.bind(this));
+        return;
       case 'call':
         waitForLoad(function() {
           map = map.slice(1).join(' ').trimAround();
