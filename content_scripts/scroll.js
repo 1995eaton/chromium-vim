@@ -11,12 +11,16 @@ const NON_SCROLLABLE     = 0,
 //       SCROLLABLE_X = SCROLLABLE_X_LEFT | SCROLLABLE_X_RIGHT;
 
 var scrollingElement = (function() {
-  function isScrollable(elem, scrollType) {
+  function isScrollableDelta(elem, scrollType, delta) {
 	var origin = elem[scrollType];
-	elem[scrollType] += 1;
+	elem[scrollType] += delta;
 	if (origin === elem[scrollType]) return false;
-	else elem[scrollType] -= 1;
+	else elem[scrollType] -= delta;
 	return true;
+  }
+
+  function isScrollable(elem, scrollType) {
+	return isScrollableDelta(elem, scrollType, 1) || isScrollableDelta(elem, scrollType, -1);
   }
 
   function getScrollType(elem) {
