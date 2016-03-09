@@ -12,15 +12,15 @@ const NON_SCROLLABLE     = 0,
 
 var scrollingElement = (function() {
   function isScrollableDelta(elem, scrollType, delta) {
-	var origin = elem[scrollType];
-	elem[scrollType] += delta;
-	if (origin === elem[scrollType]) return false;
-	else elem[scrollType] -= delta;
-	return true;
+    var origin = elem[scrollType];
+    elem[scrollType] += delta;
+    if (origin === elem[scrollType]) return false;
+    else elem[scrollType] -= delta;
+    return true;
   }
 
   function isScrollable(elem, scrollType) {
-	return isScrollableDelta(elem, scrollType, 1) || isScrollableDelta(elem, scrollType, -1);
+    return isScrollableDelta(elem, scrollType, 1) || isScrollableDelta(elem, scrollType, -1);
   }
 
   function getScrollType(elem) {
@@ -57,12 +57,32 @@ var scrollingElement = (function() {
   });
 
   return function scrollingElement(dir) {
+    var scrollType = (function() {
+      switch (dir) {
+      case SCROLLABLE_X_RIGHT: case SCROLLABLE_X_LEFT:
+        return "scrollLeft";
+      default:
+        return "scrollTop";
+      }
+    })();
+
     var elem;
     if (clickFocus) {
       elem = lastActiveElem;
     } else {
       elem = lastActiveElem = document.activeElement;
+
+      if (elem === document.body && !isScrollable(document.activeElement, scrollType)) {
+        var elem_candidates = document.elementsFromPoint(window.innerWidth/2, window.innerHeight/2);
+        for (var e of elem_candidates) {
+          if (getScrollType(e) & dir) {
+            elem = lastActiveElem = e;
+            break;
+          }
+        }
+      }
     }
+
     if (elem === null)
       return null;
     return (function climb(elem) {
