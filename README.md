@@ -304,7 +304,7 @@ let completionengines = ['google', 'google-image', 'youtube'] " Show only these 
     ```
 
 
-#Keybindings
+#Keybindings [cVim Cheet Sheet](http://www.cheatography.com/yograf/cheat-sheets/cvim/)
 
 | Movement                  |                                                                       | Mapping name                    |
 | ------------------------- | :-------------------------------------------------------------------- | :------------------------------ |
