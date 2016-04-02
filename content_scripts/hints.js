@@ -403,8 +403,12 @@ Hints.evaluateLink = function(link) {
     if (mapCoordinates.length < 2) {
       return;
     }
-    linkStyle.top = linkLocation.top * this.documentZoom + document.scrollingElement.scrollTop + parseInt(mapCoordinates[1]) + 'px';
-    linkStyle.left = linkLocation.left * this.documentZoom + document.scrollingElement.scrollLeft + parseInt(mapCoordinates[0]) + 'px';
+    linkStyle.top = linkLocation.top * this.documentZoom +
+      document.scrollingElement.scrollTop +
+      parseInt(mapCoordinates[1], 10) + 'px';
+    linkStyle.left = linkLocation.left * this.documentZoom +
+      document.scrollingElement.scrollLeft +
+      parseInt(mapCoordinates[0], 10) + 'px';
   } else {
     if (linkLocation.top < 0) {
       linkStyle.top = document.scrollingElement.scrollTop + 'px';
