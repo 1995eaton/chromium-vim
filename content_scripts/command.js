@@ -1086,7 +1086,6 @@ Command.updateSettings = function(config) {
     }
   }
   if (config.locale) {
-    // TODO:
     Complete.setLocale(config.locale);
   }
   if (config.hintcharacters &&
