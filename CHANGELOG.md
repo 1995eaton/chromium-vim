@@ -1,5 +1,12 @@
 #cVim Changelog
 
+## 1.2.82
+ * Fix `:new`/`:winopen` bug
+ * Fix scrolling bug when experimental JavaScript features are enabled
+ * Fix several insert mapping bugs
+ * Allow multiple unmaps using a single statement (e.g. `unmap h j k l`)
+ * Added new window modifier for `:tabnew` and related commands
+
 ## 1.2.81
  * Smooth scrolling is now disabled by default (add `set smoothscroll` to your settings to get it back)
  * Bug fixes
