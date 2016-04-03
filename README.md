@@ -337,6 +337,7 @@ let completionengines = ['google', 'google-image', 'youtube'] " Show only these 
 | `mf`                      | open multiple links                                                   | createMultiHint                 |
 | unmapped                  | edit text with external editor                                        | createEditHint                  |
 | unmapped                  | call a code block with the link as the first argument                 | createScriptHint(`<FUNCTION_NAME>`) |
+| unmapped                  | opens images in a new tab                                             | fullImageHint                   |
 | `mr`                      | reverse image search multiple links                                   | multiReverseImage               |
 | `my`                      | yank multiple links (open the list of links with P)                   | multiYankUrl                    |
 | `gy`                      | copy URL from link to clipboard                                       | yankUrl                         |
