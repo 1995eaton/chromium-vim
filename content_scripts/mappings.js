@@ -127,6 +127,7 @@ Mappings.defaults = [
   ['g+',        'incrementURLPath'],
   ['g-',        'decrementURLPath'],
   ['#',         'resetScrollFocus'],
+  ['cm',        'muteTab']
 ];
 
 Mappings.defaultsClone = Object.clone(Mappings.defaults);
@@ -652,6 +653,9 @@ Mappings.actions = {
   clearSearchHighlight: function() {
     Find.clear();
     HUD.hide();
+  },
+  muteTab: function() {
+    RUNTIME('muteTab');
   }
 
 };

@@ -878,6 +878,10 @@ Actions = (function() {
     return true;
   };
 
+  _.muteTab = function() {
+    chrome.tabs.update(sender.tab.id, {muted: !sender.tab.mutedInfo.muted});
+  };
+
   return function(_request, _sender, _callback, _port) {
     port = _port;
     var action = _request.action;

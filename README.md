@@ -364,6 +364,7 @@ let completionengines = ['google', 'google-image', 'youtube'] " Show only these 
 | `;<*>`                    | create mark &lt;*&gt;                                                 | setMark                         |
 | `''`                      | go to last scroll position                                            | lastScrollPosition              |
 | `'<*>`                    | go to mark &lt;*&gt;                                                  | goToMark                        |
+| `cm`                      | mute/unmute a tab                                                     | muteTab                         |
 | none                      | reload all tabs                                                       | reloadAllTabs                   |
 | `cr`                      | reload all tabs but current                                           | reloadAllButCurrent             |
 | `zi`                      | zoom page in                                                          | zoomPageIn                      |
