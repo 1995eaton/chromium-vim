@@ -77,74 +77,74 @@ Search.nextResult = function(reverse) {
     spanElements[i].style.color = '#1b1d1e';
   }
   switch (Command.completionResults[this.index][0]) {
-    case 'chrome':
-      Command.input.value = Command.input.value.match(/^\S+ /)[0] +
-                            Command.completionResults[this.index][1];
-      break;
-    case 'bookmarks':
-    case 'history':
-    case 'topsites':
-      Command.input.value = Command.input.value.match(/^\S+ /)[0] + Command.completionResults[this.index][2];
-      break;
-    case 'tabhistory':
-      Command.input.value = 'tabhistory ' + Command.completionResults[this.index][1];
-      break;
-    case 'engines':
-      Command.input.value = Command.input.value.match(/^\S+ /)[0] + Command.completionResults[this.index][1];
-      break;
-    case 'search':
-      var value = Command.input.value.split(/\s+/).compress();
-      var repl = '';
-      if (Command.customCommands.hasOwnProperty(value[0])) {
-        value = [value[0]];
-        repl = Command.customCommands[value[0]].split(/\s+/).compress().slice(2).join(' ');
-      }
-      var inputValue, searchValue;
-      if (Command.completionResults[this.index].length === 3) {
-        inputValue = value[0] + ' ';
-        searchValue = Command.completionResults[this.index][2];
-      } else {
-        inputValue = value.slice(0, 2).join(' ') + ' ';
-        searchValue = Command.completionResults[this.index][1];
-      }
-      if (searchValue.indexOf(repl) === 0)
-        searchValue = searchValue.replace(repl, '').trimAround();
-      Command.input.value = inputValue + searchValue;
-      break;
-    case 'windows':
-      Command.input.value = Command.input.value.match(/^\S+/)[0] + ' ' + Command.completionResults[this.index][1].replace(/ .*/, '');
-      break;
-    case 'chromesessions':
-      Command.input.value = Command.input.value.match(/^\S+/)[0] + ' ' + Command.completionResults[this.index][3].replace(/ .*/, '');
-      break;
-    case 'markOptions':
-      Command.input.value = Command.input.value.replace(/-[a-zA-Z]*$/, Command.completionResults[this.index][1]);
-      break;
-    case 'sessions':
-      Command.input.value = Command.input.value.match(/^\S+/)[0] + ' ' + Command.completionResults[this.index][1];
-      break;
-    case 'files':
-      Command.input.value = Command.input.value.replace(/[^\/]+$/, '') + Command.completionResults[this.index][1];
-      break;
-    case 'settings':
-      var command = Command.input.value.split(/\s+/);
-      Command.input.value = command[0] + ' ' + (/^no/.test(command[1]) ? 'no' : '') + Command.completionResults[this.index][1];
-      break;
-    case 'paths':
-      if (Command.completionResults[this.index][2] !== 'folder') {
-        Command.input.value = 'bookmarks ' + Command.completionResults[this.index][2];
-      } else {
-        Command.input.value = 'bookmarks ' + Command.completionResults[this.index][3] + Command.completionResults[this.index][1];
-      }
-      break;
-    case 'buffers':
-      Command.input.value = Command.input.value.match(/^\S+/)[0] + ' ' + Command.completionResults[this.index][1].replace(/:.*/, '');
-      break;
-    case 'complete':
-      if (Command.completionResults[this.index][1] !== void 0) {
-        Command.input.value = Command.completionResults[this.index][1];
-      }
-      break;
+  case 'chrome':
+    Command.input.value = Command.input.value.match(/^\S+ /)[0] +
+                          Command.completionResults[this.index][1];
+    break;
+  case 'bookmarks':
+  case 'history':
+  case 'topsites':
+    Command.input.value = Command.input.value.match(/^\S+ /)[0] + Command.completionResults[this.index][2];
+    break;
+  case 'tabhistory':
+    Command.input.value = 'tabhistory ' + Command.completionResults[this.index][1];
+    break;
+  case 'engines':
+    Command.input.value = Command.input.value.match(/^\S+ /)[0] + Command.completionResults[this.index][1];
+    break;
+  case 'search':
+    var value = Command.input.value.split(/\s+/).compress();
+    var repl = '';
+    if (Command.customCommands.hasOwnProperty(value[0])) {
+      value = [value[0]];
+      repl = Command.customCommands[value[0]].split(/\s+/).compress().slice(2).join(' ');
+    }
+    var inputValue, searchValue;
+    if (Command.completionResults[this.index].length === 3) {
+      inputValue = value[0] + ' ';
+      searchValue = Command.completionResults[this.index][2];
+    } else {
+      inputValue = value.slice(0, 2).join(' ') + ' ';
+      searchValue = Command.completionResults[this.index][1];
+    }
+    if (searchValue.indexOf(repl) === 0)
+      searchValue = searchValue.replace(repl, '').trimAround();
+    Command.input.value = inputValue + searchValue;
+    break;
+  case 'windows':
+    Command.input.value = Command.input.value.match(/^\S+/)[0] + ' ' + Command.completionResults[this.index][1].replace(/ .*/, '');
+    break;
+  case 'chromesessions':
+    Command.input.value = Command.input.value.match(/^\S+/)[0] + ' ' + Command.completionResults[this.index][3].replace(/ .*/, '');
+    break;
+  case 'markOptions':
+    Command.input.value = Command.input.value.replace(/-[a-zA-Z]*$/, Command.completionResults[this.index][1]);
+    break;
+  case 'sessions':
+    Command.input.value = Command.input.value.match(/^\S+/)[0] + ' ' + Command.completionResults[this.index][1];
+    break;
+  case 'files':
+    Command.input.value = Command.input.value.replace(/[^\/]+$/, '') + Command.completionResults[this.index][1];
+    break;
+  case 'settings':
+    var command = Command.input.value.split(/\s+/);
+    Command.input.value = command[0] + ' ' + (/^no/.test(command[1]) ? 'no' : '') + Command.completionResults[this.index][1];
+    break;
+  case 'paths':
+    if (Command.completionResults[this.index][2] !== 'folder') {
+      Command.input.value = 'bookmarks ' + Command.completionResults[this.index][2];
+    } else {
+      Command.input.value = 'bookmarks ' + Command.completionResults[this.index][3] + Command.completionResults[this.index][1];
+    }
+    break;
+  case 'buffers':
+    Command.input.value = Command.input.value.match(/^\S+/)[0] + ' ' + Command.completionResults[this.index][1].replace(/:.*/, '');
+    break;
+  case 'complete':
+    if (Command.completionResults[this.index][1] !== void 0) {
+      Command.input.value = Command.completionResults[this.index][1];
+    }
+    break;
   }
 
 };

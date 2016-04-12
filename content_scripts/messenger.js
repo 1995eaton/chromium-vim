@@ -34,314 +34,314 @@ port.onDisconnect.addListener(function() {
 port.onMessage.addListener(function(response) {
   var key;
   switch (response.type) {
-    case 'hello':
-      PORT('getSettings');
-      PORT('getBookmarks');
-      PORT('getQuickMarks');
-      PORT('getSessionNames');
-      PORT('retrieveAllHistory');
-      PORT('sendLastSearch');
-      PORT('getTopSites');
-      PORT('getLastCommand');
-      break;
-    case 'checkFrameVisibility':
-      var data = {
-        id: response.id,
-        isVisible: false,
-        rect: null
+  case 'hello':
+    PORT('getSettings');
+    PORT('getBookmarks');
+    PORT('getQuickMarks');
+    PORT('getSessionNames');
+    PORT('retrieveAllHistory');
+    PORT('sendLastSearch');
+    PORT('getTopSites');
+    PORT('getLastCommand');
+    break;
+  case 'checkFrameVisibility':
+    var data = {
+      id: response.id,
+      isVisible: false,
+      rect: null
+    };
+    [].some.call(document.querySelectorAll('iframe'), function(e) {
+      if (e.src === response.url) {
+        data.rect = DOM.getVisibleBoundingRect(e);
+        data.isVisible = !!data.rect;
+        return data.isVisible;
+      }
+    });
+    PORT('portCallback', data);
+    break;
+  case 'focusFrame':
+    Frames.focus();
+    break;
+  case 'updateLastCommand':
+    Mappings.lastCommand = JSON.parse(response.data);
+    break;
+  case 'commandHistory':
+    for (key in response.history) {
+      Command.history[key] = response.history[key];
+    }
+    break;
+  case 'history':
+    var matches = [];
+    for (key in response.history) {
+      if (response.history[key].url) {
+        if (response.history[key].title.trim() === '') {
+          matches.push(['Untitled', response.history[key].url]);
+        } else {
+          matches.push([response.history[key].title, response.history[key].url]);
+        }
+      }
+    }
+    if (Command.historyMode) {
+      if (Command.active && Command.bar.style.display !== 'none') {
+        Command.completions = { history: matches };
+        Command.updateCompletions(false);
+      }
+    } else if (Command.searchMode) {
+      Command.searchMode = false;
+      if (Command.active && Command.bar.style.display !== 'none') {
+        Command.completions.history = matches;
+        Command.updateCompletions(true);
+      }
+    }
+    break;
+  case 'bookmarks':
+    Marks.parse(response.bookmarks);
+    break;
+  case 'topsites':
+    Search.topSites = response.sites;
+    break;
+  case 'buffers':
+    if (Command.bar.style.display !== 'none') {
+      var val = Command.input.value.replace(/\S+\s+/, '');
+      Command.hideData();
+      Command.completions = {
+        buffers: (function() {
+          if (!val.trim() ||
+              Number.isNaN(val) ||
+              !response.buffers[+val - 1])
+            return searchArray({
+              array: response.buffers,
+              search: val,
+              limit: settings.searchlimit,
+              fn: function(item) { return item.join(' '); }
+            });
+          return [response.buffers[+val - 1]] || [];
+        })()
       };
-      [].some.call(document.querySelectorAll('iframe'), function(e) {
-        if (e.src === response.url) {
-          data.rect = DOM.getVisibleBoundingRect(e);
-          data.isVisible = !!data.rect;
-          return data.isVisible;
-        }
-      });
-      PORT('portCallback', data);
-      break;
-    case 'focusFrame':
-      Frames.focus();
-      break;
-    case 'updateLastCommand':
-      Mappings.lastCommand = JSON.parse(response.data);
-      break;
-    case 'commandHistory':
-      for (key in response.history) {
-        Command.history[key] = response.history[key];
+      Command.updateCompletions();
+    }
+    break;
+  case 'sessions':
+    sessions = response.sessions;
+    break;
+  case 'quickMarks':
+    Marks.parseQuickMarks(response.marks);
+    break;
+  case 'bookmarkPath':
+    if (response.path.length) {
+      Command.completions = {};
+      Command.completions.paths = response.path;
+      Command.updateCompletions();
+    } else {
+      Command.hideData();
+    }
+    break;
+  case 'editWithVim':
+    var lastInputElement = Mappings.insertFunctions.__getElement__();
+    if (lastInputElement) {
+      lastInputElement[lastInputElement.value !== void 0 ? 'value' : 'innerHTML'] =
+        response.text.replace(/\n$/, ''); // remove trailing line left by vim
+      if (!DOM.isSubmittable(lastInputElement)) {
+        lastInputElement.blur();
       }
-      break;
-    case 'history':
-      var matches = [];
-      for (key in response.history) {
-        if (response.history[key].url) {
-          if (response.history[key].title.trim() === '') {
-            matches.push(['Untitled', response.history[key].url]);
-          } else {
-            matches.push([response.history[key].title, response.history[key].url]);
-          }
-        }
-      }
-      if (Command.historyMode) {
-        if (Command.active && Command.bar.style.display !== 'none') {
-          Command.completions = { history: matches };
-          Command.updateCompletions(false);
-        }
-      } else if (Command.searchMode) {
-        Command.searchMode = false;
-        if (Command.active && Command.bar.style.display !== 'none') {
-          Command.completions.history = matches;
-          Command.updateCompletions(true);
-        }
-      }
-      break;
-    case 'bookmarks':
-      Marks.parse(response.bookmarks);
-      break;
-    case 'topsites':
-      Search.topSites = response.sites;
-      break;
-    case 'buffers':
-      if (Command.bar.style.display !== 'none') {
-        var val = Command.input.value.replace(/\S+\s+/, '');
-        Command.hideData();
-        Command.completions = {
-          buffers: (function() {
-            if (!val.trim() ||
-                Number.isNaN(val) ||
-                !response.buffers[+val - 1])
-              return searchArray({
-                array: response.buffers,
-                search: val,
-                limit: settings.searchlimit,
-                fn: function(item) { return item.join(' '); }
-              });
-            return [ response.buffers[+val - 1] ] || [];
-          })()
-        };
-        Command.updateCompletions();
-      }
-      break;
-    case 'sessions':
-      sessions = response.sessions;
-      break;
-    case 'quickMarks':
-      Marks.parseQuickMarks(response.marks);
-      break;
-    case 'bookmarkPath':
-      if (response.path.length) {
-        Command.completions = {};
-        Command.completions.paths = response.path;
-        Command.updateCompletions();
-      } else {
-        Command.hideData();
-      }
-      break;
-    case 'editWithVim':
-      var lastInputElement = Mappings.insertFunctions.__getElement__();
-      if (lastInputElement) {
-        lastInputElement[lastInputElement.value !== void 0 ? 'value' : 'innerHTML'] =
-          response.text.replace(/\n$/, ''); // remove trailing line left by vim
-        if (!DOM.isSubmittable(lastInputElement)) {
-          lastInputElement.blur();
-        }
-      }
-      break;
-    case 'httpRequest':
-      httpCallback(response.id, response.text);
-      break;
-    case 'parseRC':
-      if (response.config.MAPPINGS) {
-        response.config.MAPPINGS.split('\n').compress().forEach(Mappings.parseLine);
-        delete response.config.MAPPINGS;
-      }
-      Command.updateSettings(response.config);
-      break;
-    case 'sendSettings':
-      Mappings.defaults = Object.clone(Mappings.defaultsClone);
-      KeyHandler.listener.setLangMap(response.settings.langmap || '');
-      if (!Command.initialLoadStarted) {
-        Command.configureSettings(response.settings);
-      } else {
-        Mappings.parseCustom(response.settings.MAPPINGS);
-        settings = response.settings;
-      }
-      break;
-    case 'updateLastCommand':
-      if (request.data) {
-        Mappings.lastCommand = JSON.parse(request.data);
-      }
-      break;
+    }
+    break;
+  case 'httpRequest':
+    httpCallback(response.id, response.text);
+    break;
+  case 'parseRC':
+    if (response.config.MAPPINGS) {
+      response.config.MAPPINGS.split('\n').compress().forEach(Mappings.parseLine);
+      delete response.config.MAPPINGS;
+    }
+    Command.updateSettings(response.config);
+    break;
+  case 'sendSettings':
+    Mappings.defaults = Object.clone(Mappings.defaultsClone);
+    KeyHandler.listener.setLangMap(response.settings.langmap || '');
+    if (!Command.initialLoadStarted) {
+      Command.configureSettings(response.settings);
+    } else {
+      Mappings.parseCustom(response.settings.MAPPINGS);
+      settings = response.settings;
+    }
+    break;
+  case 'updateLastCommand':
+    if (request.data) {
+      Mappings.lastCommand = JSON.parse(request.data);
+    }
+    break;
   }
 });
 
 chrome.extension.onMessage.addListener(function(request, sender, callback) {
   switch (request.action) {
-    case 'hideHud':
-      HUD.hide(true);
-      break;
-    case 'commandHistory':
-      for (var key in request.history) {
-        Command.history[key] = request.history[key];
-      }
-      break;
-    case 'updateLastSearch':
-      Find.lastSearch = request.value;
-      break;
-    case 'sendSettings':
-      Mappings.defaults = Object.clone(Mappings.defaultsClone);
-      if (!Command.initialLoadStarted) {
-        Command.configureSettings(request.settings);
-      } else {
-        Mappings.parseCustom(request.settings.MAPPINGS);
-        settings = request.settings;
-      }
-      break;
-    case 'cancelAllWebRequests':
-      window.stop();
-      break;
-    case 'updateMarks':
-      Marks.parseQuickMarks(request.marks);
-      break;
-    case 'nextCompletionResult':
-      if (window.isCommandFrame) {
-        if (settings.cncpcompletion &&
-            Command.commandBarFocused() &&
-            Command.type === 'action') {
-          Search.nextResult();
-          break;
-        }
-        callback(true);
-      }
-      break;
-    case 'deleteBackWord':
-      if (!insertMode && DOM.isEditable(document.activeElement)) {
-        Mappings.insertFunctions.deleteWord();
-        if (Command.commandBarFocused() && Command.type === 'action')
-          Command.complete(Command.input.value);
-      }
-      break;
-    case 'toggleEnabled':
-      addListeners();
-      if (!settings) {
-        RUNTIME('getSettings');
-      }
-      Command.init(!Command.loaded);
-      break;
-    case 'getBlacklistStatus':
-      callback(Command.blacklisted);
-      break;
-    case 'alert':
-      alert(request.message);
-      break;
-    case 'getSubFrames':
-      if (self === top)
-        callback(Frames.getSubFrames());
-      break;
-    case 'commandFrameLoaded':
-      if (!window.isCommandFrame && !Command.domElementsLoaded)
-        Command.onDOMLoadAll();
-      break;
-    case 'showCommandFrame':
-      if (Command.frame) {
-        Command.frame.style.display = 'block';
-        Command.frame.contentWindow.focus();
-      }
-      if (window.isCommandFrame === true) {
-        window.focus();
-        Command.show(request.search, request.value, request.complete);
-      }
-      break;
-    case 'hideCommandFrame':
-      if (window.wasFocused) {
-        window.wasFocused = false;
-        window.focus();
-        document.activeElement.focus();
-        Mappings.handleEscapeKey();
-        Mappings.clearQueue();
-      }
-      if (Command.frame) {
-        Command.frame.style.display = 'none';
-      }
-      break;
-    case 'callFind':
-      if (window.wasFocused) {
-        Find[request.command].apply(Find, request.params);
-      }
-      break;
-    case 'setFindIndex':
-      if (window.wasFocused) {
-        Find.index = request.index;
-      }
-      break;
-    case 'doIncSearch':
-      if (!window.wasFocused)
+  case 'hideHud':
+    HUD.hide(true);
+    break;
+  case 'commandHistory':
+    for (var key in request.history) {
+      Command.history[key] = request.history[key];
+    }
+    break;
+  case 'updateLastSearch':
+    Find.lastSearch = request.value;
+    break;
+  case 'sendSettings':
+    Mappings.defaults = Object.clone(Mappings.defaultsClone);
+    if (!Command.initialLoadStarted) {
+      Command.configureSettings(request.settings);
+    } else {
+      Mappings.parseCustom(request.settings.MAPPINGS);
+      settings = request.settings;
+    }
+    break;
+  case 'cancelAllWebRequests':
+    window.stop();
+    break;
+  case 'updateMarks':
+    Marks.parseQuickMarks(request.marks);
+    break;
+  case 'nextCompletionResult':
+    if (window.isCommandFrame) {
+      if (settings.cncpcompletion &&
+          Command.commandBarFocused() &&
+          Command.type === 'action') {
+        Search.nextResult();
         break;
-      Find.clear();
-      Find.highlight({
-        base: document.body,
-        search: request.search
-      });
+      }
+      callback(true);
+    }
+    break;
+  case 'deleteBackWord':
+    if (!insertMode && DOM.isEditable(document.activeElement)) {
+      Mappings.insertFunctions.deleteWord();
+      if (Command.commandBarFocused() && Command.type === 'action')
+        Command.complete(Command.input.value);
+    }
+    break;
+  case 'toggleEnabled':
+    addListeners();
+    if (!settings) {
+      RUNTIME('getSettings');
+    }
+    Command.init(!Command.loaded);
+    break;
+  case 'getBlacklistStatus':
+    callback(Command.blacklisted);
+    break;
+  case 'alert':
+    alert(request.message);
+    break;
+  case 'getSubFrames':
+    if (self === top)
+      callback(Frames.getSubFrames());
+    break;
+  case 'commandFrameLoaded':
+    if (!window.isCommandFrame && !Command.domElementsLoaded)
+      Command.onDOMLoadAll();
+    break;
+  case 'showCommandFrame':
+    if (Command.frame) {
+      Command.frame.style.display = 'block';
+      Command.frame.contentWindow.focus();
+    }
+    if (window.isCommandFrame === true) {
+      window.focus();
+      Command.show(request.search, request.value, request.complete);
+    }
+    break;
+  case 'hideCommandFrame':
+    if (window.wasFocused) {
+      window.wasFocused = false;
+      window.focus();
+      document.activeElement.focus();
+      Mappings.handleEscapeKey();
+      Mappings.clearQueue();
+    }
+    if (Command.frame) {
+      Command.frame.style.display = 'none';
+    }
+    break;
+  case 'callFind':
+    if (window.wasFocused) {
+      Find[request.command].apply(Find, request.params);
+    }
+    break;
+  case 'setFindIndex':
+    if (window.wasFocused) {
       Find.index = request.index;
-      Find.setIndex();
-      Find.search(request.index === 1, 1, true);
+    }
+    break;
+  case 'doIncSearch':
+    if (!window.wasFocused)
       break;
-    case 'cancelIncSearch':
-      if (Command.lastScrollTop !== void 0)
-        document.scrollingElement.scrollTop = Command.lastScrollTop;
-      if (Find.previousMatches &&
-          request.search &&
-          Find.lastSearch &&
-          Find.lastSearch !== request.search) {
-        Find.clear();
-        HUD.hide();
-        Find.highlight({ base: document.body,
-          search: Find.lastSearch,
-          setIndex: false,
-          executeSearch: false,
-          reverse: true,
-          saveSearch: true
-        });
-        Find.index = Find.lastIndex - 1;
-        Find.search(false, 1, false);
-      } else {
-        Find.clear();
-        HUD.hide();
+    Find.clear();
+    Find.highlight({
+      base: document.body,
+      search: request.search
+    });
+    Find.index = request.index;
+    Find.setIndex();
+    Find.search(request.index === 1, 1, true);
+    break;
+  case 'cancelIncSearch':
+    if (Command.lastScrollTop !== void 0)
+      document.scrollingElement.scrollTop = Command.lastScrollTop;
+    if (Find.previousMatches &&
+        request.search &&
+        Find.lastSearch &&
+        Find.lastSearch !== request.search) {
+      Find.clear();
+      HUD.hide();
+      Find.highlight({ base: document.body,
+        search: Find.lastSearch,
+        setIndex: false,
+        executeSearch: false,
+        reverse: true,
+        saveSearch: true
+      });
+      Find.index = Find.lastIndex - 1;
+      Find.search(false, 1, false);
+    } else {
+      Find.clear();
+      HUD.hide();
+    }
+    break;
+  case 'echoRequest':
+    if (!window.isCommandFrame && document.hasFocus()) {
+      switch (request.call) {
+      case 'callMapFunction':
+        Mappings.actions[request.name](1);
+        break;
+      case 'eval':
+        eval(settings.FUNCTIONS[request.name] + request.args);
+        break;
       }
-      break;
-    case 'echoRequest':
-      if (!window.isCommandFrame && document.hasFocus()) {
-        switch (request.call) {
-        case 'callMapFunction':
-          Mappings.actions[request.name](1);
-          break;
-        case 'eval':
-          eval(settings.FUNCTIONS[request.name] + request.args);
-          break;
-        }
-      }
-      break;
-    case 'displayTabIndices':
-      if (Session.isRootFrame) {
-        Command.onSettingsLoad(function() {
-          if (settings.showtabindices) {
-            Session.ignoreTitleUpdate = true;
-            if (document.title === '' + request.index) {
-              if (location.hostname + location.pathname ===
-                  'www.google.com/_/chrome/newtab') {
-                document.title = Session.tabIndex + ' New Tab';
-              } else {
-                document.title = Session.tabIndex + ' ' +
-                                 location.href.replace(/.*\//, '');
-              }
+    }
+    break;
+  case 'displayTabIndices':
+    if (Session.isRootFrame) {
+      Command.onSettingsLoad(function() {
+        if (settings.showtabindices) {
+          Session.ignoreTitleUpdate = true;
+          if (document.title === '' + request.index) {
+            if (location.hostname + location.pathname ===
+                'www.google.com/_/chrome/newtab') {
+              document.title = Session.tabIndex + ' New Tab';
             } else {
-              document.title = document.title.replace(
-                  new RegExp('^(' + Session.tabIndex + ' )?'),
-                  (request.index ? request.index + ' ' : ''));
+              document.title = Session.tabIndex + ' ' +
+                               location.href.replace(/.*\//, '');
             }
+          } else {
+            document.title = document.title.replace(
+                new RegExp('^(' + Session.tabIndex + ' )?'),
+                (request.index ? request.index + ' ' : ''));
           }
-          Session.tabIndex = request.index;
-        });
-      }
-      break;
+        }
+        Session.tabIndex = request.index;
+      });
+    }
+    break;
   }
 });

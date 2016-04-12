@@ -2,7 +2,7 @@ var Quickmarks = {};
 
 Actions = (function() {
 
-  var request, sender, callback, url, port, lastCommand = null;
+  var request, sender, callback, url, lastCommand = null;
 
   var _ = {};
 
@@ -187,7 +187,7 @@ Actions = (function() {
       });
     };
     _.closeTabLeft  = function() { closeTab(-request.repeats); };
-    _.closeTabRight = function() { closeTab( request.repeats); };
+    _.closeTabRight = function() { closeTab(request.repeats); };
     _.closeTabsToLeft = function() { closeTab(-sender.tab.index); };
     _.closeTabsToRight = function() {
       chrome.tabs.query({currentWindow: true},
@@ -366,12 +366,12 @@ Actions = (function() {
       chrome.tabs.query({currentWindow: true}, function(tabs) {
         var ptabs = tabs.filter(function(e) { return e.pinned; });
         chrome.tabs.move(sender.tab.id, {
-          index: Math.min( sender.tab.pinned ? ptabs.length - 1 : ptabs.length + tabs.length - 1,
-                           Math.max(sender.tab.pinned ? 0 : ptabs.length, sender.tab.index + by) )
+          index: Math.min(sender.tab.pinned ? ptabs.length - 1 : ptabs.length + tabs.length - 1,
+                          Math.max(sender.tab.pinned ? 0 : ptabs.length, sender.tab.index + by))
         });
       });
     };
-    _.moveTabRight = function() { move( request.repeats); };
+    _.moveTabRight = function() { move(request.repeats); };
     _.moveTabLeft  = function() { move(-request.repeats); };
   })();
 
@@ -674,7 +674,13 @@ Actions = (function() {
   };
 
   _.getSessionNames = function() {
-    callback({type: 'sessions', sessions: Object.keys(sessions).map(function(e) { return [e, Object.keys(sessions[e]).length.toString() + ' tab' + (Object.keys(sessions[e]).length === 1 ? '' : 's')]; } )});
+    callback({
+      type: 'sessions',
+      sessions: Object.keys(sessions).map(function(e) {
+        return [e, Object.keys(sessions[e]).length.toString() + ' tab' +
+                   (Object.keys(sessions[e]).length === 1 ? '' : 's')];
+      })
+    });
   };
 
   _.retrieveAllHistory = function() {
@@ -868,7 +874,7 @@ Actions = (function() {
         error: null,
         config: Settings
       });
-    }, function(xhr) { if (xhr);
+    }, function() {
       _callback({
         code: -1,
         error: null,
@@ -882,8 +888,7 @@ Actions = (function() {
     chrome.tabs.update(sender.tab.id, {muted: !sender.tab.mutedInfo.muted});
   };
 
-  return function(_request, _sender, _callback, _port) {
-    port = _port;
+  return function(_request, _sender, _callback) {
     var action = _request.action;
     if (!_[action]) {
       return;

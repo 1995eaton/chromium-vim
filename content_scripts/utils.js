@@ -13,7 +13,7 @@ var definePrototype = function(obj, name, fn) {
 var isValidB64 = function(a) {
   try {
     window.atob(a);
-  } catch(e) {
+  } catch (e) {
     return false;
   }
   return true;
@@ -364,11 +364,11 @@ var getLinkableElements = (function() {
       if (node.nodeType !== Node.ELEMENT_NODE || !visible(node))
         return false;
       switch (node.localName.toLowerCase()) {
-        case 'a':
-        case 'button':
-          return true;
-        default:
-          return hasAttributes(node, 'jsaction', 'onclick');
+      case 'a':
+      case 'button':
+        return true;
+      default:
+        return hasAttributes(node, 'jsaction', 'onclick');
       }
     });
   };

@@ -59,7 +59,7 @@ Command.setupFrameElements = function() {
   this.bar.spellcheck = false;
   try {
     document.lastChild.appendChild(this.bar);
-  } catch(e) {
+  } catch (e) {
     document.body.appendChild(this.bar);
   }
   if (!this.data) {
@@ -68,7 +68,7 @@ Command.setupFrameElements = function() {
     this.data.cVim = true;
     try {
       document.lastChild.appendChild(this.data);
-    } catch(e) {
+    } catch (e) {
       document.body.appendChild(this.data);
     }
     this.barHeight = parseInt(getComputedStyle(this.bar).height, 10);
@@ -94,7 +94,7 @@ Command.setup = function() {
   this.statusBar.style[(this.onBottom) ? 'bottom' : 'top'] = '0';
   try {
     document.lastChild.appendChild(this.statusBar);
-  } catch(e) {
+  } catch (e) {
     document.body.appendChild(this.statusBar);
   }
   if (window.isCommandFrame)
@@ -266,7 +266,7 @@ Command.expandCompletion = function(value) {
     return e[0] === firstWord;
   });
   if (firstWord && this.customCommands.hasOwnProperty(firstWord[0])) {
-     return value.replace(firstWord[0], this.customCommands[firstWord[0]]);
+    return value.replace(firstWord[0], this.customCommands[firstWord[0]]);
   }
   if (firstWord && !exactMatch) {
     firstWord = firstWord[0];
@@ -294,8 +294,7 @@ Command.callCompletionFunction = (function() {
     self.deleteCompletions('engines,bookmarks,complete,chrome,search');
     search = search.split(/ +/).compress();
     if ((search.length < 2 && value.slice(-1) !== ' ') ||
-        (!Complete.engineEnabled(search[0]) && !Complete.hasAlias(search[0])))
-    {
+        (!Complete.engineEnabled(search[0]) && !Complete.hasAlias(search[0]))) {
       self.completions.engines = Complete.getMatchingEngines(search.join(' ')).map(function(name) {
         return [name, Complete.engines[name].requestUrl];
       });
@@ -533,96 +532,95 @@ Command.execute = function(value, repeats) {
     .join('').split('')
     .forEach(function(e) {
       switch (e) {
-        case '&': tab.active    = false; break;
-        case '$': tab.newWindow = true;  break;
-        case '!': tab.tabbed    = true;  break;
-        case '*': tab.pinned    = true;  break;
-        case '?': tab.isLink    = true;
-                  tab.isURL     = false; break;
-        case '=': tab.isLink    = false;
-                  tab.isURL     = true;  break;
+      case '&': tab.active    = false; break;
+      case '$': tab.newWindow = true;  break;
+      case '!': tab.tabbed    = true;  break;
+      case '*': tab.pinned    = true;  break;
+      case '?': tab.isLink    = true;  tab.isURL = false; break;
+      case '=': tab.isLink    = false; tab.isURL = true;  break;
       }
     });
   value = value.replace(/^([^\s&$*!=?]*)[&$*!=?]*\s/, '$1 ');
   value = value.replace(/[&$*!=?]+$/, function(e) {
-    return e.replace(/[^=?]/g, ''); });
+    return e.replace(/[^=?]/g, '');
+  });
   if (Complete.engineEnabled(value.split(/\s+/g).compress()[1]))
     value = value.replace(/[=?]+$/, '');
 
   this.history.index = {};
 
   switch (value) {
-    case 'nohlsearch':
-      Find.clear();
-      HUD.hide();
-      return;
-    case 'duplicate':
-      RUNTIME('duplicateTab', {repeats: repeats});
-      return;
-    case 'settings':
-      tab.tabbed = true;
-      RUNTIME('openLink', {
-        tab: tab,
-        url: chrome.extension.getURL('/pages/options.html'),
-        repeats: repeats
-      });
-      return;
-    case 'changelog':
-      tab.tabbed = true;
-      RUNTIME('openLink', {
-        tab: tab,
-        url: chrome.extension.getURL('/pages/changelog.html'),
-        repeats: repeats
-      });
-      return;
-    case 'help':
-      tab.tabbed = true;
-      RUNTIME('openLink', {
-        tab: tab,
-        url: chrome.extension.getURL('/pages/mappings.html')
-      });
-      return;
-    case 'stop':
-      window.stop();
-      return;
-    case 'stopall':
-      RUNTIME('cancelAllWebRequests');
-      return;
-    case 'viewsource':
-      PORT('viewSource', {tab: tab});
-      return;
-    case 'pintab':
-      RUNTIME('pinTab', {pinned: true});
-      break;
-    case 'unpintab':
-      RUNTIME('pinTab', {pinned: false});
-      break;
-    case 'togglepin':
-      RUNTIME('pinTab');
-      return;
-    case 'undo':
-      RUNTIME('openLast');
-      return;
-    case 'tabnext':
-    case 'tabn':
-      RUNTIME('nextTab');
-      return;
-    case 'tabprevious':
-    case 'tabp':
-    case 'tabN':
-      RUNTIME('previousTab');
-      return;
-    case 'tabprevious':
-      return;
-    case 'q':
-    case 'quit':
-    case 'exit':
-      RUNTIME('closeTab', {repeats: repeats});
-      return;
-    case 'qa':
-    case 'qall':
-      RUNTIME('closeWindow');
-      return;
+  case 'nohlsearch':
+    Find.clear();
+    HUD.hide();
+    return;
+  case 'duplicate':
+    RUNTIME('duplicateTab', {repeats: repeats});
+    return;
+  case 'settings':
+    tab.tabbed = true;
+    RUNTIME('openLink', {
+      tab: tab,
+      url: chrome.extension.getURL('/pages/options.html'),
+      repeats: repeats
+    });
+    return;
+  case 'changelog':
+    tab.tabbed = true;
+    RUNTIME('openLink', {
+      tab: tab,
+      url: chrome.extension.getURL('/pages/changelog.html'),
+      repeats: repeats
+    });
+    return;
+  case 'help':
+    tab.tabbed = true;
+    RUNTIME('openLink', {
+      tab: tab,
+      url: chrome.extension.getURL('/pages/mappings.html')
+    });
+    return;
+  case 'stop':
+    window.stop();
+    return;
+  case 'stopall':
+    RUNTIME('cancelAllWebRequests');
+    return;
+  case 'viewsource':
+    PORT('viewSource', {tab: tab});
+    return;
+  case 'pintab':
+    RUNTIME('pinTab', {pinned: true});
+    break;
+  case 'unpintab':
+    RUNTIME('pinTab', {pinned: false});
+    break;
+  case 'togglepin':
+    RUNTIME('pinTab');
+    return;
+  case 'undo':
+    RUNTIME('openLast');
+    return;
+  case 'tabnext':
+  case 'tabn':
+    RUNTIME('nextTab');
+    return;
+  case 'tabprevious':
+  case 'tabp':
+  case 'tabN':
+    RUNTIME('previousTab');
+    return;
+  case 'tabprevious':
+    return;
+  case 'q':
+  case 'quit':
+  case 'exit':
+    RUNTIME('closeTab', {repeats: repeats});
+    return;
+  case 'qa':
+  case 'qall':
+    RUNTIME('closeWindow');
+    return;
   }
 
   if (/^chrome +/.test(value)) {
@@ -643,8 +641,9 @@ Command.execute = function(value, repeats) {
       return;
     }
     if (this.completionResults.length &&
-        !this.completionResults.some(function(e)
-          { return e[2] === value.replace(/^\S+\s*/, ''); })) {
+        !this.completionResults.some(function(e) {
+          return e[2] === value.replace(/^\S+\s*/, '');
+        })) {
       RUNTIME('openLink', {
         tab: tab,
         url: this.completionResults[0][2],

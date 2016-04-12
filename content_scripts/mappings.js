@@ -839,57 +839,57 @@ Mappings.parseLine = function(line) {
   var map = line.split(/ +/).compress();
   if (map.length) {
     switch (map[0]) {
-      case 'unmapAll':
-        mappingTrie.children = {};
+    case 'unmapAll':
+      mappingTrie.children = {};
+      return;
+    case 'iunmapAll':
+      insertMappings.children = {};
+      return;
+    case 'map':
+    case 'remap':
+      if (map[1] === map[2]) {
         return;
-      case 'iunmapAll':
-        insertMappings.children = {};
+      }
+      map[1] = map[1].replace(/<leader>/ig, settings.mapleader);
+      mappingTrie.removeByKey(this.splitMapping(map[1]));
+      mappingTrie.insert(this.splitMapping(map[1]), map.slice(2).join(' '));
+      return;
+    case 'imap':
+    case 'iremap':
+      if (map[1] === map[2]) {
         return;
-      case 'map':
-      case 'remap':
-        if (map[1] === map[2]) {
-          return;
+      }
+      insertMappings.removeByKey(map[1]);
+      return insertMappings.insert(this.splitMapping(map[1]),
+          insertMappings.findValue(this.splitMapping(map[2])) ||
+          map.slice(2).join(' ').replace(/\s+".*/, ''));
+    case 'iunmap':
+      map.slice(1).forEach(function(unmap) {
+        insertMappings.removeByKey(this.splitMapping(unmap));
+      }.bind(this));
+      return;
+    case 'unmap':
+      map.slice(1).forEach(function(unmap) {
+        mappingTrie.removeByKey(this.splitMapping(unmap));
+      }.bind(this));
+      return;
+    case 'call':
+      waitForLoad(function() {
+        map = map.slice(1).join(' ').trimAround();
+        if (map[0] === ':') {
+          Command.execute(map.slice(1).replace(/<CR>/i, ''), 1);
+        } else if (Mappings.actions[map]) {
+          ECHO('callMapFunction', {
+            name: map
+          });
+        } else {
+          ECHO('eval', {
+            name: map.replace(/\(.*/, ''),
+            args: map.replace(/[^(]+/, '') || '()'
+          });
         }
-        map[1] = map[1].replace(/<leader>/ig, settings.mapleader);
-        mappingTrie.removeByKey(this.splitMapping(map[1]));
-        mappingTrie.insert(this.splitMapping(map[1]), map.slice(2).join(' '));
-        return;
-      case 'imap':
-      case 'iremap':
-        if (map[1] === map[2]) {
-          return;
-        }
-        insertMappings.removeByKey(map[1]);
-        return insertMappings.insert(this.splitMapping(map[1]),
-            insertMappings.findValue(this.splitMapping(map[2])) ||
-            map.slice(2).join(' ').replace(/\s+".*/, ''));
-      case 'iunmap':
-        map.slice(1).forEach(function(unmap) {
-          insertMappings.removeByKey(this.splitMapping(unmap));
-        }.bind(this));
-        return;
-      case 'unmap':
-        map.slice(1).forEach(function(unmap) {
-          mappingTrie.removeByKey(this.splitMapping(unmap));
-        }.bind(this));
-        return;
-      case 'call':
-        waitForLoad(function() {
-          map = map.slice(1).join(' ').trimAround();
-          if (map[0] === ':') {
-            Command.execute(map.slice(1).replace(/<CR>/i, ''), 1);
-          } else if (Mappings.actions[map]) {
-            ECHO('callMapFunction', {
-              name: map
-            });
-          } else {
-            ECHO('eval', {
-              name: map.replace(/\(.*/, ''),
-              args: map.replace(/[^(]+/, '') || '()'
-            });
-          }
-        });
-        break;
+      });
+      break;
     }
   }
 };

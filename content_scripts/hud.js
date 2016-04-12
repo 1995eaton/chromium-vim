@@ -66,7 +66,7 @@ HUD.display = function(text, duration) {
     delete this.element;
   }
   window.clearTimeout(this.hideTimeout);
-  var span, pageWidth, screenWidth, height, width;
+  var span, pageWidth, screenWidth;
   if (!this.element) {
     this.element = document.createElement('div');
     this.element.id  = 'cVim-hud';
@@ -80,8 +80,9 @@ HUD.display = function(text, duration) {
   span.textContent = text;
   this.element.appendChild(span);
 
-  try { document.lastElementChild.appendChild(this.element); }
-  catch (e) {
+  try {
+    document.lastElementChild.appendChild(this.element);
+  } catch (e) {
     if (document.body === void 0) {
       return false;
     } else {
@@ -89,8 +90,6 @@ HUD.display = function(text, duration) {
     }
   }
 
-  height = this.element.offsetHeight;
-  width  = this.element.offsetWidth;
   this.element.style.right = -this.element.offsetWidth + 'px';
 
   screenWidth = document.documentElement.clientWidth;

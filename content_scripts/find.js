@@ -144,7 +144,7 @@ Find.highlight = function(params) {
       } else {
         useRegex = false;
       }
-    } catch(e) { // RegExp was invalid
+    } catch (e) { // RegExp was invalid
       useRegex = false;
     }
   }

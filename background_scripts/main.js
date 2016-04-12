@@ -139,58 +139,58 @@ var Listeners = {
   commands: {
     onCommand: function(command) {
       switch (command) {
-        case 'togglecVim':
-          Popup.toggleEnabled({});
-          break;
-        case 'toggleBlacklisted':
-          Popup.toggleBlacklisted();
-          Popup.toggleEnabled({
-            request: {
-              singleTab: true
-            }
+      case 'togglecVim':
+        Popup.toggleEnabled({});
+        break;
+      case 'toggleBlacklisted':
+        Popup.toggleBlacklisted();
+        Popup.toggleEnabled({
+          request: {
+            singleTab: true
+          }
+        });
+        break;
+      case 'nextTab':
+      case 'previousTab':
+        chrome.tabs.query({active: true, currentWindow: true}, function(e) {
+          return getTab(e[0], false, (command === 'nextTab' ? 1 : -1),
+                        false, false);
+        });
+        break;
+      case 'nextCompletionResult':
+        chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
+          chrome.tabs.sendMessage(tab[0].id, {
+            action: 'nextCompletionResult'
+          }, function() {
+            chrome.windows.create({url: 'chrome://newtab'});
           });
-          break;
-        case 'nextTab':
-        case 'previousTab':
-          chrome.tabs.query({active: true, currentWindow: true}, function(e) {
-            return getTab(e[0], false, (command === 'nextTab' ? 1 : -1),
-                          false, false);
+        });
+        break;
+      case 'deleteBackWord':
+        chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
+          chrome.tabs.sendMessage(tab[0].id, {action: 'deleteBackWord'});
+        });
+        break;
+      case 'closeTab':
+        chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
+          chrome.tabs.remove(tab[0].id, function() {
+            return chrome.runtime.lastError;
           });
-          break;
-        case 'nextCompletionResult':
-          chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
-            chrome.tabs.sendMessage(tab[0].id, {
-              action: 'nextCompletionResult'
-            }, function() {
-              chrome.windows.create({url: 'chrome://newtab'});
-            });
-          });
-          break;
-        case 'deleteBackWord':
-          chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
-            chrome.tabs.sendMessage(tab[0].id, {action: 'deleteBackWord'});
-          });
-          break;
-        case 'closeTab':
-          chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
-            chrome.tabs.remove(tab[0].id, function() {
-              return chrome.runtime.lastError;
-            });
-          });
-          break;
-        case 'reloadTab':
-          chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
-            chrome.tabs.reload(tab[0].id);
-          });
-          break;
-        case 'newTab':
-          chrome.tabs.create({url: chrome.runtime.getURL('pages/blank.html')});
-          break;
-        case 'restartcVim':
-          chrome.runtime.reload();
-          break;
-        default:
-          break;
+        });
+        break;
+      case 'reloadTab':
+        chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
+          chrome.tabs.reload(tab[0].id);
+        });
+        break;
+      case 'newTab':
+        chrome.tabs.create({url: chrome.runtime.getURL('pages/blank.html')});
+        break;
+      case 'restartcVim':
+        chrome.runtime.reload();
+        break;
+      default:
+        break;
       }
     }
   }

@@ -57,7 +57,7 @@ Visual.collapse = function() {
   this.visualModeActive = false;
   var b = this.textNodes.indexOf(this.selection.anchorNode);
   var e = this.textNodes.indexOf(this.selection.extentNode);
-  if ((b===e && this.selection.extentOffset < this.selection.baseOffset) || (e<b)) {
+  if ((b === e && this.selection.extentOffset < this.selection.baseOffset) || (e < b)) {
     this.selection.collapseToStart();
   } else if (this.selection.isCollapsed === false) {
     this.selection.collapseToEnd();
@@ -131,37 +131,37 @@ Visual.fillLine = function() {
 Visual.lineAction = function(key) {
   this.selection = document.getSelection();
   switch (key) {
-    case 'j':
-      if (this.firstLine || this.selection.extentNode === this.firstExtentNode || this.selection.baseNode === this.selection.extentNode) {
-        this.selection.setPosition(this.selection.baseNode, 0);
-        this.firstLine = false;
-      }
-      this.selection.modify('extend', 'right', 'line');
-      this.selection.modify('extend', 'left', 'lineboundary');
-      this.fillLine();
-      break;
-    case 'k':
-      if (this.firstLine || this.selection.extentNode === this.firstExtentNode || this.selection.baseNode === this.selection.extentNode) {
-        this.selection.setPosition(this.selection.baseNode, this.selection.baseNode.length);
-        this.firstLine = false;
-      }
-      this.selection.modify('extend', 'left', 'line');
-      this.selection.modify('extend', 'right', 'lineboundary');
-      this.fillLine();
-      break;
-    case 'p':
-    case 'P':
-      Clipboard.copy(this.selection.toString());
-      Clipboard.paste(key === 'P');
-      this.exit();
-      break;
-    case 'y':
-      Clipboard.copy(this.selection.toString());
-      Visual.collapse();
-      break;
-    case 'G':
-      this.selection.modify('extend', 'right', 'documentboundary');
-      break;
+  case 'j':
+    if (this.firstLine || this.selection.extentNode === this.firstExtentNode || this.selection.baseNode === this.selection.extentNode) {
+      this.selection.setPosition(this.selection.baseNode, 0);
+      this.firstLine = false;
+    }
+    this.selection.modify('extend', 'right', 'line');
+    this.selection.modify('extend', 'left', 'lineboundary');
+    this.fillLine();
+    break;
+  case 'k':
+    if (this.firstLine || this.selection.extentNode === this.firstExtentNode || this.selection.baseNode === this.selection.extentNode) {
+      this.selection.setPosition(this.selection.baseNode, this.selection.baseNode.length);
+      this.firstLine = false;
+    }
+    this.selection.modify('extend', 'left', 'line');
+    this.selection.modify('extend', 'right', 'lineboundary');
+    this.fillLine();
+    break;
+  case 'p':
+  case 'P':
+    Clipboard.copy(this.selection.toString());
+    Clipboard.paste(key === 'P');
+    this.exit();
+    break;
+  case 'y':
+    Clipboard.copy(this.selection.toString());
+    Visual.collapse();
+    break;
+  case 'G':
+    this.selection.modify('extend', 'right', 'documentboundary');
+    break;
   }
   Visual.scrollIntoView();
 };
@@ -183,35 +183,35 @@ Visual.action = function(key) {
   this.selection = document.getSelection();
 
   switch (key) {
-    case 'g':
-      if (!this.queue.length) {
-        this.queue += 'g';
-      } else {
-        this.queue = '';
-        this.selection.modify((this.visualModeActive ? 'extend' : 'move'),
-            'left', 'documentboundary');
-        this.scrollIntoView();
-      }
-      return;
-    case 'v':
-      if (this.lineMode) {
-        HUD.setMessage(' -- VISUAL -- ');
-        this.lineMode = false;
-        return;
-      }
-      this.visualModeActive = !this.visualModeActive;
-      HUD.setMessage(' -- ' +
-          (this.visualModeActive ? 'VISUAL' : 'CARET') +
-          ' -- ');
-      break;
-    case 'V':
-      this.lineMode = !this.lineMode;
-      this.visualModeActive = true;
-      this.enterLineMode();
-      HUD.setMessage(' -- VISUAL LINE -- ');
-      return;
-    default:
+  case 'g':
+    if (!this.queue.length) {
+      this.queue += 'g';
+    } else {
       this.queue = '';
+      this.selection.modify((this.visualModeActive ? 'extend' : 'move'),
+          'left', 'documentboundary');
+      this.scrollIntoView();
+    }
+    return;
+  case 'v':
+    if (this.lineMode) {
+      HUD.setMessage(' -- VISUAL -- ');
+      this.lineMode = false;
+      return;
+    }
+    this.visualModeActive = !this.visualModeActive;
+    HUD.setMessage(' -- ' +
+        (this.visualModeActive ? 'VISUAL' : 'CARET') +
+        ' -- ');
+    break;
+  case 'V':
+    this.lineMode = !this.lineMode;
+    this.visualModeActive = true;
+    this.enterLineMode();
+    HUD.setMessage(' -- VISUAL LINE -- ');
+    return;
+  default:
+    this.queue = '';
   }
 
   if (this.lineMode) {
@@ -232,28 +232,28 @@ Visual.action = function(key) {
   }
 
   switch (key) {
-    case 'n':
-    case 'N':
-      if (key === 'N') {
-        Mappings.actions.previousSearchResult(1);
-      } else {
-        Mappings.actions.nextSearchResult(1);
-      }
-      this.focusSearchResult();
-      break;
-    case 'p':
-    case 'P':
+  case 'n':
+  case 'N':
+    if (key === 'N') {
+      Mappings.actions.previousSearchResult(1);
+    } else {
+      Mappings.actions.nextSearchResult(1);
+    }
+    this.focusSearchResult();
+    break;
+  case 'p':
+  case 'P':
+    Clipboard.copy(this.selection.toString());
+    this.selection.collapseToEnd();
+    Clipboard.paste(key === 'P');
+    this.exit();
+    break;
+  case 'y':
+    if (movementType === 'extend') {
       Clipboard.copy(this.selection.toString());
-      this.selection.collapseToEnd();
-      Clipboard.paste(key === 'P');
-      this.exit();
-      break;
-    case 'y':
-      if (movementType === 'extend') {
-        Clipboard.copy(this.selection.toString());
-        Visual.collapse();
-      }
-      break;
+      Visual.collapse();
+    }
+    break;
   }
 
   Visual.scrollIntoView();

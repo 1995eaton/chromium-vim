@@ -206,8 +206,7 @@ var KeyListener = (function() {
       } else if (commandMode ||
           (!insertMode && mappingTrie.find(
              Mappings.splitMapping(Mappings.queue + keyString))) ||
-          (keyString[0] >= '0' && keyString[0] <= '9'))
-      {
+          (keyString[0] >= '0' && keyString[0] <= '9')) {
         if (Command.commandBarFocused() &&
             (event.which === 38 || event.which === 40)) {
           event.preventDefault();
@@ -393,7 +392,7 @@ var KeyHandler = {
       Cursor.wiggleWindow();
     }
 
-    if ( Command.commandBarFocused() )
+    if (Command.commandBarFocused())
       event.stopImmediatePropagation();
 
     var escapeKey = key === '<Esc>' || key === '<C-[>';

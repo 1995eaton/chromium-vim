@@ -88,7 +88,7 @@ function $scrollTo(elem, x, y) {
   var holdKeyScroll = false;
 
   var easeFn = function(t, b, c, d) {
-    return (t===d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b;
+    return (t === d) ? b + c : c * (-Math.pow(2, -10 * t / d) + 1) + b;
   };
 
   var timeFn = typeof window.performance === 'undefined' ?
@@ -107,7 +107,8 @@ function $scrollTo(elem, x, y) {
     ty:   0,
     tyo:  0,
     dy:   0
-  }, scrollx = Object.clone(scroll);
+  };
+  var scrollx = Object.clone(scroll);
 
   scrollYFunction = function() {
     var delta = easeFn(scroll.ty, scroll.y0, scroll.y1 - scroll.y0, scroll.dy);

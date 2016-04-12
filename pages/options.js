@@ -23,7 +23,7 @@ Settings.resetSettings = function() {
 
 Settings.saveSettings = function() {
   RUNTIME('getDefaults', function(defaults) {
-    var hadLocalConfigSet = !! this.settings.localconfig;
+    var hadLocalConfigSet = !!this.settings.localconfig;
     var lastConfigPath = this.settings.configpath;
     this.settings = defaults;
     var res = window.parseConfig(Settings.rcEl.value);

@@ -120,99 +120,98 @@ Hints.dispatchAction = function(link, shift) {
 
   if (shift || KeyHandler.shiftKey) {
     switch (this.type) {
-      case void 0:
-        this.type = 'tabbed';
-        break;
+    case void 0:
+      this.type = 'tabbed';
+      break;
     }
   }
 
   switch (this.type) {
-    case 'yank':
-    case 'multiyank':
-      var text = link.href || link.value || link.getAttribute('placeholder');
-      if (text) {
-        Clipboard.copy(text, this.multi);
-        Status.setMessage(text, 2);
+  case 'yank':
+  case 'multiyank':
+    var text = link.href || link.value || link.getAttribute('placeholder');
+    if (text) {
+      Clipboard.copy(text, this.multi);
+      Status.setMessage(text, 2);
+    }
+    break;
+  case 'fullimage':
+    RUNTIME('openLinkTab', {active: false, url: link.src, noconvert: true});
+    break;
+  case 'image':
+  case 'multiimage':
+    var url = googleReverseImage(link.src, null);
+    if (url) {
+      RUNTIME('openLinkTab', {active: false, url: url, noconvert: true});
+    }
+    break;
+  case 'hover':
+    if (Hints.lastHover) {
+      DOM.mouseEvent('unhover', Hints.lastHover);
+      if (Hints.lastHover === link) {
+        Hints.lastHover = null;
+        break;
       }
-      break;
-    case 'fullimage':
-      RUNTIME('openLinkTab', {active: false, url: link.src, noconvert: true});
-      break;
-    case 'image':
-    case 'multiimage':
-      var url = googleReverseImage(link.src, null);
-      if (url) {
-        RUNTIME('openLinkTab', {active: false, url: url, noconvert: true});
-      }
-      break;
-    case 'hover':
-      if (Hints.lastHover) {
-        DOM.mouseEvent('unhover', Hints.lastHover);
-        if (Hints.lastHover === link) {
-          Hints.lastHover = null;
-          break;
+    }
+    DOM.mouseEvent('hover', link);
+    Hints.lastHover = link;
+    break;
+  case 'edit':
+    Mappings.insertFunctions.__setElement__(link);
+    link.focus();
+    PORT('editWithVim', {
+      text: link.value || link.textContent
+    });
+    break;
+  case 'unhover':
+    DOM.mouseEvent('unhover', link);
+    break;
+  case 'window':
+    RUNTIME('openLinkWindow', {
+      focused: true,
+      url: link.href,
+      noconvert: true
+    });
+    break;
+  case 'script':
+    eval(settings.FUNCTIONS[this.scriptFunction])(link);
+    break;
+  default:
+    if (node === 'textarea' || (node === 'input' &&
+          /^(text|password|email|search)$/i.test(link.type)) ||
+        link.hasAttribute('contenteditable')) {
+      setTimeout(function() {
+        link.focus();
+        if (link.hasAttribute('readonly')) {
+          link.select();
         }
-      }
+      }.bind(this), 0);
+      break;
+    }
+    if (node === 'input' ||
+        node === 'select' ||
+        /^(checkbox|menu)$/.test(link.getAttribute('role'))) {
+      window.setTimeout(function() { DOM.mouseEvent('click', link); }, 0);
+      break;
+    }
+    if (link.getAttribute('target') !== '_top' &&
+        (/tabbed/.test(this.type) || this.type === 'multi') &&
+        link.href) {
+      RUNTIME('openLinkTab', {
+        active: this.type === 'tabbedActive',
+        url: link.href, noconvert: true
+      });
+    } else {
+      if (link.hasAttribute('tabindex'))
+        link.focus();
       DOM.mouseEvent('hover', link);
-      Hints.lastHover = link;
-      break;
-    case 'edit':
-      Mappings.insertFunctions.__setElement__(link);
-      link.focus();
-      PORT('editWithVim', {
-        text: link.value || link.textContent
-      });
-      break;
-    case 'unhover':
-      DOM.mouseEvent('unhover', link);
-      break;
-    case 'window':
-      RUNTIME('openLinkWindow', {
-        focused: true,
-        url: link.href,
-        noconvert: true
-      });
-      break;
-    case 'script':
-      eval(settings.FUNCTIONS[this.scriptFunction])(link);
-      break;
-    default:
-      if (node === 'textarea' || (node === 'input' &&
-            /^(text|password|email|search)$/i.test(link.type)) ||
-          link.hasAttribute('contenteditable')) {
-        setTimeout(function() {
-          link.focus();
-          if (link.hasAttribute('readonly')) {
-            link.select();
-          }
-        }.bind(this), 0);
-        break;
-      }
-      if (node === 'input' ||
-          node === 'select' ||
-          /^(checkbox|menu)$/.test(link.getAttribute('role')))
-      {
-        window.setTimeout(function() { DOM.mouseEvent('click', link); }, 0);
-        break;
-      }
-      if (link.getAttribute('target') !== '_top' &&
-          (/tabbed/.test(this.type) || this.type === 'multi') &&
-          link.href) {
-        RUNTIME('openLinkTab', {
-          active: this.type === 'tabbedActive',
-          url: link.href, noconvert: true
-        });
+      if (link.hasAttribute('href')) {
+        link.click();
       } else {
-        if (link.hasAttribute('tabindex'))
-          link.focus();
-        DOM.mouseEvent('hover', link);
-        if (link.hasAttribute('href')) {
-          link.click();
-        } else {
-          DOM.mouseEvent('click', link);
-        }
+        DOM.mouseEvent('click', link);
       }
-      break;
+    }
+    break;
   }
 
   if (this.multi) {
@@ -635,7 +634,7 @@ Hints.create = function(type, multi) {
       // Fix issue with Baidu search
       document.head.appendChild(Command.css);
     }
-    var links, main, frag, i, l;
+    var main, frag, i, l;
     self.linkIndex = 0;
     self.type = type;
     self.hideHints(true, multi);
@@ -650,7 +649,7 @@ Hints.create = function(type, multi) {
     if (settings.scalehints) {
       Hints.linkElementBase.className += ' cVim-hint-scale';
     }
-    links = self.getLinks();
+    self.getLinks();
     if (type && type.indexOf('multi') !== -1) {
       self.multi = true;
     } else {
@@ -674,7 +673,7 @@ Hints.create = function(type, multi) {
 
     try {
       document.lastChild.appendChild(main);
-    } catch(e) {
+    } catch (e) {
       document.body.appendChild(main);
     }
 

@@ -181,7 +181,7 @@ Options.fetchGist = function() {
   }).then(function(res) {
     var updated;
     try {
-     updated = RCParser.parse(res);
+      updated = RCParser.parse(res);
     } catch (e) {
       console.error('cVim Error: error parsing config file');
     }
