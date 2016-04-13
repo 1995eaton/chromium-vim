@@ -64,13 +64,13 @@ the command <code>&#39;set&#39; + no&lt;SETTING_NAME&gt;</code> (for example, <c
 <td>searchlimit</td>
 <td>integer</td>
 <td>set the amount of results displayed in the command bar</td>
-<td style="text-align:right">20</td>
+<td style="text-align:right">25</td>
 </tr>
 <tr>
 <td>scrollstep</td>
 <td>integer</td>
 <td>set the amount of pixels scrolled when using the scrollUp and scrollDown commands</td>
-<td style="text-align:right">75</td>
+<td style="text-align:right">70</td>
 </tr>
 <tr>
 <td>timeoutlen</td>
@@ -82,19 +82,19 @@ the command <code>&#39;set&#39; + no&lt;SETTING_NAME&gt;</code> (for example, <c
 <td>fullpagescrollpercent</td>
 <td>integer</td>
 <td>set the percent of the page to be scrolled by when using the scrollFullPageUp and scrollFullPageDown commands</td>
-<td style="text-align:right">85</td>
+<td style="text-align:right">0</td>
 </tr>
 <tr>
 <td>typelinkhintsdelay</td>
 <td>integer</td>
 <td>the amount of time (in milliseconds) to wait before taking input after opening a link hint with typelinkhints and numerichints enabled</td>
-<td style="text-align:right">500</td>
+<td style="text-align:right">300</td>
 </tr>
 <tr>
 <td>scrollduration</td>
 <td>integer</td>
 <td>the duration of smooth scrolling</td>
-<td style="text-align:right">20</td>
+<td style="text-align:right">500</td>
 </tr>
 <tr>
 <td>vimport</td>
@@ -310,13 +310,13 @@ the command <code>&#39;set&#39; + no&lt;SETTING_NAME&gt;</code> (for example, <c
 <td>previousmatchpattern</td>
 <td>string (regexp)</td>
 <td>the pattern looked for when navigating a page&#39;s back button</td>
-<td style="text-align:right">((?!last)(prev(ious)?&#124;back&#124;«&#124;less&#124;&lt;&#124;‹&#124; )+)</td>
+<td style="text-align:right">((?!last)(prev(ious)?&#124;newer&#124;back&#124;«&#124;less&#124;&lt;&#124;‹&#124; )+)</td>
 </tr>
 <tr>
 <td>nextmatchpattern</td>
 <td>string (regexp)</td>
 <td>the pattern looked for when navigation a page&#39;s next button</td>
-<td style="text-align:right">((?!first)(next&#124;more&#124;&gt;&#124;›&#124;»&#124;forward&#124; )+)</td>
+<td style="text-align:right">((?!first)(next&#124;older&#124;more&#124;&gt;&#124;›&#124;»&#124;forward&#124; )+)</td>
 </tr>
 <tr>
 <td>hintcharacters</td>
