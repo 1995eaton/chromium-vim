@@ -148,6 +148,13 @@ Actions = (function() {
   };
 
   _.syncSettings = function() {
+    if (request.settings.hud === false && Settings.hud === true) {
+      chrome.tabs.query({}, function(tabs) {
+        tabs.forEach(function(tab) {
+          chrome.tabs.sendMessage(tab.id, {action: 'hideHud'});
+        });
+      });
+    }
     for (var key in request.settings) {
       Settings[key] = request.settings[key];
     }
