@@ -1,5 +1,8 @@
 #cVim Changelog
 
+## 1.2.83
+ * Fix bug in Chrome 50+
+
 ## 1.2.82
  * Fix `:new`/`:winopen` bug
  * Fix scrolling bug when experimental JavaScript features are enabled
