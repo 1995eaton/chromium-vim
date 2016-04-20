@@ -1022,6 +1022,58 @@ Command.onDOMLoad = function() {
   }
 };
 
+Command.preventAutoFocus = function() {
+  var manualFocus = false;
+
+  var addTextListeners = (function() {
+    var allElems = [];
+    return function(elems) {
+      elems = [].filter.call(elems, function(e) {
+        return allElems.indexOf(e) === -1;
+      });
+      allElems = allElems.concat(elems);
+      elems.forEach(function(elem) {
+        var listener = function(event) {
+          if (manualFocus) {
+            elem.removeEventListener('focus', listener);
+            return;
+          }
+          if (event.sourceCapabilities === null) {
+            event.preventDefault();
+            elem.blur();
+          }
+          console.log(event);
+        };
+        elem.addEventListener('focus', listener);
+      });
+    };
+  })();
+
+  var reset = function() {
+    manualFocus = true;
+    window.removeEventListener('keypress', reset, true);
+    window.removeEventListener('mousedown', reset, true);
+  };
+  window.addEventListener('keypress', reset, true);
+  window.addEventListener('mousedown', reset, true);
+
+  var preventFocus = function() {
+    if (manualFocus)
+      return;
+    var textElements = document.querySelectorAll('input,textarea,*[contenteditable]');
+    for (var i = 0; i < textElements.length; i++) {
+      if (manualFocus)
+        break;
+      if (document.activeElement === textElements[i])
+        textElements[i].blur();
+    }
+    addTextListeners(textElements);
+  };
+
+  window.addEventListener('load', preventFocus);
+  preventFocus();
+};
+
 Command.onDOMLoadAll = function() {
   this.insertCSS();
   this.onBottom = settings.barposition === 'bottom';
@@ -1029,25 +1081,8 @@ Command.onDOMLoadAll = function() {
     this.data.style[(!this.onBottom) ? 'bottom' : 'top'] = '';
     this.data.style[(this.onBottom) ? 'bottom' : 'top'] = '20px';
   }
-  if (!settings.autofocus) {
-    var manualFocus = false;
-    var initialFocus = window.setInterval(function() {
-      if (document.activeElement) {
-        if (/input|textarea/i.test(document.activeElement.localName) &&
-            !manualFocus &&
-            !Command.commandBarFocused()) {
-          document.activeElement.blur();
-        }
-      }
-      if (manualFocus || KeyHandler.hasPressedKey) {
-        window.clearInterval(initialFocus);
-      }
-    }, 5);
-    var initialMouseDown = window.addEventListener('mousedown', function() {
-      manualFocus = true;
-      window.removeEventListener('mousedown', initialMouseDown, true);
-    }, true);
-  }
+  if (!settings.autofocus)
+    this.preventAutoFocus();
   httpRequest({
     url: chrome.runtime.getURL('content_scripts/main.css')
   }, function(data) {
