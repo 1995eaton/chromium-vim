@@ -1042,7 +1042,6 @@ Command.preventAutoFocus = function() {
             event.preventDefault();
             elem.blur();
           }
-          console.log(event);
         };
         elem.addEventListener('focus', listener);
       });
