@@ -1,5 +1,8 @@
 #cVim Changelog
 
+## 1.2.84
+ * Bug fixes
+
 ## 1.2.83
  * Fix bug in Chrome 50+
 
