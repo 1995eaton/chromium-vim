@@ -600,25 +600,25 @@ Hints.genHints = function(M) {
   if (M <= base) {
     return settings.hintcharacters.slice(0, M).split('');
   }
-  var codes = [];
   var codeWord = function(n, b) {
     for (var i = 0, word = []; i < b; i++) {
       word.push(settings.hintcharacters.charAt(n % base));
       n = ~~(n / base);
     }
-    codes.push(word.reverse().join(''));
+    return word.reverse().join('');
   };
 
   var b = Math.ceil(Math.log(M) / Math.log(base));
   var cutoff = Math.pow(base, b) - M;
+  var codes0 = [], codes1 = [];
 
-  for (var i = 0, l = ~~(cutoff / (base - 1)); i < l; i++) {
-    codeWord(i, b - 1);
-  }
-  for (; i < M; i++) {
-    codeWord(i + cutoff, b);
-  }
-  return codes;
+  for (var i = 0, l = ~~(cutoff / (base - 1)); i < l; i++)
+    codes0.push(codeWord(i, b - 1));
+  codes0.sort();
+  for (; i < M; i++)
+    codes1.push(codeWord(i + cutoff, b));
+  codes1.sort();
+  return codes0.concat(codes1);
 };
 
 Hints.create = function(type, multi) {
