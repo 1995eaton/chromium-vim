@@ -519,6 +519,7 @@ Command.execute = function(value, repeats) {
   // * == whether the tab will be pinned
   // = == force cVim to treat text as a URL
   // ? == force cVim to tread text as a search
+  // | == whether to open url in incognito mode (only works for new windows)
   var tab = {
     active: true,
     newWindow: false,
@@ -527,8 +528,9 @@ Command.execute = function(value, repeats) {
     pinned: false,
     tabbed: false
   };
-  (value.match(/^[^\s&$!*=?]*([&$!*=?]+)/) || [])
-    .concat(value.match(/[&$!*=?]*$/) || [])
+  incognito = false;
+  (value.match(/^[^\s&$!*=?|]*([&$!*=?|]+)/) || [])
+    .concat(value.match(/[&$!*=?|]*$/) || [])
     .join('').split('')
     .forEach(function(e) {
       switch (e) {
@@ -538,10 +540,11 @@ Command.execute = function(value, repeats) {
       case '*': tab.pinned    = true;  break;
       case '?': tab.isLink    = true;  tab.isURL = false; break;
       case '=': tab.isLink    = false; tab.isURL = true;  break;
+      case '|': incognito     = true;  tab.newWindow = true; break;
       }
     });
-  value = value.replace(/^([^\s&$*!=?]*)[&$*!=?]*\s/, '$1 ');
-  value = value.replace(/[&$*!=?]+$/, function(e) {
+  value = value.replace(/^([^\s&$*!=?|]*)[&$*!=?|]*\s/, '$1 ');
+  value = value.replace(/[&$*!=?|]+$/, function(e) {
     return e.replace(/[^=?]/g, '');
   });
   if (Complete.engineEnabled(value.split(/\s+/g).compress()[1]))
@@ -718,7 +721,8 @@ Command.execute = function(value, repeats) {
       tab: tab,
       url: Complete.convertToLink(value, tab.isURL, tab.isLink),
       repeats: repeats,
-      noconvert: true
+      noconvert: true,
+      incognito: incognito
     });
     return;
   }
