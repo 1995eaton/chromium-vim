@@ -476,7 +476,7 @@ Command.complete = function(value) {
   this.typed = this.input.value;
   var originalValue = value; // prevent expandCompletion from
                              // limiting command completions
-  value = this.expandCompletion(value).replace(/(^[^\s&$!*?=]+)[&$!*?=]*/, '$1');
+  value = this.expandCompletion(value).replace(/(^[^\s&$!*?=|]+)[&$!*?=|]*/, '$1');
   if (~value.indexOf(' ') && this.callCompletionFunction(value) === true) {
     return;
   }
@@ -526,9 +526,9 @@ Command.execute = function(value, repeats) {
     isURL: false,
     isLink: false,
     pinned: false,
-    tabbed: false
+    tabbed: false,
+    incognito: false,
   };
-  incognito = false;
   (value.match(/^[^\s&$!*=?|]*([&$!*=?|]+)/) || [])
     .concat(value.match(/[&$!*=?|]*$/) || [])
     .join('').split('')
@@ -540,7 +540,7 @@ Command.execute = function(value, repeats) {
       case '*': tab.pinned    = true;  break;
       case '?': tab.isLink    = true;  tab.isURL = false; break;
       case '=': tab.isLink    = false; tab.isURL = true;  break;
-      case '|': incognito     = true;  tab.newWindow = true; break;
+      case '|': tab.incognito = true;  tab.newWindow = true; break;
       }
     });
   value = value.replace(/^([^\s&$*!=?|]*)[&$*!=?|]*\s/, '$1 ');
@@ -722,7 +722,7 @@ Command.execute = function(value, repeats) {
       url: Complete.convertToLink(value, tab.isURL, tab.isLink),
       repeats: repeats,
       noconvert: true,
-      incognito: incognito
+      incognito: tab.incognito
     });
     return;
   }

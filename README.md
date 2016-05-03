@@ -226,6 +226,7 @@ site '*://*/*.js' {
  * Commands that open links (`:tabnew` and `:open`) have three different properties
   * `!` => Open in a new tab
   * `$` => Open in a new window
+  * `|` => Open in an incognito window
   * `&` => Open in a new tab (inactive/unfocused)
   * `*` => Pin the tab
   * `?` => Treat the query as a search

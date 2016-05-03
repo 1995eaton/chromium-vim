@@ -35,6 +35,7 @@ Actions = (function() {
         chrome.windows.create({
           url: url,
           focused: request.tab.active,
+          incognito: request.tab.incognito,
         });
       }
     } else if (request.tab.tabbed) {
