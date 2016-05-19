@@ -6,12 +6,32 @@ var KeyListener;
 // versions of Chrome (52+)
 if (KeyboardEvent.prototype.hasOwnProperty('key')) {
   KeyListener = function(onKeyDown, onKeyUp) {
-    this.onKeyDown = onKeyDown;
-    this.onKeyUp = onKeyUp || function() {};
+    this.eventCallbacks = {keydown: [], keyup: []};
+    this.addListener('keydown', onKeyDown);
+    this.addListener('keyup', onKeyUp);
     this.isActive = false;
     this.langMap = {};
-    window.addEventListener('keydown', this.createListener(this.onKeyDown), true);
-    window.addEventListener('keyup', this.createListener(this.onKeyUp), true);
+    window.addEventListener('keydown', this.createListener('keydown'), true);
+    window.addEventListener('keyup', this.createListener('keyup'), true);
+  };
+
+  KeyListener.prototype.addListener = function(type, callback) {
+    if (typeof callback !== 'function' || ['keydown', 'keyup'].indexOf(type) === -1)
+      return;
+    this.eventCallbacks[type] = this.eventCallbacks[type] || [];
+    this.eventCallbacks[type].push(callback);
+  };
+
+  KeyListener.prototype.removeListener = function(type, callback) {
+    if (!this.eventCallbacks.hasOwnProperty(type) || typeof callback !== 'function')
+      return false;
+    var listeners = this.eventCallbacks[type];
+    var origLen = listeners.length;
+    listeners = listeners.filter(function(e) {
+      return e !== callback;
+    });
+    this.eventCallbacks[type] = listeners;
+    return origLen !== listeners.length;
   };
 
   KeyListener.keyEquals = function(a, b) {
@@ -119,12 +139,19 @@ if (KeyboardEvent.prototype.hasOwnProperty('key')) {
     return _super.convertLang(key);
   };
 
-  KeyListener.prototype.createListener = function(callback) {
+  KeyListener.prototype.createListener = function(type) {
     var _super = this;
     return function(event) {
       var code = _super.eventToCode.call(this, event, _super);
       if (_super.isActive) {
-        return callback.apply(this, [code, event]);
+        var eventCallbacks = _super.eventCallbacks[type];
+        var ret = true;
+        for (var i = 0; i < eventCallbacks.length; i++) {
+          var retConsider = eventCallbacks[i].apply(this, [code, event]);
+          if (retConsider !== undefined && !retConsider)
+            ret = false;
+        }
+        return ret;
       }
       return true;
     };

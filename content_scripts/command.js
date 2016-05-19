@@ -1052,16 +1052,26 @@ Command.preventAutoFocus = function() {
     };
   })();
 
-  var reset = function(event) {
-    if (Command.domElementsLoaded && !event.hasOwnProperty('which') ||
-        [16, 17, 18, 91].indexOf(event.which) === -1) {
+  var reset;
+  if (KeyboardEvent.prototype.hasOwnProperty('key')) {
+    reset = function(key) {
+      if (['Control', 'Alt', 'Meta', 'Shift'].indexOf(key) !== -1)
+        return;
       manualFocus = true;
-      window.removeEventListener('keydown', reset, true);
+      KeyHandler.listener.removeListener('keydown', reset);
       window.removeEventListener('mousedown', reset, true);
-    }
-  };
-  window.addEventListener('keydown', reset, true);
-  window.addEventListener('mousedown', reset, true);
+    };
+    KeyHandler.listener.addListener('keydown', reset);
+    window.addEventListener('mousedown', reset, true);
+  } else {
+    reset = function() {
+      manualFocus = true;
+      window.removeEventListener('keypress', reset, true);
+      window.removeEventListener('mousedown', reset, true);
+    };
+    window.addEventListener('keypress', reset, true);
+    window.addEventListener('mousedown', reset, true);
+  }
 
   var preventFocus = function() {
     if (manualFocus)
