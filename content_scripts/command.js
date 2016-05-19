@@ -1052,12 +1052,15 @@ Command.preventAutoFocus = function() {
     };
   })();
 
-  var reset = function() {
-    manualFocus = true;
-    window.removeEventListener('keypress', reset, true);
-    window.removeEventListener('mousedown', reset, true);
+  var reset = function(event) {
+    if (Command.domElementsLoaded && !event.hasOwnProperty('which') ||
+        [16, 17, 18, 91].indexOf(event.which) === -1) {
+      manualFocus = true;
+      window.removeEventListener('keydown', reset, true);
+      window.removeEventListener('mousedown', reset, true);
+    }
   };
-  window.addEventListener('keypress', reset, true);
+  window.addEventListener('keydown', reset, true);
   window.addEventListener('mousedown', reset, true);
 
   var preventFocus = function() {
