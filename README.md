@@ -1,8 +1,8 @@
-#What is cVim?
+# What is cVim?
 
 Vim for Google Chrome. I hate using the mouse, especially after learning Vim. With my desktop (Linux), I have a lot of key bindings that make doing things easier: I open Chrome with `Alt+w`, I close a window with `Alt+Shift+d`, I open a terminal with `Alt+t`. This is harder to do with Chrome because it has no section for customizing keyboard shortcuts, and it is still necessary to use the mouse to do things like click links. cVim aims to eliminate this problem as best as the Chrome extensions API will allow it to.
 
-#Where can I get cVim?
+# Where can I get cVim?
 
  * There are two ways:
   * You can install it through the [Chrome web store](https://chrome.google.com/webstore/detail/cvim/ihlenndgcmojhcghmfjfneahoeklbjjh)
@@ -23,8 +23,8 @@ These extensions do a wonderful job of adding Vim-like keybindings to Google Chr
   * Command bar with tab-completion
   * Smooth scrolling
 
-#cVim Help
-###cVimrc
+# cVim Help
+### cVimrc
 
  * Boolean cVimrc settings are enabled with the command ```'set' + <SETTING_NAME>``` and disabled with
    the command ```'set' + no<SETTING_NAME>``` (for example, ```set regexp``` and ```set noregexp```)
@@ -81,8 +81,8 @@ These extensions do a wonderful job of adding Vim-like keybindings to Google Chr
 | vimcommand                          | string                             | set the command to be issued with the `editWithVim` command                               | "gvim -f"                                                                   |
 | langmap                             | string                             | set a list of characters to be remapped (see vims langmap)                                | ""                                                                          |
 
-###Example configuration
-```viml
+### Example configuration
+```vim
 " Settings
 set nohud
 set nosmoothscroll
@@ -183,14 +183,14 @@ set localconfig " Update settings via a local file (and the `:source` command) r
 " settings from there
 ```
 
-###Blacklists
+### Blacklists
  * The blacklists setting uses a custom inplementation of Chrome's @match pattern guidelines.
    See https://developer.chrome.com/extensions/match_patterns for a description of the syntax.
 
 
-###Site-specific Configuration
+### Site-specific Configuration
  * You can enable certain rc settings for sites using the blacklist match pattern as described above
-```viml
+```vim
 " this will enable the config block below on the domain 'reddit.com'
 site '*://*.reddit.com/*' {
       unmap j
@@ -199,10 +199,10 @@ site '*://*.reddit.com/*' {
 }
 ```
 
-###Running commands when a page loads
+### Running commands when a page loads
  * In a similar fashion to the site-specific configuration described above, cVim can run commands when a page is loaded with the `call` keyword
-```viml
-" In this case, when pages with a file ending in ".js" are loaded,
+```vim
+" In this case, when pages with a file ending in '.js' are loaded,
 " cVim will pin the tab and then scroll down
 site '*://*/*.js' {
       call :pintab
@@ -210,11 +210,11 @@ site '*://*/*.js' {
 }
 ```
 
-###Mappings
+### Mappings
  * Normal mappings are defined with the following structure: ```map <KEY> <MAPPING_NAME>```
  * Insert mappings use the same structure, but use the command "imap" instead of "map"
  * Control, meta, and alt can be used also:
-```viml
+```vim
 <C-u> " Ctrl + u
 <M-u> " Meta + u
 <A-u> " Alt  + u
@@ -222,7 +222,7 @@ site '*://*/*.js' {
  * It is also possible to unmap default bindings with ```unmap <KEY>``` and insert bindings with ```iunmap <KEY>```
  * To unmap all default keybindings, use ```unmapAll```. To unmap all default insert bindings, use ```iunmapAll```
 
-###Tabs
+### Tabs
  * Commands that open links (`:tabnew` and `:open`) have three different properties
   * `!` => Open in a new tab
   * `$` => Open in a new window
@@ -233,7 +233,7 @@ site '*://*/*.js' {
   * `=` => Treat the query as a URL
  * The use of these properties are best explained with examples:
 
-```viml
+```vim
 :open! google<CR> " This is the same as :tabnew google<CR>
 
 :open google!<CR> " This is another way of writing the above
@@ -261,7 +261,7 @@ site '*://*/*.js' {
 :bookmarks my_bookmark.com   " same tab
 ```
 
-###Code blocks
+### Code blocks
  * Code blocks allow you to interact with cVim's content scripts via the cVimrc.
  * Since code blocks use `eval(...)`, you should only use them if you know what you're doing.
 
@@ -293,19 +293,19 @@ switchHintCharacters -> {{
 map <Tab> :call switchHintCharacters<CR>
 ```
 
-###Completion Engines
+### Completion Engines
   * These are a list of completion engines that can be used in the command bar. They can be set
     by assigning their names to an array with the `completionengines` variable.
     * google, wikipedia, youtube, imdb, amazon, google-maps, wolframalpha, google-image, ebay,
       webster, wictionary, urbandictionary, duckduckgo, answers, google-trends, google-finance,
       yahoo, bing, themoviedb
   * Example usage:
-    ```vim
+```vim
 let completionengines = ['google', 'google-image', 'youtube'] " Show only these engines in the command bar
-    ```
+```
 
 
-#Keybindings
+# Keybindings
 
 | Movement                  |                                                                       | Mapping name                    |
 | ------------------------- | :-------------------------------------------------------------------- | :------------------------------ |
@@ -451,7 +451,7 @@ let completionengines = ['google', 'google-image', 'youtube'] " Show only these 
 | unmapped                  | select input text (equivalent to `<C-a>`)                             | selectAll                       |
 | unmapped                  | edit with Vim in a terminal (need the [cvim_server.py](https://github.com/1995eaton/chromium-vim/blob/master/cvim_server.py) script running for this to work) | editWithVim     |
 
-#Command Mode
+# Command Mode
 
 | Command                                     | Description                                                                            |
 | ------------------------------------------- | -------------------------------------------------------------------------------------- |
@@ -485,7 +485,7 @@ let completionengines = ['google', 'google-image', 'youtube'] " Show only these 
 | :pintab                                     | pin the current tab                                                                    |
 | :unpintab                                   | unpin the current tab                                                                  |
 
-#Tips
+# Tips
 
  * You can use `@%` in "open" commands to specify the current URL.
    For example, `:open @%` would essentially refresh the current page.

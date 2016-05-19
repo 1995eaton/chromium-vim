@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><link rel="stylesheet" href="./markdown.css"><link rel="stylesheet" href="../content_scripts/main.css"><script src="../content_scripts/session.js"></script>
+<!DOCTYPE html><html><head><meta charset="utf-8"><link rel="stylesheet" href="./markdown.css"><link rel="stylesheet" href="./hljs.css"><link rel="stylesheet" href="../content_scripts/main.css"><script src="../content_scripts/session.js"></script>
 <script src="../content_scripts/utils.js"></script>
 <script src="../content_scripts/dom.js"></script>
 <script src="../content_scripts/hints.js"></script>
@@ -16,16 +16,16 @@
 <script src="../content_scripts/scroll.js"></script>
 <script src="../content_scripts/search.js"></script>
 <script src="../content_scripts/frames.js"></script>
-<script src="../content_scripts/messenger.js"></script></head><h1 id="cvim-changelog">cVim Changelog</h1>
-<h2 id="1-2-84">1.2.84</h2>
+<script src="../content_scripts/messenger.js"></script></head><h1>cVim Changelog</h1>
+<h2>1.2.84</h2>
 <ul>
 <li>Bug fixes</li>
 </ul>
-<h2 id="1-2-83">1.2.83</h2>
+<h2>1.2.83</h2>
 <ul>
 <li>Fix bug in Chrome 50+</li>
 </ul>
-<h2 id="1-2-82">1.2.82</h2>
+<h2>1.2.82</h2>
 <ul>
 <li>Fix <code>:new</code>/<code>:winopen</code> bug</li>
 <li>Fix scrolling bug when experimental JavaScript features are enabled</li>
@@ -33,151 +33,146 @@
 <li>Allow multiple unmaps using a single statement (e.g. <code>unmap h j k l</code>)</li>
 <li>Added new window modifier for <code>:tabnew</code> and related commands</li>
 </ul>
-<h2 id="1-2-81">1.2.81</h2>
+<h2>1.2.81</h2>
 <ul>
 <li>Smooth scrolling is now disabled by default (add <code>set smoothscroll</code> to your settings to get it back)</li>
 <li>Bug fixes</li>
 </ul>
-<h2 id="1-2-80">1.2.80</h2>
+<h2>1.2.80</h2>
 <ul>
 <li>Scrolling improvements</li>
 <li>Bug fixes</li>
 </ul>
-<h2 id="1-2-79">1.2.79</h2>
+<h2>1.2.79</h2>
 <ul>
 <li>Content scripts will now be reloaded if they lose connection to the
 background scripts (e.g. restarting the extension)</li>
 </ul>
-<h2 id="1-2-78">1.2.78</h2>
+<h2>1.2.78</h2>
 <ul>
 <li>Default completion engines are now only <code>[&quot;google&quot;, &quot;duckduckgo&quot;, &quot;wikipedia&quot;, &quot;amazon&quot;]</code>.
-The other engines still exist, but you&#39;ll need to enable them with the <code>completionengines</code> option.<ul>
+The other engines still exist, but you’ll need to enable them with the <code>completionengines</code> option.
+<ul>
 <li>See <a href="./mappings.html#completion-engines">mappings.html#completion-engines</a> for more info.</li>
 </ul>
 </li>
 <li>Added &quot;themoviedb&quot; to completion engines</li>
 </ul>
-<h2 id="1-2-77">1.2.77</h2>
+<h2>1.2.77</h2>
 <ul>
 <li>Bug fixes</li>
 <li>Add support for local &quot;.cvimrc&quot; files</li>
 </ul>
-<h2 id="1-2-76">1.2.76</h2>
+<h2>1.2.76</h2>
 <ul>
 <li>Fixed issue with buffer switching. Partially breaks fix from last version</li>
 </ul>
-<h2 id="1-2-75">1.2.75</h2>
+<h2>1.2.75</h2>
 <ul>
 <li>Fixed issue where cVim sometimes stops responding after opening the command bar</li>
 </ul>
-<h2 id="1-2-74">1.2.74</h2>
+<h2>1.2.74</h2>
 <ul>
 <li>Bug fixes</li>
 <li>Added <code>sortlinkhints</code> setting</li>
 </ul>
-<h2 id="1-2-73">1.2.73</h2>
+<h2>1.2.73</h2>
 <ul>
 <li>Link hint / command bar redesign (may need to reset CSS for this to take effect)</li>
 <li>Improved autocompletion matching</li>
 <li>Several bugfixes</li>
 </ul>
-<h2 id="1-2-72">1.2.72</h2>
+<h2>1.2.72</h2>
 <ul>
 <li>Fix an issue with command bar z-index on YouTube: <a href="https://github.com/1995eaton/chromium-vim/issues/237">#237</a></li>
 <li>Fix an issue with tab completion with the <code>:buffer</code> command: <a href="https://github.com/1995eaton/chromium-vim/issues/238">#238</a></li>
 </ul>
-<h2 id="1-2-71">1.2.71</h2>
+<h2>1.2.71</h2>
 <ul>
 <li>Fix incompatibilities with some non-American keyboard layouts</li>
 </ul>
-<h2 id="1-2-70">1.2.70</h2>
+<h2>1.2.70</h2>
 <ul>
 <li>Fix a cncpcompletion bug</li>
 <li>Added the <code>createScriptHint</code> command</li>
 <li>Multiple bugfixes</li>
 </ul>
-<h2 id="1-2-69">1.2.69</h2>
+<h2>1.2.69</h2>
 <ul>
 <li>Fix a bug with text areas (<a href="https://github.com/1995eaton/chromium-vim/issues/231">#231</a>)</li>
 </ul>
-<h2 id="1-2-68">1.2.68</h2>
+<h2>1.2.68</h2>
 <ul>
 <li>Bug fixes from iframe addition in 1.2.68</li>
 <li>Added code block feature</li>
 </ul>
-<h2 id="1-2-67">1.2.67</h2>
+<h2>1.2.67</h2>
 <ul>
 <li>Moved command bar to separate frame (issue <a href="https://github.com/1995eaton/chromium-vim/issues/85">#85</a>).</li>
 <li>Several security patches</li>
 </ul>
-<h2 id="1-2-66">1.2.66</h2>
+<h2>1.2.66</h2>
 <ul>
 <li>Added <code>nativelinkeorder</code>, <code>vimcommand</code>, and <code>vimport</code> options</li>
 <li><code>cvim_socket.py</code> is now <code>cvim_server.py</code></li>
 <li>Bug fixes</li>
 </ul>
-<h2 id="1-2-65">1.2.65</h2>
+<h2>1.2.65</h2>
 <ul>
 <li>Better smooth scrolling performance</li>
 <li>Fix a URI encoding bug with search engines</li>
 </ul>
-<h2 id="1-2-64">1.2.64</h2>
+<h2>1.2.64</h2>
 <ul>
-<li>Improved cVimrc parsing (with <a href="http://pegjs.majda.cz/">PEG.js</a>)<ul>
+<li>Improved cVimrc parsing (with <a href="http://pegjs.majda.cz/">PEG.js</a>)</li>
 <li>The options page will now report errors on which line has improper syntax.
-You can check Chrome&#39;s JavaScript console for more info on what the error was
+You can check Chrome’s JavaScript console for more info on what the error was
 and why it occurred.</li>
-</ul>
-</li>
 <li>Better history searching</li>
 <li>Several bug fixes</li>
 </ul>
-<h2 id="1-2-63">1.2.63</h2>
+<h2>1.2.63</h2>
 <ul>
 <li>Fix for Google search and the <code>:</code> key (and some others)</li>
 </ul>
-<h2 id="1-2-62">1.2.62</h2>
+<h2>1.2.62</h2>
 <ul>
 <li>Added autoupdategist option</li>
 <li>Added lastUsedTab command</li>
 <li>The goToSource command is now <code>:viewsource&amp;&lt;CR&gt;</code></li>
-<li>Removed the mapping blacklist feature for the blacklists array (e.g. `let blacklists = [&quot;<em>://</em>.reddit.com/* &lt;Up&gt; &lt;Down&gt;])<ul>
+<li>Removed the mapping blacklist feature for the blacklists array (e.g. `let blacklists = [&quot;<em>://</em>.reddit.com/* &lt;Up&gt; &lt;Down&gt;])</li>
 <li>The syntax for an extended version of this feature can now be found <a href="https://github.com/1995eaton/chromium-vim#site-specific-configuration">here</a></li>
 </ul>
-</li>
-</ul>
-<h2 id="1-2-61">1.2.61</h2>
+<h2>1.2.61</h2>
 <ul>
 <li>Minor bug fixes from last update</li>
 <li>Fix issue <a href="https://github.com/1995eaton/chromium-vim/issues/120">#120</a></li>
 </ul>
-<h2 id="1-2-60">1.2.60</h2>
+<h2>1.2.60</h2>
 <ul>
 <li>Removed the toggleImages command</li>
 <li>Remove the <code>:date</code> command</li>
 <li>Performance optimizations + bugfixes</li>
 </ul>
-<h2 id="1-2-59">1.2.59</h2>
+<h2>1.2.59</h2>
 <ul>
 <li>Various bug fixes</li>
 <li>Improved smooth-scrolling</li>
 </ul>
-<h2 id="1-2-58">1.2.58</h2>
+<h2>1.2.58</h2>
 <ul>
 <li>Fixed issues with certain keys not working with certain keyboard layouts</li>
 <li><code>&lt;C-a&gt;</code> insert mapping is now <code>&lt;C-i&gt;</code></li>
 </ul>
-<h2 id="1-2-57">1.2.57</h2>
+<h2>1.2.57</h2>
 <ul>
 <li>Miscellaneous bug fixes</li>
 </ul>
-<h2 id="1-2-56">1.2.56</h2>
+<h2>1.2.56</h2>
 <ul>
 <li><strong>Important!</strong> The behavior of commands that open links (<code>:open</code>, <code>:tabnew</code>, <code>:history</code>, etc) has changed. See <a href="./mappings.html#tabs">the mappings page</a> for more information.</li>
-<li>Awesome new feature! It&#39;s now possible to use Vim to edit text boxes. All that is needed is a python script that can be found here: <a href="https://github.com/1995eaton/chromium-vim/blob/master/cvim_socket.py">https://github.com/1995eaton/chromium-vim/blob/master/cvim_socket.py</a><ul>
+<li>Awesome new feature! It’s now possible to use Vim to edit text boxes. All that is needed is a python script that can be found <a href="https://github.com/1995eaton/chromium-vim/blob/master/cvim_server.py">here</a></li>
 <li>To get things running, just run the script: <code>python cvim_socket.py</code> and press <code>&lt;C-i&gt;</code> inside a text box.</li>
-</ul>
-</li>
 <li>As a result of the above, the insert mapping <code>&lt;C-i&gt;</code> (beginningOfLine) is now <code>&lt;C-a&gt;</code>.</li>
 <li>Smoother scrolling</li>
 <li>Added <code>:tabattach</code> command</li>
@@ -185,7 +180,7 @@ and why it occurred.</li>
 <li>Page searches are now synced with other tabs</li>
 <li>Performance enhancements</li>
 </ul>
-<h2 id="1-2-55">1.2.55</h2>
+<h2>1.2.55</h2>
 <ul>
 <li>In order to make cVim as &quot;vim-like&quot; as possible, some commands have been added, and others have changed (the old ones will continue to work). <code>:tabopen</code> is now <code>:tabnew</code> and <code>:closetab</code> is now <code>:quit</code></li>
 <li>The <code>C-z</code> toggleCvim mapping is now <code>A-z</code> due to conflicts with the default undo-text Chrome shortcut.</li>
@@ -193,10 +188,11 @@ and why it occurred.</li>
 <li>The yank-link hint mode binding has changed from <code>Y</code> to <code>gy</code></li>
 <li>Yank link hint mode will now copy text box values/placeholders in addition to link URLs.</li>
 </ul>
-<h2 id="1-2-54">1.2.54</h2>
+<h2>1.2.54</h2>
 <ul>
 <li>The <code>ignorediacritics</code> option has been removed due to its large performance impact</li>
-<li>Added the <code>*</code> modifier to the open group of commands (e.g. <code>:tabopen http://www.google.com*</code> will open Google in a pinned state)<ul>
+<li>Added the <code>*</code> modifier to the open group of commands (e.g. <code>:tabopen http://www.google.com*</code> will open Google in a pinned state)
+<ul>
 <li>This can be used in addition to the <code>&amp;</code> modifier (e.g. <code>:tabopen http://www.google.com*&amp;</code> or <code>:tabopen http://www.google.com&amp;*</code> will open Google in a pinned background tab</li>
 </ul>
 </li>
@@ -204,88 +200,94 @@ and why it occurred.</li>
 <li>Improved keyboard key support</li>
 <li>Added experimental GitHub autocomplete search engine (e.g. <code>:tabopen github @1995eaton/</code>)</li>
 </ul>
-<h2 id="1-2-53">1.2.53</h2>
+<h2>1.2.53</h2>
 <ul>
-<li><strong>Important!</strong> cVimrc blacklists are now a part of the cVimrc. Previous blacklists should carry over to the cVimrc text area. New blacklists can be declared like this:<pre><code class="lang-viml">let blacklists = [&quot;https://www.google.com&quot;]
+<li><strong>Important!</strong> cVimrc blacklists are now a part of the cVimrc. Previous blacklists should carry over to the cVimrc text area. New blacklists can be declared like this:</li>
+</ul>
+<pre class="hljs"><code><span class="hljs-keyword">let</span> blacklists = [<span class="hljs-string">"https://www.google.com"</span>]
 </code></pre>
-</li>
+<ul>
 <li>When defining custom search engines, you can now add the string <code>%s</code> somewhere inside the URL to indicate that the query should be inserted in this place. This is useful for search engines with URLs that have non-standard structures. For instance:</li>
 </ul>
-<pre><code class="lang-viml">&quot; If you search for &#39;test&#39; using this engine, cVim
-&quot; will open this link -&gt; http://www.example.com/test?type=search
-let searchengine example = &quot;http://www.example.com/%s?type=search&quot;
+<pre class="hljs"><code><span class="hljs-comment">" If you search for 'test' using this engine, cVim</span>
+<span class="hljs-comment">" will open this link -&gt; http://www.example.com/test?type=search</span>
+<span class="hljs-keyword">let</span> searchengine example = <span class="hljs-string">"http://www.example.com/%s?type=search"</span>
 
-&quot; In the case below, &#39;%s&#39; is optional. If it is not included, your search query will be appended to the URL
-let searchengine example = &quot;http://www.example.com/search?query=&quot;
-let searchengine example = &quot;http://www.example.com/search?query=%s&quot; &quot;This is no different from the above case
+<span class="hljs-comment">" In the case below, '%s' is optional. If it is not included, your search query will be appended to the URL</span>
+<span class="hljs-keyword">let</span> searchengine example = <span class="hljs-string">"http://www.example.com/search?query="</span>
+<span class="hljs-keyword">let</span> searchengine example = <span class="hljs-string">"http://www.example.com/search?query=%s"</span> <span class="hljs-comment">"This is no different from the above case</span>
 </code></pre>
 <ul>
-<li>Added lastScrollPosition <code>&#39;&#39;</code>, goToMark <code>&#39;&lt;*&gt;</code>, and setMark <code>;&lt;*&gt;</code> mappings</li>
-<li>Find-mode is much, much faster (outperforms Google&#39;s search mode when looking for the letter &#39;a&#39; in a text copy of <em>The Great Gatsby</em>)</li>
+<li>Added lastScrollPosition <code>''</code>, goToMark <code>'&lt;*&gt;</code>, and setMark <code>;&lt;*&gt;</code> mappings</li>
+<li>Find-mode is much, much faster (outperforms Google’s search mode when looking for the letter 'a' in a text copy of <em>The Great Gatsby</em>)</li>
 <li>Several bugfixes</li>
 <li>Added searchalias and locale variables (see help file <code>:help</code>)</li>
 </ul>
-<h2 id="1-2-52">1.2.52</h2>
+<h2>1.2.52</h2>
 <ul>
 <li>Added the <code>file</code> command</li>
 <li>Added the <code>date</code> command</li>
 <li>Improved link hint performance</li>
-<li>The reverseImageSearch mapping can now parse base64 images (thanks to Google&#39;s &quot;Search by Image&quot; extension)</li>
+<li>The reverseImageSearch mapping can now parse base64 images (thanks to Google’s &quot;Search by Image&quot; extension)</li>
 <li>Added the closeTab command to the chrome://extensions -&gt; Keyboard Shortcuts page</li>
 <li>Improved cVim response time on initial page load</li>
 <li>Minor bugfixes</li>
 </ul>
-<h2 id="1-2-51">1.2.51</h2>
+<h2>1.2.51</h2>
 <ul>
-<li><strong>Important!</strong> cVimrc setting are now stricter. You must use &#39;let&#39; instead of set when using options requiring an equal symbol. For example:<pre><code class="lang-viml">set hintcharacters = abc123 &quot;Incorrect!
-let hintcharacters = &quot;abc123&quot; &quot;Correct
+<li><strong>Important!</strong> cVimrc setting are now stricter. You must use 'let' instead of set when using options requiring an equal symbol. For example:</li>
+</ul>
+<pre class="hljs"><code><span class="hljs-keyword">set</span> hintcharacters = abc123 <span class="hljs-comment">"Incorrect!</span>
+<span class="hljs-keyword">let</span> hintcharacters = <span class="hljs-string">"abc123"</span> <span class="hljs-comment">"Correct</span>
 </code></pre>
-</li>
-<li>Added completionengines option to cVimrc (choose which completion engines to display). For example:<pre><code class="lang-viml">let completionengines = [&quot;google&quot;, &quot;imdb&quot;] &quot;Only these engines will appear in the search autocomplete menu
+<ul>
+<li>Added completionengines option to cVimrc (choose which completion engines to display). For example:</li>
+</ul>
+<pre class="hljs"><code><span class="hljs-keyword">let</span> completionengines = [<span class="hljs-string">"google"</span>, <span class="hljs-string">"imdb"</span>] <span class="hljs-comment">"Only these engines will appear in the search autocomplete menu</span>
 </code></pre>
-</li>
-<li>Added autohidecursor option (useful for Linux operating systems, which don&#39;t automatically hide the mouse cursor when a key is pressed). You can test this out by running the command <code>:set autohidecursor</code> and scrolling with j/k (might have to nudge mouse cursor then scroll to see it disappear initially).</li>
+<ul>
+<li>Added autohidecursor option (useful for Linux operating systems, which don’t automatically hide the mouse cursor when a key is pressed). You can test this out by running the command <code>:set autohidecursor</code> and scrolling with j/k (might have to nudge mouse cursor then scroll to see it disappear initially).</li>
 <li>Bug fixes</li>
 </ul>
-<h2 id="1-2-50">1.2.50</h2>
+<h2>1.2.50</h2>
 <ul>
 <li><code>map</code> automatically unmaps the existing binding if a conflict occurs (e.g. same key mapped to multiple functions). <code>unmap</code> is no longer necessary unless you wish to disable a default mapping</li>
 <li><code>map</code> can now point to other mappings as a reference (e.g. <code>map j k</code>)</li>
 <li>Improved mapping key compatibility</li>
 <li>Minor CSS tweaks in the options page</li>
 </ul>
-<h2 id="1-2-49">1.2.49</h2>
+<h2>1.2.49</h2>
 <ul>
-<li>Reworked domain blacklists engine. See <a href="https://developer.chrome.com/extensions/match_patterns">https://developer.chrome.com/extensions/match_patterns</a> for a description of the new URL match syntax</li>
+<li>Reworked domain blacklists engine. See https://developer.chrome.com/extensions/match_patterns for a description of the new URL match syntax</li>
 <li>Fixed some iframe bugs</li>
 </ul>
-<h2 id="1-2-48">1.2.48</h2>
+<h2>1.2.48</h2>
 <ul>
-<li>Fixed an issue where quickmarks wouldn&#39;t save</li>
+<li>Fixed an issue where quickmarks wouldn’t save</li>
 <li>Minor bugfixes</li>
 <li>Added basic support for Visual Line mode (V)</li>
 <li>Updated DuckDuckGo search engine for completion</li>
 <li>Added a restart chrome shortcut (zr). The same could be accomplished with the config <code>map zr :chrome://restart&amp;&lt;CR&gt;</code></li>
 <li>reloadAllTabs is still available for mapping, but the key binding <code>cr</code> now defaults to reloadAllButCurrent</li>
 </ul>
-<h2 id="1-2-47">1.2.47</h2>
+<h2>1.2.47</h2>
 <ul>
 <li>Several bugfixes</li>
 <li>Added reloadAllTabs (cr), toggleImages (ci), zoomPageIn (zi), zoomPageOut (zo), zoomOrig (z0), zoomImage (z&lt;Enter&gt;), and toggleCvim (&lt;C-z&gt;) mappings</li>
 </ul>
-<h2 id="1-2-46">1.2.46</h2>
+<h2>1.2.46</h2>
 <ul>
 <li>Fixed a bug where bookmarks would be displayed multiple times on some sites</li>
 </ul>
-<h2 id="1-2-45">1.2.45</h2>
+<h2>1.2.45</h2>
 <ul>
 <li>Fixed a CSS issue with the default font (if your font looks ugly, reset cVim to see changes).</li>
 </ul>
-<h2 id="1-2-44">1.2.44</h2>
+<h2>1.2.44</h2>
 <ul>
 <li>Tiny bugfix</li>
 </ul>
-<h2 id="1-2-43">1.2.43</h2>
+<h2>1.2.43</h2>
 <ul>
 <li>Added this changelog</li>
 <li>Minor bugfixes</li>

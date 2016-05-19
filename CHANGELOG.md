@@ -1,4 +1,4 @@
-#cVim Changelog
+# cVim Changelog
 
 ## 1.2.84
  * Bug fixes
@@ -122,7 +122,7 @@ and why it occurred.
 
 ## 1.2.56
  * **Important!** The behavior of commands that open links (`:open`, `:tabnew`, `:history`, etc) has changed. See [the mappings page](./mappings.html#tabs) for more information.
- * Awesome new feature! It's now possible to use Vim to edit text boxes. All that is needed is a python script that can be found here: https://github.com/1995eaton/chromium-vim/blob/master/cvim_socket.py
+ * Awesome new feature! It's now possible to use Vim to edit text boxes. All that is needed is a python script that can be found [here](https://github.com/1995eaton/chromium-vim/blob/master/cvim_server.py)
   * To get things running, just run the script: `python cvim_socket.py` and press `<C-i>` inside a text box.
  * As a result of the above, the insert mapping `<C-i>` (beginningOfLine) is now `<C-a>`.
  * Smoother scrolling
@@ -148,12 +148,12 @@ and why it occurred.
 
 ## 1.2.53
  * **Important!** cVimrc blacklists are now a part of the cVimrc. Previous blacklists should carry over to the cVimrc text area. New blacklists can be declared like this:
-```viml
+```vim
 let blacklists = ["https://www.google.com"]
 ```
  * When defining custom search engines, you can now add the string ```%s``` somewhere inside the URL to indicate that the query should be inserted in this place. This is useful for search engines with URLs that have non-standard structures. For instance:
 
-```viml
+```vim
 " If you search for 'test' using this engine, cVim
 " will open this link -> http://www.example.com/test?type=search
 let searchengine example = "http://www.example.com/%s?type=search"
@@ -178,12 +178,12 @@ let searchengine example = "http://www.example.com/search?query=%s" "This is no 
 
 ## 1.2.51
  * **Important!** cVimrc setting are now stricter. You must use 'let' instead of set when using options requiring an equal symbol. For example:
-```viml
+```vim
 set hintcharacters = abc123 "Incorrect!
 let hintcharacters = "abc123" "Correct
 ```
  * Added completionengines option to cVimrc (choose which completion engines to display). For example:
-```viml
+```vim
 let completionengines = ["google", "imdb"] "Only these engines will appear in the search autocomplete menu
 ```
  * Added autohidecursor option (useful for Linux operating systems, which don't automatically hide the mouse cursor when a key is pressed). You can test this out by running the command ```:set autohidecursor``` and scrolling with j/k (might have to nudge mouse cursor then scroll to see it disappear initially).

@@ -1,5 +1,5 @@
 body {
-  font-family: Helvetica, arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   font-size: 14px;
   line-height: 1.6;
   padding-top: 10px;
@@ -62,28 +62,14 @@ h1:hover a.anchor, h2:hover a.anchor, h3:hover a.anchor, h4:hover a.anchor, h5:h
   text-decoration: none;
 }
 
-h1 tt, h1 code {
-  font-size: inherit;
-}
-
-h2 tt, h2 code {
-  font-size: inherit;
-}
-
-h3 tt, h3 code {
-  font-size: inherit;
-}
-
-h4 tt, h4 code {
-  font-size: inherit;
-}
-
-h5 tt, h5 code {
-  font-size: inherit;
-}
-
-h6 tt, h6 code {
-  font-size: inherit;
+code, tt {
+    padding: 0;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+    margin: 0;
+    font-size: 85%;
+    background-color: rgba(0,0,0,0.04);
+    border-radius: 3px
 }
 
 h1 {
@@ -226,8 +212,21 @@ blockquote > :last-child {
 
 table {
   padding: 0;
+  display: block;
+  word-break: keep-all;
+  border-collapse: collapse;
+  border-color: grey;
 }
-table tr {
+tbody {
+  display: table-row-group;
+  vertical-align: middle;
+  border-color: inherit;
+}
+
+tr {
+  display: table-row;
+  vertical-align: inherit;
+  border-color: inherit;
   border-top: 1px solid #cccccc;
   background-color: white;
   margin: 0;
@@ -353,7 +352,29 @@ span.float-right > span {
   text-align: right;
 }
 
+/* .highlight pre { */
+/*   background-color: #f8f8f8; */
+/*   border: 1px solid #cccccc; */
+/*   font-size: 13px; */
+/*   line-height: 19px; */
+/*   overflow: auto; */
+/*   padding: 6px 10px; */
+/*   border-radius: 3px; */
+/* } */
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #cccccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
 code, tt {
+  font-family: monospace;
+  font-size: inherit;
   margin: 0 2px;
   padding: 0 5px;
   white-space: nowrap;
@@ -368,26 +389,6 @@ pre code {
   white-space: pre;
   border: none;
   background: transparent;
-}
-
-.highlight pre {
-  background-color: #f8f8f8;
-  border: 1px solid #cccccc;
-  font-size: 13px;
-  line-height: 19px;
-  overflow: auto;
-  padding: 6px 10px;
-  border-radius: 3px;
-}
-
-pre {
-  background-color: #f8f8f8;
-  border: 1px solid #cccccc;
-  font-size: 13px;
-  line-height: 19px;
-  overflow: auto;
-  padding: 6px 10px;
-  border-radius: 3px;
 }
 
 pre code, pre tt {
