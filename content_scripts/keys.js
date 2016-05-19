@@ -75,6 +75,9 @@ var KeyListener = (function() {
       event.metaKey  ? 'M' : '',
       event.shiftKey ? 'S' : ''
     ].join('').split('');
+    var identifier = KeyboardEvent.prototype.hasOwnProperty('key') ?
+      event.key : event.keyIdentifier; // Prepare for deprecation of KeyboardEvent.prototype.keyIdentifier
+                                       // https://www.chromestatus.com/features/5316065118650368
     if (codeMap.hasOwnProperty(event.which.toString())) {
       map = codeMap[event.which.toString()];
       if (Array.isArray(map)) {
@@ -85,9 +88,9 @@ var KeyListener = (function() {
       } else {
         key = map;
       }
-    } else if (/^F[0-9]+$/.test(event.keyIdentifier)) {
+    } else if (/^F[0-9]+$/.test(identifier)) {
       isFKey = true;
-      key = event.keyIdentifier;
+      key = identifier;
     } else {
       key = String.fromCharCode(event.which).toLowerCase();
       if (event.shiftKey && modifiers.length === 1) {
