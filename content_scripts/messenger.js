@@ -237,10 +237,6 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
     if (self === top)
       callback(Frames.getSubFrames());
     break;
-  case 'commandFrameLoaded':
-    if (!window.isCommandFrame && !Command.domElementsLoaded)
-      Command.onDOMLoadAll();
-    break;
   case 'showCommandFrame':
     if (Command.frame) {
       Command.frame.style.display = 'block';

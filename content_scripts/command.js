@@ -1020,9 +1020,6 @@ Command.onDOMLoad = function() {
     Command.frame.src = chrome.runtime.getURL('cmdline_frame.html');
     Command.frame.id = 'cVim-command-frame';
     document.lastElementChild.appendChild(Command.frame);
-  } else {
-    if (window.isCommandFrame)
-      PORT('commandFrameLoaded');
   }
 };
 

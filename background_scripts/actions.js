@@ -785,12 +785,6 @@ Actions = (function() {
     callback({type: 'parseRC', config: RCParser.parse(request.config)});
   };
 
-  _.commandFrameLoaded = function() {
-    chrome.tabs.sendMessage(sender.tab.id, {
-      action: request.action
-    });
-  };
-
   _.showCommandFrame = function() {
     chrome.tabs.sendMessage(sender.tab.id, {
       action: request.action,
