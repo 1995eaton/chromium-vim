@@ -121,7 +121,18 @@
   -webkit-transform: translateZ(0) !important;
 }
 
-#cVim-frames-outline { /* Delete this later */
+.cVim-find-mark {
+  all: unset;
+  background-color: #ffff00;
+  color: #111;
+}
+
+.cVim-find-mark[active] {
+  background-color: #ff9632;
+}
+
+/* {{ Delete these later */
+#cVim-frames-outline {
   position: fixed;
   width: 100%;
   height: 100%;
@@ -133,10 +144,13 @@
   border: 3px solid yellow;
 }
 
-.cVim-find-mark {
-  font-style: inherit !important;
-  font-weight: inherit !important;
-  font-size: inherit !important;
-  line-height: inherit !important;
-  word-wrap: inherit !important;
+.cVim-completion-item[active] {
+  width: 100%; left: 0;
+  color: #1b1d1e;
+  background-color: #f1f1f1;
 }
+
+.cVim-completion-item[active] span {
+  color: #1b1d1e;
+}
+/* }} Delete these later */

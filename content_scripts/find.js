@@ -50,15 +50,13 @@ Find.search = function(mode, repeats, ignoreFocus) {
   if (mode === '?')
     reverse = !reverse;
 
-  var activeHighlight = settings.activehighlight;
-
   if (!this.matches.length)
     return HUD.display('No matches', 1);
 
   if (this.index >= this.matches.length)
     this.index = 0;
   if (this.index >= 0)
-    this.matches[this.index].style.backgroundColor = settings.highlight;
+    this.matches[this.index].removeAttribute('active');
 
   if (reverse && repeats === 1 && this.index === 0) {
     this.index = this.matches.length - 1;
@@ -86,7 +84,7 @@ Find.search = function(mode, repeats, ignoreFocus) {
     document.body.focus();
   }
   var isLink = ignoreFocus ? false : this.focusParentLink(this.matches[this.index]);
-  this.matches[this.index].style.backgroundColor = activeHighlight;
+  this.matches[this.index].setAttribute('active', '');
   HUD.display(this.index + 1 + ' / ' + this.matches.length);
   var paddingTop = 0,
       paddingBottom = 0;
@@ -126,7 +124,6 @@ Find.highlight = function(params) {
       nodes = [],
       linksOnly = false;
 
-  markBase.style.backgroundColor = settings.highlight;
   markBase.className = 'cVim-find-mark';
 
   this.mode = params.mode || '/';
@@ -205,7 +202,11 @@ Find.highlight = function(params) {
         matches.forEach(function(match) {
           var mark = markBase.cloneNode(false);
           var mid = node.splitText(node.data.indexOf(match));
-          mid.splitText(match.length);
+          var end = mid.splitText(match.length);
+          if (node.data.length === 0)
+            node.remove();
+          if (end.data.length === 0)
+            end.remove();
           mark.appendChild(mid.cloneNode(true));
           mid.parentNode.replaceChild(mark, mid);
           self.matches.push(mark);
@@ -240,7 +241,7 @@ Find.highlight = function(params) {
 Find.clear = function() {
   var nodes = this.matches;
   for (var i = 0; i < nodes.length; i++)
-    if (nodes[i] && nodes[i].parentNode)
+    if (nodes[i] && nodes[i].parentNode && nodes[i].firstChild)
       nodes[i].parentNode.replaceChild(nodes[i].firstChild, nodes[i]);
   document.documentElement.normalize();
   this.matches = [];

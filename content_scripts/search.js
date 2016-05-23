@@ -22,7 +22,6 @@ Search.settingsMatch = function(string, callback) {
 };
 
 Search.nextResult = function(reverse) {
-  var i;
   if (!Command.dataElements.length) {
     if (Command.input.value.length) {
       return false;
@@ -37,15 +36,7 @@ Search.nextResult = function(reverse) {
       this.index = Command.dataElements.length - 1;
     }
   } else {
-    Command.dataElements[this.index].style.backgroundColor = '';
-    Command.dataElements[this.index].style.color = '';
-    spanElements = Command.dataElements[this.index].getElementsByTagName('span');
-    for (i = 0, l = spanElements.length; i < l; ++i) {
-      spanElements[i].style.color = '';
-    }
-    if (this.lastStyle) {
-      spanElements[0].firstElementChild.style.color = this.lastStyle;
-    }
+    Command.dataElements[this.index].removeAttribute('active');
     if (!reverse) {
       if (this.index + 1 < Command.dataElements.length) {
         this.index++;
@@ -65,17 +56,8 @@ Search.nextResult = function(reverse) {
     }
   }
 
-  Command.dataElements[this.index].style.backgroundColor = '#f1f1f1';
-  Command.dataElements[this.index].style.color = '#1b1d1e';
-  spanElements = Command.dataElements[this.index].getElementsByTagName('span');
-  if (spanElements[0].childNodes.length === 2) {
-    this.lastStyle = spanElements[0].firstElementChild.style.color;
-  } else {
-    delete this.lastStyle;
-  }
-  for (i = 0; i < spanElements.length; ++i) {
-    spanElements[i].style.color = '#1b1d1e';
-  }
+  Command.dataElements[this.index].setAttribute('active', '');
+
   switch (Command.completionResults[this.index][0]) {
   case 'chrome':
     Command.input.value = Command.input.value.match(/^\S+ /)[0] +

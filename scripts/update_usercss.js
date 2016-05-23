@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 LOG = console.log.bind(console);
 fs = require('fs');
 
