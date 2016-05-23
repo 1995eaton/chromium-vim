@@ -505,8 +505,9 @@ Mappings.actions = {
         mode: Find.mode || '/',
         search: Find.lastSearch,
         setIndex: true,
-        executeSearch: true
+        executeSearch: false
       });
+      Find.search(Find.mode || '/', +(Find.mode === '?'));
     }
   },
   previousSearchResult: function(repeats) {
@@ -519,8 +520,9 @@ Mappings.actions = {
         mode: Find.mode || '?',
         search: Find.lastSearch,
         setIndex: true,
-        executeSearch: true,
+        executeSearch: false,
       });
+      Find.search(Find.mode || '?', -(Find.mode !== '?'));
     }
   },
   nextTab: function(r) {

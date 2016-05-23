@@ -805,7 +805,7 @@ var KeyHandler = {
           });
           PORT('callFind', {
             command: 'search',
-            params: [Command.modeIdentifier.textContent, Command.modeIdentifier.textContent === '?', false]
+            params: [Command.modeIdentifier.textContent, +(Command.modeIdentifier.textContent === '?'), false]
           });
           PORT('updateLastSearch', {value: Command.input.value});
         }
