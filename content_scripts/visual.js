@@ -34,9 +34,8 @@ Visual.exit = function() {
 
 Visual.focusSearchResult = function(lineMode) {
   var node = Find.getSelectedTextNode();
-  if (node.data.length === 0) {
+  if (!node || node.data.length === 0)
     return false;
-  }
   this.selection = document.getSelection();
   this.selection.setPosition(node, 0);
   if (lineMode) {
