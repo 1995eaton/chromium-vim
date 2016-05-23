@@ -1,15 +1,17 @@
 var Find = {
   highlights: [],
-  matches: [],
-  index: 0,
-  tries: 0
+  matches:    [],
+  index:      0,
+  tries:      0,
+  mode:       '/',
 };
 
 Find.setIndex = function() {
+  this.index = 0;
   for (var i = 0; i < this.matches.length; i++) {
     var br = this.matches[i].getBoundingClientRect();
     if (br.top > 0 && br.left > 0) {
-      this.index = i - 1;
+      this.index = i;
       HUD.display(this.index + 1 + ' / ' + this.matches.length);
       break;
     }
@@ -37,17 +39,27 @@ Find.getCurrentMatch = function() {
   return this.matches[this.index] || null;
 };
 
-Find.search = function(reverse, repeats, ignoreFocus) {
-  var activeHighlight = settings.activehighlight;
-  if (Find.swap) {
+Find.search = function(mode, repeats, ignoreFocus) {
+  if (this.matches.length === 0)
+    return;
+  mode = mode || '/';
+
+  var reverse = repeats < 0;
+  if (reverse)
+    repeats = Math.abs(repeats);
+  if (mode === '?')
     reverse = !reverse;
-  }
-  if (!this.matches.length) {
+
+  var activeHighlight = settings.activehighlight;
+
+  if (!this.matches.length)
     return HUD.display('No matches', 1);
-  }
-  if (this.index >= 0) {
+
+  if (this.index >= this.matches.length)
+    this.index = 0;
+  if (this.index >= 0)
     this.matches[this.index].style.backgroundColor = settings.highlight;
-  }
+
   if (reverse && repeats === 1 && this.index === 0) {
     this.index = this.matches.length - 1;
   } else if (!reverse && repeats === 1 &&
@@ -63,10 +75,7 @@ Find.search = function(reverse, repeats, ignoreFocus) {
     if (this.tries > this.matches.length) {
       return;
     }
-    if (this.swap) {
-      return this.search(!reverse, 1);
-    }
-    return this.search(reverse, 1);
+    return this.search(mode, 1);
   } else {
     this.tries = 0;
   }
@@ -104,7 +113,7 @@ Find.highlight = function(params) {
   // params => {}
   //   base           -> node to search in
   //   search         -> text to look for
-  //   reverse        -> reverse search
+  //   mode           -> find mode
   //   setIndex       -> find the first match within the viewport
   //   executesearch  -> run Find.search after highlighting
   //   saveSearch     -> add search to search history
@@ -120,6 +129,7 @@ Find.highlight = function(params) {
   markBase.style.backgroundColor = settings.highlight;
   markBase.className = 'cVim-find-mark';
 
+  this.mode = params.mode || '/';
   if (params.saveSearch)
     this.lastSearch = params.search;
 
@@ -132,8 +142,7 @@ Find.highlight = function(params) {
   }
 
   if (useRegex) {
-    if (search.charAt(0) === '?') {
-      search = search.slice(1);
+    if (params.mode === '$') {
       linksOnly = true;
     }
     try {
@@ -168,7 +177,10 @@ Find.highlight = function(params) {
     if (!node.data.trim())
       return NodeFilter.FILTER_REJECT;
     Hints.type = '';
-    if (!Hints.acceptHint(node.parentNode)) {
+    if (!node.parentNode)
+      return NodeFilter.FILTER_REJECT;
+    if (node.parentNode.nodeType !== Node.ELEMENT_NODE ||
+        node.parentNode.localName !== 'a') {
       return NodeFilter.FILTER_REJECT;
     }
     return DOM.isVisible(node.parentNode) ?
@@ -222,7 +234,7 @@ Find.highlight = function(params) {
   if (params.setIndex)
     this.setIndex();
   if (params.executeSearch)
-    this.search(params.reverse, 1);
+    this.search(params.mode, 1);
 };
 
 Find.clear = function() {

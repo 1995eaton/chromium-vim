@@ -772,26 +772,23 @@ var KeyHandler = {
             command: 'highlight',
             params: [{
               base: null,
+              mode: Command.modeIdentifier.textContent,
               search: Command.input.value,
               setIndex: true,
               executeSearch: false,
-              reverse: key === '<C-Enter>',
               saveSearch: true
             }]
           });
+          PORT('callFind', {
+            command: 'setIndex',
+            params: []
+          });
+          PORT('callFind', {
+            command: 'search',
+            params: [Command.modeIdentifier.textContent, Command.modeIdentifier.textContent === '?', false]
+          });
+          PORT('updateLastSearch', {value: Command.input.value});
         }
-        PORT('setFindIndex', {
-          index: Command.modeIdentifier.textContent === '/' ? -1 : 1
-        });
-        PORT('callFind', {
-          command: 'setIndex',
-          params: []
-        });
-        PORT('callFind', {
-          command: 'search',
-          params: [Command.modeIdentifier.textContent === '?', 1, false]
-        });
-        PORT('updateLastSearch', {value: Command.input.value});
         Command.hide();
         break;
       default:
@@ -813,8 +810,7 @@ var KeyHandler = {
             if (settings.incsearch) {
               PORT('doIncSearch', {
                 search: Command.input.value,
-                index: Command.modeIdentifier.textContent === '/' ?
-                  -1 : 1
+                mode: Command.modeIdentifier.textContent,
               });
             }
           }

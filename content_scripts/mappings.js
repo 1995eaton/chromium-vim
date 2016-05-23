@@ -497,11 +497,12 @@ Mappings.actions = {
   },
   nextSearchResult: function(repeats) {
     if (Find.matches.length) {
-      Find.search(false, repeats);
+      Find.search(Find.mode || '/', repeats);
     } else if (Find.lastSearch !== void 0 &&
                typeof Find.lastSearch === 'string') {
       Find.highlight({
         base: document.body,
+        mode: Find.mode || '/',
         search: Find.lastSearch,
         setIndex: true,
         executeSearch: true
@@ -510,15 +511,15 @@ Mappings.actions = {
   },
   previousSearchResult: function(repeats) {
     if (Find.matches.length) {
-      Find.search(true, repeats);
+      Find.search(Find.mode || '?', -repeats);
     } else if (Find.lastSearch !== void 0 &&
                typeof Find.lastSearch === 'string') {
       Find.highlight({
         base: document.body,
+        mode: Find.mode || '?',
         search: Find.lastSearch,
         setIndex: true,
         executeSearch: true,
-        reverse: true
       });
     }
   },
@@ -606,7 +607,6 @@ Mappings.actions = {
     }
     commandMode = true;
     Find.previousMatches = Find.matches.length > 0;
-    Find.swap = false;
     return Command.show('/');
   },
   openSearchBarReverse: function() {
@@ -616,7 +616,6 @@ Mappings.actions = {
       Command.lastScrollTop = document.scrollingElement.scrollTop;
     }
     Find.previousMatches = Find.matches.length > 0;
-    Find.swap = true;
     return Command.show('?');
   },
   openLinkSearchBar: function() {
@@ -626,8 +625,7 @@ Mappings.actions = {
     }
     commandMode = true;
     Find.previousMatches = Find.matches.length > 0;
-    Find.swap = false;
-    return Command.show('/', '?');
+    return Command.show('$');
   },
   openCommandBar: function() {
     commandMode = true;

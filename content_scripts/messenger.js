@@ -275,11 +275,11 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
     Find.clear();
     Find.highlight({
       base: document.body,
+      mode: request.mode,
       search: request.search
     });
-    Find.index = request.index;
     Find.setIndex();
-    Find.search(request.index === 1, 1, true);
+    Find.search(request.mode, request.mode === '?' ? 1 : 0, true);
     break;
   case 'cancelIncSearch':
     if (Command.lastScrollTop !== void 0)
@@ -298,7 +298,7 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
         saveSearch: true
       });
       Find.index = Find.lastIndex - 1;
-      Find.search(false, 1, false);
+      Find.search('/', 1, false);
     } else {
       Find.clear();
       HUD.hide();
