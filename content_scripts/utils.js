@@ -198,12 +198,6 @@ var waitForLoad = function(callback, constructor) {
   }, 5);
 };
 
-var decodeHTMLEntities = function(string) {
-  var el = document.createElement('div');
-  el.innerHTML = string;
-  return el.textContent;
-};
-
 var eachUntil = function(array, callback) {
   for (var i = 0; i < array.length; i++) {
     if (callback(array[i], i, array)) {

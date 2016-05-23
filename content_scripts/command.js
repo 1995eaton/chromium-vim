@@ -217,10 +217,10 @@ Command.updateCompletions = function(useStyles) {
     if (this.completionResults[i].length >= 3) {
       var left = document.createElement('span');
       left.className = 'cVim-left';
-      left.textContent = decodeHTMLEntities(this.completionResults[i][1]);
+      left.textContent = this.completionResults[i][1];
       var right = document.createElement('span');
       right.className = 'cVim-right';
-      right.textContent = decodeHTMLEntities(this.completionResults[i][2]);
+      right.textContent = this.completionResults[i][2];
       if (identifier) {
         left.style.paddingLeft = '4px';
         left.insertBefore(identifier, left.firstChild);
@@ -230,7 +230,7 @@ Command.updateCompletions = function(useStyles) {
     } else {
       var full = document.createElement('span');
       full.className = 'cVim-full';
-      full.textContent = decodeHTMLEntities(this.completionResults[i][1]);
+      full.textContent = this.completionResults[i][1];
       item.appendChild(full);
     }
     this.dataElements.push(item);
