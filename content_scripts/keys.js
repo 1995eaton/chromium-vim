@@ -2,9 +2,11 @@ var insertMode, commandMode, settings;
 
 var KeyListener;
 
+var HAS_EVENT_KEY_SUPPORT = KeyboardEvent.prototype.hasOwnProperty('key');
+
 // Use when KeyboardEvent.prototype.key becomes standard in most
 // versions of Chrome (52+)
-if (KeyboardEvent.prototype.hasOwnProperty('key')) {
+if (HAS_EVENT_KEY_SUPPORT) {
   KeyListener = function(onKeyDown, onKeyUp) {
     this.eventCallbacks = {keydown: [], keyup: []};
     this.addListener('keydown', onKeyDown);
@@ -322,7 +324,7 @@ if (KeyboardEvent.prototype.hasOwnProperty('key')) {
         event.metaKey  ? 'M' : '',
         event.shiftKey ? 'S' : ''
       ].join('').split('');
-      var identifier = KeyboardEvent.prototype.hasOwnProperty('key') ?
+      var identifier = HAS_EVENT_KEY_SUPPORT ?
         event.key : event.keyIdentifier; // Prepare for deprecation of KeyboardEvent.prototype.keyIdentifier
                                          // https://www.chromestatus.com/features/5316065118650368
       if (codeMap.hasOwnProperty(event.which.toString())) {
@@ -615,6 +617,24 @@ if (KeyboardEvent.prototype.hasOwnProperty('key')) {
 
 var KeyHandler = {
   down: function(key, event) {
+    if (HAS_EVENT_KEY_SUPPORT) {
+      if (Hints.active) {
+        event.preventDefault();
+        if (event.which === 18) {
+          Hints.changeFocus();
+          return;
+        }
+      }
+
+      if (Visual.visualModeActive || Visual.caretModeActive)
+        event.preventDefault();
+
+      if (Mappings.keyPassesLeft) {
+        Mappings.keyPassesLeft--;
+        return true;
+      }
+    }
+
     if (['Control', 'Alt', 'Meta', 'Shift'].indexOf(key) !== -1)
       return false;
 
@@ -842,7 +862,7 @@ var KeyHandler = {
   }
 };
 
-if (!KeyboardEvent.prototype.hasOwnProperty('key')) {
+if (!HAS_EVENT_KEY_SUPPORT) {
   KeyHandler.listener = new KeyListener(KeyHandler.down);
   (function() {
     var oldKeyUpHandler = KeyHandler.up;
