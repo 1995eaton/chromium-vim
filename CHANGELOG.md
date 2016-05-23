@@ -1,5 +1,8 @@
 # cVim Changelog
 
+## 1.2.85
+ * Bug fixes
+
 ## 1.2.84
  * Bug fixes
 
