@@ -153,3 +153,5 @@ port.onMessage.addListener(function(response) {
     });
   }
 });
+
+PORT('getSettings');
