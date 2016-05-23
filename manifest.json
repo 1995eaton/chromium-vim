@@ -69,7 +69,7 @@
     "persistant": false,
     "scripts": [
       "content_scripts/utils.js",
-      "cvimrc_parser/parser.js",
+      "content_scripts/cvimrc_parser.js",
       "background_scripts/clipboard.js",
       "background_scripts/bookmarks.js",
       "background_scripts/sites.js",
@@ -89,7 +89,7 @@
     {
       "matches": ["<all_urls>"],
       "js": [
-        "cvimrc_parser/parser.js",
+        "content_scripts/cvimrc_parser.js",
         "content_scripts/session.js",
         "content_scripts/utils.js",
         "content_scripts/dom.js",

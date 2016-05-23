@@ -1,65 +1,65 @@
 <html>
-<head>
-<style>
+    <head>
+        <style>
 body {
-  font-family: Helvetica, Helvetica Neue, Neue, Sans, Arial;
-  font-size: 12px;
-  min-width: 180px;
-  min-height: 56px;
-  overflow: hidden;
+    font-family: Helvetica, Helvetica Neue, Neue, Sans, Arial;
+    font-size: 12px;
+    min-width: 180px;
+    min-height: 56px;
+    overflow: hidden;
 }
 
 a {
-  color: #000;
-  outline-style: none;
-  display: inline-block;
-  vertical-align: middle;
+    color: #000;
+    outline-style: none;
+    display: inline-block;
+    vertical-align: middle;
 }
 #blacklist, #pause {
-  box-sizing: border-box;
-  padding: 5px;
-  width: 100%;
-  position: absolute;
-  height: 24px;
-  left: 0;
-  transition: color 0.1s, background-color 0.1s;
-  display: inline-block;
-  line-height: 14px;
+    box-sizing: border-box;
+    padding: 5px;
+    width: 100%;
+    position: absolute;
+    height: 24px;
+    left: 0;
+    transition: color 0.1s, background-color 0.1s;
+    display: inline-block;
+    line-height: 14px;
 }
 #pause {
-  bottom: 48px;
+    bottom: 48px;
 }
 #blacklist {
-  bottom: 24px;
+    bottom: 24px;
 }
 #settings {
-  color: darkcyan;
-  box-sizing: border-box;
-  padding: 5px;
-  width: 100%;
-  position: absolute;
-  height: 24px;
-  left: 0;
-  bottom: 0;
-  transition: color 0.1s, background-color 0.1s;
-  text-align: center;
-  display: inline-block;
-  line-height: 14px;
+    color: darkcyan;
+    box-sizing: border-box;
+    padding: 5px;
+    width: 100%;
+    position: absolute;
+    height: 24px;
+    left: 0;
+    bottom: 0;
+    transition: color 0.1s, background-color 0.1s;
+    text-align: center;
+    display: inline-block;
+    line-height: 14px;
 }
 #pause:hover, #blacklist:hover {
-  background-color: #333;
-  color: #eee;
+    background-color: #333;
+    color: #eee;
 }
 #settings:hover {
-  background-color: darkcyan;
-  color: #fff;
+    background-color: darkcyan;
+    color: #fff;
 }
-</style>
-</head>
-<body>
-<a href="#"><div id="pause">Disable cVim</div></a>
-<a href="#"><div id="blacklist">Disable cVim on this domain</div></a>
-<a href="#"><div id="settings">Settings</div></a>
-</body>
-<script src="popup.js"></script>
+        </style>
+    </head>
+    <body>
+        <a href="#"><div id="pause">Disable cVim</div></a>
+        <a href="#"><div id="blacklist">Disable cVim on this domain</div></a>
+        <a href="#"><div id="settings">Settings</div></a>
+    </body>
+    <script src="popup.js"></script>
 </html>

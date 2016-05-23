@@ -1,72 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>cVim Options</title>
-  <link rel="stylesheet" href="options.css">
-  <link rel="stylesheet" href="../content_scripts/main.css">
-  <link rel="stylesheet" href="codemirror/codemirror.css">
-  <script src="../cvimrc_parser/parser.js"></script>
-  <script src="../content_scripts/session.js"></script>
-  <script src="../content_scripts/utils.js"></script>
-  <script src="../content_scripts/dom.js"></script>
-  <script src="../content_scripts/hints.js"></script>
-  <script src="../content_scripts/bookmarks.js"></script>
-  <script src="../content_scripts/keys.js"></script>
-  <script src="../content_scripts/clipboard.js"></script>
-  <script src="../content_scripts/complete.js"></script>
-  <script src="../content_scripts/mappings.js"></script>
-  <script src="../content_scripts/find.js"></script>
-  <script src="../content_scripts/cursor.js"></script>
-  <script src="../content_scripts/status.js"></script>
-  <script src="../content_scripts/hud.js"></script>
-  <script src="../content_scripts/visual.js"></script>
-  <script src="../content_scripts/command.js"></script>
-  <script src="../content_scripts/scroll.js"></script>
-  <script src="../content_scripts/search.js"></script>
-  <script src="../content_scripts/frames.js"></script>
-  <script src="../content_scripts/messenger.js"></script>
-  <script src="codemirror/codemirror.js"></script>
-  <script src="codemirror/css.js"></script>
-  <script src="codemirror/vim.js"></script>
-  <script src="options.js"></script>
-</head>
-<body>
-<div id="container_main">
-  <div id="container_title">
-    <span>cVim <span id="version-number"></span> Options &ndash;
-      <a href="mappings.html" target="_blank">Help</a> &ndash;
-      <a href="./changelog.html" target="_blank">Changelog</a>
-    </span>
-    <div id="save_container">
-      <input id="save_button" value="Save" type="button">
-      <input id="reset_button" value="Reset" type="button">
-    </div>
-  </div>
-  <div id="settings">
-    <table>
-      <tr>
-        <td class="options-left">Clear the command bar history</td>
-        <td class="options-right"><input id="clearHistory" value="Clear" type="button"></td>
-      </tr>
-      <tr>
-        <td class="options-left">Sync cVimrc with GitHub Gist</td>
-        <td class="options-right"><input id="gistUrl" type="text" placeholder="https://gist.github.com/1995eaton/9e68803bf1f1e7524340"><input id="gistSync" value="Sync" type="button"></td>
-      </tr>
-      <tr>
-        <td class="options-left">
-          cVimrc <a href="mappings.html#cvimrc" target="_blank" class="mapping-help" style="font-size: 10pt; font-weight: bold">?</a>
-        </td>
-        <td class="options-right"><textarea id="mappings"></textarea></td>
-      </tr>
-      <tr>
-        <td class="options-left">CSS
-          <select id="edit_mode"><option disabled>Mode</option><option>Normal</option><option>Vim</option></select>
-        </td>
-        <td class="options-right"><textarea id="commandBarCSS" name="css"></textarea></td>
-      </tr>
-    </table>
-  </div>
-</div>
-</body>
+    <head>
+        <meta charset="UTF-8">
+        <title>cVim Options</title>
+        <link rel="stylesheet" href="options.css">
+        <link rel="stylesheet" href="../content_scripts/main.css">
+        <link rel="stylesheet" href="codemirror/codemirror.css">
+        <script src="../content_scripts/cvimrc_parser.js"></script>
+        <script src="../content_scripts/session.js"></script>
+        <script src="../content_scripts/utils.js"></script>
+        <script src="../content_scripts/dom.js"></script>
+        <script src="../content_scripts/hints.js"></script>
+        <script src="../content_scripts/bookmarks.js"></script>
+        <script src="../content_scripts/keys.js"></script>
+        <script src="../content_scripts/clipboard.js"></script>
+        <script src="../content_scripts/complete.js"></script>
+        <script src="../content_scripts/mappings.js"></script>
+        <script src="../content_scripts/find.js"></script>
+        <script src="../content_scripts/cursor.js"></script>
+        <script src="../content_scripts/status.js"></script>
+        <script src="../content_scripts/hud.js"></script>
+        <script src="../content_scripts/visual.js"></script>
+        <script src="../content_scripts/command.js"></script>
+        <script src="../content_scripts/scroll.js"></script>
+        <script src="../content_scripts/search.js"></script>
+        <script src="../content_scripts/frames.js"></script>
+        <script src="../content_scripts/messenger.js"></script>
+        <script src="codemirror/codemirror.js"></script>
+        <script src="codemirror/css.js"></script>
+        <script src="codemirror/vim.js"></script>
+        <script src="options.js"></script>
+    </head>
+    <body>
+        <div id="container_main">
+            <div id="container_title">
+                <span>cVim <span id="version-number"></span> Options &ndash;
+                    <a href="mappings.html" target="_blank">Help</a> &ndash;
+                    <a href="./changelog.html" target="_blank">Changelog</a>
+                </span>
+                <div id="save_container">
+                    <input id="save_button" value="Save" type="button">
+                    <input id="reset_button" value="Reset" type="button">
+                </div>
+            </div>
+            <div id="settings">
+                <table>
+                    <tr>
+                        <td class="options-left">Clear the command bar history</td>
+                        <td class="options-right">
+                            <input id="clearHistory" value="Clear" type="button">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="options-left">Sync cVimrc with GitHub Gist</td>
+                        <td class="options-right">
+                            <input id="gistUrl" type="text" placeholder="https://gist.github.com/1995eaton/9e68803bf1f1e7524340">
+                            <input id="gistSync" value="Sync" type="button">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="options-left">
+                            cVimrc <a href="mappings.html#cvimrc" target="_blank" class="mapping-help" style="font-size: 10pt; font-weight: bold">?</a>
+                        </td>
+                        <td class="options-right">
+                            <textarea id="mappings"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="options-left">CSS
+                            <select id="edit_mode">
+                                <option disabled>Mode</option>
+                                <option>Normal</option>
+                                <option>Vim</option>
+                            </select>
+                        </td>
+                        <td class="options-right">
+                            <textarea id="commandBarCSS" name="css"></textarea>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </body>
 </html>
