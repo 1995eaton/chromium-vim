@@ -4,6 +4,23 @@ Actions = (function() {
 
   var lastCommand = null;
 
+  var openTab = function(options, times) {
+    var i;
+    if (times === undefined) {
+      times = 1;
+    }
+    var doOpen = function() {
+      for (i = 0; i < times; ++i) {
+        chrome.tabs.create(options);
+      }
+    };
+    if (options.hasOwnProperty('active') && !options.active) {
+      doOpen();
+    } else {
+      setTimeout(doOpen, 80);
+    }
+  };
+
   var _ = {};
 
   _.updateLastCommand = function(o) {
@@ -39,14 +56,12 @@ Actions = (function() {
         });
       }
     } else if (o.request.tab.tabbed) {
-      for (i = 0; i < o.request.repeats; ++i) {
-        chrome.tabs.create({
-          url: o.url,
-          active: o.request.tab.active,
-          pinned: o.request.tab.pinned,
-          index: getTabOrderIndex(o.sender.tab)
-        });
-      }
+      openTab({
+        url: o.url,
+        active: o.request.tab.active,
+        pinned: o.request.tab.pinned,
+        index: getTabOrderIndex(o.sender.tab)
+      }, o.request.repeats);
     } else {
       chrome.tabs.update({
         url: o.url,
@@ -58,24 +73,20 @@ Actions = (function() {
   _.openLinkTab = function(o) {
     if (!o.sender.tab) {
       chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
-        for (var i = 0; i < o.request.repeats; ++i) {
-          chrome.tabs.create({
-            url: o.url,
-            active: o.request.active,
-            pinned: o.request.pinned,
-            index: getTabOrderIndex(tab[0])
-          });
-        }
-      });
-    } else {
-      for (var i = 0; i < o.request.repeats; ++i) {
-        chrome.tabs.create({
+        openTab({
           url: o.url,
           active: o.request.active,
           pinned: o.request.pinned,
-          index: getTabOrderIndex(o.sender.tab)
-        });
-      }
+          index: getTabOrderIndex(tab[0])
+        }, o.request.repeats);
+      });
+    } else {
+      openTab({
+        url: o.url,
+        active: o.request.active,
+        pinned: o.request.pinned,
+        index: getTabOrderIndex(o.sender.tab)
+      }, o.request.repeats);
     }
   };
 
@@ -278,7 +289,7 @@ Actions = (function() {
     }
     var hist = TabHistory[o.sender.tab.id];
     if (hist.links[hist.state - o.request.repeats] !== void 0) {
-      chrome.tabs.create({url: hist.links[hist.state - o.request.repeats]});
+      openTab({url: hist.links[hist.state - o.request.repeats]});
     }
   };
 
@@ -288,7 +299,7 @@ Actions = (function() {
     }
     var hist = TabHistory[o.sender.tab.id];
     if (hist.links[hist.state + o.request.repeats] !== void 0) {
-      chrome.tabs.create({url: hist.links[hist.state + o.request.repeats]});
+      openTab({url: hist.links[hist.state + o.request.repeats]});
     }
   };
 
@@ -392,17 +403,18 @@ Actions = (function() {
     paste = paste.split('\n').filter(function(e) { return e.trim(); });
     if (paste.length && paste[0].convertLink() !== paste[0]) {
       paste = paste.join('\n');
-      return chrome.tabs.create({
+      openTab({
         url: paste.convertLink(),
         index: getTabOrderIndex(o.sender.tab)
       });
-    }
-    for (var i = 0; i < o.request.repeats; ++i) {
-      for (var j = 0, l = paste.length; j < l; ++j) {
-        chrome.tabs.create({
-          url: paste[j].convertLink(),
-          index: getTabOrderIndex(o.sender.tab)
-        });
+    } else {
+      for (var i = 0; i < o.request.repeats; ++i) {
+        for (var j = 0, l = paste.length; j < l; ++j) {
+          openTab({
+            url: paste[j].convertLink(),
+            index: getTabOrderIndex(o.sender.tab)
+          });
+        }
       }
     }
   };
@@ -467,7 +479,7 @@ Actions = (function() {
             {url: tabs[0].url, pinned: tabs[0].pinned}
           );
           tabs.slice(1).forEach(function(tab) {
-            chrome.tabs.create({
+            openTab({
               url: tab.url,
               pinned: tab.pinned,
               windowId: tabInfo.tabs[0].windowId,
@@ -479,7 +491,7 @@ Actions = (function() {
         chrome.tabs.query({currentWindow: true}, function(tabInfo) {
           var windowLength = tabInfo.length;
           tabs.forEach(function(tab) {
-            chrome.tabs.create({
+            openTab({
               url: tab.url,
               pinned: tab.pinned,
               active: false,
