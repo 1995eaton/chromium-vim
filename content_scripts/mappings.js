@@ -1073,6 +1073,10 @@ Mappings.convertToAction = function(key) {
   })();
 
   if (mapVal) {
+    if (/^\d+\D/.test(mapVal)) {
+      this.repeats = +mapVal.replace(/\D.*/g, '') || 1;
+      mapVal = mapVal.replace(/^\d+/, '');
+    }
     for (var mapLinks = [mapVal];
          !this.actions[mapVal] && mapVal.charAt(0) !== ':';
          mapLinks.push(mapVal)) {
