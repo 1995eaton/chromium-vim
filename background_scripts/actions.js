@@ -5,20 +5,15 @@ Actions = (function() {
   var lastCommand = null;
 
   var openTab = function(options, times) {
-    var i;
-    if (times === undefined) {
-      times = 1;
-    }
+    times = +times || 1;
     var doOpen = function() {
-      for (i = 0; i < times; ++i) {
+      for (var i = 0; i < times; ++i)
         chrome.tabs.create(options);
-      }
     };
-    if (options.hasOwnProperty('active') && !options.active) {
-      doOpen();
-    } else {
+    if (options.active)
       setTimeout(doOpen, 80);
-    }
+    else
+      doOpen();
   };
 
   var _ = {};
