@@ -194,9 +194,7 @@ Hints.dispatchAction = function(link, shift) {
       window.setTimeout(function() { DOM.mouseEvent('click', link); }, 0);
       break;
     }
-    if (link.getAttribute('target') !== '_top' &&
-        (/tabbed/.test(this.type) || this.type === 'multi') &&
-        link.href) {
+    if ((/tabbed/.test(this.type) || this.type === 'multi') && link.href) {
       RUNTIME('openLinkTab', {
         active: this.type === 'tabbedActive',
         url: link.href, noconvert: true
