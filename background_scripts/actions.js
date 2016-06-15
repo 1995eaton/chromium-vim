@@ -4,7 +4,20 @@ Actions = (function() {
 
   var lastCommand = null;
 
+  var queryStringify = function(obj) {
+    var str = [];
+    for(var p in obj)
+      if (obj.hasOwnProperty(p)) {
+        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+      }
+    return str.join("&");
+  }
+
   var openTab = function(options, times) {
+    if(options.url !== '../pages/blank.html') {
+      var queryString = queryStringify({url: options.url});
+      options.url = '../pages/blank.html?' + queryString;
+    }
     times = +times || 1;
     var doOpen = function() {
       for (var i = 0; i < times; ++i)
