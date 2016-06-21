@@ -12,13 +12,15 @@ Settings.loadrc = function(config) {
 };
 
 Settings.resetSettings = function() {
-  RUNTIME('getDefaults', function(defaults) {
-    this.rcEl.value = defaults.RC;
-    this.cssEl.setValue(defaults.COMMANDBARCSS);
-    this.gistUrl.value = defaults.GISTURL;
-    delete this.settings;
-    this.settings = Object.clone(defaults);
-  }.bind(this));
+  if (confirm('Reset all configuration and CSS settings to their default values?')) {
+    RUNTIME('getDefaults', function(defaults) {
+      this.rcEl.value = defaults.RC;
+      this.cssEl.setValue(defaults.COMMANDBARCSS);
+      this.gistUrl.value = defaults.GISTURL;
+      delete this.settings;
+      this.settings = Object.clone(defaults);
+    }.bind(this));
+  }
 };
 
 Settings.saveSettings = function() {
