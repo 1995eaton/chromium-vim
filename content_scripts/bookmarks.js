@@ -57,33 +57,22 @@ Marks = (function() {
     RUNTIME('updateMarks', {marks: quickMarks});
   };
 
-  _.openQuickMark = function(ch, tabbed, repeats) {
+  _.openQuickMark = function(ch, opts, repeats) {
     if (!quickMarks.hasOwnProperty(ch)) {
       return Status.setMessage('mark not set', 1, 'error');
     }
-    if (tabbed) {
-      if (repeats !== 1) {
-        if (quickMarks[ch][repeats - 1]) {
-          RUNTIME('openLinkTab', {url: quickMarks[ch][repeats - 1]});
-        } else {
-          RUNTIME('openLinkTab', {url: quickMarks[ch][0]});
-        }
-      } else {
-        for (var i = 0, l = quickMarks[ch].length; i < l; ++i) {
-          RUNTIME('openLinkTab', {url: quickMarks[ch][i]});
-        }
-      }
-    } else {
+    if (repeats !== 1 || !opts.tab.tabbed) {
       if (quickMarks[ch][repeats - 1]) {
-        RUNTIME('openLink', {
-          tab: { pinned: false },
-          url: quickMarks[ch][repeats - 1]
-        });
+        opts.url = quickMarks[ch][repeats - 1];
+        RUNTIME('openLink', opts);
       } else {
-        RUNTIME('openLink', {
-          tab: { pinned: false },
-          url: quickMarks[ch][0]
-        });
+        opts.url = quickMarks[ch][0];
+        RUNTIME('openLink', opts);
+      }
+    } else if (opts.tab.tabbed) {
+      for (var i = 0, l = quickMarks[ch].length; i < l; ++i) {
+        opts.url = quickMarks[ch][i];
+        RUNTIME('openLink', opts);
       }
     }
   };

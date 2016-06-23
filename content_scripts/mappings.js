@@ -472,10 +472,23 @@ Mappings.actions = {
     Marks.addQuickMark(Mappings.lastCommand.queue.slice(-1));
   },
   openQuickMark: function(repeats) {
-    Marks.openQuickMark(Mappings.lastCommand.queue.slice(-1), false, repeats);
+    Marks.openQuickMark(Mappings.lastCommand.queue.slice(-1), {
+      tab: {},
+    }, repeats);
   },
   openQuickMarkTabbed: function(repeats) {
-    Marks.openQuickMark(Mappings.lastCommand.queue.slice(-1), true, repeats);
+    Marks.openQuickMark(Mappings.lastCommand.queue.slice(-1), {
+      tab: {
+        tabbed: true
+      }
+    }, repeats);
+  },
+  openQuickMarkWindowed: function(repeats) {
+    Marks.openQuickMark(Mappings.lastCommand.queue.slice(-1), {
+      tab: {
+        newWindow: true
+      }
+    }, repeats);
   },
   insertMode: function() {
     Command.callOnCvimLoad(function() {
