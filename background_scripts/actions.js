@@ -170,6 +170,27 @@ Actions = (function() {
     Options.sendSettings();
   };
 
+  _.openLinksWindow = function(o) {
+    var urls = o.request.urls;
+    if (!o.request.noconvert) {
+      urls = urls.map(function(e) { return e.convertLink(); });
+    }
+    for (var i = 0; i < o.request.repeats; i++) {
+      chrome.windows.create({
+        url: urls[0],
+        focused: o.request.focused,
+        incognito: o.request.incognito
+      }, function(win) {
+        for (var i = 1; i < urls.length; i++) {
+          chrome.tabs.create({
+            url: urls[i],
+            windowId: win.id
+          });
+        }
+      });
+    }
+  };
+
   _.openLinkWindow = function(o) {
     for (var i = 0; i < o.request.repeats; ++i) {
       chrome.windows.create({

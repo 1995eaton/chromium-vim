@@ -68,6 +68,7 @@ Mappings.defaults = [
   ['A',         'openLastHint'],
   ['go*',       'openQuickMark'],
   ['gn*',       'openQuickMarkTabbed'],
+  ['gw*',       'openQuickMarkWindowed'],
   ['gq',        'cancelWebRequest'],
   ['<C-S-h>',   'openLastLinkInTab'],
   ['gh',        'openLastLinkInTab'],
@@ -478,16 +479,12 @@ Mappings.actions = {
   },
   openQuickMarkTabbed: function(repeats) {
     Marks.openQuickMark(Mappings.lastCommand.queue.slice(-1), {
-      tab: {
-        tabbed: true
-      }
+      tab: {tabbed: true}
     }, repeats);
   },
   openQuickMarkWindowed: function(repeats) {
     Marks.openQuickMark(Mappings.lastCommand.queue.slice(-1), {
-      tab: {
-        newWindow: true
-      }
+      tab: {newWindow: true}
     }, repeats);
   },
   insertMode: function() {

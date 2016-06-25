@@ -61,7 +61,7 @@ Marks = (function() {
     if (!quickMarks.hasOwnProperty(ch)) {
       return Status.setMessage('mark not set', 1, 'error');
     }
-    if (repeats !== 1 || !opts.tab.tabbed) {
+    if (repeats !== 1 || (!opts.tab.tabbed && !opts.tab.newWindow)) {
       if (quickMarks[ch][repeats - 1]) {
         opts.url = quickMarks[ch][repeats - 1];
         RUNTIME('openLink', opts);
@@ -74,6 +74,10 @@ Marks = (function() {
         opts.url = quickMarks[ch][i];
         RUNTIME('openLink', opts);
       }
+    } else if (opts.tab.newWindow) {
+      RUNTIME('openLinksWindow', {
+        urls: quickMarks[ch]
+      });
     }
   };
 

@@ -345,7 +345,8 @@ let completionengines = ['google', 'google-image', 'youtube'] " Show only these 
 | **QuickMarks**            |                                                                       |                                 |
 | `M<*>`                    | create quickmark &lt;*&gt;                                            | addQuickMark                    |
 | `go<*>`                   | open quickmark &lt;*&gt; in the current tab                           | openQuickMark                   |
-| `gn<*>`                   | open quickmark &lt;*&gt; in a new tab &lt;N&gt; times                 | openQuickMarkTabbed             |
+| `gn<*>`                   | open quickmark &lt;*&gt; in a new tab                                 | openQuickMarkTabbed             |
+| `gw<*>`                   | open quickmark &lt;*&gt; in a new window                              | openQuickMarkWindowed           |
 | **Miscellaneous**         |                                                                       |                                 |
 | `a`                       | alias to ":tabnew google "                                            | :tabnew google                  |
 | `.`                       | repeat the last command                                               | repeatCommand                   |
