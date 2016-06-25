@@ -417,17 +417,17 @@ Actions = (function() {
       return;
     }
     paste = paste.split('\n').filter(function(e) { return e.trim(); });
-    if (paste.length && paste[0].convertLink() !== paste[0]) {
+    if (paste.length && paste[0].convertLink(o.request.engineUrl) !== paste[0]) {
       paste = paste.join('\n');
       openTab({
-        url: paste.convertLink(),
+        url: paste.convertLink(o.request.engineUrl),
         index: getTabOrderIndex(o.sender.tab)
       });
     } else {
       for (var i = 0; i < o.request.repeats; ++i) {
         for (var j = 0, l = paste.length; j < l; ++j) {
           openTab({
-            url: paste[j].convertLink(),
+            url: paste[j].convertLink(o.request.engineUrl),
             index: getTabOrderIndex(o.sender.tab)
           });
         }
@@ -435,14 +435,14 @@ Actions = (function() {
     }
   };
 
-  _.openPaste = function() {
+  _.openPaste = function(o) {
     var paste = Clipboard.paste();
     if (!paste) {
       return;
     }
     paste = paste.split('\n')[0];
     chrome.tabs.update({
-      url: paste.convertLink()
+      url: paste.convertLink(o.request.engineUrl)
     });
   };
 

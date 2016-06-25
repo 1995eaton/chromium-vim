@@ -9,6 +9,11 @@ var Clipboard = {
     RUNTIME('copy', {text: this.store});
   },
   paste: function(tabbed) {
-    RUNTIME(tabbed ? 'openPasteTab' : 'openPaste');
+    var engineUrl = Complete.getEngine(settings.defaultengine);
+    engineUrl = engineUrl ? engineUrl.requestUrl :
+      Complete.getEngine('google').requestUrl;
+    RUNTIME(tabbed ? 'openPasteTab' : 'openPaste', {
+      engineUrl: engineUrl
+    });
   }
 };

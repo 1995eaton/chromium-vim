@@ -76,9 +76,7 @@ var Complete = {
 
     if (suffix.validURL())
       return suffix.convertLink();
-    return prefix.indexOf('%s') !== -1 ?
-      prefix.embedString(suffix) :
-      prefix + suffix;
+    return prefix.embedString(suffix);
   },
 
   setLocale: function(locale) {

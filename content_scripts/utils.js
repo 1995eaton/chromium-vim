@@ -136,14 +136,17 @@ definePrototype(String, 'validURL', (function() {
 })());
 
 definePrototype(String, 'embedString', function(string) {
+  if (this.indexOf('%s') === -1)
+    return this + string;
   return this.split('%s').join(string);
 });
 
-definePrototype(String, 'convertLink', function() {
+definePrototype(String, 'convertLink', function(engineUrl) {
   if (this.validURL()) {
     return (!/^[a-zA-Z\-]+:/.test(this) ? 'http://' : '') + this;
   }
-  return 'https://www.google.com/search?q=' + encodeURIComponent(this);
+  engineUrl = engineUrl || 'https://www.google.com/search?q=';
+  return engineUrl.embedString(encodeURIComponent(this));
 });
 
 var matchLocation = function(url, pattern) { // Uses @match syntax
