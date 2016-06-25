@@ -1,5 +1,8 @@
 # cVim Changelog
 
+## 1.2.86
+ * Add `openQuickMarkWindowed` command
+
 ## 1.2.85
  * Bug fixes
 
