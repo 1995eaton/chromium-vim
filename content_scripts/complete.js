@@ -20,21 +20,21 @@ var Complete = {
   locales: {
     uk: {
       tld: 'co.uk',
-      requestUrl: ['google'],
-      baseUrl: ['google'],
-      apiUrl: ['google']
+      requestUrl: ['google', 'youtube'],
+      baseUrl: ['google', 'youtube'],
+      apiUrl: ['google', 'youtube']
     },
     jp: {
       tld: 'co.jp',
-      requestUrl: ['google'],
-      baseUrl: ['google'],
-      apiUrl: ['google']
+      requestUrl: ['google', 'youtube'],
+      baseUrl: ['google', 'youtube'],
+      apiUrl: ['google', 'youtube']
     },
     aus: {
       tld: 'com.au',
-      requestUrl: ['google'],
-      baseUrl: ['google'],
-      apiUrl: ['google']
+      requestUrl: ['google', 'youtube'],
+      baseUrl: ['google', 'youtube'],
+      apiUrl: ['google', 'youtube']
     }
   },
 
