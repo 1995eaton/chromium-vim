@@ -1119,8 +1119,7 @@ Command.updateSettings = function(config) {
   }.bind(this));
   if (config.searchengines && config.searchengines.constructor === Object) {
     for (key in config.searchengines) {
-      if (!Complete.hasEngine(key) &&
-          typeof config.searchengines[key] === 'string') {
+      if (typeof config.searchengines[key] === 'string') {
         Complete.addEngine(key, config.searchengines[key]);
       }
     }
