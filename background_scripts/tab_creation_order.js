@@ -28,7 +28,7 @@ var getTabOrderIndex = (function() {
   });
 
   return function(tab) {
-    if (Settings.nativelinkorder && tabCreationOrder[tab.id]) {
+    if (settings.nativelinkorder && tabCreationOrder[tab.id]) {
       return tab.index + tabCreationOrder[tab.id].length + 1;
     }
     return tab.index + 1;

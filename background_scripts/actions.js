@@ -157,7 +157,7 @@ Actions = (function() {
   };
 
   _.syncSettings = function(o) {
-    if (o.request.settings.hud === false && Settings.hud === true) {
+    if (o.request.settings.hud === false && settings.hud === true) {
       chrome.tabs.query({}, function(tabs) {
         tabs.forEach(function(tab) {
           chrome.tabs.sendMessage(tab.id, {action: 'hideHud'});
@@ -165,7 +165,7 @@ Actions = (function() {
       });
     }
     for (var key in o.request.settings) {
-      Settings[key] = o.request.settings[key];
+      settings[key] = o.request.settings[key];
     }
     Options.sendSettings();
   };
@@ -590,11 +590,11 @@ Actions = (function() {
     };
 
     _.zoomIn = function(o) {
-      zoom(o, Settings.zoomfactor, null, o.request.repeats);
+      zoom(o, settings.zoomfactor, null, o.request.repeats);
     };
 
     _.zoomOut = function(o) {
-      zoom(o, -Settings.zoomfactor, null, o.request.repeats);
+      zoom(o, -settings.zoomfactor, null, o.request.repeats);
     };
 
     _.zoomOrig = function(o) { zoom(o, null, 1.0, 1); };
@@ -701,7 +701,7 @@ Actions = (function() {
         type: 'buffers',
         buffers: tabs.map(function(e, i) {
           var title = e.title;
-          if (Settings.showtabindices) {
+          if (settings.showtabindices) {
             title = title.replace(new RegExp('^' + (e.index + 1) + ' '), '');
           }
           return [(i + 1) + ': ' + title, e.url, e.id];
@@ -742,7 +742,7 @@ Actions = (function() {
     Options.refreshSettings(function() {
       o.callback({
         type: 'sendSettings',
-        settings: o.request.reset ? defaultSettings : Settings
+        settings: o.request.reset ? defaultSettings : settings
       });
     });
   };
@@ -772,14 +772,14 @@ Actions = (function() {
 
   _.editWithVim = function(o) {
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', 'http://127.0.0.1:' + Settings.vimport);
+    xhr.open('POST', 'http://127.0.0.1:' + settings.vimport);
     xhr.onreadystatechange = function() {
       if (xhr.readyState === 4 && xhr.status === 200) {
         o.callback({type: 'editWithVim', text: xhr.responseText});
       }
     };
     xhr.send(JSON.stringify({
-      command: Settings.vimcommand,
+      command: settings.vimcommand,
       data: '' + (o.request.text || '')
     }));
   };
@@ -865,8 +865,8 @@ Actions = (function() {
   };
 
   _.loadLocalConfig = function(o) {
-    var path = o.request.path || 'file://' + Settings.configpath
-      .split('~').join(Settings.homedirectory || '~');
+    var path = o.request.path || 'file://' + settings.configpath
+      .split('~').join(settings.homedirectory || '~');
     httpRequest({ url: path }).then(function(data) {
       var added = window.parseConfig(data);
       if (added.error) {
@@ -875,39 +875,39 @@ Actions = (function() {
         o.callback({
           code: -2,
           error: added.error,
-          config: Settings
+          config: settings
         });
         return;
       }
       added = added.value;
       added.localconfig = added.localconfig || false;
-      var oldSettings = Object.clone(Settings);
-      var settings = Object.clone(defaultSettings);
+      var oldSettings = Object.clone(settings);
+      var settingsClone = Object.clone(defaultSettings);
       added.localconfig = oldSettings.localconfig;
-      Object.merge(settings, added);
+      Object.merge(settingsClone, added);
       if (oldSettings.localconfig) {
         Options.saveSettings({
-          settings: Object.clone(settings),
+          settings: Object.clone(settingsClone),
           sendSettings: false
         });
-        Object.merge(Settings, oldSettings);
-        Object.merge(Settings, added);
+        Object.merge(settings, oldSettings);
+        Object.merge(settings, added);
         Options.sendSettings();
       } else {
-        Object.merge(Settings, added);
-        Settings.RC = oldSettings.RC;
+        Object.merge(settings, added);
+        settings.RC = oldSettings.RC;
         Options.sendSettings();
       }
       o.callback({
         code: 0,
         error: null,
-        config: Settings
+        config: settings
       });
     }, function() {
       o.callback({
         code: -1,
         error: null,
-        config: Settings
+        config: settings
       });
     });
     return true;
@@ -934,7 +934,7 @@ Actions = (function() {
     } else if (o.request.url) {
       o.url = o.request.url;
     } else {
-      o.url = Settings.defaultnewtabpage ?
+      o.url = settings.defaultnewtabpage ?
         'chrome://newtab' : '../pages/blank.html';
     }
 

@@ -5,7 +5,7 @@ var Popup = {
 Popup.getBlacklisted = function(callback) {
   if (typeof callback === 'object')
     callback = callback.callback;
-  var blacklists = Settings.blacklists.compress();
+  var blacklists = settings.blacklists.compress();
   this.getActiveTab(function(tab) {
     var url = tab.url;
     for (var i = 0, l = blacklists.length; i < l; ++i) {
@@ -83,7 +83,7 @@ Popup.toggleEnabled = function(obj) {
 };
 
 Popup.toggleBlacklisted = function() {
-  var blacklists = Settings.blacklists.compress();
+  var blacklists = settings.blacklists.compress();
   this.getActiveTab(function(tab) {
     var url = tab.url;
     var foundMatch = false;
@@ -97,8 +97,8 @@ Popup.toggleBlacklisted = function() {
       url = new URL(url);
       blacklists.push(url.protocol + '//' + url.hostname + '/*');
     }
-    Settings.blacklists = blacklists;
-    Options.saveSettings({settings: Settings});
+    settings.blacklists = blacklists;
+    Options.saveSettings({settings: settings});
     Options.updateBlacklistsMappings();
   });
 };

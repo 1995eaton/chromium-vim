@@ -18,7 +18,7 @@ chrome.runtime.onInstalled.addListener(function(details) {
   } else if (details.reason === 'update') {
     if (previousVersion !== currentVersion) {
       Options.refreshSettings(function() {
-        if (Settings.changelog) {
+        if (settings.changelog) {
           chrome.tabs.create({
             url: chrome.runtime.getURL('pages/changelog.html'),
             active: true

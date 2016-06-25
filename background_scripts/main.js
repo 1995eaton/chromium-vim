@@ -18,7 +18,7 @@ window.httpRequest = function(request) {
 };
 
 function updateTabIndices() {
-  if (Settings.showtabindices) {
+  if (settings.showtabindices) {
     chrome.tabs.query({currentWindow: true}, function(tabs) {
       tabs.forEach(function(tab) {
         chrome.tabs.sendMessage(tab.id, {

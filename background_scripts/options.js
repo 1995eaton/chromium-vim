@@ -1,5 +1,5 @@
 var storageMethod = 'local',
-    Settings = {},
+    settings = {},
     Options = {};
 
 var defaultSettings = {
@@ -61,14 +61,14 @@ var defaultSettings = {
 
 chrome.storage.onChanged.addListener(function(changes) {
   if (!changes.hasOwnProperty('sessions')) {
-    Settings = changes.settings ? changes.settings.newValue : defaultSettings;
+    settings = changes.settings ? changes.settings.newValue : defaultSettings;
   }
 });
 
 Options.refreshSettings = function(callback) {
   for (var key in defaultSettings) {
-    if (Settings[key] === void 0) {
-      Settings[key] = defaultSettings[key];
+    if (settings[key] === void 0) {
+      settings[key] = defaultSettings[key];
     }
   }
   if (callback) {
@@ -77,12 +77,12 @@ Options.refreshSettings = function(callback) {
 };
 
 Options.saveSettings = function(request) {
-  Settings = request.settings;
-  for (var key in Settings.qmarks) {
-    Quickmarks[key] = Settings.qmarks[key];
+  settings = request.settings;
+  for (var key in settings.qmarks) {
+    Quickmarks[key] = settings.qmarks[key];
   }
   this.refreshSettings(function() {
-    chrome.storage[storageMethod].set({settings: Settings});
+    chrome.storage[storageMethod].set({settings: settings});
     if (request.sendSettings) {
       Options.sendSettings();
     }
@@ -93,7 +93,7 @@ Options.sendSettings = function() {
   activePorts.forEach(function(port) {
     port.postMessage({
       type: 'sendSettings',
-      settings: Settings
+      settings: settings
     });
   });
 };
@@ -102,14 +102,14 @@ Options.getSettings = function(request, sender) {
   this.refreshSettings(function() {
     chrome.tabs.sendMessage(sender.tab.id, {
       action: 'sendSettings',
-      settings: request.reset ? defaultSettings : Settings
+      settings: request.reset ? defaultSettings : settings
     });
   });
 };
 
 Options.setDefaults = function() {
-  Settings = defaultSettings;
-  this.saveSettings(Settings);
+  settings = defaultSettings;
+  this.saveSettings(settings);
 };
 
 Options.getDefaults = function(request, sender, callback) {
@@ -120,16 +120,16 @@ Options.getDefaults = function(request, sender, callback) {
 Options.getAllSettings = function(request, sender, callback) {
   callback({
     defaults: defaultSettings,
-    current: Settings
+    current: settings
   });
 };
 
 Options.updateBlacklistsMappings = function() {
-  var rc = Settings.RC.split(/\n+/).compress(),
+  var rc = settings.RC.split(/\n+/).compress(),
       i, index, line;
-  if (Settings.BLACKLISTS) {
-    Settings.blacklists = Settings.BLACKLISTS.split(/\n+/);
-    delete Settings.BLACKLISTS;
+  if (settings.BLACKLISTS) {
+    settings.blacklists = settings.BLACKLISTS.split(/\n+/);
+    delete settings.BLACKLISTS;
   }
   for (i = 0; i < rc.length; ++i) {
     if (/ *let *blacklists *= */.test(rc[i])) {
@@ -137,23 +137,23 @@ Options.updateBlacklistsMappings = function() {
       index = i;
     }
   }
-  Settings.blacklists = Settings.blacklists.unique();
-  if (Settings.blacklists.length) {
-    line = 'let blacklists = ' + JSON.stringify(Settings.blacklists);
+  settings.blacklists = settings.blacklists.unique();
+  if (settings.blacklists.length) {
+    line = 'let blacklists = ' + JSON.stringify(settings.blacklists);
     if (index) {
       rc = rc.slice(0, index).concat(line).concat(rc.slice(index));
     } else {
       rc.push(line);
     }
   }
-  Settings.RC = rc.join('\n');
-  Options.saveSettings({settings: Settings});
+  settings.RC = rc.join('\n');
+  Options.saveSettings({settings: settings});
 };
 
 Options.fetchGist = function() {
   httpRequest({
-    url: Settings.GISTURL + (Settings.GISTURL.indexOf('raw') === -1 &&
-             Settings.GISTURL.indexOf('github') !== -1 ? '/raw' : '')
+    url: settings.GISTURL + (settings.GISTURL.indexOf('raw') === -1 &&
+             settings.GISTURL.indexOf('github') !== -1 ? '/raw' : '')
   }).then(function(res) {
     var updated;
     try {
@@ -161,8 +161,8 @@ Options.fetchGist = function() {
     } catch (e) {
       console.error('cVim Error: error parsing config file');
     }
-    updated.GISTURL = Settings.GISTURL;
-    updated.COMMANDBARCSS = Settings.COMMANDBARCSS;
+    updated.GISTURL = settings.GISTURL;
+    updated.COMMANDBARCSS = settings.COMMANDBARCSS;
     Options.saveSettings({
       settings: updated,
       sendSettings: true
@@ -175,14 +175,14 @@ Options.fetchGist = function() {
 
 chrome.storage[storageMethod].get('settings', function(data) {
   if (data.settings) {
-    Settings = data.settings;
-    Quickmarks = Settings.qmarks;
+    settings = data.settings;
+    Quickmarks = settings.qmarks;
   }
-  if (Settings.debugcss)
-    Settings.COMMANDBARCSS = defaultSettings.COMMANDBARCSS;
+  if (settings.debugcss)
+    settings.COMMANDBARCSS = defaultSettings.COMMANDBARCSS;
   this.refreshSettings();
   this.updateBlacklistsMappings();
-  if (Settings.autoupdategist && Settings.GISTURL) {
+  if (settings.autoupdategist && settings.GISTURL) {
     this.fetchGist();
   }
 }.bind(Options));
