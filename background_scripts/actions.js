@@ -581,7 +581,11 @@ Actions = (function() {
         return o.callback(false);
       }
       chrome.tabs.getZoom(o.sender.tab.id, function(zoomFactor) {
-        chrome.tabs.setZoom(o.sender.tab.id, override || zoomFactor + scale * repeats);
+        chrome.tabs.setZoomSettings(o.sender.tab.id, {
+          scope: 'per-tab',
+        }, function() {
+          chrome.tabs.setZoom(o.sender.tab.id, override || zoomFactor + scale * repeats);
+        });
       });
     };
 
