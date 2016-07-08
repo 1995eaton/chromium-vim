@@ -1119,8 +1119,16 @@ Command.updateSettings = function(config) {
   }.bind(this));
   if (config.searchengines && config.searchengines.constructor === Object) {
     for (key in config.searchengines) {
-      if (typeof config.searchengines[key] === 'string') {
-        Complete.addEngine(key, config.searchengines[key]);
+      var engine = config.searchengines[key];
+      if (typeof engine === 'string') {
+        Complete.addEngine(key, engine);
+      } else if (Array.isArray(engine) && engine.length === 2 &&
+                 typeof engine[0] === 'string' &&
+                 typeof engine[1] === 'string') {
+        Complete.addEngine(key, {
+          baseUrl: engine[0],
+          requestUrl: engine[1]
+        });
       }
     }
   }

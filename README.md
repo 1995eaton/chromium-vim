@@ -100,6 +100,10 @@ let searchengine dogpile = "http://www.dogpile.com/search/web?q=%s" " If you lea
                                                                     " your query will be appended to the link.
                                                                     " Otherwise, your query will replace the '%s'.
 
+" This will do the same thing as above, except typing ':tabnew withbase' into to command bar
+" without any search parameters will open 'http://www.dogpile.com'
+let searchengine withbase = ["http://www.dogpile.com", "http://www.dogpile.com/search/web?q=%s"]
+
 " alias ':g' to ':tabnew google'
 command g tabnew google
 

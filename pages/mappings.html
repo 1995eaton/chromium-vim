@@ -349,6 +349,10 @@ the command <code>'set' + no&lt;SETTING_NAME&gt;</code> (for example, <code>set 
                                                                     <span class="hljs-comment">" your query will be appended to the link.</span>
                                                                     <span class="hljs-comment">" Otherwise, your query will replace the '%s'.</span>
 
+<span class="hljs-comment">" This will do the same thing as above, except typing ':tabnew withbase' into to command bar</span>
+<span class="hljs-comment">" without any search parameters will open 'http://www.dogpile.com'</span>
+<span class="hljs-keyword">let</span> searchengine withbase = [<span class="hljs-string">"http://www.dogpile.com"</span>, <span class="hljs-string">"http://www.dogpile.com/search/web?q=%s"</span>]
+
 <span class="hljs-comment">" alias ':g' to ':tabnew google'</span>
 <span class="hljs-keyword">command</span> g <span class="hljs-keyword">tabnew</span> google
 
