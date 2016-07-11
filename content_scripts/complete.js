@@ -164,11 +164,8 @@ Complete.engines = {
 
   wikipedia: {
     baseUrl: 'https://en.wikipedia.org/wiki/Main_Page',
-    requestUrl: 'https://en.wikipedia.org/wiki/',
+    requestUrl: 'https://en.wikipedia.org/wiki/Special:Search?search=%s',
     apiUrl: 'https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=%s',
-    formatRequest: function(query) {
-      return encodeURIComponent(query).split('%20').join('_');
-    },
     queryApi: function(query, callback) {
       httpRequest({
         url: this.apiUrl.embedString(query),
