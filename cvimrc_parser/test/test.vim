@@ -56,3 +56,7 @@ f(x) -> {{
 }}
 
 command refresh open @%
+
+-> {{
+  console.log();
+}}

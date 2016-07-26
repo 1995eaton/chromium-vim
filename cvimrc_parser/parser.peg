@@ -1,4 +1,5 @@
 {
+  var autoJsLength = 0;
   function merge(a, b) {
     for (var p in b) {
       if (typeof b[p] === 'object' && !Array.isArray(b[p])) {
@@ -167,19 +168,35 @@ ParameterList
   = '(' SEP? a:Parameters? SEP? ')' { return a || []; }
 
 JavaScriptBlock
-  = a:Identifier SEP? b:ParameterList? SEP? '->' SEP? '{{' EOL* c:JavaScriptBlockChar* '}}' {
+  = '{{' EOL* a:JavaScriptBlockChar* '}}' {
+    return a.join('');
+  }
+
+AutoRunJavaScriptBlock
+  = '->' SEP? a:JavaScriptBlock {
+    var result = {
+      AUTOFUNCTIONS: {}
+    };
+    result.AUTOFUNCTIONS[autoJsLength] = a;
+    autoJsLength++;
+    return result;
+  }
+
+JavaScriptBlockDefinition
+  = a:Identifier SEP? b:ParameterList? SEP? '->' SEP? c:JavaScriptBlock {
     var result = {
       FUNCTIONS: {
       }
     };
     result.FUNCTIONS[a] = '(function(' + (b || []).join(',') + ')' +
-                          '{' + c.join('') + '})';
+                          '{' + c + '})';
     return result;
   }
 
 StatementValue
   = LetStatement
-  / JavaScriptBlock
+  / JavaScriptBlockDefinition
+  / AutoRunJavaScriptBlock
   / SetStatement
   / SiteStatement
   / ('unmapAll' / 'iunmapAll') {

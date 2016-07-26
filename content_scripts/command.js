@@ -1189,6 +1189,11 @@ Command.init = function(enabled) {
       waitForLoad(Cursor.init, Cursor);
     }
     addListeners();
+    if (typeof settings.AUTOFUNCTIONS === 'object') {
+      Object.getOwnPropertyNames(settings.AUTOFUNCTIONS).forEach(function(name) {
+        eval('(function(){' + settings.AUTOFUNCTIONS[name] + '})()');
+      });
+    }
   } else {
     RUNTIME('setIconDisabled');
     this.loaded = false;
