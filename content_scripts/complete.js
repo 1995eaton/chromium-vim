@@ -518,4 +518,43 @@ Complete.engines = {
       });
     }
   },
+
+  startpage: {
+    baseUrl: 'https://www.startpage.com',
+    requestUrl: 'https://www.startpage.com/do/asearch?query=',
+    apiUrl: 'https://www.startpage.com/do/suggest?query=%s',
+    queryApi: function(query, callback) {
+      httpRequest({
+        url: this.apiUrl.embedString(encodeURIComponent(query)),
+        json: false
+      }, function(response) {
+        callback(response.split(/\r?\n/));
+      });
+    }
+  },
+
+  linguee: {
+    baseUrl: 'https://www.linguee.de/',
+    requestUrl: 'https://www.linguee.de/deutsch-englisch/search?source=auto&query=',
+    apiUrl: 'https://www.linguee.de/deutsch-englisch/search?qe=%s&source=auto"',
+    queryApi: function(query, callback) {
+      httpRequest({
+        url: this.apiUrl.embedString(encodeURIComponent(query)),
+        json: false
+      }, function(response) {
+          var _obj = (new DOMParser()).parseFromString(response, "text/html");
+          callback([].slice.call(_obj.querySelectorAll(".autocompletion_item")).map(function(e) {
+              var item = e.querySelector(".main_item"),
+                  translations = "";
+              e.querySelectorAll(".translation_item").forEach( function(child) {
+                  var n, filter = function(node) { return ( node.length > 2 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT ); },
+                      walk = document.createTreeWalker(child, NodeFilter.SHOW_TEXT, filter, false);
+                  while (n = walk.nextNode())
+                      translations += n.textContent.trim()  + ", ";
+              });
+              return [ item.textContent + " -> " + translations.slice(0,-2), "https://www.linguee.de" + item.getAttribute('href') ];
+            }));
+         });
+      }
+  },
 };
