@@ -547,10 +547,9 @@ Complete.engines = {
               var item = e.querySelector(".main_item"),
                   translations = "";
               e.querySelectorAll(".translation_item").forEach( function(child) {
-                  var n, filter = function(node) { return ( node.length > 2 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT ); },
-                      walk = document.createTreeWalker(child, NodeFilter.SHOW_TEXT, filter, false);
-                  while (n = walk.nextNode())
-                      translations += n.textContent.trim()  + ", ";
+                  child.childNodes.forEach( function(data) {
+                      if (data.nodeType == Node.TEXT_NODE && data.length > 1) translations += data.textContent.trim() + ", ";
+                  });
               });
               return [ item.textContent + " -> " + translations.slice(0,-2), "https://www.linguee.de" + item.getAttribute('href') ];
             }));
