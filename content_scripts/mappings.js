@@ -63,6 +63,8 @@ Mappings.defaults = [
   ['mr',        'multiReverseImage'],
   ['L',         'goForward'],
   ['D',         'goForward'],
+  ['[d',        'previousDomain'],
+  [']d',        'nextDomain'],
   ['g0',        'firstTab'],
   ['M*',        'addQuickMark'],
   ['A',         'openLastHint'],
@@ -546,6 +548,38 @@ Mappings.actions = {
   },
   goForward: function(repeats) {
     history.go(1 * repeats);
+  },
+  previousDomain: function(repeats) {
+    RUNTIME('getHistoryStates', null, function(response) {
+      if (response.links.length == 0 || response.state == 0) {
+        return;
+      }
+
+      var curDomain = new URL(response.links[response.state]).hostname;
+      for (var i = response.state-1; i >= 0; i--) {
+        var targetDomain = new URL(response.links[i]).hostname;
+        if (targetDomain != curDomain) {
+          history.go(-1 * (response.state - i));
+          return;
+        }
+      }
+    });
+  },
+  nextDomain: function(repeats) {
+    RUNTIME('getHistoryStates', null, function(response) {
+      if (response.links.length == 0 || response.state == response.links.length - 1) {
+        return;
+      }
+
+      var curDomain = new URL(response.links[response.state]).hostname;
+      for (var i = response.state+1; i < response.links.length; i++) {
+        var targetDomain = new URL(response.links[i]).hostname;
+        if (targetDomain != curDomain) {
+          history.go(1 * (i - response.state));
+          return;
+        }
+      }
+    });
   },
   goToLastInput: function() {
     if (this.inputElements && this.inputElements[this.inputElementsIndex]) {
