@@ -188,8 +188,11 @@ Hints.dispatchAction = function(link, shift) {
       }.bind(this), 0);
       break;
     }
+    if (node === 'select') {
+      link.focus();
+      break;
+    }
     if (node === 'input' ||
-        node === 'select' ||
         /^(checkbox|menu)$/.test(link.getAttribute('role'))) {
       window.setTimeout(function() { DOM.mouseEvent('click', link); }, 0);
       break;
