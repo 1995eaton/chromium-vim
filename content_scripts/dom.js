@@ -20,6 +20,7 @@ window.DOM = {
       return false;
     }
     if (element.localName === 'textarea' ||
+        element.localName === 'select' ||
         element.hasAttribute('contenteditable'))
       return true;
     if (element.localName !== 'input')
