@@ -37,7 +37,7 @@ Actions = (function() {
 
   _.viewSource = function(o) {
     o.url = 'view-source:' + o.sender.tab.url;
-    _.openLink();
+    _.openLink(o);
   };
 
   _.openLink = function(o) {
