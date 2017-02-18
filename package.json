@@ -10,6 +10,6 @@
   "devDependencies": {
     "highlight.js": "latest",
     "markdown-it": "latest",
-    "pegjs": "latest"
+    "pegjs": "^0.9.0"
   }
 }

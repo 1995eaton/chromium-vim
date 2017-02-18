@@ -67,8 +67,15 @@ UNMAP   = 'unmap'
 IUNMAP  = 'iunmap'
 COMMAND = 'command'
 
+SourceCharacter
+  = .
+
+LineTerminator
+  = [\n\r\u2028\u2029]
+
 Comment
-  = WhiteSpace* '"' [^\n]+ { return null; }
+  = WhiteSpace* '"' (!LineTerminator SourceCharacter)* { return null; }
+  / WhiteSpace* "/*" (!"*/" SourceCharacter)* "*/" { return null; }
 
 StringCharacter
   = '\\' a:[^\n] { return a; }

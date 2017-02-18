@@ -60,3 +60,11 @@ command refresh open @%
 -> {{
   console.log();
 }}
+
+" single line comment
+"
+" continues
+
+/*
+ * block comment
+ */
