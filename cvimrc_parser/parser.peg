@@ -68,7 +68,7 @@ IUNMAP  = 'iunmap'
 COMMAND = 'command'
 
 Comment
-  = WhiteSpace* '"' [^\n]+ { return null; }
+  = WhiteSpace* '"' [^\n]* { return null; }
 
 StringCharacter
   = '\\' a:[^\n] { return a; }

@@ -534,7 +534,7 @@ switchHintCharacters -&gt; {{
 
   <span class="hljs-comment">// Propagate the current settings to all tabs for the</span>
   <span class="hljs-comment">// rest of the session</span>
-  PORT(<span class="hljs-string">'syncSettings'</span>, { settings: settings });
+  PORT(<span class="hljs-string">'syncSettings'</span>, { <span class="hljs-attr">settings</span>: settings });
 
   <span class="hljs-comment">// Display cVim's status bar for 2 seconds.</span>
   Status.setMessage(<span class="hljs-string">'Hint Set: '</span> + (<span class="hljs-literal">true</span> ? <span class="hljs-string">'a'</span> : <span class="hljs-string">'b'</span>), <span class="hljs-number">2</span>);

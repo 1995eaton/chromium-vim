@@ -60,3 +60,7 @@ command refresh open @%
 -> {{
   console.log();
 }}
+
+" Comment 1
+"
+" Comment 2

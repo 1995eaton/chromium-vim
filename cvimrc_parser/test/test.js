@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-require('../parser.js');
+var RCParser = require('../parser.js').RCParser;
 
 var script = require('fs').readFileSync('./test/test.vim', 'utf8');
 
