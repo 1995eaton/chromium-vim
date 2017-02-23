@@ -145,8 +145,10 @@ a:hover {
 #gistSync {
   float: right;
 }
+
 #gistUrl {
   width: calc(100% - 65px);
+  position: absolute;
 }
 
 input {
