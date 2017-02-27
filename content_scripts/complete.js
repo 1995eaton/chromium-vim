@@ -53,26 +53,28 @@ var Complete = {
       return '';
 
     input[0] = this.getAlias(input[0]) || input[0];
-    if (!this.hasEngine(input[0])) {
+    var engine = null;
+    if (this.hasEngine(input[0])) {
+      engine = this.getEngine(input[0]);
+      input = input.slice(1);
+      if (input.length == 0)
+	return engine.baseUrl;
+    } else {
       if (!isLink && (isURL || input.join(' ').validURL())) {
         input = input.join(' ');
         return (!/^[a-zA-Z\-]+:/.test(input) ? 'http://' : '') +
           input;
       }
-      var defaultEngine = this.getEngine(settings.defaultengine);
-      return (defaultEngine ? defaultEngine.requestUrl :
-                              this.getEngine('google').requestUrl) +
-        encodeURIComponent(input.join(' '));
+      engine = this.getEngine(settings.defaultengine) || this.getEngine('google');
     }
-
-    var engine = this.getEngine(input[0]);
-    if (input.length <= 1)
-      return engine.baseUrl;
 
     var prefix = engine.requestUrl;
     var suffix = engine.hasOwnProperty('formatRequest') ?
-      engine.formatRequest(input.slice(1).join(' ')) :
-      encodeURIComponent(input.slice(1).join(' '));
+      engine.formatRequest(input.join(' ')) :
+      encodeURIComponent(input.join(' '));
+
+    console.log('prefix: ', prefix)
+    console.log('suffix: ', suffix)
 
     if (suffix.validURL())
       return suffix.convertLink();
