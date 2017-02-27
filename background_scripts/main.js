@@ -49,7 +49,7 @@ function getTab(tab, reverse, count, first, last) {
       if (count !== -1 && count !== 1)
         index = Math.min(Math.max(0, index), tabs.length - 1);
       else
-        index = mod(index, tabs.length);
+        index = Utils.trueModulo(index, tabs.length);
       return chrome.tabs.update(tabs[index].id, {active: true});
     }
   });

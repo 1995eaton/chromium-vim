@@ -64,8 +64,8 @@ Find.search = function(mode, repeats, ignoreFocus) {
              this.index + 1 === this.matches.length) {
     this.index = 0;
   } else {
-    this.index = (this.index + (reverse ? -1 : 1) * repeats)
-      .mod(this.matches.length);
+    this.index = (this.index + (reverse ? -1 : 1) * repeats);
+    this.index = Utils.trueModulo(this.index, this.matches.length);
   }
   if (!DOM.isVisible(this.matches[this.index])) {
     this.matches.splice(this.index, 1);

@@ -700,28 +700,28 @@ var KeyHandler = {
     if (insertMode)
       return;
 
+    var isInput = DOM.isEditable(document.activeElement);
+
     // When <Tab> or <S-Tab> is pressed in 'gi' mode
     if (!commandMode && Mappings.actions.inputFocused && event.which === 9) {
-      if (document.activeElement && (!DOM.isEditable(document.activeElement) ||
-                                     !Mappings.actions.inputElements.length)) {
-        Mappings.actions.inputFocused = false;
+      var actions = Mappings.actions;
+      if (!isInput || !actions.inputElements.length) {
+        actions.inputFocused = false;
         return;
       }
       event.preventDefault();
       event.stopImmediatePropagation();
-      Mappings.actions.inputElementsIndex =
-        ((event.shiftKey ? -1 : 1) + Mappings.actions.inputElementsIndex)
-        .mod(Mappings.actions.inputElements.length);
-      Mappings.actions.inputElements[Mappings.actions.inputElementsIndex]
-        .focus();
-      if (Mappings.actions.inputElements[Mappings.actions.inputElementsIndex]
-          .hasAttribute('readonly'))
-        Mappings.actions.inputElements[Mappings.actions.inputElementsIndex]
-          .select();
+
+      actions.inputElementsIndex = Utils.trueModulo(
+        actions.inputElementsIndex + (event.shiftKey ? -1 : 1),
+        actions.inputElements.length
+      );
+
+      actions.inputElements[actions.inputElementsIndex].focus();
+      if (actions.inputElements[actions.inputElementsIndex].hasAttribute('readonly'))
+        actions.inputElements[actions.inputElementsIndex].select();
       return;
     }
-
-    var isInput = document.activeElement && DOM.isEditable(document.activeElement);
 
     if (!isInput) {
       if (Mappings.queue.length) {

@@ -1,5 +1,11 @@
 LOG = console.log.bind(console);
 
+var Utils = {
+  trueModulo: function(a, b) {
+    return ((a % b) + b) % b;
+  },
+};
+
 var definePrototype = function(obj, name, fn) {
   Object.defineProperty(obj.prototype, name, {
     enumerable: false,
@@ -63,10 +69,6 @@ definePrototype(Array, 'compress', function() {
   return this.filter(function(e) {
     return e;
   });
-});
-
-definePrototype(Number, 'mod', function(n) {
-  return ((this % n) + n) % n;
 });
 
 Object.clone = function(node) {
@@ -414,8 +416,3 @@ window.parseConfig = (function() {
     }
   };
 })();
-
-// modulus supporting negative numbers
-window.mod = function(a, b) {
-  return (a % b + b) % b;
-};
