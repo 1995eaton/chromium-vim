@@ -395,34 +395,35 @@ Hints.evaluateLink = function(link) {
   if (linkLocation === null) {
     return;
   }
+  (function() {
+    var result = {};
+    ['top', 'right', 'bottom', 'left', 'width', 'height'].forEach(function(key) {
+      result[key] = linkLocation[key];
+    });
+    linkLocation = result;
+  })();
+  if (isAreaNode) {
+    mapCoordinates = link.getAttribute('coords').split(',');
+    if (mapCoordinates.length < 2)
+      return;
+    linkLocation.top += parseInt(mapCoordinates[1], 10);
+    linkLocation.left += parseInt(mapCoordinates[0], 10);
+  }
   linkElement = this.linkElementBase.cloneNode(false);
   linkStyle = linkElement.style;
   linkStyle.zIndex = this.linkIndex;
-  if (isAreaNode) {
-    mapCoordinates = link.getAttribute('coords').split(',');
-    if (mapCoordinates.length < 2) {
-      return;
-    }
-    linkStyle.top = linkLocation.top * this.documentZoom +
-      document.scrollingElement.scrollTop +
-      parseInt(mapCoordinates[1], 10) + 'px';
-    linkStyle.left = linkLocation.left * this.documentZoom +
-      document.scrollingElement.scrollLeft +
-      parseInt(mapCoordinates[0], 10) + 'px';
+  if (linkLocation.top < 0) {
+    linkStyle.top = document.scrollingElement.scrollTop + 'px';
   } else {
-    if (linkLocation.top < 0) {
-      linkStyle.top = document.scrollingElement.scrollTop + 'px';
+    linkStyle.top = linkLocation.top * this.documentZoom + document.scrollingElement.scrollTop + 'px';
+  }
+  if (linkLocation.left < 0) {
+    linkStyle.left = document.scrollingElement.scrollLeft + 'px';
+  } else {
+    if (linkLocation.offsetLeft > linkLocation.left) {
+      linkStyle.left = link.offsetLeft * this.documentZoom + 'px';
     } else {
-      linkStyle.top = linkLocation.top * this.documentZoom + document.scrollingElement.scrollTop + 'px';
-    }
-    if (linkLocation.left < 0) {
-      linkStyle.left = document.scrollingElement.scrollLeft + 'px';
-    } else {
-      if (linkLocation.offsetLeft > linkLocation.left) {
-        linkStyle.left = link.offsetLeft * this.documentZoom + 'px';
-      } else {
-        linkStyle.left = linkLocation.left * this.documentZoom + document.scrollingElement.scrollLeft + 'px';
-      }
+      linkStyle.left = linkLocation.left * this.documentZoom + document.scrollingElement.scrollLeft + 'px';
     }
   }
   if (settings && settings.numerichints) {
@@ -490,6 +491,8 @@ Hints.siteFilters = (function() {
 
 Hints.acceptHint = function(node) {
 
+  if (!node)
+    return false;
   if (node.nodeType !== Node.ELEMENT_NODE)
     return false;
 
@@ -514,7 +517,8 @@ Hints.acceptHint = function(node) {
   case 'textarea':
   case 'input':
   case 'area':
-    return true;
+    if (!Hints.acceptHint(node.parentElement))
+      return true;
   }
 
   switch (true) {
@@ -534,6 +538,7 @@ Hints.acceptHint = function(node) {
         role.indexOf('menu') === 0)
       return true;
   }
+
   return false;
 };
 
@@ -542,34 +547,33 @@ Hints.getLinks = function() {
     return matchLocation(document.URL, key);
   }).map(function(key) { return this.siteFilters[key]; }.bind(this));
 
-  if (settings.sortlinkhints) {
-    traverseDOM(document.body, this.acceptHint).map(function(node) {
-      var rect = node.getBoundingClientRect();
-      return [node, Math.sqrt(rect.top * rect.top + rect.left * rect.left)];
-    }).sort(function(a, b) {
-      return a[1] - b[1];
-    }).forEach(function(node) {
-      if (applicableFilters.every(function(filter) {
-        return !filter.matches(node[0]);
-      })) Hints.evaluateLink(node[0]);
+  var links = traverseDOM(document.body, this.acceptHint);
+  links = links.filter(function(node) {
+    return applicableFilters.every(function(filter) {
+      return !filter.matches(node);
     });
-  } else {
-    traverseDOM(document.body, this.acceptHint).forEach(function(node) {
-      if (applicableFilters.every(function(filter) {
-        return !filter.matches(node);
-      })) Hints.evaluateLink(node);
-    });
-  }
+  });
 
   applicableFilters.forEach(function(filter) {
     filter.searches.forEach(function(search) {
       var nodes = document.querySelectorAll(search);
       if (nodes.length) {
         for (var i = 0; i < nodes.length; i++)
-          Hints.evaluateLink(nodes[i]);
+          if (links.indexOf(nodes[i]) === -1)
+            links.push(nodes[i]);
       }
     });
   });
+  if (settings.sortlinkhints) {
+    links = links.map(function(node) {
+      var rect = node.getBoundingClientRect();
+      return [node, Math.sqrt(rect.top * rect.top + rect.left * rect.left)];
+    }).sort(function(a, b) {
+      return a[1] - b[1];
+    }).map(function(e) { return e[0]; });
+  }
+
+  links.forEach(function(e) { Hints.evaluateLink(e); });
 };
 
 
