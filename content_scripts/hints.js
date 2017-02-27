@@ -25,13 +25,15 @@ Hints.matchPatternFilters = {
 };
 
 Hints.matchPatterns = function(pattern) {
+  var direction = pattern === settings.nextmatchpattern ? 'next' : 'prev';
   var applicableFilters = Object.keys(this.matchPatternFilters)
     .filter(function(key) {
       return matchLocation(document.URL, key);
     }).map(function(key) {
-      return this.matchPatternFilters[key][
-        pattern === settings.nextmatchpattern ? 'next' : 'prev'];
-    }.bind(this)).compress();
+      return Hints.matchPatternFilters[key][direction];
+    });
+  applicableFilters = Utils.compressArray(applicableFilters);
+
   var link = null;
   for (var i = 0; i < applicableFilters.length; i++) {
     link = findFirstOf(document.querySelectorAll(applicableFilters[i]),

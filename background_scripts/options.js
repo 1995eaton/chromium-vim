@@ -125,7 +125,7 @@ Options.getAllSettings = function(request, sender, callback) {
 };
 
 Options.updateBlacklistsMappings = function() {
-  var rc = settings.RC.split(/\n+/).compress(),
+  var rc = Utils.compressArray(settings.RC.split(/\n+/)),
       i, index, line;
   if (settings.BLACKLISTS) {
     settings.blacklists = settings.BLACKLISTS.split(/\n+/);
@@ -137,7 +137,7 @@ Options.updateBlacklistsMappings = function() {
       index = i;
     }
   }
-  settings.blacklists = settings.blacklists.unique();
+  settings.blacklists = Utils.uniqueElements(settings.blacklists);
   if (settings.blacklists.length) {
     line = 'let blacklists = ' + JSON.stringify(settings.blacklists);
     if (index) {

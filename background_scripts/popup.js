@@ -5,7 +5,7 @@ var Popup = {
 Popup.getBlacklisted = function(callback) {
   if (typeof callback === 'object')
     callback = callback.callback;
-  var blacklists = settings.blacklists.compress();
+  var blacklists = Utils.compressArray(settings.blacklists);
   this.getActiveTab(function(tab) {
     var url = tab.url;
     for (var i = 0, l = blacklists.length; i < l; ++i) {
@@ -83,7 +83,7 @@ Popup.toggleEnabled = function(obj) {
 };
 
 Popup.toggleBlacklisted = function() {
-  var blacklists = settings.blacklists.compress();
+  var blacklists = Utils.compressArray(settings.blacklists);
   this.getActiveTab(function(tab) {
     var url = tab.url;
     var foundMatch = false;

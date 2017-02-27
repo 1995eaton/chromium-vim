@@ -292,7 +292,7 @@ Command.callCompletionFunction = (function() {
 
   var searchCompletion = function(value) {
     self.deleteCompletions('engines,bookmarks,complete,chrome,search');
-    search = search.split(/ +/).compress();
+    search = Utils.compressArray(search.split(/ +/));
     if ((search.length < 2 && value.slice(-1) !== ' ') ||
         (!Complete.engineEnabled(search[0]) && !Complete.hasAlias(search[0]))) {
       self.completions.engines = Complete.getMatchingEngines(search.join(' ')).map(function(name) {
@@ -500,7 +500,7 @@ Command.execute = function(value, repeats) {
 
   commandMode = false;
 
-  var split = value.split(/\s+/g).compress();
+  var split = Utils.compressArray(value.split(/\s+/g));
   if (this.customCommands.hasOwnProperty(split[0])) {
     this.execute(this.customCommands[split[0]] + ' ' + split.slice(1).join(' '), 1);
     return;
@@ -547,7 +547,7 @@ Command.execute = function(value, repeats) {
   value = value.replace(/[&$*!=?|]+$/, function(e) {
     return e.replace(/[^=?]/g, '');
   });
-  if (Complete.engineEnabled(value.split(/\s+/g).compress()[1]))
+  if (Complete.engineEnabled(Utils.compressArray(value.split(/\s+/g))[1]))
     value = value.replace(/[=?]+$/, '');
 
   this.history.index = {};
@@ -732,7 +732,7 @@ Command.execute = function(value, repeats) {
     if (Number.isNaN(+sessionId) && this.completionResults.length)
       sessionId = this.completionResults[0][3];
     RUNTIME('restoreChromeSession', {
-      sessionId: sessionId.trimAround()
+      sessionId: Utils.trim(sessionId)
     });
   }
 
@@ -784,7 +784,7 @@ Command.execute = function(value, repeats) {
   }
 
   if (/^delsession/.test(value)) {
-    value = value.replace(/^\S+(\s+)?/, '').trimAround();
+    value = Utils.trim(value.replace(/^\S+(\s+)?/, ''));
     if (value === '') {
       Status.setMessage('argument required', 1, 'error');
       return;
@@ -800,7 +800,7 @@ Command.execute = function(value, repeats) {
   }
 
   if (/^mksession/.test(value)) {
-    value = value.replace(/^\S+(\s+)?/, '').trimAround();
+    value = Utils.trim(value.replace(/^\S+(\s+)?/, ''));
     if (value === '') {
       Status.setMessage('session name required', 1, 'error');
       return;
@@ -820,7 +820,7 @@ Command.execute = function(value, repeats) {
   }
 
   if (/^session/.test(value)) {
-    value = value.replace(/^\S+(\s+)?/, '').trimAround();
+    value = Utils.trim(value.replace(/^\S+(\s+)?/, ''));
     if (value === '') {
       Status.setMessage('session name required', 1, 'error');
       return;
@@ -1142,11 +1142,10 @@ Command.updateSettings = function(config) {
   if (config.locale) {
     Complete.setLocale(config.locale);
   }
-  if (config.hintcharacters &&
-      config.hintcharacters.split('').unique().length > 1) {
-    settings.hintcharacters = config.hintcharacters
-      .split('').unique().join('');
-  }
+
+  var chars = Utils.uniqueElements((config.hintcharacters || '').split(''));
+  settings.hintcharacters = chars.join('');
+
   if (config !== settings) {
     for (key in config) {
       if (key.toUpperCase() !== key && settings.hasOwnProperty(key)) {
@@ -1265,7 +1264,7 @@ Command.configureSettings = function(_settings) {
     Command.blacklisted = false;
     var isBlacklisted = false;
     for (var i = 0, l = blacklists.length; i < l; i++) {
-      blacklist = blacklists[i].trimAround().split(/\s+/g);
+      blacklist = Utils.split(blacklists[i], /\s+/);
       if (!blacklist.length) {
         continue;
       }

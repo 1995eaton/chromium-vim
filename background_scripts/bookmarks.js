@@ -16,15 +16,14 @@ Bookmarks.containsFolder = function(path, directory) {
 };
 
 Bookmarks.getFolderLinks = function(path, callback) {
-  path = path.split('/').compress();
+  path = Utils.compressArray(path.split('/'));
   chrome.bookmarks.getTree(function(tree) {
     var dir = tree[0];
     while (dir = Bookmarks.containsFolder(path[0], dir)) {
       path = path.slice(1);
       if (!path || !path.length) {
-        callback(dir.children.map(function(e) {
-          return e.url;
-        }).compress());
+        var links = dir.children.map(function(e) { return e.url; });
+        callback(Utils.compressArray(links));
       }
     }
   });
@@ -40,7 +39,7 @@ Bookmarks.getPath = function(marks, path, callback, initialPath) {
   if (typeof path !== 'string' || path[0] !== '/') {
     return false;
   }
-  path = path.split(/\//).compress();
+  path = Utils.compressArray(path.split(/\//));
   marks.forEach(function(item) {
     if (item.title === path[0]) {
       folder = item;

@@ -151,7 +151,7 @@ port.onMessage.addListener(function(response) {
     break;
   case 'parseRC':
     if (response.config.MAPPINGS) {
-      response.config.MAPPINGS.split('\n').compress().forEach(Mappings.parseLine);
+      Utils.split(response.config.MAPPINGS, '\n').forEach(Mappings.parseLine);
       delete response.config.MAPPINGS;
     }
     Command.updateSettings(response.config);

@@ -75,11 +75,11 @@ Search.nextResult = function(reverse) {
     Command.input.value = Command.input.value.match(/^\S+ /)[0] + Command.completionResults[this.index][1];
     break;
   case 'search':
-    var value = Command.input.value.split(/\s+/).compress();
+    var value = Utils.split(Command.input.value, /\s+/);
     var repl = '';
     if (Command.customCommands.hasOwnProperty(value[0])) {
       value = [value[0]];
-      repl = Command.customCommands[value[0]].split(/\s+/).compress().slice(2).join(' ');
+      repl = Utils.split(Command.customCommands[value[0]], /\s+/).slice(2).join(' ');
     }
     var inputValue, searchValue;
     if (Command.completionResults[this.index].length === 3) {
@@ -90,7 +90,7 @@ Search.nextResult = function(reverse) {
       searchValue = Command.completionResults[this.index][1];
     }
     if (searchValue.indexOf(repl) === 0)
-      searchValue = searchValue.replace(repl, '').trimAround();
+      searchValue = Utils.trim(searchValue.replace(repl, ''));
     Command.input.value = inputValue + searchValue;
     break;
   case 'windows':

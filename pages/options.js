@@ -65,13 +65,13 @@ Settings.editMode = function(e) {
 };
 
 Settings.syncGist = function() {
-  var url = new URL(this.gistUrl.value.trimAround());
+  var url = new URL(Utils.trim(this.gistUrl.value));
   if (url.hostname === 'gist.github.com') {
     url.hostname = 'gist.githubusercontent.com';
     url.pathname += '/raw';
   } else if (url.hostname === 'github.com') {
     url.hostname = 'raw.githubusercontent.com';
-    var path = url.pathname.split('/').compress();
+    var path = Utils.split(url.pathname, '/');
     if (path[2] === 'blob')
       path.splice(2, 1);
     url.pathname = path.join('/');
