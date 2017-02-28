@@ -157,6 +157,11 @@ var Listeners = {
                         false, false);
         });
         break;
+      case 'viewSource':
+        chrome.tabs.query({active: true, currentWindow: true}, function(e) {
+          chrome.tabs.create({url: 'view-source:' + e[0].url, index: e[0].index + 1});
+        });
+        break;
       case 'nextCompletionResult':
         chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
           chrome.tabs.sendMessage(tab[0].id, {

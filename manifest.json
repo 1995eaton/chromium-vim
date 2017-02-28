@@ -40,6 +40,9 @@
     },
     "restartcVim": {
       "description": "Restart the background scripts (pages will need a refresh)"
+    },
+    "viewSource": {
+      "description": "View the page source"
     }
   },
   "browser_action": {
