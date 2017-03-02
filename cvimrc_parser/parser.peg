@@ -39,22 +39,16 @@
   }
 }
 
-Start
-  = a:Scope { return a; }
+Start = Scope
 
 EOF = !.
 EOL = [\n\r]
 WhiteSpace = [ \t]
-__ = (EOL / WhiteSpace)*
 MapIdentifier = a:(!WhiteSpace !EOL .)+ { return text(); }
-MapValue
-  = ':' [^\n]* { return text(); }
-  / Identifier
-SEPVAL
+LineSeparator
   = WhiteSpace* EOL+ WhiteSpace* "\\" WhiteSpace* { return null; }
-  / WhiteSpace+ { return null; }
-SEP
-  = SEPVAL+
+_ = (WhiteSpace / LineSeparator)+
+__ = (WhiteSpace / LineSeparator)*
 
 Identifier = ([@][@])?[a-zA-Z_$][a-zA-Z_$0-9]* { return text(); }
 
@@ -74,7 +68,7 @@ Comment
 StringCharacter
   = '\\' a:[^\n] { return a; }
   / [^\n]
-  / SEP { return ''; }
+  / _ { return ''; }
 
 DoubleStringCharacter
   = !'"' a:StringCharacter { return a; }
@@ -99,61 +93,89 @@ NumberLiteral
   = FloatingPointLiteral
   / IntegerLiteral
 
-ArrayList
-  = SEP? a:Expression SEP? ',' b:ArrayList SEP? { return [a].concat(b); }
-  / SEP? a:Expression SEP? { return [a]; }
+ExpressionList
+  = head:(
+    __ expr:Expression {
+      return expr;
+    }
+  )
+  tail:(
+    __ ',' __ expr:Expression {
+      return expr;
+    }
+  )*
+  {
+    return [head].concat(tail);
+  }
 
 ArrayLiteral
-  = '[' a:ArrayList ']' { return a; }
-  / '[' SEP? ']' { return []; }
+  = '[' __ ']' { return []; }
+  / '[' elems:ExpressionList __ ']' {
+    return elems;
+  }
+
+MemberExpression
+  = head:(
+    Identifier
+  )
+  tail:(
+    __ '[' __ a:Expression __ ']' {
+      return a;
+    }
+  )*
+  {
+    var result = scopeIdentifiers[head];
+    tail.forEach(e => result = result[e]);
+    return result;
+  }
 
 Expression
   = StringLiteral
   / NumberLiteral
   / ArrayLiteral
-  / Identifier { return scopeIdentifiers[text()]; }
+  / MemberExpression
 
 LetStatement
-  = LET SEP a:Identifier SEP? '=' SEP? b:Expression {
+  = LET _ a:Identifier __ '=' __ b:Expression {
     scopeIdentifiers[a] = b;
     var r = {}; r[a] = b; return r;
   }
-  / LET SEP a:Identifier SEP b:(Identifier / NumberLiteral) SEP? '=' SEP? c:Expression {
+  / LET _ a:Identifier _ b:(Identifier / NumberLiteral) __ '=' __ c:Expression {
     scopeIdentifiers[a] = {[b]: c};
     a = objectPlural(a);
     var r = {}; r[a] = {}; r[a][b] = c; return r;
   }
 
 SetStatement
-  = SET SEP 'no' a:Identifier { var r = {}; r[a] = false; return r; }
-  / SET SEP !'no' a:Identifier { var r = {}; r[a] = true; return r; }
+  = SET _ 'no' a:Identifier { var r = {}; r[a] = false; return r; }
+  / SET _ !'no' a:Identifier { var r = {}; r[a] = true; return r; }
 
 SiteStatement
-  = SITE SEP a:StringLiteral SEP? '{' WhiteSpace* EOL b:Scope '}' {
+  = SITE _ a:StringLiteral __ '{' WhiteSpace* EOL b:Scope '}' {
     var r = {sites: {}}; r.sites[a] = b; return r;
   }
 
 UnmapIdentifierList
-  = SEP? a:MapIdentifier SEP b:UnmapIdentifierList SEP? { return [a].concat(b); }
-  / SEP? a:MapIdentifier SEP? { return [a]; }
+  = __ a:MapIdentifier _ b:UnmapIdentifierList __ { return [a].concat(b); }
+  / __ a:MapIdentifier __ { return [a]; }
 
 UnmapStatement
-  = a:(UNMAP / IUNMAP) SEP b:UnmapIdentifierList {
+  = a:(UNMAP / IUNMAP) _ b:UnmapIdentifierList {
     return { MAPPINGS: a + ' ' + b.join(' ') };
   }
 
 MapStatement
-  = a:(MAP / IMAP) SEP b:MapIdentifier SEP c:[^\n]* {
+  = a:(MAP / IMAP) _ b:MapIdentifier _ c:[^\n]* {
     return { MAPPINGS: [a, b, c.join('')].join(' ') };
   }
 
 CallStatement
-  = CALL SEP a:[^\n]* {
+  = CALL _ a:[^\n]* {
     return { MAPPINGS: 'call ' + a.join('') };
   }
 
 CommandStatement
-  = COMMAND SEP a:[a-zA-Z]+ SEP b:[^\n]+ {
+  = COMMAND _ a:[a-zA-Z]+ _ b:[^\n]+ {
     var r = { COMMANDS: {} };
     r.COMMANDS[a.join('')] = b.join('');
     return r;
@@ -163,13 +185,13 @@ JavaScriptBlockChar
  = (!'}}' .) { return text(); }
 
 Parameters
-  = a:Identifier SEP? ',' SEP? b:Parameters {
+  = a:Identifier __ ',' __ b:Parameters {
     return [a].concat(b);
   }
   / a:Identifier { return [a]; }
 
 ParameterList
-  = '(' SEP? a:Parameters? SEP? ')' { return a || []; }
+  = '(' __ a:Parameters? __ ')' { return a || []; }
 
 JavaScriptBlock
   = '{{' EOL* a:JavaScriptBlockChar* '}}' {
@@ -177,7 +199,7 @@ JavaScriptBlock
   }
 
 AutoRunJavaScriptBlock
-  = '->' SEP? a:JavaScriptBlock {
+  = '->' __ a:JavaScriptBlock {
     var result = {
       AUTOFUNCTIONS: {}
     };
@@ -187,7 +209,7 @@ AutoRunJavaScriptBlock
   }
 
 JavaScriptBlockDefinition
-  = a:Identifier SEP? b:ParameterList? SEP? '->' SEP? c:JavaScriptBlock {
+  = a:Identifier __ b:ParameterList? __ '->' __ c:JavaScriptBlock {
     var result = {
       FUNCTIONS: {
       }
@@ -213,7 +235,7 @@ StatementValue
   / Comment
 
 Statement
-  = __ a:StatementValue Comment? WhiteSpace* (EOF / EOL __) { return a; }
+  = (WhiteSpace / EOL)* a:StatementValue Comment? (EOL / WhiteSpace)* { return a; }
 
 Scope
   = (WhiteSpace / EOL)* EOF { return parseScope([]); }
