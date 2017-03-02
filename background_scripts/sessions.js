@@ -29,7 +29,7 @@ Sessions.stepBack = function(sender) {
       active: true,
       index: lastTab.index,
       pinned: lastTab.pinned,
-      selected: lastTab.selected,
+      active: lastTab.active,
       url: lastTab.url
     });
   }
