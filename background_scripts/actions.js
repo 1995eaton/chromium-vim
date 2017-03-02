@@ -658,21 +658,6 @@ Actions = (function() {
     });
   };
 
-  _.urlToBase64 = function(o) {
-    var img = new Image();
-    img.onload = function() {
-      var canvas = document.createElement('canvas');
-      canvas.width = this.width;
-      canvas.height = this.height;
-      var context = canvas.getContext('2d');
-      context.drawImage(this, 0, 0);
-      var data = canvas.toDataURL('image/png');
-      o.callback(data);
-    };
-    img.src = o.request.url;
-    return true;
-  };
-
   _.getBookmarks = function(o) {
     Bookmarks.getMarks(function(marks) {
       o.callback({type: 'bookmarks', bookmarks: marks});

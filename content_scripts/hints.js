@@ -142,7 +142,7 @@ Hints.dispatchAction = function(link, shift) {
     break;
   case 'image':
   case 'multiimage':
-    var url = googleReverseImage(link.src, null);
+    var url = 'https://www.google.com/searchbyimage?image_url=' + link.src;
     if (url) {
       RUNTIME('openLinkTab', {active: false, url: url, noconvert: true});
     }
