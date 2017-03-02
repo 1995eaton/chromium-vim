@@ -1,6 +1,20 @@
 LOG = console.log.bind(console);
 
 var Utils = {
+  cacheFunction: function(callback) {
+    var cache = new Map();
+    var result = function(arg) {
+      if (cache.has(arg))
+        return cache.get(arg);
+      var retval = callback(arg);
+      cache.set(arg, retval);
+      return retval;
+    };
+    result.clearCache = function() {
+      cache.clear();
+    };
+    return result;
+  },
   trueModulo: function(a, b) {
     return ((a % b) + b) % b;
   },
@@ -293,6 +307,26 @@ var traverseDOM = function(root, accept) {
   }
   nodes.shift();
   return nodes.filter(accept);
+};
+
+var mapDOM = function(root, accept) {
+  var nodes = [root];
+  for (var i = 0; i < nodes.length; i++) {
+    var node = nodes[i];
+    node = node.firstChild;
+    while (node !== null) {
+      nodes.push(node);
+      node = node.nextSibling;
+    }
+  }
+  nodes.shift();
+  var acceptedValues = [];
+  nodes.forEach(function(node) {
+    var value = accept(node);
+    if (value !== null)
+      acceptedValues.push(value);
+  });
+  return acceptedValues;
 };
 
 var hasAttributes = function(node) {

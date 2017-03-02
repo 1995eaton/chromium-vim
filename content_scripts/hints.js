@@ -21,7 +21,7 @@ Hints.matchPatternFilters = {
   '*://*.reddit.com/*': {
     'next': 'a[rel$="next"]',
     'prev': 'a[rel$="prev"]'
-  }
+  },
 };
 
 Hints.matchPatterns = function(pattern) {
@@ -380,89 +380,51 @@ Hints.handleHint = function(key) {
   }
 };
 
-Hints.evaluateLink = function(link) {
+Hints.evaluateLink = function(item) {
   this.linkIndex += 1;
-  var isAreaNode = false,
-      imgParent, linkElement, linkStyle, mapCoordinates;
-  if (link.localName === 'area' && link.parentNode && link.parentNode.localName === 'map') {
-    imgParent = document.querySelector('img[usemap="#' + link.parentNode.name + '"');
-    if (!imgParent) {
-      return;
-    }
-    linkLocation = DOM.getVisibleBoundingRect(imgParent);
-    isAreaNode = true;
-  } else {
-    linkLocation = DOM.getVisibleBoundingRect(link);
-  }
-  if (linkLocation === null) {
-    return;
-  }
-  linkElement = this.linkElementBase.cloneNode(false);
-  linkStyle = linkElement.style;
-  linkStyle.zIndex = this.linkIndex;
-  if (isAreaNode) {
-    mapCoordinates = link.getAttribute('coords').split(',');
-    if (mapCoordinates.length < 2) {
-      return;
-    }
-    linkStyle.top = linkLocation.top * this.documentZoom +
-      document.scrollingElement.scrollTop +
-      parseInt(mapCoordinates[1], 10) + 'px';
-    linkStyle.left = linkLocation.left * this.documentZoom +
-      document.scrollingElement.scrollLeft +
-      parseInt(mapCoordinates[0], 10) + 'px';
-  } else {
-    if (linkLocation.top < 0) {
-      linkStyle.top = document.scrollingElement.scrollTop + 'px';
-    } else {
-      linkStyle.top = linkLocation.top * this.documentZoom + document.scrollingElement.scrollTop + 'px';
-    }
-    if (linkLocation.left < 0) {
-      linkStyle.left = document.scrollingElement.scrollLeft + 'px';
-    } else {
-      if (linkLocation.offsetLeft > linkLocation.left) {
-        linkStyle.left = link.offsetLeft * this.documentZoom + 'px';
-      } else {
-        linkStyle.left = linkLocation.left * this.documentZoom + document.scrollingElement.scrollLeft + 'px';
-      }
-    }
-  }
+  var node = item.node;
+  var rect = item.rect;
+
+  var hint = this.linkElementBase.cloneNode(false);
+  var style = hint.style;
+  style.zIndex = this.linkIndex;
+  style.top = document.scrollingElement.scrollTop + rect.top + 'px';
+  style.left = document.scrollingElement.scrollLeft + rect.left + 'px';
+
+  item.hint = hint; // TODO: get rid of linkArr
+
   if (settings && settings.numerichints) {
     if (!settings.typelinkhints) {
-      this.linkArr.push([linkLocation.bottom * linkLocation.left, linkElement, link]);
+      this.linkArr.push([hint, node]);
     } else {
       var textValue = '';
       var alt = '';
-      if (link.firstElementChild && link.firstElementChild.alt) {
-        textValue = link.firstElementChild.alt;
+      if (node.firstElementChild && node.firstElementChild.alt) {
+        textValue = node.firstElementChild.alt;
         alt = textValue;
       } else {
-        textValue = link.textContent || link.value || link.alt || '';
+        textValue = node.textContent || node.value || node.alt || '';
       }
-      this.linkArr.push([linkLocation.left + linkLocation.top, linkElement, link, textValue, alt]);
+      item.text = textValue;
+      this.linkArr.push([hint, node, textValue, alt]);
     }
   } else {
-    this.linkArr.push([linkElement, link]);
+    this.linkArr.push([hint, node]);
   }
 };
 
-function HintFilter(selectors, searches) {
-  this.selectors = selectors;
-  this.searches = searches || [];
-}
-HintFilter.prototype.matches = function(node) {
-  return this.selectors.some(node.matches.bind(node));
-};
-
-Hints.siteFilters = (function() {
-  var filters = {
-    '*://*.reddit.com/*': [[
+Hints.siteFilters = {
+  '*://*.reddit.com/*': {
+    reject: [
       'a:not([href])',
-      '*[onclick^=click_thing]'
-    ], [
+      '*[onclick^=click_thing]',
+    ],
+    accept: [
       '.grippy'
-    ]],
-    '*://*.google.*/*': [[
+    ],
+  },
+  '*://*.google.*/*': {
+    reject: [
       'li[class$="_dropdownitem"]',
       'div[class$="_dropdown"]',
       'div[aria-label="Apps"]',
@@ -472,130 +434,216 @@ Hints.siteFilters = (function() {
       'div[id=hdtbMenus]',
       'div[aria-label="Account Information"]',
       'img[jsaction^="load:"]'
-    ]],
-    '*://github.com/*': [[
+    ],
+  },
+  '*://github.com/*': {
+    reject: [
       '.select-menu-modal-holder.js-menu-content'
-    ]],
-    '*://twitter.com/*': [[], [
+    ],
+    accept: [
+      '.js-menu-close',
+    ],
+  },
+  '*://twitter.com/*': {
+    accept: [
       '.new-tweets-bar.js-new-tweets-bar'
-    ]],
-    '*://imgur.com/*': [[], [
+    ],
+  },
+  '*://imgur.com/*': {
+    accept: [
       '.thumb-title',
       '.carousel-button'
-    ]]
-  };
-  Object.keys(filters).forEach(function(key) {
-    filters[key] = new HintFilter(filters[key][0], filters[key][1]);
+    ],
+  },
+};
+
+Hints.createHintFilter = function(url) {
+  var rejectList = [],
+      acceptList = [];
+  Object.getOwnPropertyNames(Hints.siteFilters).forEach(function(e) {
+    if (!matchLocation(url, e))
+      return;
+    var reject = Hints.siteFilters[e].reject || [],
+        accept = Hints.siteFilters[e].accept || [];
+    accept.forEach(function(selector) {
+      var items = [].slice.call(document.querySelectorAll(selector));
+      acceptList = acceptList.concat(items);
+    });
+    reject.forEach(function(selector) {
+      var items = [].slice.call(document.querySelectorAll(selector));
+      rejectList = rejectList.concat(items);
+    });
   });
-  return filters;
-})();
+  return {
+    shouldAccept: function(node) {
+      return acceptList.indexOf(node) !== -1;
+    },
+    shouldReject: function(node) {
+      return rejectList.indexOf(node) !== -1;
+    },
+  };
+};
 
-Hints.acceptHint = function(node) {
+Hints.NON_LINK_TYPE = 1;
+Hints.WEAK_LINK_TYPE = 2;
+Hints.LINK_TYPE = 4;
+Hints.INPUT_LINK = 8;
 
+Hints.getLinkType = function(node) {
   if (node.nodeType !== Node.ELEMENT_NODE)
-    return false;
+    return Hints.NON_LINK_TYPE;
 
   var name = node.localName.toLowerCase();
 
+  if (node.getAttribute('aria-hidden') === 'true')
+    return Hints.NON_LINK_TYPE;
+
   if (Hints.type) {
     if (Hints.type.indexOf('yank') !== -1) {
-      return name === 'a'        ||
-             name === 'textarea' ||
-             name === 'input';
+      if (name === 'a')
+        return Hints.LINK_TYPE;
+      if (name === 'textarea' || name === 'input')
+        return Hints.LINK_TYPE | Hints.INPUT_LINK;
+      return Hints.NON_LINK_TYPE;
     } else if (Hints.type.indexOf('image') !== -1) {
-      return name === 'img';
+      if (name === 'img')
+        return Hints.LINK_TYPE;
+      return Hints.NON_LINK_TYPE;
     } else if (Hints.type === 'edit') {
-      return DOM.isEditable(node);
+      if (DOM.isEditable(node))
+        return Hints.LINK_TYPE | Hints.INPUT_LINK;
+      return Hints.NON_LINK_TYPE;
     }
   }
 
   switch (name) {
-  case 'a':
-  case 'button':
   case 'select':
   case 'textarea':
   case 'input':
+    return Hints.LINK_TYPE | Hints.INPUT_LINK;
+  case 'a':
+  case 'button':
   case 'area':
-    return true;
+    return Hints.LINK_TYPE;
   }
 
   switch (true) {
-  case node.hasAttribute('onclick'):
   case node.hasAttribute('contenteditable'):
-  case node.hasAttribute('tabindex'):
+    return Hints.LINK_TYPE | Hints.INPUT_LINK;
   case node.hasAttribute('aria-haspopup'):
   case node.hasAttribute('data-cmd'):
   case node.hasAttribute('jsaction'):
-    return true;
+    return Hints.WEAK_LINK_TYPE;
+  case node.hasAttribute('tabindex'):
+  case node.hasAttribute('onclick'):
+    return Hints.LINK_TYPE;
   }
 
   var role = node.getAttribute('role');
   if (role) {
     if (role === 'button' ||
+        role === 'option' ||
         role === 'checkbox' ||
-        role.indexOf('menu') === 0)
+        role.indexOf('menuitem') !== -1) {
+      return Hints.LINK_TYPE;
+    }
+  }
+
+  if ((node.getAttribute('class') || '').indexOf('button') !== -1) {
+    return Hints.WEAK_LINK_TYPE;
+  }
+
+  return Hints.NON_LINK_TYPE;
+};
+
+Hints.isClickable = function(info) {
+  var rect = info.rect;
+  var locs = [
+    [rect.left + 1, rect.top + 1],
+    [rect.right - 1, rect.top + 1],
+    [rect.left + 1, rect.bottom - 1],
+    [rect.right - 1, rect.bottom - 1],
+    [(rect.right - rect.left) / 2, (rect.top - rect.bottom) / 2],
+  ];
+  for (var i = 0; i < locs.length; i++) {
+    var x = locs[i][0], y = locs[i][1];
+    var elem = document.elementFromPoint(x, y);
+    if (!elem)
+      continue;
+    if (elem === info.node || info.node.contains(elem))
+      return true;
+    if (!DOM.isVisible(elem))
       return true;
   }
   return false;
 };
 
-Hints.getLinks = function() {
-  var applicableFilters = Object.keys(this.siteFilters).filter(function(key) {
-    return matchLocation(document.URL, key);
-  }).map(function(key) { return this.siteFilters[key]; }.bind(this));
+Hints.getLinkInfo = Utils.cacheFunction(function(node) {
+  var info = {
+    node: node,
+    linkType: Hints.LINK_TYPE,
+  };
 
+  if (!Hints.hintFilter.shouldAccept(node)) {
+    if (Hints.hintFilter.shouldReject(node))
+      return null;
+    info.linkType = Hints.getLinkType(node);
+  }
+
+  if (info.linkType === Hints.NON_LINK_TYPE)
+    return null;
+
+  if (node.localName.toLowerCase() === 'area') {
+    info.rect = DOM.getVisibleBoundingAreaRect(node);
+  } else {
+    info.rect = DOM.getVisibleBoundingRect(node);
+  }
+
+  if (!info.rect)
+    return null;
+
+  // TODO
+  // if (!Hints.isClickable(info))
+  //   return null;
+
+  return info;
+});
+
+Hints.getLinks = function() {
+  Hints.getLinkInfo.clearCache();
+  Hints.hintFilter = Hints.createHintFilter(document.URL);
+  var links = mapDOM(document.body, this.getLinkInfo);
   if (settings.sortlinkhints) {
-    traverseDOM(document.body, this.acceptHint).map(function(node) {
-      var rect = node.getBoundingClientRect();
-      return [node, Math.sqrt(rect.top * rect.top + rect.left * rect.left)];
+    links = links.map(function(item) {
+      var rect = item.rect;
+      return [item, Math.sqrt(rect.top * rect.top + rect.left * rect.left)];
     }).sort(function(a, b) {
       return a[1] - b[1];
-    }).forEach(function(node) {
-      if (applicableFilters.every(function(filter) {
-        return !filter.matches(node[0]);
-      })) Hints.evaluateLink(node[0]);
-    });
-  } else {
-    traverseDOM(document.body, this.acceptHint).forEach(function(node) {
-      if (applicableFilters.every(function(filter) {
-        return !filter.matches(node);
-      })) Hints.evaluateLink(node);
+    }).map(function(e) {
+      return e[0];
     });
   }
 
-  applicableFilters.forEach(function(filter) {
-    filter.searches.forEach(function(search) {
-      var nodes = document.querySelectorAll(search);
-      if (nodes.length) {
-        for (var i = 0; i < nodes.length; i++)
-          Hints.evaluateLink(nodes[i]);
+  links = links.filter(function(info, index) {
+    if ((info.linkType & Hints.WEAK_LINK_TYPE) === 0)
+      return true;
+    for (var i = index + 1; i < links.length; i++) {
+      var depth = 0;
+      var node = links[i].node;
+      while (node && node !== info.node) {
+        depth++;
+        node = node.parentNode;
       }
-    });
+      if (depth > 3)
+        continue;
+      if (info.node.contains(links[i].node))
+        return false;
+    }
+    return true;
   });
+
+  return links;
 };
-
-
-// GolombExp
-// Hints.genHints = function(M) {
-//   var codes = [];
-//   var genCodeWord = function(N) {
-//     var word = '';
-//     do {
-//       word += settings.hintcharacters.charAt(N % settings.hintcharacters.length);
-//       N = ~~(N / settings.hintcharacters.length);
-//     } while (N > 0);
-//     return word.split('').reverse().join('');
-//   };
-//   for (var i = 0; i < M; i++) {
-//     var last = genCodeWord(i);
-//     var first = '';
-//     for (var j = 0; j < last.length - 1; j++) {
-//       first += settings.hintcharacters.charAt(0);
-//     }
-//     codes.push(first + last);
-//   }
-//   return codes;
-// };
 
 // Golomb
 Hints.genHints = function(M) {
@@ -652,7 +700,9 @@ Hints.create = function(type, multi) {
     if (settings.scalehints) {
       Hints.linkElementBase.className += ' cVim-hint-scale';
     }
-    self.getLinks();
+    self.getLinks().forEach(function(link) {
+      self.evaluateLink(link);
+    });
     if (type && type.indexOf('multi') !== -1) {
       self.multi = true;
     } else {
@@ -706,11 +756,6 @@ Hints.create = function(type, multi) {
         frag.appendChild(self.linkArr[i][0]);
       }
     } else {
-      self.linkArr = self.linkArr.sort(function(a, b) {
-        return a[0] - b[0];
-      }).map(function(e) {
-        return e.slice(1);
-      });
       for (i = 0, l = self.linkArr.length; i < l; ++i) {
         self.linkArr[i][0].textContent = (i + 1).toString() + (self.linkArr[i][3] ? ': ' + self.linkArr[i][3] : '');
         frag.appendChild(self.linkArr[i][0]);

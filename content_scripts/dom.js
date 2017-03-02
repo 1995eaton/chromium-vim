@@ -77,48 +77,93 @@ window.DOM = {
    * @return boundingRect or null (if element is not visible on-screen)
    */
   getVisibleBoundingRect: function(node) {
-    var i;
-    var boundingRect = node.getClientRects()[0] || node.getBoundingClientRect();
-    if (boundingRect.width <= 1 && boundingRect.height <= 1) {
-      var rects = node.getClientRects();
-      for (i = 0; i < rects.length; i++) {
-        if (rects[i].width > rects[0].height && rects[i].height > rects[0].height) {
-          boundingRect = rects[i];
+    var style = getComputedStyle(node, null);
+    if (style.visibility !== 'visible' ||
+        style.display === 'none') {
+      return null;
+    }
+
+    var rects = node.getClientRects();
+    if (rects.length === 0)
+      return null;
+
+    var result = null;
+
+    outer:
+    for (var i = 0; i < rects.length; i++) {
+      var r = rects[i];
+
+      if (r.left + r.width < 5 || r.top + r.height < 5)
+        continue;
+      if (innerWidth - r.left < 5 || innerHeight - r.top < 5)
+        continue;
+
+      if (r.height <= 1 || r.width <= 1) {
+        var children = node.children;
+        for (var j = 0; j < children.length; j++) {
+          var child = children[j];
+          var childStyle = getComputedStyle(child, null);
+          if (childStyle.position === 'absolute' ||
+              childStyle.position === 'fixed') {
+            var childRect = this.getVisibleBoundingRect(child);
+            if (childRect !== null) {
+              result = childRect;
+              break outer;
+            }
+          }
         }
+      } else {
+        result = r;
+        break;
       }
     }
-    if (boundingRect === void 0) {
+    if (result !== null) {
+      result = this.cloneRect(result);
+      result.left = Math.max(0, result.left);
+      result.top = Math.max(0, result.top);
+      result.right = Math.min(result.right, innerWidth);
+      result.bottom = Math.min(result.bottom, innerHeight);
+    }
+
+    return result;
+  },
+
+  // makes bounding rect writeable
+  cloneRect: function(rect) {
+    return {
+      left: rect.left,
+      right: rect.right,
+      top: rect.top,
+      bottom: rect.bottom,
+      width: rect.width,
+      height: rect.height,
+    };
+  },
+
+  getVisibleBoundingAreaRect: function(node) {
+    var map = node.parentElement;
+    if (!map || map.localName.toLowerCase() !== 'map')
       return null;
-    }
-    if (boundingRect.top > innerHeight || boundingRect.left > innerWidth) {
+    var mapName = map.getAttribute('name');
+    if (!mapName)
       return null;
-    }
-    if (boundingRect.width <= 1 || boundingRect.height <= 1) {
-      var children = node.children;
-      var visibleChildNode = false;
-      for (i = 0, l = children.length; i < l; ++i) {
-        boundingRect = children[i].getClientRects()[0] || children[i].getBoundingClientRect();
-        if (boundingRect.width > 1 && boundingRect.height > 1) {
-          visibleChildNode = true;
-          break;
-        }
-      }
-      if (visibleChildNode === false) {
-        return null;
-      }
-    }
-    if (boundingRect.top + boundingRect.height < 10 || boundingRect.left + boundingRect.width < -10) {
+    var mapImg = document.querySelector('*[usemap="#' + mapName + '"]');
+    if (!mapImg)
       return null;
-    }
-    var computedStyle = getComputedStyle(node, null);
-    if (computedStyle.visibility !== 'visible' ||
-        computedStyle.display === 'none' ||
-        node.hasAttribute('disabled') ||
-        parseInt(computedStyle.width, 10) === 0 ||
-        parseInt(computedStyle.height, 10) === 0) {
+    var mapImgRect = DOM.getVisibleBoundingRect(mapImg);
+    if (mapImgRect === null)
       return null;
-    }
-    return boundingRect;
+    var coords = node.coords.split(',').map(function(coord) {
+      return parseInt(coord, 10);
+    });
+    return {
+      left: mapImgRect.left + coords[0],
+      right: mapImgRect.left + coords[2],
+      top: mapImgRect.top + coords[1],
+      bottom: mapImgRect.top + coords[3],
+      width: this.right - this.left,
+      height: this.bottom - this.top,
+    };
   },
 
   /**
