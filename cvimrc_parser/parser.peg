@@ -1,4 +1,5 @@
 {
+  var scopeIdentifiers = {};
   var autoJsLength = 0;
   function merge(a, b) {
     for (var p in b) {
@@ -110,12 +111,15 @@ Expression
   = StringLiteral
   / NumberLiteral
   / ArrayLiteral
+  / Identifier { return scopeIdentifiers[text()]; }
 
 LetStatement
   = LET SEP a:Identifier SEP? '=' SEP? b:Expression {
+    scopeIdentifiers[a] = b;
     var r = {}; r[a] = b; return r;
   }
   / LET SEP a:Identifier SEP b:(Identifier / NumberLiteral) SEP? '=' SEP? c:Expression {
+    scopeIdentifiers[a] = {[b]: c};
     a = objectPlural(a);
     var r = {}; r[a] = {}; r[a][b] = c; return r;
   }

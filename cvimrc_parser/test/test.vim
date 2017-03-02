@@ -1,3 +1,4 @@
+let hintcharacters = 'abc'
 set nosmoothscroll
 set nodimhintcharacters
 set noautofocus
@@ -64,3 +65,5 @@ command refresh open @%
 " Comment 1
 "
 " Comment 2
+
+let hintcharacters_copy = hintcharacters
