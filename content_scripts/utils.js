@@ -46,7 +46,7 @@ var Utils = {
     var index = string.lastIndexOf('%s');
     if (index < 0)
       return string + value;
-    return string.slice(0, index) + string.slice(index + 2);
+    return string.slice(0, index) + value + string.slice(index + 2);
   },
   toSearchURL: function(query, engineUrl) {
     if (Utils.isValidURL(query)) {
