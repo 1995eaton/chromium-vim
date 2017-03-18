@@ -586,7 +586,7 @@ Mappings.actions = {
       document.activeElement.select();
     }
     if (!document.activeElement.hasAttribute('readonly')) {
-      document.getSelection().collapseToEnd();
+      document.getSelection().modify('move', 'right', 'lineboundary');
     }
   },
   shortCuts: function(command, repeats) {
