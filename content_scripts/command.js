@@ -944,7 +944,11 @@ Command.show = function(search, value, complete) {
     // Temp fix for Chromium issue in #97
     if (this.commandBarFocused()) {
       document.activeElement.select();
-      document.getSelection().collapseToEnd();
+
+      // TODO: figure out why a842dd6 and fix for #527 are necessary
+      // document.getSelection().collapseToEnd();
+      document.getSelection().modify('move', 'right', 'lineboundary');
+
     }
     // End temp fix
 
