@@ -1,6 +1,9 @@
 # cVim Changelog
 
 ## 1.2.86
+ * Fix input box issues with new versions of Chrome
+
+## 1.2.86
  * Add `openQuickMarkWindowed` command
 
 ## 1.2.85
