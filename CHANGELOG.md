@@ -1,5 +1,8 @@
 # cVim Changelog
 
+## 1.2.87
+ * Fix issue with `:buffer` command
+
 ## 1.2.86
  * Fix input box issues with new versions of Chrome
 
