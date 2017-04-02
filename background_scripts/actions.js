@@ -696,7 +696,7 @@ Actions = (function() {
         if (settings.showtabindices) {
           title = title.replace(new RegExp('^' + (e.index + 1) + ' '), '');
         }
-        return [(i + 1) + ': ' + title, e.url];
+        return [(i + 1) + ': ' + title, e.url, e.id];
       });
 
       o.callback({
