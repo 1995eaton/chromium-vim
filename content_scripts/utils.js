@@ -201,7 +201,12 @@ var searchArray = function(opt) {
     var text = fn(item).split(split);
     if (search.every(function(searchTerm) {
       return text.some(function(textTerm) {
-        return textTerm.toLowerCase().indexOf(searchTerm) === 0;
+        var idx = textTerm.toLowerCase().indexOf(searchTerm);
+        if ((typeof Settings !== 'undefined' && !Settings.matchfrombegin) ||
+            (typeof settings !== 'undefined' && !settings.matchfrombegin)) {
+          return idx !== -1;
+        }
+        return idx === 0;
       });
     })) {
       matches.push(item);

@@ -11,22 +11,26 @@ const NON_SCROLLABLE     = 0,
 //       SCROLLABLE_X = SCROLLABLE_X_LEFT | SCROLLABLE_X_RIGHT;
 
 var scrollingElement = (function() {
+  function isScrollable(elem, scrollType) {
+	var origin = elem[scrollType];
+	elem[scrollType] += 1;
+	if (origin === elem[scrollType]) return false;
+	else elem[scrollType] -= 1;
+	return true;
+  }
+
   function getScrollType(elem) {
     var cs = getComputedStyle(elem);
     var st = NON_SCROLLABLE;
     if (cs.overflow === 'hidden')
       return st;
-    if (cs.overflowX !== 'hidden' &&
-        elem.offsetHeight > elem.clientHeight &&
-        elem.scrollWidth > elem.clientWidth) {
+    if (cs.overflowX !== 'hidden' && isScrollable(elem, "scrollLeft")) {
       if (elem.scrollLeft > 0)
         st |= SCROLLABLE_X_LEFT;
       if (elem.scrollLeft + elem.clientWidth < elem.scrollWidth)
         st |= SCROLLABLE_X_RIGHT;
     }
-    if (cs.overflowY !== 'hidden' &&
-        elem.offsetWidth > elem.clientWidth &&
-        elem.scrollHeight > elem.clientHeight) {
+    if (cs.overflowY !== 'hidden' && isScrollable(elem, "scrollTop")) {
       if (elem.scrollTop > 0)
         st |= SCROLLABLE_Y_UP;
       if (elem.scrollTop + elem.clientHeight < elem.scrollHeight)
