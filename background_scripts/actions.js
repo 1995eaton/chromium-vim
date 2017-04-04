@@ -608,14 +608,10 @@ Actions = (function() {
   };
 
   _.lastUsedTab = function() {
-    if (LastUsedTabs.length === 2) {
+    if (LastUsedTabs.length >= 2) {
       chrome.tabs.query({}, function(tabs) {
-        for (var i = 0; i < tabs.length; i++) {
-          if (LastUsedTabs[0] === tabs[i].id) {
-            chrome.tabs.update(LastUsedTabs[0], {active: true});
-            break;
-          }
-        }
+        lastTab = LastUsedTabs[LastUsedTabs.length - 2];
+        chrome.tabs.update(lastTab, {active: true});
       });
     }
   };
