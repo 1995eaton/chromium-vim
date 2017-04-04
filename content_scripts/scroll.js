@@ -11,22 +11,30 @@ const NON_SCROLLABLE     = 0,
 //       SCROLLABLE_X = SCROLLABLE_X_LEFT | SCROLLABLE_X_RIGHT;
 
 var scrollingElement = (function() {
+  function isScrollableDelta(elem, scrollType, delta) {
+    var origin = elem[scrollType];
+    elem[scrollType] += delta;
+    if (origin === elem[scrollType]) return false;
+    else elem[scrollType] -= delta;
+    return true;
+  }
+
+  function isScrollable(elem, scrollType) {
+    return isScrollableDelta(elem, scrollType, 1) || isScrollableDelta(elem, scrollType, -1);
+  }
+
   function getScrollType(elem) {
     var cs = getComputedStyle(elem);
     var st = NON_SCROLLABLE;
     if (cs.overflow === 'hidden')
       return st;
-    if (cs.overflowX !== 'hidden' &&
-        elem.offsetHeight > elem.clientHeight &&
-        elem.scrollWidth > elem.clientWidth) {
+    if (cs.overflowX !== 'hidden' && isScrollable(elem, "scrollLeft")) {
       if (elem.scrollLeft > 0)
         st |= SCROLLABLE_X_LEFT;
       if (elem.scrollLeft + elem.clientWidth < elem.scrollWidth)
         st |= SCROLLABLE_X_RIGHT;
     }
-    if (cs.overflowY !== 'hidden' &&
-        elem.offsetWidth > elem.clientWidth &&
-        elem.scrollHeight > elem.clientHeight) {
+    if (cs.overflowY !== 'hidden' && isScrollable(elem, "scrollTop")) {
       if (elem.scrollTop > 0)
         st |= SCROLLABLE_Y_UP;
       if (elem.scrollTop + elem.clientHeight < elem.scrollHeight)
@@ -49,12 +57,32 @@ var scrollingElement = (function() {
   });
 
   return function scrollingElement(dir) {
+    var scrollType = (function() {
+      switch (dir) {
+      case SCROLLABLE_X_RIGHT: case SCROLLABLE_X_LEFT:
+        return "scrollLeft";
+      default:
+        return "scrollTop";
+      }
+    })();
+
     var elem;
     if (clickFocus) {
       elem = lastActiveElem;
     } else {
       elem = lastActiveElem = document.activeElement;
+
+      if (elem === document.body && !isScrollable(document.activeElement, scrollType)) {
+        var elem_candidates = document.elementsFromPoint(window.innerWidth/2, window.innerHeight/2);
+        for (var e of elem_candidates) {
+          if (getScrollType(e) & dir) {
+            elem = lastActiveElem = e;
+            break;
+          }
+        }
+      }
     }
+
     if (elem === null)
       return null;
     return (function climb(elem) {
