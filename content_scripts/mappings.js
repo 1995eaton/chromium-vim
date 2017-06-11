@@ -938,27 +938,24 @@ Mappings.parseLine = function(line) {
   }
 };
 
-Mappings.parseCustom = function(config) {
+Mappings.parseCustom = function(config, updateSiteMappings) {
   this.defaults.forEach(function(e) {
     mappingTrie.insert(Mappings.splitMapping(e[0]), e[1]);
   });
   this.insertDefaults.forEach(function(e) {
     insertMappings.insert(Mappings.splitMapping(e[0]), e[1]);
   });
-  var ignore = false; // ignore 'site DOMAIN {...}' blocks
   Utils.split(config, '\n').forEach(function(e) {
-    var kw = Utils.split(e, ' ');
-    if (kw.length === 3 && kw[0] === 'site' && kw[2] === '{') {
-      ignore = true;
-    }
-    if (ignore && kw.length === 1 && kw[0] === '}') {
-      ignore = false;
-      return;
-    }
-    if (!ignore) {
-      Mappings.parseLine(e);
-    }
+    Mappings.parseLine(e);
   });
+
+  if (updateSiteMappings && settings.sites) {
+    for (var key in settings.sites) {
+      if (matchLocation(document.URL, key)) {
+        Command.addSettingBlock(settings.sites[key]);
+      }
+    }
+  }
 };
 
 Mappings.executeSequence = function(c, r) {

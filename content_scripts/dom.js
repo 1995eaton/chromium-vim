@@ -93,26 +93,22 @@ window.DOM = {
     for (var i = 0; i < rects.length; i++) {
       var r = rects[i];
 
-      if (r.left + r.width < 5 || r.top + r.height < 5)
-        continue;
-      if (innerWidth - r.left < 5 || innerHeight - r.top < 5)
-        continue;
-
       if (r.height <= 1 || r.width <= 1) {
         var children = node.children;
         for (var j = 0; j < children.length; j++) {
           var child = children[j];
-          var childStyle = getComputedStyle(child, null);
-          if (childStyle.position === 'absolute' ||
-              childStyle.position === 'fixed') {
-            var childRect = this.getVisibleBoundingRect(child);
-            if (childRect !== null) {
-              result = childRect;
-              break outer;
-            }
+          var childRect = this.getVisibleBoundingRect(child);
+          if (childRect !== null) {
+            result = childRect;
+            break outer;
           }
         }
       } else {
+        if (r.left + r.width < 5 || r.top + r.height < 5)
+          continue;
+        if (innerWidth - r.left < 5 || innerHeight - r.top < 5)
+          continue;
+
         result = r;
         break;
       }
