@@ -162,8 +162,8 @@ port.onMessage.addListener(function(response) {
     if (!Command.initialLoadStarted) {
       Command.configureSettings(response.settings);
     } else {
-      Mappings.parseCustom(response.settings.MAPPINGS);
       settings = response.settings;
+      Mappings.parseCustom(settings.MAPPINGS, true);
     }
     break;
   case 'updateLastCommand':
@@ -192,8 +192,8 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
     if (!Command.initialLoadStarted) {
       Command.configureSettings(request.settings);
     } else {
-      Mappings.parseCustom(request.settings.MAPPINGS);
       settings = request.settings;
+      Mappings.parseCustom(settings.MAPPINGS, true);
     }
     break;
   case 'cancelAllWebRequests':
