@@ -493,10 +493,10 @@ Hints.getLinkType = function(node) {
   if (node.nodeType !== Node.ELEMENT_NODE)
     return Hints.NON_LINK_TYPE;
 
-  var name = node.localName.toLowerCase();
-
   if (node.getAttribute('aria-hidden') === 'true')
     return Hints.NON_LINK_TYPE;
+
+  var name = node.localName.toLowerCase();
 
   if (Hints.type) {
     if (Hints.type.indexOf('yank') !== -1) {
@@ -517,26 +517,26 @@ Hints.getLinkType = function(node) {
   }
 
   switch (name) {
-  case 'select':
-  case 'textarea':
-  case 'input':
-    return Hints.LINK_TYPE | Hints.INPUT_LINK;
   case 'a':
   case 'button':
   case 'area':
     return Hints.LINK_TYPE;
+  case 'select':
+  case 'textarea':
+  case 'input':
+    return Hints.LINK_TYPE | Hints.INPUT_LINK;
   }
 
   switch (true) {
   case node.hasAttribute('contenteditable'):
     return Hints.LINK_TYPE | Hints.INPUT_LINK;
+  case node.hasAttribute('tabindex'):
+  case node.hasAttribute('onclick'):
+    return Hints.LINK_TYPE;
   case node.hasAttribute('aria-haspopup'):
   case node.hasAttribute('data-cmd'):
   case node.hasAttribute('jsaction'):
     return Hints.WEAK_LINK_TYPE;
-  case node.hasAttribute('tabindex'):
-  case node.hasAttribute('onclick'):
-    return Hints.LINK_TYPE;
   }
 
   var role = node.getAttribute('role');

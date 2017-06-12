@@ -1,5 +1,6 @@
 var port = chrome.extension.connect({name: 'main'});
 port.onDisconnect.addListener(function() {
+  window.portDestroyed = true;
   chrome.runtime.sendMessage = function() {};
   chrome.runtime.connect = function() {};
   Command.hide();
@@ -44,23 +45,12 @@ port.onMessage.addListener(function(response) {
     PORT('getTopSites');
     PORT('getLastCommand');
     break;
-  case 'checkFrameVisibility':
-    var data = {
-      id: response.id,
-      isVisible: false,
-      rect: null
-    };
-    [].some.call(document.querySelectorAll('iframe'), function(e) {
-      if (e.src === response.url) {
-        data.rect = DOM.getVisibleBoundingRect(e);
-        data.isVisible = !!data.rect;
-        return data.isVisible;
-      }
-    });
-    PORT('portCallback', data);
+  case 'addFrame':
+    if (innerWidth > 5 && innerHeight > 5)
+      Frames.init(response.frameId);
     break;
   case 'focusFrame':
-    Frames.focus();
+    Frames.focus(response.disableAnimation);
     break;
   case 'updateLastCommand':
     Mappings.lastCommand = JSON.parse(response.data);
@@ -233,10 +223,6 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
   case 'alert':
     alert(request.message);
     break;
-  case 'getSubFrames':
-    if (self === top)
-      callback(Frames.getSubFrames());
-    break;
   case 'showCommandFrame':
     if (Command.frame) {
       Command.frame.style.display = 'block';
@@ -248,15 +234,10 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
     }
     break;
   case 'hideCommandFrame':
-    if (window.wasFocused) {
-      window.wasFocused = false;
-      window.focus();
-      document.activeElement.focus();
-      Mappings.handleEscapeKey();
-      Mappings.clearQueue();
-    }
+    window.wasFocused = false;
     if (Command.frame) {
       Command.frame.style.display = 'none';
+      callback();
     }
     break;
   case 'callFind':
@@ -338,6 +319,9 @@ chrome.extension.onMessage.addListener(function(request, sender, callback) {
         Session.tabIndex = request.index;
       });
     }
+    break;
+  case 'isFrameVisible':
+    callback(e.innerWidth > 5 && e.innerHeight > 5);
     break;
   }
 });

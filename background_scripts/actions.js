@@ -86,8 +86,7 @@ Actions = (function() {
   };
 
   _.addFrame = function(o) {
-    if (o.request.isRoot)
-      frameIndices[o.sender.tab.id] = -1;
+    Frames.add(o.sender.tab.id, o.port, o.request.isCommandFrame);
   };
 
   _.portCallback = (function() {
@@ -108,52 +107,13 @@ Actions = (function() {
   })();
 
   _.focusFrame = function(o) {
-    var tabId = o.sender.tab.id;
-    chrome.webNavigation.getAllFrames({
-      tabId: tabId
-    }, function(frames) {
-      var visibleFrames = [];
-      activePorts.some(function(e) {
-        if (e.sender.tab.id === tabId && e.sender.frameId === 0) {
-          visibleFrames.push(e);
-          return true;
-        }
-      });
-      frames = frames.map(function(child) {
-        for (var i = 0, p, r = {}; i < activePorts.length; i++) {
-          p = activePorts[i];
-          if (p.sender.tab.id === tabId && p.sender.frameId === child.frameId)
-            r.child = p;
-          if (p.sender.tab.id === tabId && p.sender.frameId === child.parentFrameId)
-            r.parent = p;
-        }
-        return r.parent && r.child ? r : null;
-      }).filter(function(e) { return e; });
-      var recvCount = 0;
-      if (frames.length === 0)
-        visibleFrames[0].postMessage({
-          type: 'focusFrame'
-        });
-      frames.forEach(function(port) {
-        port.parent.postMessage({
-          type: 'checkFrameVisibility',
-          url: port.child.sender.url,
-          id: _.portCallback.addCallback(function(obj) {
-            recvCount += 1;
-            if (obj.isVisible) {
-              visibleFrames.push(port.child);
-            }
-            if (recvCount === frames.length) {
-              frameIndices[tabId] |= 0;
-              frameIndices[tabId] = (frameIndices[tabId] + 1) % visibleFrames.length;
-              visibleFrames[frameIndices[tabId]].postMessage({
-                type: 'focusFrame',
-              });
-            }
-          })
-        });
-      });
-    });
+    if (o.request.isRoot) {
+      var frame = Frames.get(o.sender.tab.id);
+      if (frame)
+        frame.focus(0);
+    } else {
+      Frames.get(o.sender.tab.id).focusNext();
+    }
   };
 
   _.syncSettings = function(o) {
@@ -621,7 +581,10 @@ Actions = (function() {
   };
 
   _.runScript = function(o) {
-    chrome.tabs.executeScript(o.sender.tab.id, {code: o.request.code}, function() {
+    chrome.tabs.executeScript(o.sender.tab.id, {
+      code: o.request.code,
+      runAt: 'document_start',
+    }, function() {
       if (!chrome.runtime.lastError) {
         return true;
       }
@@ -810,6 +773,7 @@ Actions = (function() {
   };
 
   _.showCommandFrame = function(o) {
+    Frames.get(o.sender.tab.id).focusedId = o.request.frameId;
     chrome.tabs.sendMessage(o.sender.tab.id, {
       action: o.request.action,
       search: o.request.search,
@@ -818,9 +782,21 @@ Actions = (function() {
     });
   };
 
+  _.markActiveFrame = function(o) {
+    var frame = Frames.get(o.sender.tab.id);
+    if (frame) {
+      frame.focusedId = o.request.frameId;
+    }
+  };
+
   _.hideCommandFrame = function(o) {
     chrome.tabs.sendMessage(o.sender.tab.id, {
       action: o.request.action
+    }, function() {
+      var frame = Frames.get(o.sender.tab.id);
+      if (frame) {
+        frame.focus(frame.focusedId, true);
+      }
     });
   };
 
@@ -913,7 +889,7 @@ Actions = (function() {
     chrome.tabs.update(o.sender.tab.id, {muted: !o.sender.tab.mutedInfo.muted});
   };
 
-  return function(_request, _sender, _callback) {
+  return function(_request, _sender, _callback, _port) {
     var action = _request.action;
     if (!_.hasOwnProperty(action) || typeof _[action] !== 'function')
       return;
@@ -922,6 +898,7 @@ Actions = (function() {
       request:  _request,
       sender:   _sender,
       callback: _callback,
+      port:     _port,
     };
     o.request.repeats = Math.max(~~o.request.repeats, 1);
 

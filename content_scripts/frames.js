@@ -1,12 +1,15 @@
 var Frames = {
-  focus: function() {
+  frameId: null,
+  focus: function(disableAnimation) {
     window.focus();
-    var outline = document.createElement('div');
-    outline.id = 'cVim-frames-outline';
-    document.body.appendChild(outline);
-    window.setTimeout(function() {
-      document.body.removeChild(outline);
-    }, 500);
+    if (!disableAnimation) {
+      var outline = document.createElement('div');
+      outline.id = 'cVim-frames-outline';
+      document.body.appendChild(outline);
+      window.setTimeout(function() {
+        document.body.removeChild(outline);
+      }, 500);
+    }
   },
   frameIsVisible: function(e) {
     if (e.getAttribute('aria-hidden') === 'true' ||
@@ -26,25 +29,27 @@ var Frames = {
       return false;
     return true;
   },
-  getSubFrames: function() {
-    var subFrames = document.querySelectorAll('iframe[src],frame[src]');
-    var result = [document.URL];
-    for (var i = 0; i < subFrames.length; i++) {
-      if (this.frameIsVisible(subFrames[i]))
-        result.push(subFrames[i].src);
-    }
-    return result;
+  markAsActive: function() {
+    RUNTIME('markActiveFrame', {
+      frameId: this.frameId,
+    });
   },
-  init: function(isRoot) {
-    RUNTIME('addFrame', {
-      isRoot: isRoot,
-      url: document.URL
-    }, function(id) {
-      Frames.id = id;
+  init: function(frameId) {
+    Frames.frameId = frameId;
+    PORT('addFrame', {
+      isCommandFrame: !!window.isCommandFrame
     });
   }
 };
 
-document.addEventListener('DOMContentLoaded', function() {
-  Frames.init(self === top);
-}, false);
+(function() {
+  function focusListener() {
+    if (window.portDestroyed) {
+      window.removeEventListener('focus', focusListener);
+      return;
+    }
+    if (!window.isCommandFrame)
+      Frames.markAsActive();
+  }
+  window.addEventListener('focus', focusListener);
+})();

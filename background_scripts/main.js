@@ -1,5 +1,4 @@
 var sessions = {},
-    frameIndices = {},
     ActiveTabs = {},
     TabHistory = {},
     activePorts = [],
@@ -104,7 +103,7 @@ var Listeners = {
       if (TabHistory[id] !== void 0) {
         delete TabHistory[id];
       }
-      delete frameIndices[id];
+      Frames.remove(id);
     },
     onCreated: updateTabIndices,
     onMoved: updateTabIndices,
@@ -118,12 +117,16 @@ var Listeners = {
     onConnect: function(port) {
       if (activePorts.indexOf(port) !== -1)
         return;
+      var frameId = port.sender.frameId;
       port.postMessage({type: 'hello'});
+      port.postMessage({type: 'addFrame', frameId: frameId});
       activePorts.push(port);
       port.onMessage.addListener(function(request) {
         return Actions(request, port.sender, port.postMessage.bind(port), port);
       });
       port.onDisconnect.addListener(function() {
+        Frames.removeFrame(frameId);
+
         for (var i = 0; i < activePorts.length; i++) {
           if (activePorts[i] === port) {
             activePorts.splice(i, 1);

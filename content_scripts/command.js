@@ -901,12 +901,12 @@ Command.show = function(search, value, complete) {
     });
     return;
   }
-  if (!window.isCommandFrame && (document.hasFocus() ||
-        document.readyState !== 'complete')) {
-    window.wasFocused = true;
-  }
   if (window.isCommandFrame === void 0) {
+    Mappings.handleEscapeKey();
+    Mappings.clearQueue();
+    window.wasFocused = true;
     PORT('showCommandFrame', {
+      frameId: Frames.frameId,
       search: search,
       value: value,
       complete: complete ? value : null

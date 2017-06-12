@@ -319,13 +319,12 @@ var mapDOM = function(root, accept) {
       node = node.nextSibling;
     }
   }
-  nodes.shift();
   var acceptedValues = [];
-  nodes.forEach(function(node) {
-    var value = accept(node);
+  for (i = 1; i < nodes.length; i++) {
+    var value = accept(nodes[i]);
     if (value !== null)
       acceptedValues.push(value);
-  });
+  }
   return acceptedValues;
 };
 
