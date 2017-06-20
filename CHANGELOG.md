@@ -1,6 +1,7 @@
 # cVim Changelog
 
 ## 1.2.89
+ * If you are currently running an old version of the [cvim_server.py](https://github.com/1995eaton/chromium-vim/blob/master/cvim_server.py) script (keeping it up to date locally), please update to the latest version (in the link above)! For the time being, the `editWithVim` feature has been disabled due to a security concern.
  * Bug fixes
 
 ## 1.2.88
