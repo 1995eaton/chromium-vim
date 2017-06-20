@@ -1,5 +1,8 @@
 # cVim Changelog
 
+## 1.2.89
+ * Bug fixes
+
 ## 1.2.88
  * Fix issue with `:buffer` command
 
