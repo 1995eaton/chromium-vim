@@ -21,15 +21,18 @@ PORT = 8001
 
 
 def edit_file(command, content):
-    fd, fn = mkstemp(suffix='.txt', prefix='cvim-', text=True)
-    os.write(fd, content.encode('utf8'))
-    os.close(fd)
-    subprocess.Popen(shlex.split(command) + [fn]).wait()
-    text = None
-    with open(fn, 'r') as f:
-        text = f.read()
-    os.unlink(fn)
-    return text
+    return ''
+
+    # TODO: #551
+    # fd, fn = mkstemp(suffix='.txt', prefix='cvim-', text=True)
+    # os.write(fd, content.encode('utf8'))
+    # os.close(fd)
+    # subprocess.Popen(shlex.split(command) + [fn]).wait()
+    # text = None
+    # with open(fn, 'r') as f:
+    #     text = f.read()
+    # os.unlink(fn)
+    # return text
 
 
 class CvimServer(BaseHTTPRequestHandler):
