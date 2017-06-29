@@ -1,4 +1,5 @@
 # cVim Changelog
+# [Like cVim? Consider donating! https://www.paypal.me/1995eaton](https://www.paypal.me/1995eaton)
 
 ## 1.2.90
  * Re-implement editWithVim
