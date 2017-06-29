@@ -761,11 +761,9 @@ Mappings.insertFunctions = (function() {
       return element;
     },
     editWithVim: function() {
-      alert('Due to a security issue with cVim (https://github.com/1995eaton/chromium-vim/issues/551). The editWithVim feature has been temporarily disabled. If you have saved the "cvim_server.py" script locally, please ensure you have updated it (and are keeping it up to date) with the latest version of cVim.');
-      // TODO: #551
-      // PORT('editWithVim', {
-      //   text: element.value || element.innerHTML
-      // });
+      PORT('editWithVim', {
+        text: element.value || element.innerHTML
+      });
     },
     forwardChar: modify.bind(null, 'right', 'character'),
     backwardChar: modify.bind(null, 'left', 'character'),

@@ -127,15 +127,14 @@ port.onMessage.addListener(function(response) {
     }
     break;
   case 'editWithVim':
-    // TODO: #551
-    // var lastInputElement = Mappings.insertFunctions.__getElement__();
-    // if (lastInputElement) {
-    //   lastInputElement[lastInputElement.value !== void 0 ? 'value' : 'innerHTML'] =
-    //     response.text.replace(/\n$/, ''); // remove trailing line left by vim
-    //   if (!DOM.isSubmittable(lastInputElement)) {
-    //     lastInputElement.blur();
-    //   }
-    // }
+    var lastInputElement = Mappings.insertFunctions.__getElement__();
+    if (lastInputElement) {
+      lastInputElement[lastInputElement.value !== void 0 ? 'value' : 'innerHTML'] =
+        response.text.replace(/\n$/, ''); // remove trailing line left by vim
+      if (!DOM.isSubmittable(lastInputElement)) {
+        lastInputElement.blur();
+      }
+    }
     break;
   case 'httpRequest':
     httpCallback(response.id, response.text);

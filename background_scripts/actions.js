@@ -738,7 +738,6 @@ Actions = (function() {
       }
     };
     xhr.send(JSON.stringify({
-      command: settings.vimcommand,
       data: '' + (o.request.text || '')
     }));
   };

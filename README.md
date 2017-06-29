@@ -76,7 +76,6 @@ These extensions do a wonderful job of adding Vim-like keybindings to Google Chr
 | nextmatchpattern                    | string (regexp)                    | the pattern looked for when navigation a page's next button                               | ((?!first)(next&#124;older&#124;more&#124;&gt;&#124;›&#124;»&#124;forward&#124; )+)    |
 | hintcharacters                      | string (alphanumeric)              | set the default characters to be used in link hint mode                                   | "asdfgqwertzxcvb"                                                           |
 | barposition                         | string ["top", "bottom"]           | set the default position of the command bar                                               | "top"                                                                       |
-| vimcommand                          | string                             | set the command to be issued with the `editWithVim` command                               | "gvim -f"                                                                   |
 | langmap                             | string                             | set a list of characters to be remapped (see vims langmap)                                | ""                                                                          |
 
 ### Example configuration
@@ -452,7 +451,7 @@ let completionengines = ['google', 'google-image', 'youtube'] " Show only these 
 | `<C-j>`                   | move cursor forward one line                                          | forwardLine                     |
 | `<C-k>`                   | move cursor back one line                                             | backwardLine                    |
 | unmapped                  | select input text (equivalent to `<C-a>`)                             | selectAll                       |
-| unmapped                  | edit with Vim in a terminal (need the [cvim_server.py](https://github.com/1995eaton/chromium-vim/blob/master/cvim_server.py) script running for this to work) | editWithVim     |
+| unmapped                  | edit with Vim in a terminal (need the [cvim_server.py](https://github.com/1995eaton/chromium-vim/blob/master/cvim_server.py) script running for this to work and the VIM_COMMAND set inside that script) | editWithVim     |
 
 # Command Mode
 
