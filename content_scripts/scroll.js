@@ -110,7 +110,8 @@ function $scrollTo(elem, x, y) {
     yc:   0,
     ty:   0,
     tyo:  0,
-    dy:   0
+    dy:   0,
+    callback: null,
   };
   var scrollx = Object.clone(scroll);
 
@@ -128,7 +129,8 @@ function $scrollTo(elem, x, y) {
       animationYFrame = null;
       $scrollTo(scrollElem, null, scroll.y1);
       scroll.y0 = scroll.y1 = scroll.yc = scroll.ty = 0;
-      Scroll.addHistoryState();
+      if (scroll.callback)
+        scroll.callback();
     }
   };
 
@@ -145,7 +147,8 @@ function $scrollTo(elem, x, y) {
       $.cancelAnimationFrame(animationXFrame);
       $scrollTo(scrollXElem, scrollx.x1, null);
       scrollx.x0 = scrollx.x1 = scrollx.xc = scrollx.tx = 0;
-      Scroll.addHistoryState();
+      if (scroll.callback)
+        scroll.callback();
     }
   };
 
@@ -153,12 +156,13 @@ function $scrollTo(elem, x, y) {
     easeFn = fn;
   };
 
-  $.smoothScrollTo = function(elem, x, y, d) {
+  $.smoothScrollTo = function(elem, x, y, d, callback) {
     scrollElem = elem;
     $.cancelAnimationFrame(animationXFrame);
     $.cancelAnimationFrame(animationYFrame);
     scroll.dx = scroll.dy = d;
     scrollx.dx = scrollx.dy = d;
+    scroll.callback = callback || function() {};
     if (x !== scrollElem.scrollLeft) {
       scrollXElem = elem;
       scrollx.x0 = scrollXElem.scrollLeft;
@@ -188,7 +192,7 @@ function $scrollTo(elem, x, y) {
     })();
   };
 
-  $.smoothScrollBy = function(elem, x, y, d) {
+  $.smoothScrollBy = function(elem, x, y, d, callback) {
     if (x) {
       scrollXElem = elem;
     } else {
@@ -201,6 +205,7 @@ function $scrollTo(elem, x, y) {
       }
       return;
     }
+    scroll.callback = callback || function() {};
     lastX = x;
     lastY = y;
     $.scrollKeyUp = false;
@@ -231,6 +236,14 @@ function $scrollTo(elem, x, y) {
 
 })(this);
 
+Scroll.historyStateEquals = function(s1, s2) {
+  if (!s1 || !s2)
+    return false;
+  return s1[0] === s2[0] &&
+    s1[1] === s2[1] &&
+    s1[2] === s2[2];
+};
+
 Scroll.scrollToHistoryState = function(index) {
   index = index || this.historyIndex;
   var state = this.history[index];
@@ -243,6 +256,8 @@ Scroll.scrollToHistoryState = function(index) {
 };
 
 Scroll.previousHistoryState = function() {
+  if (!this.historyStateEquals(this.lastState(), this.currentState()))
+    this.addHistoryState();
   if (this.historyIndex > 0) {
     this.historyIndex--;
     this.scrollToHistoryState(this.historyIndex);
@@ -256,31 +271,43 @@ Scroll.nextHistoryState = function() {
   }
 };
 
-Scroll.addHistoryState = function() {
-  if (this.historyIndex + 1 < this.history.length) {
-    this.history = this.history.slice(0, this.historyIndex + 1);
-  }
+Scroll.currentState = function() {
+  // TODO make work with nested scrolling elements
   // var scrollElem = scrollingElement(SCROLLABLE);
+
   var scrollElem = document.scrollingElement;
   if (!scrollElem)
-    return;
-  var nextState = [scrollElem, scrollElem.scrollLeft, scrollElem.scrollTop];
+    return null;
+  return [scrollElem, scrollElem.scrollLeft, scrollElem.scrollTop];
+};
+
+Scroll.lastState = function() {
+  if (this.historyIndex >= this.history.length)
+    return null;
+  return this.history[this.historyIndex];
+};
+
+Scroll.addHistoryState = function() {
+  var nextState = this.currentState();
+  if (!nextState)
+    return false;
+  if (this.historyIndex + 1 < this.history.length)
+    this.history = this.history.slice(0, this.historyIndex + 1);
   if (this.history.length) {
-    var lastState = this.history[this.history.length - 1];
-    if (nextState[0] === lastState[0] &&
-        nextState[1] === lastState[1] &&
-        nextState[2] === lastState[2])
-      return;
+    if (this.historyStateEquals(this.lastState(), nextState))
+      return false;
   }
   this.history.push(nextState);
   this.historyIndex = this.history.length - 1;
+  return true;
 };
 
 Scroll.scroll = function(type, repeats) {
 
   var stepSize = settings ? settings.scrollstep : 60;
 
-  if (document.body && !/^(up|down|left|right)$/.test(type)) {
+  var shouldLogPosition = !/^(up|down|left|right|pageUp|pageDown)$/.test(type);
+  if (document.body && shouldLogPosition) {
     this.lastPosition = [document.scrollingElement.scrollLeft, document.scrollingElement.scrollTop];
   }
 
@@ -343,10 +370,16 @@ Scroll.scroll = function(type, repeats) {
   }
 
   if (settings && settings.smoothscroll) {
-    window.smoothScrollBy(scrollElem, x, y, settings.scrollduration);
+    if (shouldLogPosition) {
+      window.smoothScrollBy(scrollElem, x, y, settings.scrollduration,
+        function() { Scroll.addHistoryState(); });
+    } else {
+      window.smoothScrollBy(scrollElem, x, y, settings.scrollduration);
+    }
   } else {
     $scrollBy(scrollElem, x, y);
-    Scroll.addHistoryState();
+    if (shouldLogPosition)
+      Scroll.addHistoryState();
   }
 
 };
