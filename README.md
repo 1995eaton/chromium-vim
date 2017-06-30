@@ -366,6 +366,8 @@ let completionengines = ['google', 'google-image', 'youtube'] " Show only these 
 | `gR`                      | reload the current tab + local cache                                  | reloadTabUncached               |
 | `;<*>`                    | create mark &lt;*&gt;                                                 | setMark                         |
 | `''`                      | go to last scroll position                                            | lastScrollPosition              |
+| `<C-o>`                   | go to previous scroll position                                        | previousScrollPosition          |
+| `<C-i>`                   | go to next scroll position                                            | nextScrollPosition              |
 | `'<*>`                    | go to mark &lt;*&gt;                                                  | goToMark                        |
 | `cm`                      | mute/unmute a tab                                                     | muteTab                         |
 | none                      | reload all tabs                                                       | reloadAllTabs                   |

@@ -1,6 +1,9 @@
 # cVim Changelog
 # [Like cVim? Consider donating! https://www.paypal.me/1995eaton](https://www.paypal.me/1995eaton)
 
+## 1.2.91
+ * [Implement jumplist feature](https://github.com/1995eaton/chromium-vim/issues/553) (`previousScrollPosition` is `<C-o>` and `nextScrollPosition` is `<C-i>`).
+
 ## 1.2.90
  * Re-implement editWithVim
 

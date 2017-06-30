@@ -1108,6 +1108,7 @@ Command.onDOMLoadAll = function() {
   this.setup();
   this.domElementsLoaded = true;
   this.callOnCvimLoad();
+  Scroll.addHistoryState();
 };
 
 Command.updateSettings = function(config) {

@@ -1,12 +1,16 @@
 var Scroll = {
-  positions: {}
+  positions: {},
+  history: [],
+  historyIndex: 0,
 };
 
 const NON_SCROLLABLE     = 0,
       SCROLLABLE_Y_DOWN  = 1,
       SCROLLABLE_Y_UP    = 2,
       SCROLLABLE_X_RIGHT = 4,
-      SCROLLABLE_X_LEFT  = 8;
+      SCROLLABLE_X_LEFT  = 8,
+      SCROLLABLE = SCROLLABLE_X_LEFT | SCROLLABLE_X_RIGHT |
+                   SCROLLABLE_Y_UP | SCROLLABLE_Y_DOWN;
 // const SCROLLABLE_Y = SCROLLABLE_Y_UP   | SCROLLABLE_Y_DOWN,
 //       SCROLLABLE_X = SCROLLABLE_X_LEFT | SCROLLABLE_X_RIGHT;
 
@@ -124,6 +128,7 @@ function $scrollTo(elem, x, y) {
       animationYFrame = null;
       $scrollTo(scrollElem, null, scroll.y1);
       scroll.y0 = scroll.y1 = scroll.yc = scroll.ty = 0;
+      Scroll.addHistoryState();
     }
   };
 
@@ -140,6 +145,7 @@ function $scrollTo(elem, x, y) {
       $.cancelAnimationFrame(animationXFrame);
       $scrollTo(scrollXElem, scrollx.x1, null);
       scrollx.x0 = scrollx.x1 = scrollx.xc = scrollx.tx = 0;
+      Scroll.addHistoryState();
     }
   };
 
@@ -225,11 +231,56 @@ function $scrollTo(elem, x, y) {
 
 })(this);
 
+Scroll.scrollToHistoryState = function(index) {
+  index = index || this.historyIndex;
+  var state = this.history[index];
+  if (!state)
+    return;
+  var scrollElem = state[0];
+  scrollElem.scrollLeft = state[1];
+  scrollElem.scrollTop = state[2];
+  this.historyIndex = index;
+};
+
+Scroll.previousHistoryState = function() {
+  if (this.historyIndex > 0) {
+    this.historyIndex--;
+    this.scrollToHistoryState(this.historyIndex);
+  }
+};
+
+Scroll.nextHistoryState = function() {
+  if (this.historyIndex + 1 < this.history.length) {
+    this.historyIndex++;
+    this.scrollToHistoryState(this.historyIndex);
+  }
+};
+
+Scroll.addHistoryState = function() {
+  if (this.historyIndex + 1 < this.history.length) {
+    this.history = this.history.slice(0, this.historyIndex + 1);
+  }
+  // var scrollElem = scrollingElement(SCROLLABLE);
+  var scrollElem = document.scrollingElement;
+  if (!scrollElem)
+    return;
+  var nextState = [scrollElem, scrollElem.scrollLeft, scrollElem.scrollTop];
+  if (this.history.length) {
+    var lastState = this.history[this.history.length - 1];
+    if (nextState[0] === lastState[0] &&
+        nextState[1] === lastState[1] &&
+        nextState[2] === lastState[2])
+      return;
+  }
+  this.history.push(nextState);
+  this.historyIndex = this.history.length - 1;
+};
+
 Scroll.scroll = function(type, repeats) {
 
   var stepSize = settings ? settings.scrollstep : 60;
 
-  if (document.body) {
+  if (document.body && !/^(up|down|left|right)$/.test(type)) {
     this.lastPosition = [document.scrollingElement.scrollLeft, document.scrollingElement.scrollTop];
   }
 
@@ -295,6 +346,7 @@ Scroll.scroll = function(type, repeats) {
     window.smoothScrollBy(scrollElem, x, y, settings.scrollduration);
   } else {
     $scrollBy(scrollElem, x, y);
+    Scroll.addHistoryState();
   }
 
 };
