@@ -309,6 +309,7 @@ Scroll.scroll = function(type, repeats) {
   var shouldLogPosition = !/^(up|down|left|right|pageUp|pageDown)$/.test(type);
   if (document.body && shouldLogPosition) {
     this.lastPosition = [document.scrollingElement.scrollLeft, document.scrollingElement.scrollTop];
+    Scroll.addHistoryState();
   }
 
   var direction = (function() {
@@ -370,16 +371,8 @@ Scroll.scroll = function(type, repeats) {
   }
 
   if (settings && settings.smoothscroll) {
-    if (shouldLogPosition) {
-      window.smoothScrollBy(scrollElem, x, y, settings.scrollduration,
-        function() { Scroll.addHistoryState(); });
-    } else {
-      window.smoothScrollBy(scrollElem, x, y, settings.scrollduration);
-    }
+    window.smoothScrollBy(scrollElem, x, y, settings.scrollduration);
   } else {
     $scrollBy(scrollElem, x, y);
-    if (shouldLogPosition)
-      Scroll.addHistoryState();
   }
-
 };
