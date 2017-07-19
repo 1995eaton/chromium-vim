@@ -1,6 +1,9 @@
 # cVim Changelog
 # [Like cVim? Consider donating! https://www.paypal.me/1995eaton](https://www.paypal.me/1995eaton)
 
+## 1.2.93
+ * Fix exception being thrown on React.js input forms
+
 ## 1.2.92
  * Fix corrupted zip file issue with last release
 
