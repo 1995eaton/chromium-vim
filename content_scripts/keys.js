@@ -144,6 +144,8 @@ if (HAS_EVENT_KEY_SUPPORT) {
   KeyListener.prototype.createListener = function(type) {
     var _super = this;
     return function(event) {
+      if (typeof event.key === 'undefined')
+        return true;
       var code = _super.eventToCode.call(this, event, _super);
       if (_super.isActive) {
         var eventCallbacks = _super.eventCallbacks[type];
