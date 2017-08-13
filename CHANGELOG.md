@@ -1,56 +1,60 @@
 # cVim Changelog
 # [Like cVim? Consider donating! https://www.paypal.me/1995eaton](https://www.paypal.me/1995eaton)
 
-## 1.2.93
+
+## 1.2.94 (2017-08-13)
+ * Add dates to changelog
+
+## 1.2.93 (2017-07-19)
  * Fix exception being thrown on React.js input forms
 
-## 1.2.92
+## 1.2.92 (2017-07-06)
  * Fix corrupted zip file issue with last release
 
 ## 1.2.91
  * [Implement jumplist feature](https://github.com/1995eaton/chromium-vim/issues/553) (`previousScrollPosition` is `<C-o>` and `nextScrollPosition` is `<C-i>`).
 
-## 1.2.90
+## 1.2.90 (2017-06-29)
  * Re-implement editWithVim
 
-## 1.2.89
+## 1.2.89 (2017-06-20)
  * If you are currently running an old version of the [cvim_server.py](https://github.com/1995eaton/chromium-vim/blob/master/cvim_server.py) script (keeping it up to date locally), please update to the latest version (in the link above)! For the time being, the `editWithVim` feature has been disabled due to a security concern.
  * Bug fixes
 
 ## 1.2.88
  * Fix issue with `:buffer` command
 
-## 1.2.86
+## 1.2.87 (2017-03-23)
  * Fix input box issues with new versions of Chrome
 
-## 1.2.86
+## 1.2.86 (2017-02-17)
  * Add `openQuickMarkWindowed` command
 
-## 1.2.85
+## 1.2.85 (2016-06-22)
  * Bug fixes
 
-## 1.2.84
+## 1.2.84 (2016-04-22)
  * Bug fixes
 
-## 1.2.83
+## 1.2.83 (2016-04-19)
  * Fix bug in Chrome 50+
 
-## 1.2.82
+## 1.2.82 (2016-04-02)
  * Fix `:new`/`:winopen` bug
  * Fix scrolling bug when experimental JavaScript features are enabled
  * Fix several insert mapping bugs
  * Allow multiple unmaps using a single statement (e.g. `unmap h j k l`)
  * Added new window modifier for `:tabnew` and related commands
 
-## 1.2.81
+## 1.2.81 (2015-12-20)
  * Smooth scrolling is now disabled by default (add `set smoothscroll` to your settings to get it back)
  * Bug fixes
 
-## 1.2.80
+## 1.2.80 (2015-10-06)
  * Scrolling improvements
  * Bug fixes
 
-## 1.2.79
+## 1.2.79 (2015-07-09)
  * Content scripts will now be reloaded if they lose connection to the
    background scripts (e.g. restarting the extension)
 
@@ -60,26 +64,26 @@
    * See [mappings.html#completion-engines](./mappings.html#completion-engines) for more info.
  * Added "themoviedb" to completion engines
 
-## 1.2.77
+## 1.2.77 (2015-06-09)
  * Bug fixes
  * Add support for local ".cvimrc" files
 
-## 1.2.76
+## 1.2.76 (2015-05-01)
  * Fixed issue with buffer switching. Partially breaks fix from last version
 
-## 1.2.75
+## 1.2.75 (2015-04-29)
  * Fixed issue where cVim sometimes stops responding after opening the command bar
 
-## 1.2.74
+## 1.2.74 (2015-04-07)
  * Bug fixes
  * Added `sortlinkhints` setting
 
-## 1.2.73
+## 1.2.73 (2015-02-28)
  * Link hint / command bar redesign (may need to reset CSS for this to take effect)
  * Improved autocompletion matching
  * Several bugfixes
 
-## 1.2.72
+## 1.2.72 (2015-02-12)
  * Fix an issue with command bar z-index on YouTube: [#237](https://github.com/1995eaton/chromium-vim/issues/237)
  * Fix an issue with tab completion with the `:buffer` command: [#238](https://github.com/1995eaton/chromium-vim/issues/238)
 
