@@ -34,24 +34,14 @@
     <body>
         <div id="container_main">
             <div id="container_title">
-                <span>cVim <span id="version-number"></span> Options &ndash;
+                <span id="title">cVim <span id="version-number"></span> Options &ndash;
                     <a href="mappings.html" target="_blank">Help</a> &ndash;
                     <a href="./changelog.html" target="_blank">Changelog</a> &ndash;
                     <a href="https://www.paypal.me/1995eaton" target="_blank">Donate</a>
                 </span>
-                <div id="save_container">
-                    <input id="save_button" value="Save" type="button">
-                    <input id="reset_button" value="Reset" type="button">
-                </div>
             </div>
             <div id="settings">
                 <table>
-                    <tr>
-                        <td class="options-left">Clear the command bar history</td>
-                        <td class="options-right">
-                            <input id="clearHistory" value="Clear" type="button">
-                        </td>
-                    </tr>
                     <tr>
                         <td class="options-left">Sync cVimrc with GitHub Gist</td>
                         <td class="options-right">
@@ -79,7 +69,17 @@
                             <textarea id="commandBarCSS" name="css"></textarea>
                         </td>
                     </tr>
+                    <tr>
+                        <td class="options-left">Clear the command bar history</td>
+                        <td class="options-right">
+                            <input id="clearHistory" value="Clear" type="button">
+                        </td>
+                    </tr>
                 </table>
+            </div>
+            <div id="save_container">
+              <input id="save_button" value="Save" type="button">
+              <input id="reset_button" value="Reset" type="button">
             </div>
         </div>
     </body>
