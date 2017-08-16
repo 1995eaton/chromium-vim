@@ -2,6 +2,9 @@
 # [Like cVim? Consider donating! https://www.paypal.me/1995eaton](https://www.paypal.me/1995eaton)
 
 
+## 1.2.95 (2017-08-16)
+ * Redesign options page and fixed CSS issues for smaller screens
+
 ## 1.2.94 (2017-08-13)
  * Add dates to changelog
 
