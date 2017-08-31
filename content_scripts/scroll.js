@@ -48,6 +48,8 @@ var scrollingElement = (function() {
   };
 
   document.addEventListener('mousedown', function(event) {
+    if (!event.isTrusted)
+      return true;
     clickFocus = true;
     lastActiveElem = event.srcElement;
   });

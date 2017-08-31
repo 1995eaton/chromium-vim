@@ -1065,7 +1065,9 @@ Command.preventAutoFocus = function() {
     KeyHandler.listener.addListener('keydown', reset);
     window.addEventListener('mousedown', reset, true);
   } else {
-    reset = function() {
+    reset = function(event) {
+      if (!event.isTrusted)
+        return true;
       manualFocus = true;
       window.removeEventListener('keypress', reset, true);
       window.removeEventListener('mousedown', reset, true);

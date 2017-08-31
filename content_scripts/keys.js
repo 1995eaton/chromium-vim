@@ -144,7 +144,7 @@ if (HAS_EVENT_KEY_SUPPORT) {
   KeyListener.prototype.createListener = function(type) {
     var _super = this;
     return function(event) {
-      if (typeof event.key === 'undefined')
+      if (typeof event.key === 'undefined' || !event.isTrusted)
         return true;
       var code = _super.eventToCode.call(this, event, _super);
       if (_super.isActive) {
@@ -475,7 +475,7 @@ if (HAS_EVENT_KEY_SUPPORT) {
         // ascii-representable character
         var keypressTriggered = false;
         var boundMethod = KeyEvents.keypress.bind(KeyEvents, function(event) {
-          if (!keypressTriggered) {
+          if (!keypressTriggered && event.isTrusted) {
             // found a matching character...
             // use it if the setTimeout function below hasn't already timed out
             if (Hints.active ||
@@ -869,6 +869,8 @@ if (!HAS_EVENT_KEY_SUPPORT) {
   (function() {
     var oldKeyUpHandler = KeyHandler.up;
     KeyHandler.up = function(event) {
+      if (!event.isTrusted)
+        return true;
       return oldKeyUpHandler.call(this, null, event);
     };
   })();

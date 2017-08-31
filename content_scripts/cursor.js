@@ -21,6 +21,8 @@ var Cursor = { // Hide the mouse cursor on keydown (Linux)
     Cursor.wiggleWindow();
     this.overlay.style.display = 'none';
     document.addEventListener('mousemove', function(e) {
+      if (!e.isTrusted)
+        return true;
       if (oldX !== e.x || oldY !== e.y) {
         Cursor.overlay.style.display = 'none';
       }
