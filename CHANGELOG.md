@@ -1,6 +1,9 @@
 # cVim Changelog
 # [Like cVim? Consider donating! https://www.paypal.me/1995eaton](https://www.paypal.me/1995eaton)
 
+## 1.2.98
+ * Fix [#569](https://github.com/1995eaton/chromium-vim/issues/569) (mappings like `map <C-A-M-i> nextTab` would work, but `map <C-M-A-i> nextTab` wouldn't)
+
 ## 1.2.97 (2017-09-20)
  * Make `^` go to beginning of line when in insert mode
 
