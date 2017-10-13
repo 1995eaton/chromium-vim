@@ -497,6 +497,12 @@ Command.execute = function(value, repeats) {
     });
     return;
   }
+  if (value.indexOf('@"') !== -1) {
+    RUNTIME('getPaste', function(paste) {
+      Command.execute(value.split('@"').join(paste), repeats);
+    });
+    return;
+  }
 
   commandMode = false;
 

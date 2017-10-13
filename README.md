@@ -160,8 +160,11 @@ let @@top_all = 'top?sort=top&t=all'
 let @@top_day = 'top?sort=top&t=day'
 
 " TA binding opens 'http://www.reddit.com/r/programming/top?sort=top&t=all' in a new tab
-map TA :to @@reddit_prog/@@top_all<CR>
-map TD :to @@reddit_prog/@@top_day<CR>
+map TA :tabnew @@reddit_prog/@@top_all<CR>
+map TD :tabnew @@reddit_prog/@@top_day<CR>
+
+" Use paste buffer in mappings
+map T :tabnew wikipedia @"<CR>
 
 " Code blocks (see below for more info)
 getIP() -> {{

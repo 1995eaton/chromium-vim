@@ -404,8 +404,11 @@ the command <code>'set' + no&lt;SETTING_NAME&gt;</code> (for example, <code>set 
 <span class="hljs-keyword">let</span> @@top_day = <span class="hljs-string">'top?sort=top&amp;t=day'</span>
 
 <span class="hljs-comment">" TA binding opens 'http://www.reddit.com/r/programming/top?sort=top&amp;t=all' in a new tab</span>
-<span class="hljs-keyword">map</span> TA :<span class="hljs-keyword">to</span> @@reddit_prog/@@top_all<span class="hljs-symbol">&lt;CR&gt;</span>
-<span class="hljs-keyword">map</span> TD :<span class="hljs-keyword">to</span> @@reddit_prog/@@top_day<span class="hljs-symbol">&lt;CR&gt;</span>
+<span class="hljs-keyword">map</span> TA :<span class="hljs-keyword">tabnew</span> @@reddit_prog/@@top_all<span class="hljs-symbol">&lt;CR&gt;</span>
+<span class="hljs-keyword">map</span> TD :<span class="hljs-keyword">tabnew</span> @@reddit_prog/@@top_day<span class="hljs-symbol">&lt;CR&gt;</span>
+
+<span class="hljs-comment">" Use paste buffer in mappings</span>
+<span class="hljs-keyword">map</span> T :<span class="hljs-keyword">tabnew</span> wikipedia @<span class="hljs-comment">"&lt;CR&gt;</span>
 
 <span class="hljs-comment">" Code blocks (see below for more info)</span>
 getIP() -&gt; {{
