@@ -41,7 +41,7 @@ if (HAS_EVENT_KEY_SUPPORT) {
       if (!/^<.*>$/.test(key))
         return key;
       key = key.slice(1, -1).toLowerCase();
-      var mods = key.split('-').filter(function(e) { return e; });
+      var mods = key.split('-').filter(function(e) { return e; }).sort();
       var char;
       if (key.charAt(key.length - 1) === '-')
         char = '-';
