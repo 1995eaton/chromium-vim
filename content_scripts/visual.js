@@ -173,6 +173,7 @@ Visual.movements = {
   w: ['right', 'word'],
   b: ['left', 'word'],
   0: ['left', 'lineboundary'],
+  '^': ['left', 'lineboundary'],
   $: ['right', 'lineboundary'],
   G: ['right', 'documentboundary']
 };
