@@ -536,6 +536,8 @@ Hints.getLinkType = function(node) {
   case node.hasAttribute('aria-haspopup'):
   case node.hasAttribute('data-cmd'):
   case node.hasAttribute('jsaction'):
+  case node.hasAttribute('data-ga-click'):
+  case node.hasAttribute('aria-selected'):
     return Hints.WEAK_LINK_TYPE;
   }
 
