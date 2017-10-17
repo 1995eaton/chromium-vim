@@ -738,6 +738,10 @@ var KeyHandler = {
     }
 
     if (Command.commandBarFocused()) {
+      // If key event ocurred in IME and the key is not regular one,
+      // set key vaule empty to avoid action.
+      if (event.isComposing && /^<.*>$/.test(key))
+        key = '';
       window.setTimeout(function() {
         Command.lastInputValue = Command.input.value;
       }, 0);
