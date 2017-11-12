@@ -8,6 +8,14 @@ var Clipboard = {
     }
     RUNTIME('copy', {text: this.store});
   },
+  copyHtmlFormatted: function(html, store) {
+    if (!store) {
+      this.store = html;
+    } else {
+      this.store += (this.store.length ? '\n' : '') + html;
+    }
+    RUNTIME('copyHtmlFormatted', {html: this.store});
+  },
   paste: function(tabbed) {
     var engineUrl = Complete.getEngine(settings.defaultengine);
     engineUrl = engineUrl ? engineUrl.requestUrl :

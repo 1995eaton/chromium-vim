@@ -16,6 +16,19 @@ Clipboard.copy = function(text) {
   document.body.removeChild(t);
 };
 
+Clipboard.copyHtmlFormatted = function(html) {
+  var wrapper = document.createElement('div');
+  wrapper.innerHTML = html;
+  document.body.appendChild(wrapper);
+  var r = document.createRange();
+  r.selectNode(wrapper);
+  var s = window.getSelection();
+  s.removeAllRanges();
+  s.addRange(r);
+  document.execCommand('Copy');
+  wrapper.remove();
+};
+
 Clipboard.paste = function() {
   var t = this.createTextArea();
   document.body.appendChild(t);
