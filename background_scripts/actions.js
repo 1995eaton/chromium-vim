@@ -35,6 +35,12 @@ Actions = (function() {
     o.callback(o.sender.tab.url);
   };
 
+  _.getRootUrlLink = function(o) {
+    var url = o.sender.tab.url;
+    var title = o.sender.tab.title;
+    o.callback('<a href="' + url + '">' + title + '</a>');
+  };
+
   _.viewSource = function(o) {
     o.url = 'view-source:' + o.sender.tab.url;
     _.openLink(o);
@@ -339,6 +345,10 @@ Actions = (function() {
 
   _.copy = function(o) {
     Clipboard.copy(o.request.text);
+  };
+
+  _.copyHtmlFormatted = function(o) {
+    Clipboard.copyHtmlFormatted(o.request.html);
   };
 
   _.goToTab = function(o) {
