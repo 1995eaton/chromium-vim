@@ -446,9 +446,9 @@ Mappings.actions = {
     });
   },
   yankDocumentUrlHtmlFormatted: function() {
-    RUNTIME('getRootUrlLink', function(link) {
-      Clipboard.copyHtmlFormatted(link);
-      Status.setMessage(link, 2);
+    RUNTIME('getRootUrlObj', function(nodeObj) {
+      Clipboard.copyHtmlFormatted(nodeObj);
+      Status.setMessage('copied', 2);
     });
   },
   yankFrameUrl: function() {

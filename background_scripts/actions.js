@@ -35,10 +35,13 @@ Actions = (function() {
     o.callback(o.sender.tab.url);
   };
 
-  _.getRootUrlLink = function(o) {
-    var url = o.sender.tab.url;
-    var title = o.sender.tab.title;
-    o.callback('<a href="' + url + '">' + title + '</a>');
+  _.getRootUrlObj = function(o) {
+    o.callback({
+      a: {
+        '@href': o.sender.tab.url,
+        '_': o.sender.tab.title
+      }
+    });
   };
 
   _.viewSource = function(o) {
@@ -348,7 +351,7 @@ Actions = (function() {
   };
 
   _.copyHtmlFormatted = function(o) {
-    Clipboard.copyHtmlFormatted(o.request.html);
+    Clipboard.copyHtmlFormatted(o.request.nodeObj);
   };
 
   _.goToTab = function(o) {
