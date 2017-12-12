@@ -17,7 +17,6 @@ Mappings.defaults = [
   ['j',         'scrollDown'],
   ['gg',        'scrollToTop'],
   ['a',         ':tabnew google '],
-  ['zr',        ':chrome restart&<CR>'],
   ['o',         ':open '],
   ['O',         ':open @%'],
   ['b',         ':bookmarks '],
