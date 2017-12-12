@@ -377,20 +377,12 @@ Actions = (function() {
       return;
     }
     paste = paste.split('\n').filter(function(e) { return e.trim(); });
-    if (paste.length && Utils.toSearchURL(paste[0], o.request.engineUrl) !== paste[0]) {
-      paste = paste.join('\n');
-      openTab({
-        url: Utils.toSearchURL(paste, o.request.engineUrl),
-        index: getTabOrderIndex(o.sender.tab)
-      });
-    } else {
-      for (var i = 0; i < o.request.repeats; ++i) {
-        for (var j = 0, l = paste.length; j < l; ++j) {
-          openTab({
-            url: Utils.toSearchURL(paste[j], o.request.engineUrl),
-            index: getTabOrderIndex(o.sender.tab)
-          });
-        }
+    for (var i = 0; i < o.request.repeats; ++i) {
+      for (var j = 0, l = paste.length; j < l; ++j) {
+        openTab({
+          url: Utils.toSearchURL(paste[j], o.request.engineUrl),
+          index: getTabOrderIndex(o.sender.tab)
+        });
       }
     }
   };
