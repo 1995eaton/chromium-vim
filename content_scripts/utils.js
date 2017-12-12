@@ -140,18 +140,18 @@ var matchLocation = function(url, pattern) { // Uses @match syntax
     return false;
   }
   if (url.protocol !== 'file:') {
-    hostname = pattern.match(/^[^\/]+\//g);
+    hostname = pattern.match(/^[^\/]+/g);
     if (!hostname) {
       console.error('cVim Error: Invalid host in pattern: "%s"', pattern);
       return false;
     }
     var origHostname = hostname;
-    hostname = hostname[0].slice(0, -1).replace(/([.])/g, '\\$1').replace(/\*/g, '.*');
+    hostname = hostname[0].replace(/([.])/g, '\\$1').replace(/\*/g, '.*');
     hostMatch = url.hostname.match(new RegExp(hostname, 'i'));
     if (!hostMatch || hostMatch[0].length !== url.hostname.length) {
       return false;
     }
-    pattern = '/' + pattern.slice(origHostname[0].length);
+    pattern = pattern.slice(origHostname[0].length);
   }
   if (pattern.length) {
     path = pattern.replace(/([.&\\\/\(\)\[\]!?])/g, '\\$1').replace(/\*/g, '.*');
