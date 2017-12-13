@@ -476,6 +476,8 @@ Actions = (function() {
   };
 
   _.openLast = function(o) {
+    if (o.sender.tab.incognito)
+      return;
     var stepBackFN = Sessions.nativeSessions ?
       chrome.sessions.restore.bind(chrome.sessions) :
       Sessions.stepBack.bind(Sessions, o.sender);
