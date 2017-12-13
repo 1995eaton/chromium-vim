@@ -1,6 +1,17 @@
 # cVim Changelog
 # [Like cVim? Consider donating! https://www.paypal.me/1995eaton](https://www.paypal.me/1995eaton)
 
+## 1.2.99 (2017-12-17)
+ * Updated list of `chrome://` completion URLs when `:chrome` is used
+ * Fixed issue with `openPasteTab` [#573](https://github.com/1995eaton/chromium-vim/issues/573)
+ * Allow global site matches in cVimrc. For example, the following will unmap `j` on all sites:
+```
+site '*://*' {
+  unmap j
+}
+```
+ * Fix issue with certain hints not showing up (like the GitHub profile icon in the top-right corner of the page).
+
 ## 1.2.98 (2017-10-13)
  * Fix [#569](https://github.com/1995eaton/chromium-vim/issues/569) (mappings like `map <C-A-M-i> nextTab` would work, but `map <C-M-A-i> nextTab` wouldn't)
  * Let `@"` represent the paste buffer in command bar commands (e.g. `tabnew wikipedia "@` would search Wikipedia for whatever is in the paste buffer)

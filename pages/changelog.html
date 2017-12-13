@@ -19,6 +19,19 @@
 <script src="../content_scripts/frames.js"></script>
 <script src="../content_scripts/messenger.js"></script></head><h1>cVim Changelog</h1>
 <h1><a href="https://www.paypal.me/1995eaton">Like cVim? Consider donating! https://www.paypal.me/1995eaton</a></h1>
+<h2>1.2.99 (2017-12-17)</h2>
+<ul>
+<li>Updated list of <code>chrome://</code> completion URLs when <code>:chrome</code> is used</li>
+<li>Fixed issue with <code>openPasteTab</code> <a href="https://github.com/1995eaton/chromium-vim/issues/573">#573</a></li>
+<li>Allow global site matches in cVimrc. For example, the following will unmap <code>j</code> on all sites:</li>
+</ul>
+<pre class="hljs"><code>site '*://*' {
+  unmap j
+}
+</code></pre>
+<ul>
+<li>Fix issue with certain hints not showing up (like the GitHub profile icon in the top-right corner of the page).</li>
+</ul>
 <h2>1.2.98 (2017-10-13)</h2>
 <ul>
 <li>Fix <a href="https://github.com/1995eaton/chromium-vim/issues/569">#569</a> (mappings like <code>map &lt;C-A-M-i&gt; nextTab</code> would work, but <code>map &lt;C-M-A-i&gt; nextTab</code> wouldn’t)</li>
