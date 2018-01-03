@@ -90,7 +90,7 @@ let searchlimit = 30
 let scrollstep = 70
 let barposition = "bottom"
 
-let locale = "uk" " Current choices are 'jp' and 'uk'. This allows cVim to use sites like google.co.uk
+let locale = "uk" " Current choices are 'de', 'jp' and 'uk'. This allows cVim to use sites like google.co.uk
                   " or google.co.jp to search rather than google.com. Support is currently limited.
                   " Let me know if you need a different locale for one of the completion/search engines
 let hintcharacters = "abc123"
