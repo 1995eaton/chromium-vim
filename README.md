@@ -188,7 +188,7 @@ set localconfig " Update settings via a local file (and the `:source` command) r
 ```
 
 ### Blacklists
- * The blacklists setting uses a custom inplementation of Chrome's @match pattern guidelines.
+ * The blacklists setting uses a custom implementation of Chrome's @match pattern guidelines.
    See https://developer.chrome.com/extensions/match_patterns for a description of the syntax.
 
 
