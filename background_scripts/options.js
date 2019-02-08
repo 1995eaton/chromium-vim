@@ -19,6 +19,7 @@ var defaultSettings = {
   ignorecase: true,
   numerichints: false,
   cncpcompletion: false,
+  updowncompletion: false,
   smartcase: true,
   incsearch: true,
   autohidecursor: false,
