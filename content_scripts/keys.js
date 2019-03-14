@@ -628,8 +628,31 @@ var KeyHandler = {
         }
       }
 
-      if (Visual.visualModeActive || Visual.caretModeActive)
+      if (Visual.visualModeActive || Visual.caretModeActive) {
+        if (key === 'j') {
+          var selectedNode = Visual.selection.focusNode
+          if (!selectedNode.getBoundingClientRect) {
+            selectedNode = selectedNode.parentElement
+          }
+
+          if (selectedNode.getBoundingClientRect().bottom >= window.innerHeight) {
+            Scroll.scroll('down', 0.3)
+          }
+        }
+
+        if (key === 'k') {
+          var selectedNode = Visual.selection.focusNode
+          if (!selectedNode.getBoundingClientRect) {
+            selectedNode = selectedNode.parentElement
+          }
+
+          if (selectedNode.getBoundingClientRect().top <= 0) {
+            Scroll.scroll('up', 0.3)
+          }
+        }
+
         event.preventDefault();
+      }
 
       if (Mappings.keyPassesLeft) {
         Mappings.keyPassesLeft--;
