@@ -35,6 +35,7 @@ var defaultSettings = {
   localconfig: false,
   completeonopen: false,
   debugcss: false, // Always use default COMMANDBARCSS
+  manualcompletion: false,
   scrollduration: 500,
   zoomfactor: 0.10,
   configpath: '',
