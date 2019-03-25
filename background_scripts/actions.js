@@ -236,22 +236,34 @@ Actions = (function() {
           });
         });
       };
-      if (info.indexOf(parseInt(o.request.windowId)) !== -1) {
-        chrome.tabs.move(o.sender.tab.id, {
-          windowId: parseInt(o.request.windowId),
-          index: -1
-        }, repin);
-      } else {
-        chrome.tabs.query({currentWindow: true}, function(tabs) {
-          if (tabs.length > 1) {
-            chrome.windows.create({
-              tabId: o.sender.tab.id,
-              incognito: o.sender.tab.incognito,
-              focused: true
+      var src_wid = parseInt(o.sender.tab.windowId);
+      var dst_wid = parseInt(o.request.windowId);
+      console.log("moving tabs from ", src_wid, "to", dst_wid);
+      chrome.tabs.query({windowId: src_wid, highlighted: true}, function(htabs){
+        console.log("highlighted tabs:", htabs);
+        var htabIds = htabs.map(function(x){ return x.id; });
+        var move = function(wid){
+            chrome.tabs.move(htabIds, {
+              windowId: wid,
+              index: -1
             }, repin);
-          }
-        });
-      }
+        };
+        if (info.indexOf(dst_wid) !== -1) {
+          move(dst_wid);
+        } else {
+          chrome.tabs.query({currentWindow: true}, function(tabs) {
+            if (tabs.length > htabs.length) {
+              chrome.windows.create({
+                tabId: o.sender.tab.id,
+                incognito: o.sender.tab.incognito,
+                focused: true
+              }, function(w){
+                move(w.id);
+              });
+            }
+          });
+        }
+      });
     });
   };
 
