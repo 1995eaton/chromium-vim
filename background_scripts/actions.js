@@ -85,6 +85,12 @@ Actions = (function() {
     }
   };
 
+  _.saveImage = function(o) {
+    var filename = o.url.replace(/(.*\/|\?.*)/g, '')
+    console.log('Attempting to save image ' + filename + ' (' + typeof(filename) + ')');
+    chrome.downloads.download({ url: o.url, filename: filename, saveAs: false });
+  };
+
   _.addFrame = function(o) {
     Frames.add(o.sender.tab.id, o.port, o.request.isCommandFrame);
   };
