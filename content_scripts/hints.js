@@ -140,6 +140,9 @@ Hints.dispatchAction = function(link, shift) {
   case 'fullimage':
     RUNTIME('openLinkTab', {active: false, url: link.src, noconvert: true});
     break;
+  case 'saveimage':
+    RUNTIME('saveImage', {url: link.src,});
+    break;
   case 'image':
   case 'multiimage':
     var url = 'https://www.google.com/searchbyimage?image_url=' + link.src;
@@ -739,6 +742,7 @@ Hints.create = function(type, multi) {
           multiyank:     '(multi-yank)',
           image:         '(reverse-image)',
           fullimage:     '(full image)',
+          saveimage:     '(save image)',
           tabbed:        '(tabbed)',
           tabbedActive:  '(tabbed)',
           window:        '(window)',

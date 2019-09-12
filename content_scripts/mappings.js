@@ -438,6 +438,7 @@ Mappings.actions = {
   yankUrl: function() { Hints.create('yank'); },
   multiYankUrl: function() { Hints.create('multiyank'); },
   fullImageHint: function() { Hints.create('fullimage'); },
+  saveImageHint: function() { Hints.create('saveimage'); },
   yankDocumentUrl: function() {
     RUNTIME('getRootUrl', function(url) {
       Clipboard.copy(url);
