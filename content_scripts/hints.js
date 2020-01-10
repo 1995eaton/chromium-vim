@@ -37,9 +37,9 @@ Hints.matchPatterns = function(pattern) {
   var link = null;
   for (var i = 0; i < applicableFilters.length; i++) {
     link = findFirstOf(document.querySelectorAll(applicableFilters[i]),
-        function(e) {
-          return DOM.isVisible(e);
-        });
+      function(e) {
+        return DOM.isVisible(e);
+      });
     if (link !== null)
       break;
   }
@@ -724,7 +724,7 @@ Hints.create = function(type, multi) {
     main.id = 'cVim-link-container';
     main.top = document.scrollingElement.scrollTop + 'px';
     main.left = document.scrollingElement.scrollLeft + 'px';
-    Hints.shadowDOM = main.createShadowRoot();
+    Hints.shadowDOM = main.attachShadow({ mode: 'open' });
 
     try {
       document.lastChild.appendChild(main);
