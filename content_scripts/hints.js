@@ -687,7 +687,7 @@ Hints.create = function(type, multi) {
       // Fix issue with Baidu search
       document.head.appendChild(Command.css);
     }
-    var main, frag, i, l;
+    var i, l;
     self.linkIndex = 0;
     self.type = type;
     self.hideHints(true, multi);
@@ -714,17 +714,17 @@ Hints.create = function(type, multi) {
       return self.hideHints();
     }
 
-    main = document.createElement('div');
+    var main = document.createElement('div');
     if (settings && settings.linkanimations) {
       main.style.opacity = '0';
     }
     main.cVim = true;
-    frag = document.createDocumentFragment();
+    var frag = document.createDocumentFragment();
 
     main.id = 'cVim-link-container';
     main.top = document.scrollingElement.scrollTop + 'px';
     main.left = document.scrollingElement.scrollLeft + 'px';
-    Hints.shadowDOM = main.createShadowRoot();
+    Hints.shadowDOM = main.attachShadow({mode:'open'});
 
     try {
       document.lastChild.appendChild(main);
