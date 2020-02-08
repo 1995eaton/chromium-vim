@@ -940,7 +940,8 @@ Command.show = function(search, value, complete) {
     Status.hide();
   }
   this.bar.style.display = 'inline-block';
-  setTimeout(function() {
+  // NOTE(tk) temp fix cf. https://github.com/1995eaton/chromium-vim/issues/691#L943
+  var timerId = setInterval(function() {
     this.input.focus();
     if (complete !== null) {
       this.complete(value);
@@ -954,7 +955,7 @@ Command.show = function(search, value, complete) {
       // TODO: figure out why a842dd6 and fix for #527 are necessary
       // document.getSelection().collapseToEnd();
       document.getSelection().modify('move', 'right', 'lineboundary');
-
+      clearInterval(timerId);
     }
     // End temp fix
 
