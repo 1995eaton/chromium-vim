@@ -1,5 +1,15 @@
-# cVim Changelog
-# [Like cVim? Consider donating! https://www.paypal.me/1995eaton](https://www.paypal.me/1995eaton)
+# vb4c Changelog
+
+## 0.0.1 - 09 March 2020
+- Prepare initial release of this fork.
+- Include patch from GitHub user @antonioyon to fix hint functionality after
+  Chrome deprecated the element.createShadowRoot() function.
+
+# Changes prior to this are directly from the
+[cVim](https://github.com/1995eaton/chromium-vim) project and included here
+only for historical context.
+
+---
 
 ## 1.2.99 (2017-12-17)
  * Updated list of `chrome://` completion URLs when `:chrome` is used
