@@ -1,31 +1,9 @@
-# [Like cVim? Consider donating! https://www.paypal.me/1995eaton](https://www.paypal.me/1995eaton)
+# What is vb4c?
 
-# What is cVim?
+vb4c - vim bindings for chrome. This is a fork of
+[cVim](https://github.com/1995eaton/chromium-vim)
 
-Vim for Google Chrome. I hate using the mouse, especially after learning Vim. With my desktop (Linux), I have a lot of key bindings that make doing things easier: I open Chrome with `Alt+w`, I close a window with `Alt+Shift+d`, I open a terminal with `Alt+t`. This is harder to do with Chrome because it has no section for customizing keyboard shortcuts, and it is still necessary to use the mouse to do things like click links. cVim aims to eliminate this problem as best as the Chrome extensions API will allow it to.
-
-# Where can I get cVim?
-
- * There are two ways:
-  * You can install it through the [Chrome web store](https://chrome.google.com/webstore/detail/cvim/ihlenndgcmojhcghmfjfneahoeklbjjh)
-  * You can download the `.zip` file [here](https://github.com/1995eaton/chromium-vim/archive/master.zip) and enable cVim by going to the `chrome://extensions` URL and checking developer mode, then pointing Chrome to the unzipped folder via the `Load unpacked extensions...` button.
-
-# Why is this different than Vimium, ViChrome, or Vrome?
-
-These extensions do a wonderful job of adding Vim-like keybindings to Google Chrome, but they lack many of the features that Firefox Addon, Pentadactyl, have.
-
- * What features does cVim add to Chrome?
-  * Google/IMDB/Wikipedia/Amazon/Duckduckgo/Yahoo/Bing search completion
-  * Support for custom search engines
-  * History and Bookmark search/completion with bookmark folder support
-  * Caret/Visual mode
-  * Efficient link hints (with support for custom mappings)
-  * Support for custom keyboard mappings
-  * Regex page search with highlighting
-  * Command bar with tab-completion
-  * Smooth scrolling
-
-# cVim Help
+# Help
 ### cVimrc
 
  * Boolean cVimrc settings are enabled with the command ```'set' + <SETTING_NAME>``` and disabled with
@@ -506,14 +484,19 @@ let completionengines = ['google', 'google-image', 'youtube'] " Show only these 
 
 # Contributing
 
-Nice that you want to spend some time improving this extension.
-Solving issues is always appreciated. If you're going to add a feature,
-it would be best to [submit an issue](https://github.com/1995eaton/chromium-vim/issues).
-You'll get feedback whether it will likely be merged.
+## Build vb4c
 
 1. Run `npm install` in the repository's root folder
-1. Run `make`
-1. Navigate to `chrome://extensions`
-1. Toggle into Developer Mode
-1. Click on "Load Unpacked Extension..."
-1. Select the cVim directory.
+2. Run `make`
+3. Navigate to `chrome://extensions`
+4. Toggle into Developer Mode
+5. Click on "Load Unpacked Extension..."
+6. Select the vb4c directory.
+
+# History
+
+This is a fork of Jake Eaton's
+[cVim](https://github.com/1995eaton/chromium-vim).
+
+To understand why this fork was created, please see the discussion on the
+[relevant GitHub Issue](https://github.com/1995eaton/chromium-vim/issues/723).
