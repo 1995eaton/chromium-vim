@@ -17,29 +17,10 @@
 <script src="../content_scripts/scroll.js"></script>
 <script src="../content_scripts/search.js"></script>
 <script src="../content_scripts/frames.js"></script>
-<script src="../content_scripts/messenger.js"></script></head><h1>What is cVim?</h1>
-<p>Vim for Google Chrome. I hate using the mouse, especially after learning Vim. With my desktop (Linux), I have a lot of key bindings that make doing things easier: I open Chrome with <code>Alt+w</code>, I close a window with <code>Alt+Shift+d</code>, I open a terminal with <code>Alt+t</code>. This is harder to do with Chrome because it has no section for customizing keyboard shortcuts, and it is still necessary to use the mouse to do things like click links. cVim aims to eliminate this problem as best as the Chrome extensions API will allow it to.</p>
-<h1>Where can I get cVim?</h1>
-<ul>
-<li>There are two ways:</li>
-<li>You can install it through the <a href="https://chrome.google.com/webstore/detail/cvim/ihlenndgcmojhcghmfjfneahoeklbjjh">Chrome web store</a></li>
-<li>You can download the <code>.zip</code> file <a href="https://github.com/1995eaton/chromium-vim/archive/master.zip">here</a> and enable cVim by going to the <code>chrome://extensions</code> URL and checking developer mode, then pointing Chrome to the unzipped folder via the <code>Load unpacked extensions...</code> button.</li>
-</ul>
-<h1>Why is this different than Vimium, ViChrome, or Vrome?</h1>
-<p>These extensions do a wonderful job of adding Vim-like keybindings to Google Chrome, but they lack many of the features that Firefox Addon, Pentadactyl, have.</p>
-<ul>
-<li>What features does cVim add to Chrome?</li>
-<li>Google/IMDB/Wikipedia/Amazon/Duckduckgo/Yahoo/Bing search completion</li>
-<li>Support for custom search engines</li>
-<li>History and Bookmark search/completion with bookmark folder support</li>
-<li>Caret/Visual mode</li>
-<li>Efficient link hints (with support for custom mappings)</li>
-<li>Support for custom keyboard mappings</li>
-<li>Regex page search with highlighting</li>
-<li>Command bar with tab-completion</li>
-<li>Smooth scrolling</li>
-</ul>
-<h1>cVim Help</h1>
+<script src="../content_scripts/messenger.js"></script></head><h1>What is vb4c?</h1>
+<p>vb4c - vim bindings for chrome. This is a fork of
+<a href="https://github.com/1995eaton/chromium-vim">cVim</a></p>
+<h1>Help</h1>
 <h3>cVimrc</h3>
 <ul>
 <li>Boolean cVimrc settings are enabled with the command <code>'set' + &lt;SETTING_NAME&gt;</code> and disabled with
@@ -1420,16 +1401,18 @@ entering <code>ta</code> in the command bar and pressing the up arrow will searc
 history for all matches beginning with <code>ta</code></li>
 </ul>
 <h1>Contributing</h1>
-<p>Nice that you want to spend some time improving this extension.
-Solving issues is always appreciated. If you’re going to add a feature,
-it would be best to <a href="https://github.com/1995eaton/chromium-vim/issues">submit an issue</a>.
-You’ll get feedback whether it will likely be merged.</p>
+<h2>Build vb4c</h2>
 <ol>
 <li>Run <code>npm install</code> in the repository’s root folder</li>
 <li>Run <code>make</code></li>
 <li>Navigate to <code>chrome://extensions</code></li>
 <li>Toggle into Developer Mode</li>
 <li>Click on &quot;Load Unpacked Extension…&quot;</li>
-<li>Select the cVim directory.</li>
+<li>Select the vb4c directory.</li>
 </ol>
+<h1>History</h1>
+<p>This is a fork of Jake Eaton’s
+<a href="https://github.com/1995eaton/chromium-vim">cVim</a>.</p>
+<p>To understand why this fork was created, please see the discussion on the
+<a href="https://github.com/1995eaton/chromium-vim/issues/723">relevant GitHub Issue</a>.</p>
 </html>
