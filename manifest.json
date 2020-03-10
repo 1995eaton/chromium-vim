@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "vb4c",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "vb4c: Vim Bindings For Chrome. A fork of cVim.",
   "icons": {
     "128": "icons/128.png",
