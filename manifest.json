@@ -1,9 +1,8 @@
 {
   "manifest_version": 2,
-  "name": "cVim",
-  "version": "1.2.99",
-  "description": "An extension adding Vim-like bindings to Google Chrome",
-  "update_url": "https://clients2.google.com/service/update2/crx",
+  "name": "vb4c",
+  "version": "1.0.0",
+  "description": "vb4c: Vim Bindings For Chrome. A fork of cVim.",
   "icons": {
     "128": "icons/128.png",
     "48":  "icons/48.png",
@@ -17,8 +16,8 @@
     "previousTab": {
       "description": "Go to the previous tab"
     },
-    "togglecVim": {
-      "description": "Toggle the enabled state of cVim"
+    "togglevb4c": {
+      "description": "Toggle the enabled state of vb4c"
     },
     "toggleBlacklisted": {
       "description": "Toggle the blacklist for the domain in the current tab"
@@ -38,7 +37,7 @@
     "newTab": {
       "description": "Open a new tab to a blank page"
     },
-    "restartcVim": {
+    "restartvb4c": {
       "description": "Restart the background scripts (pages will need a refresh)"
     },
     "viewSource": {
@@ -50,10 +49,10 @@
       "19": "icons/disabled.png",
       "38": "icons/disabled-38.png"
     },
-    "default_title": "cVim",
+    "default_title": "vb4c",
     "default_popup": "pages/popup.html"
   },
-  "author": "Jake Eaton",
+  "author": "Dakota Chambers",
   "permissions": [
     "<all_urls>",
     "tabs",
