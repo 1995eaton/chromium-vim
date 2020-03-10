@@ -7,7 +7,7 @@ var pause = document.getElementById('pause'),
 var port = chrome.extension.connect({name: 'popup'});
 port.onMessage.addListener(function(data) {
   if (data === true) {
-    blacklist.textContent = 'Enable cVim on this domain';
+    blacklist.textContent = 'Enable vb4c on this domain';
     isBlacklisted = true;
   }
 });
@@ -16,9 +16,9 @@ port.postMessage({action: 'getBlacklisted'});
 chrome.runtime.sendMessage({action: 'getActiveState'}, function(response) {
   isEnabled = response;
   if (isEnabled) {
-    pause.textContent = 'Disable cVim';
+    pause.textContent = 'Disable vb4c';
   } else {
-    pause.textContent = 'Enable cVim';
+    pause.textContent = 'Enable vb4c';
   }
 });
 
@@ -33,19 +33,19 @@ settings.addEventListener('click', function() {
 pause.addEventListener('click', function() {
   isEnabled = !isEnabled;
   if (isEnabled) {
-    pause.textContent = 'Disable cVim';
+    pause.textContent = 'Disable vb4c';
   } else {
-    pause.textContent = 'Enable cVim';
+    pause.textContent = 'Enable vb4c';
   }
   port.postMessage({action: 'toggleEnabled', blacklisted: isBlacklisted});
 }, false);
 
 blacklist.addEventListener('click', function() {
   isBlacklisted = !isBlacklisted;
-  if (blacklist.textContent === 'Disable cVim on this domain') {
-    blacklist.textContent = 'Enable cVim on this domain';
+  if (blacklist.textContent === 'Disable vb4c on this domain') {
+    blacklist.textContent = 'Enable vb4c on this domain';
   } else {
-    blacklist.textContent = 'Disable cVim on this domain';
+    blacklist.textContent = 'Disable vb4c on this domain';
   }
   port.postMessage({action: 'toggleBlacklisted'});
   if (isEnabled) {
