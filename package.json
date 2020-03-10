@@ -1,10 +1,10 @@
 {
-  "name": "chromium-vim",
-  "author": "Jake Eaton <1995eaton@gmail.com>",
-  "description": "Vim bindings for Google Chrome.",
+  "name": "vb4c",
+  "author": "Jake Eaton <1995eaton@gmail.com> (Original), Dakota Chambers <dakotachambers@gmail.com",
+  "description": "vb4c - Vim bindings for Chrome.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/1995eaton/chromium-vim"
+    "url": "https://github.com/dcchambers/vb4c"
   },
   "private": true,
   "devDependencies": {
