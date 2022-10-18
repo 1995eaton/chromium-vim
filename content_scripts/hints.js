@@ -724,7 +724,7 @@ Hints.create = function(type, multi) {
     main.id = 'cVim-link-container';
     main.top = document.scrollingElement.scrollTop + 'px';
     main.left = document.scrollingElement.scrollLeft + 'px';
-    Hints.shadowDOM = main.createShadowRoot();
+    Hints.shadowDOM = main.attachShadow({mode: 'open'});
 
     try {
       document.lastChild.appendChild(main);
