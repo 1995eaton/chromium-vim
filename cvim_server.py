@@ -26,7 +26,7 @@ def edit_file(content):
     os.close(fd)
     subprocess.Popen(shlex.split(VIM_COMMAND) + [fn]).wait()
     text = None
-    with open(fn, 'r') as f:
+    with open(fn, 'r', encoding='utf8') as f:
         text = f.read()
     os.unlink(fn)
     return text
