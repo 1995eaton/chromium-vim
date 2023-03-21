@@ -18,6 +18,12 @@
 var Complete = {
 
   locales: {
+    de: {
+      tld: 'de',
+      requestUrl: ['google', 'youtube'],
+      baseUrl: ['google', 'youtube'],
+      apiUrl: ['google', 'youtube']
+    },
     uk: {
       tld: 'co.uk',
       requestUrl: ['google', 'youtube'],
