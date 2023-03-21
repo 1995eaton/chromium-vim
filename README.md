@@ -14,16 +14,17 @@ Vim for Google Chrome. I hate using the mouse, especially after learning Vim. Wi
 
 These extensions do a wonderful job of adding Vim-like keybindings to Google Chrome, but they lack many of the features that Firefox Addon, Pentadactyl, have.
 
- * What features does cVim add to Chrome?
-  * Google/IMDB/Wikipedia/Amazon/Duckduckgo/Yahoo/Bing search completion
-  * Support for custom search engines
-  * History and Bookmark search/completion with bookmark folder support
-  * Caret/Visual mode
-  * Efficient link hints (with support for custom mappings)
-  * Support for custom keyboard mappings
-  * Regex page search with highlighting
-  * Command bar with tab-completion
-  * Smooth scrolling
+### What features does cVim add to Chrome?
+
+ * Google/IMDB/Wikipedia/Amazon/Duckduckgo/Yahoo/Bing search completion
+ * Support for custom search engines
+ * History and Bookmark search/completion with bookmark folder support
+ * Caret/Visual mode
+ * Efficient link hints (with support for custom mappings)
+ * Support for custom keyboard mappings
+ * Regex page search with highlighting
+ * Command bar with tab-completion
+ * Smooth scrolling
 
 # cVim Help
 ### cVimrc
