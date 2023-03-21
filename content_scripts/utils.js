@@ -140,7 +140,7 @@ var matchLocation = function(url, pattern) { // Uses @match syntax
     return false;
   }
   if (url.protocol !== 'file:') {
-    hostname = pattern.match(/^[^\/]+/g);
+    hostname = pattern.match(/^[^\/:]+/g);
     if (!hostname) {
       console.error('cVim Error: Invalid host in pattern: "%s"', pattern);
       return false;
@@ -152,6 +152,13 @@ var matchLocation = function(url, pattern) { // Uses @match syntax
       return false;
     }
     pattern = pattern.slice(origHostname[0].length);
+
+    var matches = pattern.match(/^(?::(\d+))?(.*)/);
+    var port = matches[1];
+    pattern = matches[2];
+    if (port && port !== url.port) {
+      return false;
+    }
   }
   if (pattern.length) {
     path = pattern.replace(/([.&\\\/\(\)\[\]!?])/g, '\\$1').replace(/\*/g, '.*');
