@@ -361,9 +361,20 @@ Actions = (function() {
     var move = function(o, by) {
       chrome.tabs.query({currentWindow: true}, function(tabs) {
         var ptabs = tabs.filter(function(e) { return e.pinned; });
+        var newTabIndex = o.sender.tab.index + by;
+        if (o.sender.tab.pinned) {
+          if (!o.sender.tab.index && by < 0) {
+            newTabIndex = ptabs.length - 1;
+          } else if (o.sender.tab.index === ptabs.length - 1 && by > 0) {
+            newTabIndex = 0;
+          }
+        } else if (o.sender.tab.index === ptabs.length && by < 0) {
+          newTabIndex = tabs.length - 1;
+        } else if (o.sender.tab.index === tabs.length - 1 && by > 0) {
+          newTabIndex = ptabs.length;
+        }
         chrome.tabs.move(o.sender.tab.id, {
-          index: Math.min(o.sender.tab.pinned ? ptabs.length - 1 : ptabs.length + tabs.length - 1,
-                          Math.max(o.sender.tab.pinned ? 0 : ptabs.length, o.sender.tab.index + by))
+          index: newTabIndex
         });
       });
     };
