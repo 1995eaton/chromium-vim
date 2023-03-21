@@ -45,6 +45,7 @@ Command.dataElements = [];
 Command.matches = [];
 Command.customCommands = {};
 Command.lastInputValue = '';
+Command.completionsNeedUpdate = false;
 
 Command.setupFrameElements = function() {
   this.bar = document.createElement('div');
@@ -181,8 +182,17 @@ Command.completionOrder = {
 };
 
 Command.updateCompletions = function(useStyles) {
+  if (settings.manualcompletion) {
+    this.completionsNeedUpdate = true;
+  } else {
+    this.executeCompletionUpdate(useStyles);
+  }
+};
+
+Command.executeCompletionUpdate = function(useStyles) {
   if (!window.isCommandFrame)
     return;
+  this.completionsNeedUpdate = false;
   this.completionResults = [];
   this.dataElements = [];
   this.data.innerHTML = '';
