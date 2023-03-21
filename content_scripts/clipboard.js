@@ -8,6 +8,9 @@ var Clipboard = {
     }
     RUNTIME('copy', {text: this.store});
   },
+  copyHtmlFormatted: function(nodeObj) {
+    RUNTIME('copyHtmlFormatted', {nodeObj: nodeObj});
+  },
   paste: function(tabbed) {
     var engineUrl = Complete.getEngine(settings.defaultengine);
     engineUrl = engineUrl ? engineUrl.requestUrl :

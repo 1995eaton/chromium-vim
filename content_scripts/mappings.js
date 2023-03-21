@@ -444,6 +444,12 @@ Mappings.actions = {
       Status.setMessage(url, 2);
     });
   },
+  yankDocumentUrlHtmlFormatted: function() {
+    RUNTIME('getRootUrlObj', function(nodeObj) {
+      Clipboard.copyHtmlFormatted(nodeObj);
+      Status.setMessage('copied', 2);
+    });
+  },
   yankFrameUrl: function() {
     Clipboard.copy(document.URL);
     Status.setMessage(document.URL, 2);

@@ -35,6 +35,15 @@ Actions = (function() {
     o.callback(o.sender.tab.url);
   };
 
+  _.getRootUrlObj = function(o) {
+    o.callback({
+      a: {
+        '@href': o.sender.tab.url,
+        '_': o.sender.tab.title
+      }
+    });
+  };
+
   _.viewSource = function(o) {
     o.url = 'view-source:' + o.sender.tab.url;
     _.openLink(o);
@@ -339,6 +348,10 @@ Actions = (function() {
 
   _.copy = function(o) {
     Clipboard.copy(o.request.text);
+  };
+
+  _.copyHtmlFormatted = function(o) {
+    Clipboard.copyHtmlFormatted(o.request.nodeObj);
   };
 
   _.goToTab = function(o) {
