@@ -762,8 +762,13 @@ var KeyHandler = {
         return;
       case '<Up>': // Command history navigation/search
       case '<Down>':
-        event.preventDefault();
-        Command.history.cycle(Command.type, (key === '<Up>'));
+        if (Command.type === 'action' && settings.updowncompletion) {
+          event.preventDefault();
+          Mappings.actions[ (key === '<Up>' ? 'previous' : 'next') + 'CompletionResult' ]();
+        } else {
+          event.preventDefault();
+          Command.history.cycle(Command.type, (key === '<Up>'));
+        }
         break;
       case '<Enter>':
       case '<C-Enter>':
